@@ -2104,7 +2104,6 @@ export const scales: Scale[] = [
     }
   },
   {
-    {
     id: 'start_triage',
     nombre: 'START Triage',
     categoria: 'emergencias',
