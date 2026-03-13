@@ -1,15 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { scales } from '../data/scalesData';
 import SearchBar from '../components/SearchBar';
 import ScaleCard from '../components/ScaleCard';
 import Sidebar from '../components/Sidebar';
 import ScaleForm from '../components/ScaleForm';
 import { Scale } from '../data/scalesData';
+import { Star } from 'lucide-react';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedScale, setSelectedScale] = useState<Scale | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  // Cargar favoritos al iniciar
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('escalapro_favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // Guardar favoritos cuando cambien
+  const toggleFavorite = (e: React.MouseEvent, scaleId: string) => {
+    e.stopPropagation(); // Evita que se abra la escala al marcar la estrella
+    const newFavorites = favorites.includes(scaleId)
+      ? favorites.filter(id => id !== scaleId)
+      : [...favorites, scaleId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('escalapro_favorites', JSON.stringify(newFavorites));
+  };
 
   const filteredScales = scales.filter(scale => {
     const matchesSearch = scale.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -17,6 +38,10 @@ export default function Home() {
     const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Dividir en favoritos y resto
+  const favoriteScales = filteredScales.filter(s => favorites.includes(s.id));
+  const otherScales = filteredScales.filter(s => !favorites.includes(s.id));
 
   if (selectedScale) {
     return (
@@ -51,30 +76,53 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {selectedCategory ? (
-                    scales.find(s => s.categoria === selectedCategory)?.categoria
-                  ) : (
-                    'Todas las escalas'
-                  )}
-                </h2>
-                <p className="text-gray-600 mt-1">
-                  {filteredScales.length} escala{filteredScales.length !== 1 ? 's' : ''} disponible{filteredScales.length !== 1 ? 's' : ''}
-                </p>
-              </div>
+            <div className="space-y-10">
+              
+              {/* SECCIÓN DE FAVORITOS */}
+              {favoriteScales.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <h2 className="text-xl font-bold text-gray-900">Escalas Frecuentes</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {favoriteScales.map(scale => (
+                      <ScaleCard
+                        key={scale.id}
+                        scale={scale}
+                        isFavorite={true}
+                        onToggleFavorite={(e) => toggleFavorite(e, scale.id)}
+                        onClick={() => setSelectedScale(scale)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredScales.map(scale => (
-                  <ScaleCard
-                    key={scale.id}
-                    scale={scale}
-                    onClick={() => setSelectedScale(scale)}
-                  />
-                ))}
+              {/* SECCIÓN DE TODAS LAS ESCALAS */}
+              <div>
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {selectedCategory ? 'Resultados de categoría' : 'Todas las escalas'}
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    {otherScales.length} escalas disponibles
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {otherScales.map(scale => (
+                    <ScaleCard
+                      key={scale.id}
+                      scale={scale}
+                      isFavorite={false}
+                      onToggleFavorite={(e) => toggleFavorite(e, scale.id)}
+                      onClick={() => setSelectedScale(scale)}
+                    />
+                  ))}
+                </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
