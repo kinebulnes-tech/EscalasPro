@@ -2104,6 +2104,7 @@ export const scales: Scale[] = [
     }
   },
   {
+
     id: 'start_triage',
     nombre: 'START Triage',
     categoria: 'emergencias',
@@ -2165,7 +2166,7 @@ export const scales: Scale[] = [
       return 'Triage incompleto';
     }
   },
-      },
+      
       {
         id: 'perfusion',
         text: 'Perfusión (llenado capilar)',
