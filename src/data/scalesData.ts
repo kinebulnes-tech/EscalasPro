@@ -137,6 +137,137 @@ export const scales: Scale[] = [
     }
   },
   {
+    id: 'presion_manual',
+    nombre: 'Escala de Presión Manual (Dinamometría)',
+    categoria: 'kinesiologia',
+    descripcion: 'Mide la fuerza muscular de miembros superiores en kg con dinamómetro.',
+    preguntas: [
+      {
+        id: 'fuerza_kg',
+        text: 'Ingrese la fuerza máxima obtenida en kilogramos (kg)',
+        type: 'number'
+      }
+    ],
+    calcularPuntaje: (respuestas) => {
+      // Como es ingreso directo numérico, retornamos el valor ingresado
+      return Number(respuestas.fuerza_kg) || 0;
+    },
+    interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Sin datos ingresados';
+      if (puntaje < 16) return 'Fuerza baja - Riesgo de sarcopenia en mujeres (Corte EWGSOP2 < 16kg)';
+      if (puntaje < 27) return 'Fuerza baja - Riesgo de sarcopenia en hombres (Corte EWGSOP2 < 27kg) / Rango normal para mujeres';
+      return 'Fuerza muscular dentro de parámetros funcionales normales';
+    }
+  },
+  {
+    id: 'fils',
+    nombre: 'Escala FILS (Food Intake Level Scale)',
+    categoria: 'fonoaudiologia',
+    descripcion: 'Evaluación de la severidad de la disfagia y capacidad de ingesta de alimentos.',
+    preguntas: [
+      {
+        id: 'nivel_ingesta',
+        text: 'Nivel de ingesta',
+        type: 'select',
+        options: [
+          { label: '1. Nada por boca. Alimentación alternativa exclusiva.', value: 1 },
+          { label: '2. Deglución solo posible en terapia.', value: 2 },
+          { label: '3. Alimentación oral limitada + alternativa.', value: 3 },
+          { label: '4. Alimentación oral exclusiva de recreación.', value: 4 },
+          { label: '5. Alimentación oral exclusiva (1-2 comidas modificadas).', value: 5 },
+          { label: '6. Alimentación oral exclusiva (3 comidas modificadas).', value: 6 },
+          { label: '7. Dieta regular pero con limitaciones en texturas.', value: 7 },
+          { label: '8. Dieta regular + texturas normales (requiere atención extra).', value: 8 },
+          { label: '9. Dieta regular sin restricciones, pero con adaptaciones menores.', value: 9 },
+          { label: '10. Dieta completamente normal.', value: 10 }
+        ]
+      }
+    ],
+    calcularPuntaje: (respuestas) => {
+      return respuestas.nivel_ingesta || 0;
+    },
+    interpretar: (puntaje) => {
+      if (puntaje <= 3) return 'Ingesta no oral - Riesgo severo (Niveles 1-3)';
+      if (puntaje <= 6) return 'Ingesta oral y alternativa combinada - Riesgo moderado (Niveles 4-6)';
+      if (puntaje <= 9) return 'Ingesta oral exclusiva con modificaciones - Riesgo leve (Niveles 7-9)';
+      if (puntaje === 10) return 'Ingesta normal sin restricciones';
+      return 'Sin datos';
+    }
+  },
+  {
+    id: 'sit_to_stand',
+    nombre: 'Test Sit to Stand (1 minuto)',
+    categoria: 'kinesiologia',
+    descripcion: 'Evaluación funcional de fuerza y resistencia de miembros inferiores.',
+    preguntas: [
+      {
+        id: 'repeticiones',
+        text: 'Número de repeticiones completadas en 1 minuto',
+        type: 'number'
+      }
+    ],
+    calcularPuntaje: (respuestas) => {
+      return Number(respuestas.repeticiones) || 0;
+    },
+    interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Prueba no realizada o 0 repeticiones';
+      if (puntaje < 15) return 'Bajo rendimiento - Alto riesgo de caídas y fragilidad';
+      if (puntaje >= 15 && puntaje <= 30) return 'Rendimiento moderado/promedio';
+      return 'Alto rendimiento funcional';
+    }
+  },
+  {
+    id: 'zarit',
+    nombre: 'Escala de Zarit (Sobrecarga del Cuidador)',
+    categoria: 'terapia_ocupacional',
+    descripcion: 'Evaluación del nivel de sobrecarga subjetiva del cuidador principal.',
+    preguntas: [
+      ...Array.from({ length: 22 }, (_, i) => ({
+        id: `z${i + 1}`,
+        text: `Pregunta ${i + 1}: ${
+          ['¿Siente que su familiar pide más ayuda de la que realmente necesita?',
+           '¿Siente que debido al tiempo que dedica a su familiar ya no dispone de tiempo suficiente para usted?',
+           '¿Se siente tenso cuando tiene que cuidar a su familiar y atender además otras responsabilidades?',
+           '¿Se siente avergonzado por el comportamiento de su familiar?',
+           '¿Se siente enfadado cuando está cerca de su familiar?',
+           '¿Cree que la situación actual afecta de manera negativa a su relación con amigos y otros miembros de su familia?',
+           '¿Siente temor por el futuro que le espera a su familiar?',
+           '¿Siente que su familiar depende de usted?',
+           '¿Se siente agobiado por la responsabilidad de cuidar a su familiar?',
+           '¿Siente que su salud se ha resentido por cuidar a su familiar?',
+           '¿Siente que no tiene la intimidad que desearía debido a su familiar?',
+           '¿Siente que su vida social se ha resentido por cuidar a su familiar?',
+           '¿Se siente incómodo para invitar amigos a casa a causa de su familiar?',
+           '¿Cree que su familiar espera que usted le cuide como si fuera la única persona con la que puede contar?',
+           '¿Cree que no dispone de dinero suficiente para cuidar a su familiar además de sus otros gastos?',
+           '¿Siente que será incapaz de cuidar a su familiar por mucho más tiempo?',
+           '¿Siente que ha perdido el control de su vida desde que la enfermedad de su familiar se manifestó?',
+           '¿Desearía poder dejar el cuidado de su familiar a otra persona?',
+           '¿Se siente indeciso sobre qué hacer con su familiar?',
+           '¿Cree que debería hacer más por su familiar?',
+           '¿Cree que podría cuidar mejor a su familiar?',
+           'En general, ¿se siente muy sobrecargado por tener que cuidar a su familiar?'][i]
+        }`,
+        type: 'select',
+        options: [
+          { label: 'Nunca (0)', value: 0 },
+          { label: 'Casi nunca (1)', value: 1 },
+          { label: 'A veces (2)', value: 2 },
+          { label: 'Bastantes veces (3)', value: 3 },
+          { label: 'Casi siempre (4)', value: 4 }
+        ]
+      }))
+    ],
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + Number(val), 0);
+    },
+    interpretar: (puntaje) => {
+      if (puntaje <= 46) return 'No hay sobrecarga';
+      if (puntaje <= 55) return 'Sobrecarga leve';
+      return 'Sobrecarga intensa';
+    }
+  },
+  {
     id: 'fim',
     nombre: 'Medida de Independencia Funcional (FIM)',
     categoria: 'kinesiologia',
