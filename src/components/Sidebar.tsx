@@ -1,4 +1,4 @@
-import { categories } from '../data/scalesData';
+import { categories, scales } from '../data/scalesData';
 
 interface SidebarProps {
   selectedCategory: string | null;
@@ -6,38 +6,56 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarProps) {
+  
+  // Función para contar cuántas escalas hay por categoría
+  const getCount = (categoryId: string | null) => {
+    if (!categoryId) return scales.length;
+    return scales.filter(s => s.categoria === categoryId).length;
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Categorías</h3>
-      <div className="space-y-2">
-        <button
-          onClick={() => onSelectCategory(null)}
-          className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-            selectedCategory === null
-              ? 'bg-blue-600 text-white'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-        >
-          Todas las escalas
-        </button>
-        {categories.map(category => (
+    <div className="sticky top-[130px] z-30 bg-gray-50/80 backdrop-blur-md py-2 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Contenedor con scroll horizontal oculto visualmente */}
+        <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide no-scrollbar">
+          
+          {/* Opción: Todas */}
           <button
-            key={category.id}
-            onClick={() => onSelectCategory(category.id)}
-            className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-              selectedCategory === category.id
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:bg-gray-100'
+            onClick={() => onSelectCategory(null)}
+            className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm border ${
+              selectedCategory === null
+                ? 'bg-teal-600 text-white border-teal-600 shadow-teal-200'
+                : 'bg-white text-gray-500 border-gray-100 hover:border-teal-200 hover:text-teal-600'
             }`}
           >
-            <div className="font-medium">{category.nombre}</div>
-            <div className={`text-sm mt-1 ${
-              selectedCategory === category.id ? 'text-blue-100' : 'text-gray-500'
-            }`}>
-              {category.descripcion}
-            </div>
+            Todas <span className={`ml-1 opacity-60 ${selectedCategory === null ? 'text-white' : 'text-gray-400'}`}>
+              ({getCount(null)})
+            </span>
           </button>
-        ))}
+
+          {/* Mapeo de Categorías dinámicas */}
+          {categories.map(category => {
+            const isSelected = selectedCategory === category.id;
+            const count = getCount(category.id);
+            
+            return (
+              <button
+                key={category.id}
+                onClick={() => onSelectCategory(category.id)}
+                className={`whitespace-nowrap px-5 py-2 rounded-full font-bold text-sm transition-all shadow-sm border ${
+                  isSelected
+                    ? 'bg-teal-600 text-white border-teal-600 shadow-teal-200'
+                    : 'bg-white text-gray-500 border-gray-100 hover:border-teal-200 hover:text-teal-600'
+                }`}
+              >
+                {category.nombre} 
+                <span className={`ml-1 opacity-60 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                  ({count})
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
