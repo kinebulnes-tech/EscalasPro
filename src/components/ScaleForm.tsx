@@ -42,17 +42,17 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
     setResultado(null);
   };
 
+  // --- CORRECCIÓN AQUÍ: Ajuste para el nuevo ScaleResult ---
   if (resultado) {
     return (
       <ScaleResult
-        nombre={scale.nombre}
-        puntaje={resultado.puntaje}
-        interpretacion={resultado.interpretacion}
+        scale={scale}
+        totalScore={resultado.puntaje}
         onBack={onBack}
-        onReset={handleReset}
       />
     );
   }
+  // --------------------------------------------------------
 
   return (
     <div className="max-w-4xl mx-auto pb-10">
@@ -82,7 +82,7 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                 {pregunta.text}
               </label>
 
-              {/* Transformamos Selects y Radios en Botones Táctiles Grandes */}
+              {/* Botones Táctiles Grandes */}
               {(pregunta.type === 'select' || pregunta.type === 'radio') && pregunta.options && (
                 <div className="flex flex-col gap-3">
                   {pregunta.options.map((option, idx) => {
@@ -102,7 +102,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                           {option.label}
                         </span>
                         
-                        {/* Icono de Check cuando se selecciona */}
                         <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                           isSelected ? 'border-teal-500 bg-teal-500' : 'border-gray-300 bg-transparent'
                         }`}>
@@ -118,7 +117,7 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                 </div>
               )}
 
-              {/* Inputs numéricos mejorados */}
+              {/* Inputs numéricos */}
               {pregunta.type === 'number' && (
                 <div className="relative">
                   <input
