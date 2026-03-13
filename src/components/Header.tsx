@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function Header() {
+export default function Header() {
   return (
     <header className="bg-gradient-to-r from-teal-600 to-blue-600 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
