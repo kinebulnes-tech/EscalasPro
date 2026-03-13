@@ -2104,30 +2104,68 @@ export const scales: Scale[] = [
     }
   },
   {
+    {
     id: 'start_triage',
     nombre: 'START Triage',
     categoria: 'emergencias',
-    descripcion: 'Sistema de triage para múltiples víctimas',
+    descripcion: 'Sistema de triage para múltiples víctimas adultos',
     preguntas: [
       {
         id: 'camina',
-        text: 'Capacidad de caminar',
+        text: '¿Puede caminar?',
         type: 'select',
         options: [
-          { label: 'Sí - Heridas menores', value: 1 },
+          { label: 'Sí', value: 1 }, // Verde
           { label: 'No', value: 0 }
         ]
       },
       {
         id: 'respiracion',
-        text: 'Respiración',
+        text: 'Respiración (si NO camina)',
         type: 'select',
         options: [
-          { label: 'Presente y <30 rpm', value: 2 },
-          { label: 'Presente y >30 rpm', value: 3 },
-          { label: 'Ausente inicialmente, presente tras abrir vía aérea', value: 3 },
-          { label: 'Ausente tras abrir vía aérea', value: 4 }
+          { label: 'Ausente, incluso tras posicionar vía aérea', value: 0 }, // Negro
+          { label: 'Presente, > 30 rpm', value: 2 }, // Rojo
+          { label: 'Presente, < 30 rpm', value: 1 } // Continuar evaluando
         ]
+      },
+      {
+        id: 'perfusion',
+        text: 'Perfusión (Llenado Capilar / Pulso Radial)',
+        type: 'select',
+        options: [
+          { label: '> 2 segundos o Sin pulso radial', value: 2 }, // Rojo
+          { label: '< 2 segundos o Pulso radial presente', value: 1 } // Continuar evaluando
+        ]
+      },
+      {
+        id: 'estado_mental',
+        text: 'Estado Mental',
+        type: 'select',
+        options: [
+          { label: 'No obedece órdenes simples', value: 2 }, // Rojo
+          { label: 'Obedece órdenes simples', value: 1 } // Amarillo
+        ]
+      }
+    ],
+    calcularPuntaje: (respuestas) => {
+      // 1: Verde, 2: Amarillo, 3: Rojo, 4: Negro
+      if (respuestas.camina === 1) return 1; 
+      if (respuestas.respiracion === 0) return 4;
+      if (respuestas.respiracion === 2) return 3;
+      if (respuestas.perfusion === 2) return 3;
+      if (respuestas.estado_mental === 2) return 3;
+      if (respuestas.estado_mental === 1) return 2;
+      return 0; // Sin evaluar
+    },
+    interpretar: (puntaje) => {
+      if (puntaje === 1) return 'Prioridad 3 (VERDE) - Heridas menores, puede esperar';
+      if (puntaje === 2) return 'Prioridad 2 (AMARILLO) - Requiere atención, no inmediata, estable';
+      if (puntaje === 3) return 'Prioridad 1 (ROJO) - Atención inmediata, riesgo vital, salvable';
+      if (puntaje === 4) return 'Prioridad 0 (NEGRO) - Fallecido o lesiones incompatibles con la vida';
+      return 'Triage incompleto';
+    }
+  },
       },
       {
         id: 'perfusion',
