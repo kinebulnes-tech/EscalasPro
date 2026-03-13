@@ -221,41 +221,28 @@ export const scales: Scale[] = [
     categoria: 'terapia_ocupacional',
     descripcion: 'Evaluación del nivel de sobrecarga subjetiva del cuidador principal.',
     preguntas: [
-      ...Array.from({ length: 22 }, (_, i) => ({
-        id: `z${i + 1}`,
-        text: `Pregunta ${i + 1}: ${
-          ['¿Siente que su familiar pide más ayuda de la que realmente necesita?',
-           '¿Siente que debido al tiempo que dedica a su familiar ya no dispone de tiempo suficiente para usted?',
-           '¿Se siente tenso cuando tiene que cuidar a su familiar y atender además otras responsabilidades?',
-           '¿Se siente avergonzado por el comportamiento de su familiar?',
-           '¿Se siente enfadado cuando está cerca de su familiar?',
-           '¿Cree que la situación actual afecta de manera negativa a su relación con amigos y otros miembros de su familia?',
-           '¿Siente temor por el futuro que le espera a su familiar?',
-           '¿Siente que su familiar depende de usted?',
-           '¿Se siente agobiado por la responsabilidad de cuidar a su familiar?',
-           '¿Siente que su salud se ha resentido por cuidar a su familiar?',
-           '¿Siente que no tiene la intimidad que desearía debido a su familiar?',
-           '¿Siente que su vida social se ha resentido por cuidar a su familiar?',
-           '¿Se siente incómodo para invitar amigos a casa a causa de su familiar?',
-           '¿Cree que su familiar espera que usted le cuide como si fuera la única persona con la que puede contar?',
-           '¿Cree que no dispone de dinero suficiente para cuidar a su familiar además de sus otros gastos?',
-           '¿Siente que será incapaz de cuidar a su familiar por mucho más tiempo?',
-           '¿Siente que ha perdido el control de su vida desde que la enfermedad de su familiar se manifestó?',
-           '¿Desearía poder dejar el cuidado de su familiar a otra persona?',
-           '¿Se siente indeciso sobre qué hacer con su familiar?',
-           '¿Cree que debería hacer más por su familiar?',
-           '¿Cree que podría cuidar mejor a su familiar?',
-           'En general, ¿se siente muy sobrecargado por tener que cuidar a su familiar?'][i]
-        }`,
-        type: 'select',
-        options: [
-          { label: 'Nunca (0)', value: 0 },
-          { label: 'Casi nunca (1)', value: 1 },
-          { label: 'A veces (2)', value: 2 },
-          { label: 'Bastantes veces (3)', value: 3 },
-          { label: 'Casi siempre (4)', value: 4 }
-        ]
-      }))
+      { id: 'z1', text: 'Pregunta 1: ¿Siente que su familiar pide más ayuda de la que realmente necesita?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z2', text: 'Pregunta 2: ¿Siente que debido al tiempo que dedica a su familiar ya no dispone de tiempo suficiente para usted?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z3', text: 'Pregunta 3: ¿Se siente tenso cuando tiene que cuidar a su familiar y atender además otras responsabilidades?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z4', text: 'Pregunta 4: ¿Se siente avergonzado por el comportamiento de su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z5', text: 'Pregunta 5: ¿Se siente enfadado cuando está cerca de su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z6', text: 'Pregunta 6: ¿Cree que la situación actual afecta de manera negativa a su relación con amigos y otros miembros de su familia?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z7', text: 'Pregunta 7: ¿Siente temor por el futuro que le espera a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z8', text: 'Pregunta 8: ¿Siente que su familiar depende de usted?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z9', text: 'Pregunta 9: ¿Se siente agobiado por la responsabilidad de cuidar a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z10', text: 'Pregunta 10: ¿Siente que su salud se ha resentido por cuidar a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z11', text: 'Pregunta 11: ¿Siente que no tiene la intimidad que desearía debido a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z12', text: 'Pregunta 12: ¿Siente que su vida social se ha resentido por cuidar a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z13', text: 'Pregunta 13: ¿Se siente incómodo para invitar amigos a casa a causa de su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z14', text: 'Pregunta 14: ¿Cree que su familiar espera que usted le cuide como si fuera la única persona con la que puede contar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z15', text: 'Pregunta 15: ¿Cree que no dispone de dinero suficiente para cuidar a su familiar además de sus otros gastos?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z16', text: 'Pregunta 16: ¿Siente que será incapaz de cuidar a su familiar por mucho más tiempo?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z17', text: 'Pregunta 17: ¿Siente que ha perdido el control de su vida desde que la enfermedad de su familiar se manifestó?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z18', text: 'Pregunta 18: ¿Desearía poder dejar el cuidado de su familiar a otra persona?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z19', text: 'Pregunta 19: ¿Se siente indeciso sobre qué hacer con su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z20', text: 'Pregunta 20: ¿Cree que debería hacer más por su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z21', text: 'Pregunta 21: ¿Cree que podría cuidar mejor a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] },
+      { id: 'z22', text: 'Pregunta 22: En general, ¿se siente muy sobrecargado por tener que cuidar a su familiar?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'A veces (2)', value: 2 }, { label: 'Bastantes veces (3)', value: 3 }, { label: 'Casi siempre (4)', value: 4 }] }
     ],
     calcularPuntaje: (respuestas) => {
       return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
