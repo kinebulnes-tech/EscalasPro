@@ -489,9 +489,10 @@ export const scales: Scale[] = [
       return respuestas.tiempo || 0;
     },
     interpretar: (puntaje) => {
-      if (puntaje < 10) return 'Normal - Adultos sanos independientes';
-      if (puntaje <= 20) return 'Bueno - Mayoría de adultos mayores sin problemas de movilidad';
-      if (puntaje <= 30) return 'Problema de movilidad - Requiere asistencia';
+      if (puntaje === 0) return 'Prueba no realizada o sin datos';
+      if (puntaje <= 10) return '< 10 seg: Movilidad y equilibrio normal. Independiente y sin problemas de movilidad en la vida diaria.';
+      if (puntaje <= 20) return '11-20 seg: Movilidad aceptable para personas frágiles o con limitaciones leves.';
+      if (puntaje <= 30) return '> 20 seg: Indica limitaciones funcionales significativas, mayor fragilidad y riesgo de caídas.';
       return 'Alto riesgo de caídas - Requiere evaluación detallada';
     }
   },
