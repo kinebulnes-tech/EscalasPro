@@ -149,7 +149,6 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      // Como es ingreso directo numérico, retornamos el valor ingresado
       return Number(respuestas.fuerza_kg) || 0;
     },
     interpretar: (puntaje) => {
@@ -170,28 +169,28 @@ export const scales: Scale[] = [
         text: 'Nivel de ingesta',
         type: 'select',
         options: [
-          { label: '1. Nada por boca. Alimentación alternativa exclusiva.', value: 1 },
-          { label: '2. Deglución solo posible en terapia.', value: 2 },
-          { label: '3. Alimentación oral limitada + alternativa.', value: 3 },
-          { label: '4. Combinada (oral y alternativa). Oral no es la vía principal.', value: 4 },
-          { label: '5. Combinada. Oral en 1 a 2 comidas diarias.', value: 5 },
-          { label: '6. Combinada. Oral en 3 comidas, pero usa vía alternativa como suplemento.', value: 6 },
-          { label: '7. Dieta regular pero con limitaciones en texturas.', value: 7 },
-          { label: '8. Dieta regular + texturas normales (requiere atención extra).', value: 8 },
-          { label: '9. Dieta regular sin restricciones, pero con adaptaciones menores.', value: 9 },
-          { label: '10. Dieta completamente normal.', value: 10 }
+          { label: 'Nivel 1: Nada por boca. Alimentación alternativa exclusiva.', value: 1 },
+          { label: 'Nivel 2: Nada por boca. Deglución solo posible en terapia.', value: 2 },
+          { label: 'Nivel 3: Alimentación oral limitada + alternativa.', value: 3 },
+          { label: 'Nivel 4: Combinada (oral y alternativa). Oral no es la vía principal.', value: 4 },
+          { label: 'Nivel 5: Combinada. Oral en 1 a 2 comidas diarias.', value: 5 },
+          { label: 'Nivel 6: Combinada. Oral en 3 comidas, pero usa vía alternativa como suplemento.', value: 6 },
+          { label: 'Nivel 7: Vía oral exclusiva. Dieta regular pero con limitaciones en texturas.', value: 7 },
+          { label: 'Nivel 8: Vía oral exclusiva. Dieta regular + texturas normales (requiere atención extra).', value: 8 },
+          { label: 'Nivel 9: Vía oral exclusiva. Dieta regular sin restricciones, pero con adaptaciones menores.', value: 9 },
+          { label: 'Nivel 10: Vía oral normal y sin restricciones.', value: 10 }
         ]
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return respuestas.nivel_ingesta || 0;
+      return Number(respuestas.nivel_ingesta) || 0;
     },
     interpretar: (puntaje) => {
-      if (puntaje <= 3) return 'Ingesta no oral - Riesgo severo (Niveles 1-3)';
-      if (puntaje <= 6) return 'Ingesta oral y alternativa combinada - Riesgo moderado (Niveles 4-6)';
-      if (puntaje <= 9) return 'Ingesta oral exclusiva con modificaciones - Riesgo leve (Niveles 7-9)';
-      if (puntaje === 10) return 'Ingesta normal sin restricciones';
-      return 'Sin datos';
+      if (puntaje === 0) return 'Sin datos ingresados';
+      if (puntaje <= 3) return 'Niveles 1-3: Ingesta no oral. Riesgo severo (Dependencia de vía alternativa).';
+      if (puntaje <= 6) return 'Niveles 4-6: Ingesta oral y alternativa combinada. Riesgo moderado.';
+      if (puntaje <= 9) return 'Niveles 7-9: Ingesta oral exclusiva con modificaciones/precauciones. Riesgo leve.';
+      return 'Nivel 10: Ingesta normal sin restricciones.';
     }
   },
   {
@@ -259,12 +258,13 @@ export const scales: Scale[] = [
       }))
     ],
     calcularPuntaje: (respuestas) => {
-      return Object.values(respuestas).reduce((sum, val) => sum + Number(val), 0);
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
     },
     interpretar: (puntaje) => {
-      if (puntaje <= 46) return 'No hay sobrecarga';
-      if (puntaje <= 55) return 'Sobrecarga leve';
-      return 'Sobrecarga intensa';
+      if (puntaje === 0) return 'Sin datos o sin sobrecarga aparente';
+      if (puntaje <= 46) return 'Ausencia de sobrecarga (0-46 pts)';
+      if (puntaje <= 55) return 'Sobrecarga leve o ligera (47-55 pts)';
+      return 'Sobrecarga intensa (56-88 pts) - Requiere intervención de apoyo';
     }
   },
   {
@@ -362,7 +362,6 @@ export const scales: Scale[] = [
       return Object.values(respuestas).reduce((sum, val) => sum + val, 0);
     },
     interpretar: (puntaje) => {
-      const maxPuntaje = 42;
       if (puntaje >= 36) return 'Independencia completa o modificada';
       if (puntaje >= 24) return 'Supervisión o asistencia mínima';
       if (puntaje >= 12) return 'Asistencia moderada a máxima';
@@ -486,7 +485,7 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return respuestas.tiempo || 0;
+      return Number(respuestas.tiempo) || 0;
     },
     interpretar: (puntaje) => {
       if (puntaje === 0) return 'Prueba no realizada o sin datos';
@@ -518,7 +517,7 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return respuestas.distancia || 0;
+      return Number(respuestas.distancia) || 0;
     },
     interpretar: (puntaje) => {
       if (puntaje >= 500) return 'Capacidad funcional excelente';
@@ -538,20 +537,21 @@ export const scales: Scale[] = [
         id: 'tiempo',
         text: 'Tiempo en segundos para recorrer 10 metros',
         type: 'number',
-        min: 0,
+        min: 0.1,
         max: 300
       }
     ],
     calcularPuntaje: (respuestas) => {
-      const tiempo = respuestas.tiempo || 0;
+      const tiempo = Number(respuestas.tiempo) || 0;
       if (tiempo === 0) return 0;
       return Math.round((10 / tiempo) * 100) / 100;
     },
     interpretar: (puntaje) => {
-      if (puntaje >= 1.2) return 'Velocidad normal - Marcha comunitaria';
-      if (puntaje >= 0.8) return 'Velocidad limitada - Marcha comunitaria limitada';
-      if (puntaje >= 0.4) return 'Velocidad reducida - Marcha domiciliaria';
-      return 'Velocidad muy reducida - Dependencia de asistencia';
+      if (puntaje === 0) return 'Sin datos';
+      if (puntaje >= 1.0) return 'Velocidad normal - Marcha comunitaria independiente (> 1.0 m/s)';
+      if (puntaje >= 0.8) return 'Velocidad limitada - Marcha comunitaria limitada (0.8 - 0.99 m/s)';
+      if (puntaje >= 0.4) return 'Velocidad reducida - Marcha domiciliaria, riesgo de caídas (0.4 - 0.79 m/s)';
+      return 'Velocidad muy reducida - Dependencia, alto riesgo (< 0.4 m/s)';
     }
   },
   {
@@ -925,7 +925,7 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return respuestas.intensidad || 0;
+      return Number(respuestas.intensidad) || 0;
     },
     interpretar: (puntaje) => {
       if (puntaje === 0) return 'Sin dolor';
@@ -949,7 +949,7 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return respuestas.dolor || 0;
+      return Number(respuestas.dolor) || 0;
     },
     interpretar: (puntaje) => {
       if (puntaje === 0) return 'Sin dolor';
@@ -1879,9 +1879,10 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return Math.round((respuestas.tiempo_dominante + respuestas.tiempo_no_dominante) / 2);
+      return Math.round((Number(respuestas.tiempo_dominante) + Number(respuestas.tiempo_no_dominante)) / 2) || 0;
     },
     interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Sin datos';
       if (puntaje <= 20) return 'Destreza manual normal';
       if (puntaje <= 30) return 'Destreza manual levemente reducida';
       if (puntaje <= 50) return 'Destreza manual moderadamente reducida';
@@ -1910,9 +1911,10 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return Math.round((respuestas.bloques_dominante + respuestas.bloques_no_dominante) / 2);
+      return Math.round((Number(respuestas.bloques_dominante) + Number(respuestas.bloques_no_dominante)) / 2) || 0;
     },
     interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Sin datos';
       if (puntaje >= 75) return 'Función manual excelente';
       if (puntaje >= 60) return 'Función manual buena';
       if (puntaje >= 45) return 'Función manual moderada';
@@ -1956,9 +1958,10 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return Object.values(respuestas).reduce((sum, val) => sum + val, 0);
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
     },
     interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Sin datos';
       if (puntaje <= 60) return 'Función manual normal';
       if (puntaje <= 120) return 'Función manual levemente reducida';
       if (puntaje <= 240) return 'Función manual moderadamente reducida';
@@ -1987,9 +1990,10 @@ export const scales: Scale[] = [
       }
     ],
     calcularPuntaje: (respuestas) => {
-      return Math.round((respuestas.desempeno + respuestas.satisfaccion) / 2);
+      return Math.round((Number(respuestas.desempeno) + Number(respuestas.satisfaccion)) / 2) || 0;
     },
     interpretar: (puntaje) => {
+      if (puntaje === 0) return 'Sin datos';
       if (puntaje >= 8) return 'Desempeño ocupacional excelente';
       if (puntaje >= 6) return 'Desempeño ocupacional bueno';
       if (puntaje >= 4) return 'Desempeño ocupacional moderado';
@@ -2104,7 +2108,6 @@ export const scales: Scale[] = [
     }
   },
   {
-
     id: 'start_triage',
     nombre: 'START Triage',
     categoria: 'emergencias',
@@ -2227,7 +2230,6 @@ export const scales: Scale[] = [
       if (puntaje === 4) return 'Prioridad 0 (NEGRO) - Fallecido / Sin pulso ni respiración tras ventilaciones';
       return 'Triage incompleto';
     }
-  
   },
   {
     id: 'crams',
