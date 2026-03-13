@@ -1,103 +1,91 @@
-import { CheckCircle, AlertTriangle, Info, RotateCcw, ArrowLeft } from 'lucide-react';
-import { formatearPuntaje } from '../utils/scaleEngine';
+import { Scale } from '../data/scalesData';
+import { ClipboardCheck, ArrowLeft, Copy } from 'lucide-react';
+import { useState } from 'react';
 
 interface ScaleResultProps {
-  nombre: string;
-  puntaje: number;
-  interpretacion: string;
+  scale: Scale;
+  totalScore: number;
   onBack: () => void;
-  onReset: () => void;
 }
 
-export default function ScaleResult({
-  nombre,
-  puntaje,
-  interpretacion,
-  onBack,
-  onReset
-}: ScaleResultProps) {
-  
-  // Lógica simple para determinar el color basado en palabras clave de la interpretación
-  const getStatusColor = () => {
-    const text = interpretacion.toLowerCase();
-    if (text.includes('grave') || text.includes('alto riesgo') || text.includes('severa') || text.includes('total') || text.includes('rojo') || text.includes('crítico')) {
-      return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', circle: 'bg-red-100', icon: <AlertTriangle className="w-8 h-8 text-red-600" /> };
-    }
-    if (text.includes('moderada') || text.includes('leve') || text.includes('medio') || text.includes('amarillo')) {
-      return { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-200', circle: 'bg-orange-100', icon: <Info className="w-8 h-8 text-orange-600" /> };
-    }
-    return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', circle: 'bg-emerald-100', icon: <CheckCircle className="w-8 h-8 text-emerald-600" /> };
+export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultProps) {
+  const [copied, setCopied] = useState(false);
+
+  // Usamos la función interpretar que ya viene en la definición de la escala
+  const interpretation = scale.interpretar(totalScore);
+
+  const generateReport = () => {
+    const date = new Date().toLocaleDateString();
+    
+    const report = `EVALUACIÓN CLÍNICA - EscalaPro
+------------------------------
+Fecha: ${date}
+Escala: ${scale.nombre}
+Puntaje Total: ${totalScore} puntos
+Interpretación: ${interpretation}
+------------------------------
+Generado por EscalaPro`.trim();
+
+    navigator.clipboard.writeText(report);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const status = getStatusColor();
-
   return (
-    <div className="max-w-2xl mx-auto pb-10 animate-in fade-in zoom-in duration-300">
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-        
-        {/* Encabezado con el nombre de la escala */}
-        <div className="bg-gray-50 px-8 py-6 border-b border-gray-100 flex items-center justify-between">
-          <div>
-            <p className="text-teal-600 font-bold text-xs uppercase tracking-widest mb-1">Resultado de Evaluación</p>
-            <h2 className="text-xl font-extrabold text-gray-800">{nombre}</h2>
-          </div>
-          <button onClick={onBack} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-gray-500" />
-          </button>
+    <div className="bg-white rounded-3xl shadow-xl p-8 max-w-2xl mx-auto border border-gray-100 animate-in fade-in zoom-in duration-500">
+      <div className="text-center mb-8">
+        <div className="bg-teal-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <ClipboardCheck className="w-10 h-10 text-teal-600" />
         </div>
-
-        <div className="p-8">
-          {/* Círculo de Puntaje Principal */}
-          <div className="flex flex-col items-center justify-center mb-10">
-            <div className={`w-32 h-32 ${status.circle} rounded-full flex flex-col items-center justify-center border-4 border-white shadow-inner mb-4`}>
-              <span className={`text-4xl font-black ${status.text}`}>
-                {formatearPuntaje(puntaje)}
-              </span>
-              <span className={`text-[10px] font-bold uppercase opacity-60 ${status.text}`}>Puntos</span>
-            </div>
-            <div className={`inline-flex items-center gap-2 px-4 py-1 rounded-full ${status.bg} ${status.text} border ${status.border} text-sm font-bold`}>
-              {status.icon}
-              Evaluación Completada
-            </div>
-          </div>
-
-          {/* Caja de Interpretación Clínica */}
-          <div className={`${status.bg} border ${status.border} rounded-2xl p-6 mb-8`}>
-            <h3 className={`text-sm font-black uppercase tracking-wider mb-2 ${status.text}`}>
-              Interpretación Clínica:
-            </h3>
-            <p className={`text-lg font-bold leading-tight ${status.text}`}>
-              {interpretacion}
-            </p>
-          </div>
-
-          {/* Botones de Acción */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              onClick={onReset}
-              className="flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-2xl font-bold text-lg shadow-lg shadow-teal-600/20 transition-all active:scale-95"
-            >
-              <RotateCcw className="w-5 h-5" />
-              Nueva Evaluación
-            </button>
-            <button
-              onClick={onBack}
-              className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-600 py-4 px-6 rounded-2xl font-bold text-lg transition-all active:scale-95"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Volver al Menú
-            </button>
-          </div>
-
-          {/* Nota Legal/Clínica */}
-          <div className="mt-8 flex gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <Info className="w-5 h-5 text-gray-400 shrink-0" />
-            <p className="text-xs text-gray-500 leading-relaxed">
-              <strong>Importante:</strong> Esta puntuación es una herramienta de apoyo. El diagnóstico final debe ser realizado por el profesional tratante considerando el cuadro clínico integral del paciente en el Hospital de Bulnes o entorno correspondiente.
-            </p>
-          </div>
-        </div>
+        <h2 className="text-3xl font-black text-gray-900">Resultado Final</h2>
+        <p className="text-gray-500 font-medium">{scale.nombre}</p>
       </div>
+
+      <div className="bg-gradient-to-br from-teal-600 to-blue-600 rounded-3xl p-10 text-white text-center shadow-lg mb-8 relative overflow-hidden">
+        <div className="relative z-10">
+          <p className="text-teal-100 font-bold uppercase tracking-widest text-sm mb-2">Puntaje Obtenido</p>
+          <div className="text-7xl font-black mb-4">{totalScore}</div>
+          <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl font-bold text-xl">
+            {interpretation}
+          </div>
+        </div>
+        <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          onClick={onBack}
+          className="flex items-center justify-center gap-2 px-6 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Nueva Evaluación
+        </button>
+
+        <button
+          onClick={generateReport}
+          className={`flex items-center justify-center gap-2 px-6 py-4 font-bold rounded-2xl transition-all active:scale-95 shadow-lg ${
+            copied 
+            ? 'bg-green-500 text-white scale-105' 
+            : 'bg-teal-600 text-white hover:bg-teal-700 shadow-teal-200'
+          }`}
+        >
+          {copied ? (
+            <>
+              <ClipboardCheck className="w-5 h-5" />
+              ¡Copiado!
+            </>
+          ) : (
+            <>
+              <Copy className="w-5 h-5" />
+              Copiar Reporte
+            </>
+          )}
+        </button>
+      </div>
+      
+      <p className="text-center text-gray-400 text-xs mt-8 italic">
+        "Uso exclusivo para profesionales de la salud. Valide siempre con su criterio clínico."
+      </p>
     </div>
   );
 }
