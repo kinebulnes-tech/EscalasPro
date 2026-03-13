@@ -2115,7 +2115,7 @@ export const scales: Scale[] = [
         text: '¿Puede caminar?',
         type: 'select',
         options: [
-          { label: 'Sí', value: 1 }, // Verde
+          { label: 'Sí', value: 1 },
           { label: 'No', value: 0 }
         ]
       },
@@ -2124,9 +2124,9 @@ export const scales: Scale[] = [
         text: 'Respiración (si NO camina)',
         type: 'select',
         options: [
-          { label: 'Ausente, incluso tras posicionar vía aérea', value: 0 }, // Negro
-          { label: 'Presente, > 30 rpm', value: 2 }, // Rojo
-          { label: 'Presente, < 30 rpm', value: 1 } // Continuar evaluando
+          { label: 'Ausente, incluso tras posicionar vía aérea', value: 0 },
+          { label: 'Presente, > 30 rpm', value: 2 },
+          { label: 'Presente, < 30 rpm', value: 1 }
         ]
       },
       {
@@ -2134,8 +2134,8 @@ export const scales: Scale[] = [
         text: 'Perfusión (Llenado Capilar / Pulso Radial)',
         type: 'select',
         options: [
-          { label: '> 2 segundos o Sin pulso radial', value: 2 }, // Rojo
-          { label: '< 2 segundos o Pulso radial presente', value: 1 } // Continuar evaluando
+          { label: '> 2 segundos o Sin pulso radial', value: 2 },
+          { label: '< 2 segundos o Pulso radial presente', value: 1 }
         ]
       },
       {
@@ -2143,20 +2143,19 @@ export const scales: Scale[] = [
         text: 'Estado Mental',
         type: 'select',
         options: [
-          { label: 'No obedece órdenes simples', value: 2 }, // Rojo
-          { label: 'Obedece órdenes simples', value: 1 } // Amarillo
+          { label: 'No obedece órdenes simples', value: 2 },
+          { label: 'Obedece órdenes simples', value: 1 }
         ]
       }
     ],
     calcularPuntaje: (respuestas) => {
-      // 1: Verde, 2: Amarillo, 3: Rojo, 4: Negro
       if (respuestas.camina === 1) return 1; 
       if (respuestas.respiracion === 0) return 4;
       if (respuestas.respiracion === 2) return 3;
       if (respuestas.perfusion === 2) return 3;
       if (respuestas.estado_mental === 2) return 3;
       if (respuestas.estado_mental === 1) return 2;
-      return 0; // Sin evaluar
+      return 0;
     },
     interpretar: (puntaje) => {
       if (puntaje === 1) return 'Prioridad 3 (VERDE) - Heridas menores, puede esperar';
@@ -2166,50 +2165,15 @@ export const scales: Scale[] = [
       return 'Triage incompleto';
     }
   },
-      
-      {
-        id: 'perfusion',
-        text: 'Perfusión (llenado capilar)',
-        type: 'select',
-        options: [
-          { label: '<2 segundos', value: 2 },
-          { label: '>2 segundos', value: 3 }
-        ]
-      },
-      {
-        id: 'estado_mental',
-        text: 'Estado mental',
-        type: 'select',
-        options: [
-          { label: 'Obedece órdenes', value: 2 },
-          { label: 'No obedece órdenes', value: 3 }
-        ]
-      }
-    ],
-    calcularPuntaje: (respuestas) => {
-      if (respuestas.camina === 1) return 1;
-      if (respuestas.respiracion === 4) return 4;
-      if (respuestas.respiracion === 3) return 3;
-      if (respuestas.perfusion === 3) return 3;
-      if (respuestas.estado_mental === 3) return 3;
-      return 2;
-    },
-    interpretar: (puntaje) => {
-      if (puntaje === 1) return 'VERDE - Heridas menores, puede esperar';
-      if (puntaje === 2) return 'AMARILLO - Requiere atención, no inmediata';
-      if (puntaje === 3) return 'ROJO - Atención inmediata, salvable';
-      return 'NEGRO - Fallecido o muerte inminente';
-    }
-  },
   {
     id: 'jumpstart',
     nombre: 'JumpSTART',
     categoria: 'emergencias',
-    descripcion: 'Triage pediátrico para múltiples víctimas',
+    descripcion: 'Triage pediátrico para múltiples víctimas (1-8 años)',
     preguntas: [
       {
         id: 'camina',
-        text: 'Capacidad de caminar',
+        text: '¿Puede caminar?',
         type: 'select',
         options: [
           { label: 'Sí', value: 1 },
@@ -2221,28 +2185,29 @@ export const scales: Scale[] = [
         text: 'Respiración',
         type: 'select',
         options: [
-          { label: 'Espontánea 15-45 rpm', value: 2 },
-          { label: 'Espontánea <15 o >45 rpm', value: 3 },
-          { label: 'Presente tras 5 ventilaciones', value: 3 },
-          { label: 'Ausente tras 5 ventilaciones', value: 4 }
+          { label: 'Presente: <15 o >45 rpm', value: 3 },
+          { label: 'Presente: 15-45 rpm', value: 1 },
+          { label: 'Ausente: Pero se recupera tras abrir vía aérea', value: 3 },
+          { label: 'Ausente: Tras 5 ventilaciones de rescate sigue ausente', value: 4 },
+          { label: 'Ausente: Tras 5 ventilaciones recupera respiración', value: 3 }
         ]
       },
       {
         id: 'pulso',
-        text: 'Pulso palpable',
+        text: 'Pulso periférico palpable',
         type: 'select',
         options: [
-          { label: 'Presente', value: 2 },
-          { label: 'Ausente', value: 3 }
+          { label: 'Ausente', value: 3 },
+          { label: 'Presente', value: 1 }
         ]
       },
       {
         id: 'avpu',
-        text: 'Estado mental (AVPU)',
+        text: 'Estado Mental (AVPU)',
         type: 'select',
         options: [
-          { label: 'A o V (alerta o responde a voz)', value: 2 },
-          { label: 'P o U (responde a dolor o no responde)', value: 3 }
+          { label: 'Responde inapropiadamente (P) o Inconsciente (U)', value: 3 },
+          { label: 'Alerta (A), Responde a voz (V) o localiza dolor apropiadamente', value: 2 }
         ]
       }
     ],
@@ -2252,14 +2217,17 @@ export const scales: Scale[] = [
       if (respuestas.respiracion === 3) return 3;
       if (respuestas.pulso === 3) return 3;
       if (respuestas.avpu === 3) return 3;
-      return 2;
+      if (respuestas.avpu === 2) return 2;
+      return 0;
     },
     interpretar: (puntaje) => {
-      if (puntaje === 1) return 'VERDE - Heridas menores';
-      if (puntaje === 2) return 'AMARILLO - Requiere atención diferida';
-      if (puntaje === 3) return 'ROJO - Atención inmediata';
-      return 'NEGRO - Fallecido';
+      if (puntaje === 1) return 'Prioridad 3 (VERDE) - Heridas menores';
+      if (puntaje === 2) return 'Prioridad 2 (AMARILLO) - Requiere atención diferida';
+      if (puntaje === 3) return 'Prioridad 1 (ROJO) - Atención inmediata, riesgo vital';
+      if (puntaje === 4) return 'Prioridad 0 (NEGRO) - Fallecido / Sin pulso ni respiración tras ventilaciones';
+      return 'Triage incompleto';
     }
+  
   },
   {
     id: 'crams',
