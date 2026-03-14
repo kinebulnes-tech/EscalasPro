@@ -1540,6 +1540,112 @@ export const scales: Scale[] = [
       if (p === 3) return { texto: 'Categoría C: Gravemente Malnutrido', recomendaciones: ['Soporte nutricional intensivo', 'Derivación prioritaria a especialista', 'Evaluar síndrome de realimentación al iniciar soporte', 'Protección de masa muscular'] };
       return { texto: 'Sin datos', recomendaciones: [] };
     }
+  },
+  {
+    id: 'glim_criteria',
+    nombre: 'Criterios GLIM',
+    categoria: 'nutricion',
+    descripcion: 'Marco global para el diagnóstico de desnutrición (Fenotípicos + Etiológicos).',
+    preguntas: [
+      { id: 'feno', text: 'Criterio Fenotípico (Pérdida peso, IMC bajo o Masa muscular reducida):', type: 'select', options: [{ label: 'Presente', value: 1 }, { label: 'Ausente', value: 0 }] },
+      { id: 'etio', text: 'Criterio Etiológico (Ingesta reducida o Inflamación/Enfermedad grave):', type: 'select', options: [{ label: 'Presente', value: 1 }, { label: 'Ausente', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => (r.feno === 1 && r.etio === 1) ? 1 : 0,
+    interpretar: (p) => {
+      if (p === 1) return { texto: 'Diagnóstico de DESNUTRICIÓN confirmado', recomendaciones: ['Determinar severidad (Moderada vs Severa)', 'Intervención nutricional intensiva', 'Tratar la causa etiológica base'] };
+      return { texto: 'No cumple criterios diagnósticos GLIM', recomendaciones: ['Continuar monitoreo si existe riesgo nutricional previo'] };
+    }
+  },
+  {
+    id: 'imc_cintura',
+    nombre: 'IMC y Perímetro de Cintura',
+    categoria: 'nutricion',
+    descripcion: 'Clasificación del estado nutricional y riesgo cardiometabólico.',
+    preguntas: [
+      { id: 'imc_val', text: 'Ingrese el IMC (kg/m²):', type: 'number' },
+      { id: 'cintura_val', text: 'Perímetro de cintura (cm):', type: 'number' },
+      { id: 'sexo', text: 'Sexo:', type: 'select', options: [{ label: 'Hombre', value: 1 }, { label: 'Mujer', value: 2 }] }
+    ],
+    calcularPuntaje: (r) => Number(r.imc_val) || 0,
+    interpretar: (p) => {
+      let cat = '';
+      if (p < 18.5) cat = 'Bajo Peso';
+      else if (p < 25) cat = 'Normopeso';
+      else if (p < 30) cat = 'Sobrepeso';
+      else cat = 'Obesidad';
+      return { texto: 'Estado: ' + cat, recomendaciones: ['Evaluar riesgo cardiovascular según perímetro de cintura', 'Ajustar plan alimentario según objetivo ponderal'] };
+    }
+  },
+  {
+    id: 'bristol_scale',
+    nombre: 'Escala de Bristol',
+    categoria: 'nutricion',
+    descripcion: 'Clasificación visual de la forma y consistencia de las heces.',
+    preguntas: [
+      { id: 'tipo', text: 'Seleccione el tipo de consistencia (1-7):', type: 'select', options: [
+        { label: 'Tipo 1-2: Estreñimiento', value: 1 },
+        { label: 'Tipo 3-4: Normal / Ideal', value: 2 },
+        { label: 'Tipo 5-7: Tendencia a diarrea', value: 3 }
+      ]}
+    ],
+    calcularPuntaje: (r) => r.tipo || 0,
+    interpretar: (p) => {
+      if (p === 1) return { texto: 'Estreñimiento', recomendaciones: ['Aumentar ingesta de fibra (25-30g/día)', 'Incrementar consumo de agua', 'Fomentar actividad física'] };
+      if (p === 2) return { texto: 'Consistencia Normal', recomendaciones: ['Mantener hábitos actuales'] };
+      return { texto: 'Tránsito acelerado / Diarrea', recomendaciones: ['Evaluar malabsorción o intolerancias', 'Asegurar reposición de electrolitos', 'Considerar dieta astringente si es agudo'] };
+    }
+  },
+  {
+    id: 'strong_kids',
+    nombre: 'StrongKids',
+    categoria: 'nutricion',
+    descripcion: 'Screening de riesgo nutricional pediátrico hospitalario.',
+    preguntas: [
+      { id: 'subje', text: 'Evaluación subjetiva (¿Se ve desnutrido?):', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'enf', text: 'Enfermedad de alto riesgo o cirugía mayor:', type: 'select', options: [{ label: 'Sí (2 pts)', value: 2 }, { label: 'No', value: 0 }] },
+      { id: 'ingesta', text: 'Ingesta reducida, diarrea o vómitos:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'perdida', text: 'Pérdida de peso o falta de crecimiento:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 4) return { texto: 'Riesgo Alto', recomendaciones: ['Consulta inmediata a Nutricionista/Pediatra', 'Soporte nutricional prescrito', 'Seguimiento diario'] };
+      if (p >= 1) return { texto: 'Riesgo Moderado', recomendaciones: ['Control de peso diario', 'Suplementación si no mejora ingesta', 'Reevaluar en 3 días'] };
+      return { texto: 'Riesgo Bajo', recomendaciones: ['Cuidado estándar', 'Reevaluar semanalmente'] };
+    }
+  },
+  {
+    id: 'scoff_test',
+    nombre: 'Cuestionario SCOFF',
+    categoria: 'nutricion',
+    descripcion: 'Screening rápido de trastornos de la conducta alimentaria (TCA).',
+    preguntas: [
+      { id: 's', text: '¿Se siente enfermo porque se siente lleno?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'c', text: '¿Le preocupa haber perdido el control sobre cuánto come?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'o', text: '¿Ha perdido recientemente más de 6 kg en 3 meses?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'f', text: '¿Cree que está gordo a pesar de que otros dicen que está flaco?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'f2', text: '¿Diría que la comida domina su vida?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 2) return { texto: 'Probable Trastorno de Conducta Alimentaria', recomendaciones: ['Derivación urgente a Salud Mental (Psicología/Psiquiatría)', 'Evaluación médica para descartar complicaciones', 'Evitar dietas restrictivas sin supervisión'] };
+      return { texto: 'Baja probabilidad de TCA', recomendaciones: ['Mantener educación en alimentación saludable'] };
+    }
+  },
+  {
+    id: 'nutric_score',
+    nombre: 'NUTRIC Score',
+    categoria: 'nutricion',
+    descripcion: 'Riesgo nutricional para pacientes críticos en UCI.',
+    preguntas: [
+      { id: 'apache', text: 'APACHE II:', type: 'select', options: [{ label: '< 15', value: 0 }, { label: '15-19', value: 1 }, { label: '20-27', value: 2 }, { label: '≥ 28', value: 3 }] },
+      { id: 'sofa', text: 'SOFA:', type: 'select', options: [{ label: '< 6', value: 0 }, { label: '6-9', value: 1 }, { label: '≥ 10', value: 2 }] },
+      { id: 'comorb', text: 'Número de comorbilidades:', type: 'select', options: [{ label: '0-1', value: 0 }, { label: '≥ 2', value: 1 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 5) return { texto: 'Alto Riesgo Nutricional en UCI', recomendaciones: ['Inicio temprano de Nutrición Enteral', 'Ajustar aporte proteico al alza', 'Monitoreo de tolerancia gastrointestinal'] };
+      return { texto: 'Bajo Riesgo Nutricional en UCI', recomendaciones: ['Monitorización rutinaria', 'Aporte nutricional estándar'] };
+    }
   }
 ];
 
