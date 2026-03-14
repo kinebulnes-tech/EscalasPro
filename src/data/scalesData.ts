@@ -801,12 +801,36 @@ export const scales: Scale[] = [
       { id: 'respuesta_motora', text: 'Respuesta motora', type: 'select', options: [{ label: 'Obedece órdenes', value: 6 }, { label: 'Localiza dolor', value: 5 }, { label: 'Retira al dolor', value: 4 }, { label: 'Flexión anormal', value: 3 }, { label: 'Extensión anormal', value: 2 }, { label: 'Ninguna', value: 1 }] }
     ],
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+    // MAGIA APLICADA: GLASGOW AHORA DEVUELVE EL OBJETO CON RECOMENDACIONES
     interpretar: (puntaje) => {
-      if (puntaje === 15) return 'Alerta y orientado';
-      if (puntaje >= 13) return 'TEC leve';
-      if (puntaje >= 9) return 'TEC moderado';
-      if (puntaje >= 6) return 'TEC grave';
-      return 'TEC muy grave';
+      if (puntaje === 15) {
+        return {
+          texto: 'Alerta y orientado',
+          recomendaciones: ['Observación rutinaria', 'Evaluación neurológica seriada si hay mecanismo de trauma']
+        };
+      }
+      if (puntaje >= 13) {
+        return {
+          texto: 'TEC leve',
+          recomendaciones: ['Control estricto de signos vitales', 'Considerar TAC cerebral según factores de riesgo', 'Mantener en observación']
+        };
+      }
+      if (puntaje >= 9) {
+        return {
+          texto: 'TEC moderado',
+          recomendaciones: ['TAC cerebral urgente', 'Evaluación por neurocirugía', 'Monitorización neurológica continua', 'Prevenir hipoxia e hipotensión']
+        };
+      }
+      if (puntaje >= 6) {
+        return {
+          texto: 'TEC grave',
+          recomendaciones: ['Asegurar vía aérea (Intubación inmediata)', 'Ventilación mecánica', 'Derivación urgente a centro neuroquirúrgico', 'Medidas de neuroprotección']
+        };
+      }
+      return {
+        texto: 'TEC muy grave',
+        recomendaciones: ['Intubación y soporte vital avanzado inmediato', 'Traslado crítico', 'Mal pronóstico neurológico']
+      };
     }
   },
   {
