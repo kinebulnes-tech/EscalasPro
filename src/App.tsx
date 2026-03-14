@@ -6,19 +6,37 @@ import ScaleCard from './components/ScaleCard';
 import ScaleForm from './components/ScaleForm';
 import { 
   Accessibility, Stethoscope, Siren, MessageSquare, 
-  Brain, HandHelping, ArrowLeft, ChevronRight, Star 
+  Brain, HandHelping, ArrowLeft, ChevronRight, Star,
+  Apple, Zap, Smile // <--- Nuevos iconos importados
 } from 'lucide-react';
 
 const getCategoryIcon = (id: string) => {
   const props = { className: "w-10 h-10 mb-4 transition-transform group-hover:scale-110 duration-300" };
+  
   switch (id) {
-    case 'kinesiologia': return <Accessibility {...props} className={props.className + " text-blue-600"} />;
-    case 'enfermeria': return <Stethoscope {...props} className={props.className + " text-rose-600"} />;
-    case 'emergencias': return <Siren {...props} className={props.className + " text-red-600"} />;
-    case 'fonoaudiologia': return <MessageSquare {...props} className={props.className + " text-orange-600"} />;
-    case 'cognitivas': return <Brain {...props} className={props.className + " text-purple-600"} />;
-    case 'terapia-ocupacional': return <HandHelping {...props} className={props.className + " text-emerald-600"} />;
-    default: return <Accessibility {...props} />;
+    case 'kinesiologia': 
+      return <Accessibility {...props} className={props.className + " text-blue-600"} />;
+    case 'enfermeria': 
+      return <Stethoscope {...props} className={props.className + " text-rose-600"} />;
+    case 'emergencias': 
+      return <Siren {...props} className={props.className + " text-red-600"} />;
+    case 'fonoaudiologia': 
+      return <MessageSquare {...props} className={props.className + " text-orange-600"} />;
+    case 'cognitivas': 
+      return <Brain {...props} className={props.className + " text-purple-600"} />;
+    case 'terapia_ocupacional': 
+      return <HandHelping {...props} className={props.className + " text-emerald-600"} />;
+    
+    // NUEVAS CATEGORÍAS CON SUS ICONOS Y COLORES
+    case 'psicologia': 
+      return <Smile {...props} className={props.className + " text-pink-500"} />;
+    case 'nutricion': 
+      return <Apple {...props} className={props.className + " text-orange-500"} />;
+    case 'neurologia': 
+      return <Zap {...props} className={props.className + " text-indigo-600"} />;
+
+    default: 
+      return <Accessibility {...props} className={props.className + " text-gray-400"} />;
   }
 };
 
@@ -27,13 +45,11 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
   
-  // Cargar favoritos desde el almacenamiento local al iniciar
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Guardar favoritos automáticamente cuando cambien
   useEffect(() => {
     localStorage.setItem('escalapro_favs', JSON.stringify(favorites));
   }, [favorites]);
@@ -75,10 +91,9 @@ export default function App() {
             <ScaleForm scale={selectedScale} onBack={() => setActiveScale(null)} />
           </div>
         ) : !selectedCategory ? (
-          /* PANEL PRINCIPAL */
           <div className="animate-in fade-in zoom-in duration-500">
             
-            {/* SECCIÓN DE FAVORITOS (Solo aparece si hay alguno) */}
+            {/* SECCIÓN DE FAVORITOS */}
             {favoriteScales.length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center gap-2 mb-6">
@@ -125,7 +140,6 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* LISTADO POR CATEGORÍA */
           <div className="animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
               <div>
