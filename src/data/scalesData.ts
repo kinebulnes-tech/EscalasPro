@@ -1368,6 +1368,49 @@ export const scales: Scale[] = [
       if (p >= 5) return { texto: 'Déficit neurológico moderado', recomendaciones: ['Aviso inmediato a neurología si hay descenso de 1 punto', 'Evaluar deglución antes de alimentar'] };
       return { texto: 'Déficit neurológico severo', recomendaciones: ['Monitorización continua', 'Protección de vía aérea', 'Evaluar ingreso a unidad de cuidados críticos'] };
     }
+  },
+  {
+    id: 'dn4_questionnaire',
+    nombre: 'Cuestionario DN4',
+    categoria: 'neurologia',
+    descripcion: 'Herramienta diagnóstica para identificar dolor con características neuropáticas.',
+    preguntas: [
+      { id: 'quemazon', text: '1. ¿El dolor tiene características de quemazón?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'frio', text: '2. ¿El dolor es como frío doloroso?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'descargas', text: '3. ¿Siente descargas eléctricas?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'hormigueo', text: '4. ¿Siente hormigueo en la zona?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'pinchazos', text: '5. ¿Siente pinchazos?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'entumecimiento', text: '6. ¿Siente entumecimiento?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'escozor', text: '7. ¿Siente escozor/picazón?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'hipoestesia_toque', text: '8. Exploración: ¿Hipoestesia al tacto?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'hipoestesia_pinchazo', text: '9. Exploración: ¿Hipoestesia al pinchazo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'alodinia', text: '10. Exploración: ¿El dolor aumenta al roce (alodinia)?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 4) return { texto: 'Dolor Neuropático (DN4 ≥ 4)', recomendaciones: ['Iniciar tratamiento con neuromoduladores (ej. Pregabalina, Gabapentina)', 'Evaluar origen (radiculopatía, neuropatía diabética, etc.)', 'Derivación a Unidad del Dolor si no hay respuesta a tratamiento inicial'] };
+      return { texto: 'Dolor Nociceptivo (Probablemente no neuropático)', recomendaciones: ['Manejo con analgésicos convencionales / AINEs', 'Terapia física según origen del dolor'] };
+    }
+  },
+  {
+    id: 'romberg_test',
+    nombre: 'Test de Romberg Sensibilizado',
+    categoria: 'neurologia',
+    descripcion: 'Evaluación del equilibrio estático y la propiocepción.',
+    preguntas: [
+      { id: 'cronometro', text: 'Tiempo de mantenimiento (meta 30s):', type: 'plugin', componente: 'CRONOMETRO' },
+      { 
+        id: 'resultado', text: 'Observación clínica:', type: 'select', options: [
+          { label: 'Negativo: Mantiene el equilibrio sin oscilaciones', value: 0 },
+          { label: 'Positivo: Oscila o pierde el equilibrio al cerrar los ojos', value: 1 }
+        ] 
+      }
+    ],
+    calcularPuntaje: (r) => r.resultado || 0,
+    interpretar: (p) => {
+      if (p === 0) return { texto: 'Test de Romberg Negativo (Normal)', recomendaciones: ['Propiocepción y función vestibular íntegras', 'Mantener actividad física de equilibrio'] };
+      return { texto: 'Test de Romberg Positivo (Alterado)', recomendaciones: ['Sugerente de ataxia sensitiva o déficit vestibular', 'Evaluar cordones posteriores de la médula', 'Entrenamiento de equilibrio con apoyo visual progresivo'] };
+    }
   }
 ];
 
