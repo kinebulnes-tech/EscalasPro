@@ -1,9 +1,31 @@
 import { categories, scales } from '../data/scalesData';
+import { 
+  Accessibility, 
+  Stethoscope, 
+  Siren, 
+  MessageSquare, 
+  Brain, 
+  HandHelping, 
+  LayoutGrid 
+} from 'lucide-react';
 
 interface SidebarProps {
   selectedCategory: string | null;
   onSelectCategory: (categoryId: string | null) => void;
 }
+
+// Mapeo de Iconos por ID de categoría
+const getIcon = (id: string | null) => {
+  switch (id) {
+    case 'kinesiologia': return <Accessibility className="w-4 h-4" />;
+    case 'enfermeria': return <Stethoscope className="w-4 h-4" />;
+    case 'emergencias': return <Siren className="w-4 h-4" />;
+    case 'fonoaudiologia': return <MessageSquare className="w-4 h-4" />;
+    case 'cognitivas': return <Brain className="w-4 h-4" />;
+    case 'terapia-ocupacional': return <HandHelping className="w-4 h-4" />;
+    default: return <LayoutGrid className="w-4 h-4" />;
+  }
+};
 
 export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarProps) {
   
@@ -29,15 +51,18 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
             {/* Botón: Todas las escalas */}
             <button
               onClick={() => onSelectCategory(null)}
-              className={`group relative px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 active:scale-95 ${
+              className={`group relative px-5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 active:scale-95 ${
                 selectedCategory === null
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-200'
+                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-100'
                   : 'bg-white text-gray-600 border-2 border-gray-50 hover:border-teal-200 hover:text-teal-600 hover:shadow-md'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className={`${selectedCategory === null ? 'text-white' : 'text-teal-500'}`}>
+                  {getIcon(null)}
+                </span>
                 <span>Todas</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md transition-colors ${
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-lg transition-colors ${
                   selectedCategory === null ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-600'
                 }`}>
                   {getCount(null)}
@@ -52,15 +77,18 @@ export default function Sidebar({ selectedCategory, onSelectCategory }: SidebarP
                 <button
                   key={category.id}
                   onClick={() => onSelectCategory(category.id)}
-                  className={`group relative px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 active:scale-95 ${
+                  className={`group relative px-5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 active:scale-95 ${
                     isSelected
-                      ? 'bg-teal-600 text-white shadow-lg shadow-teal-200'
+                      ? 'bg-teal-600 text-white shadow-lg shadow-teal-100'
                       : 'bg-white text-gray-600 border-2 border-gray-50 hover:border-teal-200 hover:text-teal-600 hover:shadow-md'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`${isSelected ? 'text-white' : 'text-teal-500 group-hover:text-teal-600'}`}>
+                      {getIcon(category.id)}
+                    </span>
                     <span>{category.nombre}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md transition-colors ${
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-lg transition-colors ${
                       isSelected ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-600'
                     }`}>
                       {getCount(category.id)}
