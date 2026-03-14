@@ -1451,6 +1451,46 @@ export const scales: Scale[] = [
       if (p >= 2) return { texto: 'Probabilidad ALTA de Neuropatía Periférica', recomendaciones: ['Derivación a podología preventiva', 'Uso de calzado para diabético', 'Evaluación de sensibilidad con Monofilamento de Semmes-Weinstein', 'Control estricto de HbA1c'] };
       return { texto: 'Baja probabilidad de Neuropatía', recomendaciones: ['Educación en el autoexamen diario de pies', 'Control anual preventivo'] };
     }
+  },
+  // ==========================================
+  // NUTRICIÓN
+  // ==========================================
+  {
+    id: 'mna_short',
+    nombre: 'MNA® - Versión Corta',
+    categoria: 'nutricion',
+    descripcion: 'Mini Nutritional Assessment. Cribado rápido de malnutrición en adultos mayores.',
+    preguntas: [
+      { id: 'ingesta', text: 'A. ¿Ha comido menos por falta de apetito, problemas digestivos o de masticación en los últimos 3 meses?', type: 'select', options: [{ label: '0 - Anorexia grave', value: 0 }, { label: '1 - Anorexia moderada', value: 1 }, { label: '2 - Sin anorexia', value: 2 }] },
+      { id: 'perdida_peso', text: 'B. Pérdida reciente de peso (< 3 meses):', type: 'select', options: [{ label: '0 - Pérdida > 3kg', value: 0 }, { label: '1 - No lo sabe', value: 1 }, { label: '2 - Pérdida entre 1 y 3kg', value: 2 }, { label: '3 - Sin pérdida de peso', value: 3 }] },
+      { id: 'movilidad', text: 'C. Movilidad:', type: 'select', options: [{ label: '0 - De la cama al sillón', value: 0 }, { label: '1 - Autonomía en el interior', value: 1 }, { label: '2 - Sale del domicilio', value: 2 }] },
+      { id: 'estres', text: 'D. ¿Ha tenido una enfermedad aguda o situación de estrés psicológico en los últimos 3 meses?', type: 'select', options: [{ label: '0 - Sí', value: 0 }, { label: '2 - No', value: 2 }] },
+      { id: 'neuro', text: 'E. Problemas neuropsicológicos:', type: 'select', options: [{ label: '0 - Demencia o depresión grave', value: 0 }, { label: '1 - Demencia moderada', value: 1 }, { label: '2 - Sin problemas psicológicos', value: 2 }] },
+      { id: 'imc', text: 'F. Índice de Masa Corporal (IMC):', type: 'select', options: [{ label: '0 - IMC < 19', value: 0 }, { label: '1 - IMC 19 - <21', value: 1 }, { label: '2 - IMC 21 - <23', value: 2 }, { label: '3 - IMC ≥ 23', value: 3 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 12) return { texto: 'Estado nutricional normal', recomendaciones: ['Reevaluar anualmente o tras cambio clínico', 'Mantener dieta equilibrada e hidratación'] };
+      if (p >= 8) return { texto: 'Riesgo de malnutrición', recomendaciones: ['Realizar evaluación profunda (MNA versión larga)', 'Seguimiento de peso mensual', 'Intervención nutricional preventiva'] };
+      return { texto: 'Malnutrición evidente', recomendaciones: ['Derivación urgente a Nutricionista', 'Suplementación nutricional indicada', 'Evaluar causas médicas de la baja de peso'] };
+    }
+  },
+  {
+    id: 'must_screening',
+    nombre: 'MUST (Malnutrition Universal Screening Tool)',
+    categoria: 'nutricion',
+    descripcion: 'Herramienta universal para detectar malnutrición en adultos.',
+    preguntas: [
+      { id: 'imc_score', text: 'Puntuación IMC (kg/m²):', type: 'select', options: [{ label: '> 20 (> 30 obeso)', value: 0 }, { label: '18.5 - 20', value: 1 }, { label: '< 18.5', value: 2 }] },
+      { id: 'peso_score', text: 'Pérdida de peso involuntaria (3-6 meses):', type: 'select', options: [{ label: '< 5%', value: 0 }, { label: '5 - 10%', value: 1 }, { label: '> 10%', value: 2 }] },
+      { id: 'aguda_score', text: 'Efecto de enfermedad aguda (ayuno > 5 días):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (Añadir 2 puntos)', value: 2 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p === 0) return { texto: 'Riesgo Bajo', recomendaciones: ['Cuidado rutinario', 'Repetir cribado en pacientes hospitalizados cada semana'] };
+      if (p === 1) return { texto: 'Riesgo Medio', recomendaciones: ['Observar y registrar ingesta alimentaria por 3 días', 'Repetir cribado hospitalario cada 3 días', 'Evaluar por especialista si hay deterioro'] };
+      return { texto: 'Riesgo Alto', recomendaciones: ['Tratamiento nutricional inmediato', 'Derivación a Nutricionista / Soporte nutricional', 'Mejorar aporte energético y proteico'] };
+    }
   }
 ];
 
