@@ -1736,6 +1736,106 @@ export const scales: Scale[] = [
       if (p <= 19) return { texto: 'Consumo perjudicial', recomendaciones: ['Derivación a programa de alcohol y drogas', 'Seguimiento médico'] };
       return { texto: 'Probable dependencia', recomendaciones: ['Derivación a especialista (Psiquiatría/Centros de tratamiento)', 'Manejo de síndrome de abstinencia si aplica'] };
     }
+  },
+  {
+    id: 'dast_10',
+    nombre: 'Test DAST-10 (Drogas)',
+    categoria: 'psicologia',
+    descripcion: 'Tamizaje del impacto del consumo de drogas (excepto alcohol y tabaco).',
+    preguntas: [
+      { id: 'd1', text: '1. ¿Ha utilizado drogas que no sean por necesidad médica?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'd2', text: '2. ¿Abusa de más de una droga a la vez?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'd3', text: '3. ¿Es incapaz de pasar una semana sin consumir?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'd4', text: '4. ¿Ha tenido lagunas mentales o flashbacks por consumo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'd5', text: '5. ¿Se ha sentido alguna vez culpable por su consumo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p === 0) return { texto: 'Sin problemas relacionados', recomendaciones: ['Prevención primaria'] };
+      if (p <= 2) return { texto: 'Riesgo Leve', recomendaciones: ['Consejería breve y seguimiento'] };
+      if (p <= 5) return { texto: 'Riesgo Moderado', recomendaciones: ['Derivación a programa de rehabilitación especializado'] };
+      return { texto: 'Riesgo Severo', recomendaciones: ['Intervención intensiva inmediata', 'Evaluación psiquiátrica completa'] };
+    }
+  },
+  {
+    id: 'beck_suicide',
+    nombre: 'Escala de Ideación Suicida de Beck',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación de la intensidad de los deseos, planes y comportamiento suicida.',
+    preguntas: [
+      { id: 's1', text: 'Deseo de vivir:', type: 'select', options: [{ label: 'Moderado/Fuerte', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Ninguno', value: 2 }] },
+      { id: 's2', text: 'Deseo de morir:', type: 'select', options: [{ label: 'Ninguno', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Moderado/Fuerte', value: 2 }] },
+      { id: 's3', text: 'Razones para vivir/morir:', type: 'select', options: [{ label: 'Vivir > Morir', value: 0 }, { label: 'Vivir = Morir', value: 1 }, { label: 'Morir > Vivir', value: 2 }] },
+      { id: 's4', text: 'Intento activo de suicidio:', type: 'select', options: [{ label: 'Ninguno', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Fuerte', value: 2 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 4) return { texto: '⚠️ RIESGO SUICIDA ALTO', recomendaciones: ['ACTIVA PROTOCOLO DE EMERGENCIA VITAL', 'No dejar al paciente solo', 'Derivación inmediata a Urgencias Psiquiátricas', 'Informar a red de apoyo cercana'] };
+      if (p >= 1) return { texto: 'Riesgo Moderado', recomendaciones: ['Derivación prioritaria a Salud Mental', 'Contrato de no agresión', 'Seguimiento por red de apoyo'] };
+      return { texto: 'Sin riesgo aparente', recomendaciones: ['Mantener seguimiento por especialidad base'] };
+    }
+  },
+  {
+    id: 'mbi_burnout',
+    nombre: 'Maslach Burnout Inventory (MBI)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación del desgaste profesional y estrés laboral.',
+    preguntas: [
+      { id: 'm1', text: 'Me siento emocionalmente agotado por mi trabajo:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Pocas veces', value: 1 }, { label: 'Frecuentemente', value: 2 }, { label: 'Diariamente', value: 3 }] },
+      { id: 'm2', text: 'Siento que trato a algunos pacientes como objetos:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Pocas veces', value: 1 }, { label: 'Frecuentemente', value: 2 }, { label: 'Diariamente', value: 3 }] },
+      { id: 'm3', text: 'Me siento con poca energía al levantarme para ir a trabajar:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Pocas veces', value: 1 }, { label: 'Frecuentemente', value: 2 }, { label: 'Diariamente', value: 3 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 7) return { texto: 'Alto riesgo de Burnout', recomendaciones: ['Evaluar licencia médica por salud mental', 'Terapia de manejo de estrés', 'Reestructuración de carga laboral'] };
+      if (p >= 4) return { texto: 'Riesgo Moderado', recomendaciones: ['Pausas saludables', 'Técnicas de autocuidado', 'Evaluar ambiente laboral'] };
+      return { texto: 'Bajo riesgo', recomendaciones: ['Mantener medidas de prevención'] };
+    }
+  },
+  {
+    id: 'rosenberg_selfesteem',
+    nombre: 'Escala de Autoestima de Rosenberg',
+    categoria: 'psicologia',
+    descripcion: 'Medición de la satisfacción y valoración personal.',
+    preguntas: [
+      { id: 'r1', text: 'Siento que soy una persona digna de aprecio:', type: 'select', options: [{ label: 'Muy en desacuerdo', value: 1 }, { label: 'En desacuerdo', value: 2 }, { label: 'De acuerdo', value: 3 }, { label: 'Muy de acuerdo', value: 4 }] },
+      { id: 'r2', text: 'En general, estoy satisfecho conmigo mismo:', type: 'select', options: [{ label: 'Muy en desacuerdo', value: 1 }, { label: 'En desacuerdo', value: 2 }, { label: 'De acuerdo', value: 3 }, { label: 'Muy de acuerdo', value: 4 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 4) return { texto: 'Autoestima Baja', recomendaciones: ['Fortalecer autoconcepto en psicoterapia', 'Evaluar síntomas depresivos'] };
+      return { texto: 'Autoestima Normal/Alta', recomendaciones: ['Mantener bienestar psicológico'] };
+    }
+  },
+  {
+    id: 'pss_10_stress',
+    nombre: 'Escala de Estrés Percibido (PSS-10)',
+    categoria: 'psicologia',
+    descripcion: 'Mide el grado en que las situaciones de la vida son valoradas como estresantes.',
+    preguntas: [
+      { id: 'p1', text: '¿Con qué frecuencia se ha sentido incapaz de controlar las cosas importantes en su vida?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'De vez en cuando', value: 2 }, { label: 'A menudo', value: 3 }, { label: 'Muy a menudo', value: 4 }] },
+      { id: 'p2', text: '¿Con qué frecuencia se ha sentido nervioso o estresado?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'De vez en cuando', value: 2 }, { label: 'A menudo', value: 3 }, { label: 'Muy a menudo', value: 4 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 6) return { texto: 'Estrés Percibido Alto', recomendaciones: ['Técnicas de relajación diafragmática', 'Priorización de tareas', 'Higiene del sueño'] };
+      return { texto: 'Estrés Percibido Bajo/Moderado', recomendaciones: ['Estrategias de afrontamiento saludables'] };
+    }
+  },
+  {
+    id: 'whoqol_bref_short',
+    nombre: 'WHOQOL-BREF (Calidad de Vida)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación abreviada de la OMS sobre la calidad de vida.',
+    preguntas: [
+      { id: 'q1', text: '¿Cómo calificaría su calidad de vida?', type: 'select', options: [{ label: 'Muy mala', value: 1 }, { label: 'Mala', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Buena', value: 4 }, { label: 'Muy buena', value: 5 }] },
+      { id: 'q2', text: '¿Cuán satisfecho está con su salud?', type: 'select', options: [{ label: 'Muy insatisfecho', value: 1 }, { label: 'Insatisfecho', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Satisfecho', value: 4 }, { label: 'Muy satisfecho', value: 5 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 4) return { texto: 'Calidad de vida percibida baja', recomendaciones: ['Evaluar factores determinantes (físicos, sociales)', 'Intervención integral'] };
+      return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar factores protectores'] };
+    }
   }
 ];
 
