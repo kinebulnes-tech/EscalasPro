@@ -22,6 +22,13 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
     return (respondidas / totalPreguntas) * 100;
   }, [respuestas, scale.preguntas.length]);
 
+  // --- CÁLCULO DE PUNTAJE EN TIEMPO REAL ---
+  const currentScore = useMemo(() => {
+    if (Object.keys(respuestas).length === 0) return 0;
+    // Usamos la función de cálculo que ya tiene cada escala
+    return scale.calcularPuntaje(respuestas);
+  }, [respuestas, scale]);
+
   const handleChange = (questionId: string, value: number) => {
     setRespuestas(prev => ({
       ...prev,
@@ -66,7 +73,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         >
-          {/* Brillo en la punta de la barra */}
           <div className="w-full h-full relative">
             <div className="absolute right-0 top-0 h-full w-4 bg-white/30 blur-sm"></div>
           </div>
@@ -91,7 +97,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
             <p className="text-gray-500 text-sm sm:text-base leading-relaxed max-w-2xl">{scale.descripcion}</p>
           </div>
-          {/* Indicador numérico de avance */}
           <div className="hidden sm:block text-right">
             <span className="text-3xl font-black text-teal-600">{Math.round(progress)}%</span>
             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Completado</p>
@@ -179,6 +184,27 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* CONTADOR DE PUNTAJE FLOTANTE */}
+      <div className="fixed bottom-6 right-6 z-50 transition-all duration-500 animate-in slide-in-from-bottom-10">
+        <div className="bg-white/90 backdrop-blur-md border-2 border-teal-500 rounded-3xl p-4 shadow-2xl flex flex-col items-center min-w-[140px]">
+          <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-1">
+            Puntaje Actual
+          </span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-black text-gray-900">
+              {currentScore}
+            </span>
+            <span className="text-gray-400 font-bold">pts</span>
+          </div>
+          <div className="mt-2 w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-teal-500 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
