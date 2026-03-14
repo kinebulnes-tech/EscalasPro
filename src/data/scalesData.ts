@@ -1227,5 +1227,9 @@ export const categories = [
   { id: 'cognitivas', nombre: 'Cognitivas', descripcion: 'Estado mental' },
   { id: 'terapia_ocupacional', nombre: 'Terapia Ocupacional', descripcion: 'Función manual' },
   { id: 'emergencias', nombre: 'Emergencias', descripcion: 'Trauma y Triage' },
-  { id: 'enfermeria', nombre: 'Enfermería', descripcion: 'Valoración de cuidados y riesgos' }
+  { id: 'enfermeria', nombre: 'Enfermería', descripcion: 'Valoración de cuidados y riesgos' },
+  // NUEVAS CATEGORÍAS AGREGADAS:
+  { id: 'psicologia', nombre: 'Psicología', descripcion: 'Evaluación de salud mental y conducta' },
+  { id: 'nutricion', nombre: 'Nutrición', descripcion: 'Estado nutricional y requerimientos' },
+  { id: 'neurologia', nombre: 'Neurología', descripcion: 'Examen neurológico y daño cerebral' }
 ];
