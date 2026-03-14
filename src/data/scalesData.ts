@@ -1491,6 +1491,55 @@ export const scales: Scale[] = [
       if (p === 1) return { texto: 'Riesgo Medio', recomendaciones: ['Observar y registrar ingesta alimentaria por 3 días', 'Repetir cribado hospitalario cada 3 días', 'Evaluar por especialista si hay deterioro'] };
       return { texto: 'Riesgo Alto', recomendaciones: ['Tratamiento nutricional inmediato', 'Derivación a Nutricionista / Soporte nutricional', 'Mejorar aporte energético y proteico'] };
     }
+  },
+  {
+    id: 'nrs_2002',
+    nombre: 'NRS-2002 (Nutritional Risk Screening)',
+    categoria: 'nutricion',
+    descripcion: 'Tamizaje de riesgo nutricional en pacientes hospitalizados.',
+    preguntas: [
+      { id: 'estado_nutricional', text: '1. Deterioro del estado nutricional:', type: 'select', options: [
+        { label: '0 - Normal', value: 0 },
+        { label: '1 - Leve (Pérdida peso > 5% en 3 meses o ingesta 50-75%)', value: 1 },
+        { label: '2 - Moderado (Pérdida peso > 5% en 2 meses o IMC 18.5-20.5 o ingesta 25-50%)', value: 2 },
+        { label: '3 - Severo (Pérdida peso > 5% en 1 mes o IMC < 18.5 o ingesta 0-25%)', value: 3 }
+      ]},
+      { id: 'gravedad_enfermedad', text: '2. Gravedad de la enfermedad (estrés metabólico):', type: 'select', options: [
+        { label: '0 - Requerimientos normales', value: 0 },
+        { label: '1 - Leve (Fractura de cadera, pacientes crónicos con complicaciones)', value: 1 },
+        { label: '2 - Moderada (Cirugía mayor abdominal, ACV, neumonía grave, cáncer)', value: 2 },
+        { label: '3 - Severa (TEC, trasplante médula, pacientes en UCI)', value: 3 }
+      ]},
+      { id: 'ajuste_edad', text: '3. Edad del paciente:', type: 'select', options: [
+        { label: 'Menor de 70 años', value: 0 },
+        { label: '70 años o más (+1 punto)', value: 1 }
+      ]}
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 3) return { texto: 'Paciente en Riesgo Nutricional', recomendaciones: ['Iniciar plan de cuidados nutricionales de inmediato', 'Interconsulta a Nutricionista y Médico', 'Monitoreo diario de ingesta', 'Considerar soporte nutricional (enteral/parenteral)'] };
+      return { texto: 'Sin Riesgo en este momento', recomendaciones: ['Reevaluar semanalmente durante la hospitalización', 'Si el paciente va a cirugía mayor, considerar protocolo preventivo'] };
+    }
+  },
+  {
+    id: 'vgs_nutricional',
+    nombre: 'Valoración Global Subjetiva (VGS)',
+    categoria: 'nutricion',
+    descripcion: 'Diagnóstico clínico del estado nutricional basado en historia y examen físico.',
+    preguntas: [
+      { id: 'clasificacion', text: 'Seleccione la categoría final tras el examen clínico:', type: 'select', options: [
+        { label: 'A - Bien nutrido', value: 1 },
+        { label: 'B - Moderadamente malnutrido (o sospecha de malnutrición)', value: 2 },
+        { label: 'C - Gravemente malnutrido', value: 3 }
+      ]}
+    ],
+    calcularPuntaje: (r) => r.clasificacion || 0,
+    interpretar: (p) => {
+      if (p === 1) return { texto: 'Categoría A: Bien Nutrido', recomendaciones: ['Mantener pauta alimentaria habitual', 'Educación en alimentación saludable'] };
+      if (p === 2) return { texto: 'Categoría B: Moderadamente Malnutrido', recomendaciones: ['Intervención nutricional específica', 'Suplementación de macronutrientes', 'Tratar síntomas gastrointestinales si existen', 'Control de peso quincenal'] };
+      if (p === 3) return { texto: 'Categoría C: Gravemente Malnutrido', recomendaciones: ['Soporte nutricional intensivo', 'Derivación prioritaria a especialista', 'Evaluar síndrome de realimentación al iniciar soporte', 'Protección de masa muscular'] };
+      return { texto: 'Sin datos', recomendaciones: [] };
+    }
   }
 ];
 
