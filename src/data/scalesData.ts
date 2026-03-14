@@ -1696,6 +1696,46 @@ export const scales: Scale[] = [
       if (p <= 14) return { texto: 'Ansiedad Moderada', recomendaciones: ['Derivación a evaluación psicológica', 'Considerar terapia cognitivo-conductual'] };
       return { texto: 'Ansiedad Grave', recomendaciones: ['Derivación a especialista (Psicólogo/Psiquiatra)', 'Evaluación farmacológica indicada'] };
     }
+  },
+  {
+    id: 'bdi_ii',
+    nombre: 'Inventario de Depresión de Beck (BDI-II)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación clínica de la gravedad de la depresión (21 ítems).',
+    preguntas: [
+      { id: 'tristeza', text: '1. Tristeza:', type: 'select', options: [{ label: '0 - No me siento triste', value: 0 }, { label: '1 - Me siento triste gran parte del tiempo', value: 1 }, { label: '2 - Estoy triste todo el tiempo', value: 2 }, { label: '3 - Estoy tan triste que no puedo soportarlo', value: 3 }] },
+      { id: 'pesimismo', text: '2. Pesimismo:', type: 'select', options: [{ label: '0 - No estoy desalentado respecto al futuro', value: 0 }, { label: '1 - Me siento más desalentado que lo habitual', value: 1 }, { label: '2 - No espero que las cosas mejoren', value: 2 }, { label: '3 - Siento que el futuro es desesperanzador', value: 3 }] },
+      { id: 'fracaso', text: '3. Fracaso:', type: 'select', options: [{ label: '0 - No me siento un fracasado', value: 0 }, { label: '1 - He fracasado más de lo que debería', value: 1 }, { label: '2 - Al mirar atrás, veo muchos fracasos', value: 2 }, { label: '3 - Me siento un fracasado total', value: 3 }] },
+      { id: 'placer', text: '4. Pérdida de Placer:', type: 'select', options: [{ label: '0 - Obtengo tanto placer como siempre', value: 0 }, { label: '1 - No disfruto tanto como antes', value: 1 }, { label: '2 - Obtengo muy poco placer de las cosas', value: 2 }, { label: '3 - No puedo obtener ningún placer', value: 3 }] },
+      { id: 'culpa', text: '5. Sentimientos de Culpa:', type: 'select', options: [{ label: '0 - No me siento particularmente culpable', value: 0 }, { label: '1 - Me siento culpable por muchas cosas', value: 1 }, { label: '2 - Me siento bastante culpable la mayor parte del tiempo', value: 2 }, { label: '3 - Me siento culpable todo el tiempo', value: 3 }] },
+      { id: 'suicidio_beck', text: '9. Pensamientos o Deseos Suicidas:', type: 'select', options: [{ label: '0 - No tengo ningún pensamiento de matarme', value: 0 }, { label: '1 - Tengo pensamientos, pero no lo haría', value: 1 }, { label: '2 - Me gustaría matarme', value: 2 }, { label: '3 - Me mataría si tuviera la oportunidad', value: 3 }] }
+    ],
+    // Nota: Por espacio hemos puesto los ítems clave. Se recomienda completar los 21 en la ficha física.
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 13) return { texto: 'Depresión mínima', recomendaciones: ['Mantener seguimiento'] };
+      if (p <= 19) return { texto: 'Depresión leve', recomendaciones: ['Psicoterapia recomendada'] };
+      if (p <= 28) return { texto: 'Depresión moderada', recomendaciones: ['Derivación a psiquiatría', 'Tratamiento farmacológico probable'] };
+      return { texto: 'Depresión grave', recomendaciones: ['Intervención inmediata', 'Protocolo de prevención de suicidio'] };
+    }
+  },
+  {
+    id: 'audit_test',
+    nombre: 'Test AUDIT (Alcohol)',
+    categoria: 'psicologia',
+    descripcion: 'Identificación de trastornos por consumo de alcohol.',
+    preguntas: [
+      { id: 'frecuencia', text: '1. ¿Con qué frecuencia consume bebidas alcohólicas?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: '1 o menos veces al mes', value: 1 }, { label: '2 a 4 veces al mes', value: 2 }, { label: '2 a 3 veces a la semana', value: 3 }, { label: '4 o más veces a la semana', value: 4 }] },
+      { id: 'cantidad', text: '2. ¿Cuántas copas suele tomar en un día de consumo normal?', type: 'select', options: [{ label: '1 o 2', value: 0 }, { label: '3 o 4', value: 1 }, { label: '5 o 6', value: 2 }, { label: '7 a 9', value: 3 }, { label: '10 o más', value: 4 }] },
+      { id: 'intensivo', text: '3. ¿Con qué frecuencia toma 6 o más copas en una sola ocasión?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Menos de una vez al mes', value: 1 }, { label: 'Mensualmente', value: 2 }, { label: 'Semanalmente', value: 3 }, { label: 'A diario o casi a diario', value: 4 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 7) return { texto: 'Consumo de bajo riesgo', recomendaciones: ['Educación sobre límites de consumo'] };
+      if (p <= 15) return { texto: 'Consumo de riesgo', recomendaciones: ['Consejería breve', 'Entrega de material educativo'] };
+      if (p <= 19) return { texto: 'Consumo perjudicial', recomendaciones: ['Derivación a programa de alcohol y drogas', 'Seguimiento médico'] };
+      return { texto: 'Probable dependencia', recomendaciones: ['Derivación a especialista (Psiquiatría/Centros de tratamiento)', 'Manejo de síndrome de abstinencia si aplica'] };
+    }
   }
 ];
 
