@@ -1326,6 +1326,49 @@ export const scales: Scale[] = [
       return { texto: 'Sin datos', recomendaciones: [] };
     }
   }, // <--- No olvides esta coma si vas a seguir pegando debajo
+  {
+    id: 'fisher_scale',
+    nombre: 'Escala de Fisher (Modificada)',
+    categoria: 'neurologia',
+    descripcion: 'Predice el riesgo de vasoespasmo cerebral tras una Hemorragia Subaracnoidea según hallazgos en el TAC.',
+    preguntas: [
+      {
+        id: 'grado', text: 'Hallazgos en la Tomografía (TAC):', type: 'select', options: [
+          { label: 'Grado 0: Sin sangre subaracnoidea o intraventricular.', value: 0 },
+          { label: 'Grado 1: Sangre subaracnoidea fina, sin sangre intraventricular en ambos ventrículos.', value: 1 },
+          { label: 'Grado 2: Sangre subaracnoidea fina CON sangre intraventricular en ambos ventrículos.', value: 2 },
+          { label: 'Grado 3: Sangre subaracnoidea gruesa (coágulo), sin sangre intraventricular.', value: 3 },
+          { label: 'Grado 4: Sangre subaracnoidea gruesa CON sangre intraventricular.', value: 4 }
+        ]
+      }
+    ],
+    calcularPuntaje: (r) => r.grado || 0,
+    interpretar: (p) => {
+      if (p === 0) return { texto: 'Riesgo muy bajo de vasoespasmo', recomendaciones: ['Control de rutina', 'Mantener normovolemia'] };
+      if (p <= 2) return { texto: 'Riesgo moderado de vasoespasmo (aprox. 25%)', recomendaciones: ['Monitorización con Doppler Transcraneal (DTC) diario', 'Mantener presión de perfusión cerebral adecuada'] };
+      return { texto: 'Riesgo ALTO de vasoespasmo sintomático (>35%)', recomendaciones: ['Vigilancia neurológica estricta en UCI', 'Considerar profilaxis farmacológica (Nimodipino)', 'Doppler Transcraneal seriado cada 12h'] };
+    }
+  },
+  {
+    id: 'canadian_scale',
+    nombre: 'Escala Neurológica Canadiense (CNS)',
+    categoria: 'neurologia',
+    descripcion: 'Herramienta simple y validada para el monitoreo seriado del estado neurológico en pacientes con ACV.',
+    preguntas: [
+      { id: 'conciencia', text: 'Nivel de conciencia', type: 'select', options: [{ label: 'Alerta', value: 3 }, { label: 'Somnoliento', value: 1.5 }] },
+      { id: 'orientacion', text: 'Orientación (Lugar y tiempo)', type: 'select', options: [{ label: 'Orientado', value: 1 }, { label: 'Desorientado o no responde', value: 0 }] },
+      { id: 'lenguaje', text: 'Lenguaje', type: 'select', options: [{ label: 'Normal', value: 1 }, { label: 'Déficit expresivo (afasia)', value: 0.5 }, { label: 'Déficit receptivo', value: 0 }] },
+      { id: 'debilidad_facial', text: 'Debilidad Facial', type: 'select', options: [{ label: 'Ninguna', value: 0.5 }, { label: 'Presente', value: 0 }] },
+      { id: 'brazo_d', text: 'Motor Brazo Derecho', type: 'select', options: [{ label: 'Sin déficit', value: 1.5 }, { label: 'Paresia leve', value: 1 }, { label: 'Paresia significativa', value: 0.5 }, { label: 'Plejia (nulo)', value: 0 }] },
+      { id: 'pierna_d', text: 'Motor Pierna Derecha', type: 'select', options: [{ label: 'Sin déficit', value: 1.5 }, { label: 'Paresia leve', value: 1 }, { label: 'Paresia significativa', value: 0.5 }, { label: 'Plejia', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 8.5) return { texto: 'Déficit neurológico leve', recomendaciones: ['Monitoreo cada 4 horas', 'Control de glicemia y temperatura'] };
+      if (p >= 5) return { texto: 'Déficit neurológico moderado', recomendaciones: ['Aviso inmediato a neurología si hay descenso de 1 punto', 'Evaluar deglución antes de alimentar'] };
+      return { texto: 'Déficit neurológico severo', recomendaciones: ['Monitorización continua', 'Protección de vía aérea', 'Evaluar ingreso a unidad de cuidados críticos'] };
+    }
+  }
 ];
 
 export const categories = [
