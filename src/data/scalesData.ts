@@ -1274,7 +1274,58 @@ export const scales: Scale[] = [
       if (p >= 4) return { texto: 'Discapacidad grave', recomendaciones: ['Prevención de complicaciones por inmovilismo', 'Soporte al cuidador'] };
       return { texto: 'Fallecido', recomendaciones: [] };
     }
-  }
+  },
+  {
+    id: 'asia_score',
+    nombre: 'Escala de ASIA (Deterioro Medular)',
+    categoria: 'neurologia',
+    descripcion: 'Clasificación de la gravedad de la lesión medular (American Spinal Injury Association).',
+    preguntas: [
+      {
+        id: 'grado', text: 'Grado de deterioro medular:', type: 'select', options: [
+          { label: 'A - Completa: No preservación motora ni sensitiva en segmentos S4-S5.', value: 1 },
+          { label: 'B - Incompleta: Sensibilidad preservada, pero no hay función motora debajo del nivel neurológico.', value: 2 },
+          { label: 'C - Incompleta: Función motora preservada, pero más de la mitad de los músculos clave tienen fuerza < 3.', value: 3 },
+          { label: 'D - Incompleta: Función motora preservada, al menos la mitad de los músculos clave tienen fuerza ≥ 3.', value: 4 },
+          { label: 'E - Normal: Funciones motoras y sensitivas normales.', value: 5 }
+        ]
+      }
+    ],
+    calcularPuntaje: (r) => r.grado || 0,
+    interpretar: (p) => {
+      if (p === 1) return { texto: 'Lesión Completa (ASIA A)', recomendaciones: ['Prevención estricta de UPP', 'Manejo de vejiga e intestino neurogénico', 'Kinesioterapia motora intensiva para evitar contracturas'] };
+      if (p === 2) return { texto: 'Lesión Incompleta Sensitiva (ASIA B)', recomendaciones: ['Control de sensibilidad residual', 'Monitoreo de posible progresión motora', 'Entrenamiento en transferencias'] };
+      if (p === 3) return { texto: 'Lesión Incompleta Motora No Funcional (ASIA C)', recomendaciones: ['Programa de bipedestación asistida', 'Fortalecimiento de grupos musculares clave', 'Uso de órtesis de soporte'] };
+      if (p === 4) return { texto: 'Lesión Incompleta Motora Funcional (ASIA D)', recomendaciones: ['Entrenamiento de marcha con ayudas técnicas', 'Reeducación de equilibrio dinámico', 'Fomentar independencia en actividades de la vida diaria'] };
+      if (p === 5) return { texto: 'Función Normal (ASIA E)', recomendaciones: ['Mantener actividad física', 'Control de seguimiento neurológico'] };
+      return { texto: 'Sin datos', recomendaciones: [] };
+    }
+  },
+  {
+    id: 'hunt_hess',
+    nombre: 'Escala de Hunt y Hess',
+    categoria: 'neurologia',
+    descripcion: 'Predice la mortalidad en hemorragia subaracnoidea (HSA).',
+    preguntas: [
+      {
+        id: 'grado', text: 'Estado clínico del paciente:', type: 'select', options: [
+          { label: 'Grado 1: Asintomático o cefalea leve.', value: 1 },
+          { label: 'Grado 2: Cefalea moderada a grave, rigidez de nuca, sin déficit motor.', value: 2 },
+          { label: 'Grado 3: Somnolencia, confusión o déficit focal leve.', value: 3 },
+          { label: 'Grado 4: Estupor, hemiparesia moderada a grave.', value: 4 },
+          { label: 'Grado 5: Coma profundo, postura de descerebración.', value: 5 }
+        ]
+      }
+    ],
+    calcularPuntaje: (r) => r.grado || 0,
+    interpretar: (p) => {
+      if (p === 1) return { texto: 'Mortalidad baja (aprox. 2%)', recomendaciones: ['Control hemodinámico estricto', 'Reposo absoluto', 'Analgesia'] };
+      if (p === 2) return { texto: 'Riesgo moderado', recomendaciones: ['Monitorización continua en unidad de paciente crítico', 'Control estricto de presión arterial'] };
+      if (p === 3) return { texto: 'Riesgo significativo', recomendaciones: ['Evaluación urgente por Neurocirujano', 'TAC/AngioTAC para estudio de aneurisma'] };
+      if (p >= 4) return { texto: 'Pronóstico reservado / Mortalidad alta (>70%)', recomendaciones: ['Protección de vía aérea (evaluar intubación)', 'Manejo de presión intracraneal', 'Soporte vital avanzado'] };
+      return { texto: 'Sin datos', recomendaciones: [] };
+    }
+  }, // <--- No olvides esta coma si vas a seguir pegando debajo
 ];
 
 export const categories = [
