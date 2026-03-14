@@ -8,6 +8,12 @@ export interface Question {
   max?: number;
 }
 
+// NUEVA INTERFAZ: Define la estructura de las recomendaciones
+export interface InterpretacionAvanzada {
+  texto: string;
+  recomendaciones: string[];
+}
+
 export interface Scale {
   id: string;
   nombre: string;
@@ -15,7 +21,8 @@ export interface Scale {
   descripcion: string;
   preguntas: Question[];
   calcularPuntaje: (respuestas: Record<string, number>) => number;
-  interpretar: (puntaje: number) => string;
+  // ACTUALIZACIÓN: Ahora acepta texto simple o el nuevo formato avanzado
+  interpretar: (puntaje: number) => string | InterpretacionAvanzada;
 }
 
 export const scales: Scale[] = [
