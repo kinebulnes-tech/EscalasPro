@@ -1,5 +1,5 @@
 import { Scale, InterpretacionAvanzada } from '../data/scalesData';
-import { ClipboardCheck, ArrowLeft, Copy, AlertCircle, FileText, User } from 'lucide-react';
+import { ClipboardCheck, ArrowLeft, Copy, AlertCircle, FileText, User, Save } from 'lucide-react';
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 
@@ -7,9 +7,12 @@ interface ScaleResultProps {
   scale: Scale;
   totalScore: number;
   onBack: () => void;
+  // --- NUEVAS PROPS PARA EL INFORME CONSOLIDADO ---
+  onSave?: (resultado: any) => void;
+  pacienteNombre?: string;
 }
 
-export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultProps) {
+export default function ScaleResult({ scale, totalScore, onBack, onSave, pacienteNombre }: ScaleResultProps) {
   const [copied, setCopied] = useState(false);
   const [patientName, setPatientName] = useState('');
   const [patientID, setPatientID] = useState('');
@@ -21,34 +24,13 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
   const recommendationsList = isAdvanced ? (result as InterpretacionAvanzada).recomendaciones : [];
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'blue';
 
-  // Función para obtener los estilos según el color de alerta
   const getAlertStyles = (color?: string) => {
     switch (color) {
-      case 'green': return {
-        bg: 'from-green-600 to-emerald-700',
-        light: 'bg-green-50 border-green-200 text-green-900',
-        icon: 'text-green-600'
-      };
-      case 'yellow': return {
-        bg: 'from-yellow-500 to-amber-600',
-        light: 'bg-yellow-50 border-yellow-200 text-yellow-900',
-        icon: 'text-yellow-600'
-      };
-      case 'orange': return {
-        bg: 'from-orange-500 to-red-600',
-        light: 'bg-orange-50 border-orange-200 text-orange-900',
-        icon: 'text-orange-600'
-      };
-      case 'red': return {
-        bg: 'from-red-600 to-rose-800 animate-pulse',
-        light: 'bg-red-50 border-red-200 text-red-900',
-        icon: 'text-red-600'
-      };
-      default: return {
-        bg: 'from-teal-600 to-blue-600',
-        light: 'bg-blue-50 border-blue-200 text-blue-900',
-        icon: 'text-blue-600'
-      };
+      case 'green': return { bg: 'from-green-600 to-emerald-700', light: 'bg-green-50 border-green-200 text-green-900', icon: 'text-green-600' };
+      case 'yellow': return { bg: 'from-yellow-500 to-amber-600', light: 'bg-yellow-50 border-yellow-200 text-yellow-900', icon: 'text-yellow-600' };
+      case 'orange': return { bg: 'from-orange-500 to-red-600', light: 'bg-orange-50 border-orange-200 text-orange-900', icon: 'text-orange-600' };
+      case 'red': return { bg: 'from-red-600 to-rose-800 animate-pulse', light: 'bg-red-50 border-red-200 text-red-900', icon: 'text-red-600' };
+      default: return { bg: 'from-teal-600 to-blue-600', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
     }
   };
 
@@ -57,8 +39,9 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
   const generateReport = () => {
     const date = new Date().toLocaleDateString();
     let report = `EVALUACIÓN CLÍNICA - EscalaPro\n------------------------------\n`;
-    if (patientName) report += `Paciente: ${patientName}\n`;
-    if (patientID) report += `RUT/ID: ${patientID}\n`;
+    const finalName = pacienteNombre || patientName;
+    if (finalName) report += `Paciente: ${finalName}\n`;
+    
     report += `Fecha: ${date}\nEscala: ${scale.nombre}\nPuntaje Total: ${totalScore} puntos\nInterpretación: ${interpretationText}`;
     if (recommendationsList.length > 0) {
       report += `\n\nRecomendaciones:\n${recommendationsList.map((r: string) => `- ${r}`).join('\n')}`;
@@ -76,48 +59,21 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
     doc.setFontSize(20);
     doc.setTextColor(0, 128, 128); 
     doc.text("ESCALAPRO - INFORME CLÍNICO", 20, 20);
-    doc.setDrawColor(200, 200, 200);
     doc.line(20, 25, 190, 25);
     doc.setFontSize(11);
-    doc.setTextColor(100, 100, 100);
     doc.text(`Fecha: ${date}`, 20, 35);
-    if (patientName || patientID) {
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0, 0, 0);
-      if (patientName) doc.text(`Paciente: ${patientName}`, 20, 42);
-      if (patientID) doc.text(`RUT/ID: ${patientID}`, 20, 49);
-    }
+    
+    const finalName = pacienteNombre || patientName;
+    if (finalName) doc.text(`Paciente: ${finalName}`, 20, 42);
+
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "bold");
     doc.text(`Evaluación: ${scale.nombre}`, 20, 60);
-    doc.setFillColor(240, 250, 250);
-    doc.rect(20, 65, 170, 15, 'F');
-    doc.text(`Puntaje Total: ${totalScore} puntos`, 25, 75);
-    doc.setFont("helvetica", "bold");
-    doc.text("Interpretación Clínica:", 20, 95);
+    doc.text(`Puntaje Total: ${totalScore} puntos`, 20, 70);
+    doc.text("Interpretación:", 20, 85);
     doc.setFont("helvetica", "normal");
-    doc.text(interpretationText as string, 20, 105, { maxWidth: 170 });
-    if (recommendationsList.length > 0) {
-      doc.setFont("helvetica", "bold");
-      doc.text("Recomendaciones Clínicas:", 20, 125);
-      doc.setFont("helvetica", "normal");
-      let yPos = 135;
-      recommendationsList.forEach((rec: string) => {
-        const lines = doc.splitTextToSize(`• ${rec}`, 160);
-        doc.text(lines, 25, yPos);
-        yPos += (lines.length * 7);
-      });
-    }
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text("__________________________________", 20, 260);
-    doc.text("Firma y Timbre del Profesional", 20, 265);
-    doc.text("Documento generado por EscalaPro", 20, 280);
-    const fileName = patientName 
-      ? `Reporte_${patientName.replace(/\s+/g, '_')}_${scale.id}.pdf`
-      : `Reporte_${scale.id}_${date.replace(/\//g, '-')}.pdf`;
-    doc.save(fileName);
+    doc.text(interpretationText as string, 20, 95, { maxWidth: 170 });
+
+    doc.save(`Reporte_${scale.id}.pdf`);
   };
 
   return (
@@ -130,7 +86,6 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
         <p className="text-gray-500 font-medium">{scale.nombre}</p>
       </div>
 
-      {/* CUADRO DE PUNTAJE DINÁMICO */}
       <div className={`bg-gradient-to-br ${styles.bg} rounded-3xl p-8 text-white text-center shadow-lg mb-6 relative overflow-hidden transition-all duration-500`}>
         <div className="relative z-10">
           <p className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">Puntaje Obtenido</p>
@@ -140,6 +95,25 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
           </div>
         </div>
       </div>
+
+      {/* --- BOTÓN DE GUARDADO EN INFORME GLOBAL --- */}
+      {onSave && pacienteNombre && (
+        <button
+          onClick={() => onSave({
+            idEscala: scale.id,
+            nombreEscala: scale.nombre,
+            puntaje: totalScore,
+            interpretacion: interpretationText,
+            color: alertColor,
+            recomendaciones: recommendationsList,
+            fecha: new Date().toLocaleDateString()
+          })}
+          className="w-full mb-6 bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-emerald-100 transition-all flex items-center justify-center gap-3 active:scale-95"
+        >
+          <Save className="w-6 h-6" />
+          Añadir al Informe de {pacienteNombre}
+        </button>
+      )}
 
       {recommendationsList.length > 0 && (
         <div className={`${styles.light} border rounded-2xl p-5 mb-6 text-left transition-colors duration-500`}>
@@ -157,28 +131,31 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
         </div>
       )}
 
-      <div className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
-        <div className="flex items-center gap-2 mb-4 text-gray-600">
-          <User className="w-5 h-5" />
-          <h3 className="font-bold text-sm uppercase">Identificación del Paciente</h3>
+      {/* Solo mostramos identificación si NO hay paciente activo */}
+      {!pacienteNombre && (
+        <div className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
+          <div className="flex items-center gap-2 mb-4 text-gray-600">
+            <User className="w-5 h-5" />
+            <h3 className="font-bold text-sm uppercase">Identificación del Paciente</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input 
+              type="text" 
+              value={patientName}
+              onChange={(e) => setPatientName(e.target.value)}
+              placeholder="Nombre Completo"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
+            />
+            <input 
+              type="text" 
+              value={patientID}
+              onChange={(e) => setPatientID(e.target.value)}
+              placeholder="RUT o ID"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input 
-            type="text" 
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-            placeholder="Nombre Completo"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
-          />
-          <input 
-            type="text" 
-            value={patientID}
-            onChange={(e) => setPatientID(e.target.value)}
-            placeholder="RUT o ID"
-            className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
-          />
-        </div>
-      </div>
+      )}
 
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -197,7 +174,7 @@ export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultPr
             className="flex items-center justify-center gap-2 px-6 py-4 bg-teal-600 text-white font-bold rounded-2xl hover:bg-teal-700 transition-all active:scale-95 shadow-lg shadow-teal-100"
           >
             <FileText className="w-5 h-5" />
-            Descargar PDF
+            PDF Individual
           </button>
         </div>
 
