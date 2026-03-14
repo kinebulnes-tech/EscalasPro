@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
 import { calcularEscala, validarRespuestas } from '../utils/scaleEngine';
 import ScaleResult from './ScaleResult';
@@ -15,6 +15,13 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
     interpretacion: string;
   } | null>(null);
 
+  // --- LÓGICA DE PROGRESO ---
+  const progress = useMemo(() => {
+    const totalPreguntas = scale.preguntas.length;
+    const respondidas = Object.keys(respuestas).length;
+    return (respondidas / totalPreguntas) * 100;
+  }, [respuestas, scale.preguntas.length]);
+
   const handleChange = (questionId: string, value: number) => {
     setRespuestas(prev => ({
       ...prev,
@@ -24,12 +31,10 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validarRespuestas(scale, respuestas)) {
       alert('Por favor complete todas las preguntas antes de calcular.');
       return;
     }
-
     const result = calcularEscala(scale, respuestas);
     setResultado({
       puntaje: result.puntaje,
@@ -42,7 +47,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
     setResultado(null);
   };
 
-  // --- CORRECCIÓN AQUÍ: Ajuste para el nuevo ScaleResult ---
   if (resultado) {
     return (
       <ScaleResult
@@ -52,16 +56,29 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
       />
     );
   }
-  // --------------------------------------------------------
 
   return (
     <div className="max-w-4xl mx-auto pb-10">
-      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+      
+      {/* BARRA DE PROGRESO FIJA */}
+      <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-40">
+        <div 
+          className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        >
+          {/* Brillo en la punta de la barra */}
+          <div className="w-full h-full relative">
+            <div className="absolute right-0 top-0 h-full w-4 bg-white/30 blur-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-4">
         
         {/* Botón Volver */}
         <button
           onClick={onBack}
-          className="mb-6 text-teal-600 hover:text-teal-800 font-medium flex items-center gap-2 transition-colors"
+          className="mb-6 text-teal-600 hover:text-teal-800 font-bold flex items-center gap-2 transition-all hover:-translate-x-1"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -69,20 +86,35 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
           Volver a escalas
         </button>
 
-        <div className="mb-8 border-b border-gray-100 pb-6">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
-          <p className="text-gray-500 text-sm sm:text-base leading-relaxed">{scale.descripcion}</p>
+        <div className="mb-8 border-b border-gray-100 pb-6 flex justify-between items-end">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
+            <p className="text-gray-500 text-sm sm:text-base leading-relaxed max-w-2xl">{scale.descripcion}</p>
+          </div>
+          {/* Indicador numérico de avance */}
+          <div className="hidden sm:block text-right">
+            <span className="text-3xl font-black text-teal-600">{Math.round(progress)}%</span>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Completado</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {scale.preguntas.map((pregunta, index) => (
-            <div key={pregunta.id} className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100">
+            <div 
+              key={pregunta.id} 
+              className={`p-5 sm:p-6 rounded-2xl border-2 transition-all duration-500 ${
+                respuestas[pregunta.id] !== undefined 
+                ? 'bg-white border-teal-100 shadow-sm' 
+                : 'bg-gray-50/50 border-transparent'
+              }`}
+            >
               <label className="block text-base sm:text-lg font-semibold text-gray-800 mb-4 leading-snug">
-                <span className="text-teal-600 mr-2">{index + 1}.</span> 
+                <span className={`mr-2 transition-colors ${respuestas[pregunta.id] !== undefined ? 'text-teal-600' : 'text-gray-400'}`}>
+                  {index + 1}.
+                </span> 
                 {pregunta.text}
               </label>
 
-              {/* Botones Táctiles Grandes */}
               {(pregunta.type === 'select' || pregunta.type === 'radio') && pregunta.options && (
                 <div className="flex flex-col gap-3">
                   {pregunta.options.map((option, idx) => {
@@ -94,16 +126,16 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                         onClick={() => handleChange(pregunta.id, option.value)}
                         className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center justify-between ${
                           isSelected
-                            ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-sm'
-                            : 'border-gray-200 bg-white text-gray-600 hover:border-teal-200 hover:bg-gray-50'
+                            ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-md translate-x-1'
+                            : 'border-gray-100 bg-white text-gray-600 hover:border-teal-200 hover:bg-gray-50'
                         }`}
                       >
-                        <span className={`${isSelected ? 'font-semibold' : 'font-medium'} pr-4`}>
+                        <span className={`${isSelected ? 'font-bold text-teal-700' : 'font-medium'} pr-4`}>
                           {option.label}
                         </span>
                         
-                        <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          isSelected ? 'border-teal-500 bg-teal-500' : 'border-gray-300 bg-transparent'
+                        <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                          isSelected ? 'border-teal-500 bg-teal-500 rotate-[360deg] scale-110' : 'border-gray-300 bg-transparent'
                         }`}>
                           {isSelected && (
                             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,35 +149,31 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                 </div>
               )}
 
-              {/* Inputs numéricos */}
               {pregunta.type === 'number' && (
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={pregunta.min}
-                    max={pregunta.max}
-                    value={respuestas[pregunta.id] ?? ''}
-                    onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
-                    placeholder="Escriba el valor aquí..."
-                    className="w-full text-xl sm:text-2xl font-semibold text-center text-teal-900 px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-0 focus:border-teal-500 focus:bg-teal-50/30 outline-none transition-all"
-                  />
-                </div>
+                <input
+                  type="number"
+                  min={pregunta.min}
+                  max={pregunta.max}
+                  value={respuestas[pregunta.id] ?? ''}
+                  onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
+                  placeholder="Ingrese valor..."
+                  className="w-full text-xl font-bold text-center text-teal-900 px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 focus:bg-teal-50/30 outline-none transition-all"
+                />
               )}
             </div>
           ))}
 
-          {/* Botones de Acción */}
           <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-8 border-t border-gray-100">
             <button
               type="submit"
-              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg shadow-teal-600/30 transition-all hover:-translate-y-1"
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-5 px-6 rounded-2xl font-black text-xl shadow-lg shadow-teal-600/30 transition-all hover:-translate-y-1 active:scale-95"
             >
               Calcular Resultado
             </button>
             <button
               type="button"
               onClick={handleReset}
-              className="px-6 py-4 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors sm:w-auto"
+              className="px-8 py-5 border-2 border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
             >
               Limpiar
             </button>
