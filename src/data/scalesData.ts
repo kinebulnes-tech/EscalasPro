@@ -1411,6 +1411,46 @@ export const scales: Scale[] = [
       if (p === 0) return { texto: 'Test de Romberg Negativo (Normal)', recomendaciones: ['Propiocepción y función vestibular íntegras', 'Mantener actividad física de equilibrio'] };
       return { texto: 'Test de Romberg Positivo (Alterado)', recomendaciones: ['Sugerente de ataxia sensitiva o déficit vestibular', 'Evaluar cordones posteriores de la médula', 'Entrenamiento de equilibrio con apoyo visual progresivo'] };
     }
+  },
+  {
+    id: 'epworth_sleepiness',
+    nombre: 'Escala de Somnolencia de Epworth',
+    categoria: 'neurologia',
+    descripcion: 'Evaluación del nivel de somnolencia diurna en diferentes situaciones cotidianas.',
+    preguntas: [
+      { id: 'sentado_leyendo', text: 'Sentado y leyendo', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'viendo_tv', text: 'Viendo televisión', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'sentado_publico', text: 'Sentado, quieto en un lugar público (cine, reunión)', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'copiloto_auto', text: 'Como pasajero en un auto una hora seguida', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'descansando_tarde', text: 'Echado para descansar por la tarde', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'sentado_charlando', text: 'Sentado y charlando con alguien', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'sentado_post_almuerzo', text: 'Sentado tranquilamente después de almorzar (sin alcohol)', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
+      { id: 'auto_detenido', text: 'En un auto, cuando se detiene unos minutos en el tráfico', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 10) return { texto: 'Normal (Puntaje: ' + p + ')', recomendaciones: ['No se observa somnolencia diurna excesiva', 'Mantener higiene del sueño estándar'] };
+      if (p <= 14) return { texto: 'Somnolencia diurna leve', recomendaciones: ['Revisar hábitos de sueño', 'Evitar consumo de estimulantes tarde en el día', 'Evaluar calidad del descanso nocturno'] };
+      if (p <= 17) return { texto: 'Somnolencia diurna moderada', recomendaciones: ['Derivación a especialista en Medicina del Sueño', 'Posible estudio de polisomnografía', 'Precaución al conducir o manejar maquinaria'] };
+      return { texto: 'Somnolencia diurna grave', recomendaciones: ['Alta probabilidad de Apnea del Sueño o Narcolepsia', 'Evaluación médica urgente', 'Restricción inmediata de conducción de vehículos'] };
+    }
+  },
+  {
+    id: 'mnsi_screening',
+    nombre: 'Screening de Neuropatía (MNSI)',
+    categoria: 'neurologia',
+    descripcion: ' Michigan Neuropathy Screening Instrument para detección de neuropatía periférica.',
+    preguntas: [
+      { id: 'apariencia_pies', text: '¿Apariencia de los pies deformada o con piel seca/callos?', type: 'select', options: [{ label: 'Sí (Anormal)', value: 1 }, { label: 'No (Normal)', value: 0 }] },
+      { id: 'ulceracion', text: '¿Presencia de ulceración en los pies?', type: 'select', options: [{ label: 'Sí (Anormal)', value: 1 }, { label: 'No (Normal)', value: 0 }] },
+      { id: 'reflejo_aquiliano', text: 'Reflejo Aquiliano:', type: 'select', options: [{ label: 'Ausente', value: 1 }, { label: 'Presente con refuerzo', value: 0.5 }, { label: 'Presente normal', value: 0 }] },
+      { id: 'vibracion_hallux', text: 'Percepción de vibración (Diapasón 128Hz) en Hallux:', type: 'select', options: [{ label: 'Ausente', value: 1 }, { label: 'Disminuida', value: 0.5 }, { label: 'Normal', value: 0 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p >= 2) return { texto: 'Probabilidad ALTA de Neuropatía Periférica', recomendaciones: ['Derivación a podología preventiva', 'Uso de calzado para diabético', 'Evaluación de sensibilidad con Monofilamento de Semmes-Weinstein', 'Control estricto de HbA1c'] };
+      return { texto: 'Baja probabilidad de Neuropatía', recomendaciones: ['Educación en el autoexamen diario de pies', 'Control anual preventivo'] };
+    }
   }
 ];
 
