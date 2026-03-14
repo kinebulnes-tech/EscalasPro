@@ -4,11 +4,11 @@ import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
 import ScaleForm from './components/ScaleForm';
-import PatientModal from './components/PatientModal'; // <--- Importamos el nuevo Modal
+import PatientModal from './components/PatientModal';
 import { 
   Accessibility, Stethoscope, Siren, MessageSquare, 
   Brain, HandHelping, ArrowLeft, ChevronRight, Star,
-  Apple, Zap, Smile, UserPlus, ClipboardList, UserMinus // <--- Añadimos UserMinus para cerrar sesión
+  Apple, Zap, Smile, UserPlus, ClipboardList, UserMinus 
 } from 'lucide-react';
 
 // --- DEFINICIÓN DE ESTRUCTURAS ---
@@ -51,7 +51,7 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
   
-  // --- ESTADOS DE SESIÓN Y MODAL (PASO 2) ---
+  // --- ESTADOS DE SESIÓN Y MODAL ---
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(null);
   const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>([]);
@@ -139,12 +139,22 @@ export default function App() {
             >
               <ArrowLeft className="w-5 h-5" /> Volver al listado
             </button>
-            <ScaleForm scale={selectedScale} onBack={() => setActiveScale(null)} />
+            
+            {/* --- MEJORA PASO 3.1: PASAR PROPS DE GUARDADO --- */}
+            <ScaleForm 
+              scale={selectedScale} 
+              onBack={() => setActiveScale(null)} 
+              onSave={(nuevoResultado: ResultadoSesion) => {
+                setListaResultados(prev => [...prev, nuevoResultado]);
+                setActiveScale(null); // Al guardar, volvemos automáticamente al Dashboard
+              }}
+              pacienteNombre={pacienteActivo?.nombre}
+            />
           </div>
         ) : !selectedCategory ? (
           <div className="animate-in fade-in zoom-in duration-500">
             
-            {/* BOTÓN INICIAR NUEVO PACIENTE (PASO 2) */}
+            {/* BOTÓN INICIAR NUEVO PACIENTE */}
             {!pacienteActivo && (
               <button 
                 onClick={() => setShowPatientModal(true)}
@@ -238,7 +248,7 @@ export default function App() {
         )}
       </main>
 
-      {/* MODAL DE PACIENTE (PASO 2) */}
+      {/* MODAL DE PACIENTE */}
       {showPatientModal && (
         <PatientModal 
           onConfirm={(data) => {
