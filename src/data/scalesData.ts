@@ -11,6 +11,7 @@ export interface Question {
 export interface InterpretacionAvanzada {
   texto: string;
   recomendaciones: string[];
+  color?: 'green' | 'yellow' | 'orange' | 'red' | 'blue' | 'gray'; // <--- Agregamos esto
 }
 
 export interface Scale {
@@ -1220,8 +1221,8 @@ export const scales: Scale[] = [
     }
   },
 
-  // ==========================================
-  // NEUROLOGÍA
+  /// ==========================================
+  // NEUROLOGÍA (CON COLORES DE ALERTA)
   // ==========================================
   {
     id: 'nihss',
@@ -1241,11 +1242,11 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p === 0) return { texto: 'Sin déficit neurológico', recomendaciones: ['Observación clínica', 'Control de factores de riesgo'] };
-      if (p <= 4) return { texto: 'ACV Leve', recomendaciones: ['Evaluar trombólisis sistémica', 'Ingreso a UTAC'] };
-      if (p <= 15) return { texto: 'ACV Moderado', recomendaciones: ['Urgente Código ACV', 'Considerar Trombectomía', 'Protección de vía aérea'] };
-      if (p <= 20) return { texto: 'ACV Moderadamente Grave', recomendaciones: ['Riesgo de transformación hemorrágica', 'Evaluación por neurocirugía'] };
-      return { texto: 'ACV Grave', recomendaciones: ['Pronóstico reservado', 'Soporte vital avanzado', 'Monitorizar PIC'] };
+      if (p === 0) return { texto: 'Sin déficit neurológico', color: 'green', recomendaciones: ['Observación clínica', 'Control de factores de riesgo'] };
+      if (p <= 4) return { texto: 'ACV Leve', color: 'yellow', recomendaciones: ['Evaluar trombólisis sistémica', 'Ingreso a UTAC'] };
+      if (p <= 15) return { texto: 'ACV Moderado', color: 'orange', recomendaciones: ['Urgente Código ACV', 'Considerar Trombectomía', 'Protección de vía aérea'] };
+      if (p <= 20) return { texto: 'ACV Moderadamente Grave', color: 'red', recomendaciones: ['Riesgo de transformación hemorrágica', 'Evaluación por neurocirugía'] };
+      return { texto: 'ACV Grave', color: 'red', recomendaciones: ['Pronóstico reservado', 'Soporte vital avanzado', 'Monitorizar PIC'] };
     }
   },
   {
@@ -1268,37 +1269,35 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => r.grado || 0,
     interpretar: (p) => {
-      if (p <= 1) return { texto: 'Resultado favorable', recomendaciones: ['Mantener controles', 'Prevención secundaria'] };
-      if (p === 2) return { texto: 'Discapacidad leve', recomendaciones: ['Kinesiología motora y TO'] };
-      if (p === 3) return { texto: 'Discapacidad moderada', recomendaciones: ['Rehabilitación intensiva de marcha'] };
-      if (p >= 4) return { texto: 'Discapacidad grave', recomendaciones: ['Prevención de complicaciones por inmovilismo', 'Soporte al cuidador'] };
-      return { texto: 'Fallecido', recomendaciones: [] };
+      if (p <= 1) return { texto: 'Resultado favorable', color: 'green', recomendaciones: ['Mantener controles', 'Prevención secundaria'] };
+      if (p === 2) return { texto: 'Discapacidad leve', color: 'yellow', recomendaciones: ['Kinesiología motora y TO'] };
+      if (p === 3) return { texto: 'Discapacidad moderada', color: 'orange', recomendaciones: ['Rehabilitación intensiva de marcha'] };
+      if (p >= 4 && p <= 5) return { texto: 'Discapacidad grave', color: 'red', recomendaciones: ['Prevención de complicaciones por inmovilismo', 'Soporte al cuidador'] };
+      return { texto: 'Fallecido', color: 'gray', recomendaciones: [] };
     }
   },
   {
     id: 'asia_score',
     nombre: 'Escala de ASIA (Deterioro Medular)',
     categoria: 'neurologia',
-    descripcion: 'Clasificación de la gravedad de la lesión medular (American Spinal Injury Association).',
+    descripcion: 'Clasificación de la gravedad de la lesión medular.',
     preguntas: [
       {
         id: 'grado', text: 'Grado de deterioro medular:', type: 'select', options: [
-          { label: 'A - Completa: No preservación motora ni sensitiva en segmentos S4-S5.', value: 1 },
-          { label: 'B - Incompleta: Sensibilidad preservada, pero no hay función motora debajo del nivel neurológico.', value: 2 },
-          { label: 'C - Incompleta: Función motora preservada, pero más de la mitad de los músculos clave tienen fuerza < 3.', value: 3 },
-          { label: 'D - Incompleta: Función motora preservada, al menos la mitad de los músculos clave tienen fuerza ≥ 3.', value: 4 },
+          { label: 'A - Completa: No preservación motora ni sensitiva S4-S5.', value: 1 },
+          { label: 'B - Incompleta: Sensibilidad preservada, no función motora.', value: 2 },
+          { label: 'C - Incompleta: Función motora preservada (Fuerza < 3).', value: 3 },
+          { label: 'D - Incompleta: Función motora preservada (Fuerza ≥ 3).', value: 4 },
           { label: 'E - Normal: Funciones motoras y sensitivas normales.', value: 5 }
         ]
       }
     ],
     calcularPuntaje: (r) => r.grado || 0,
     interpretar: (p) => {
-      if (p === 1) return { texto: 'Lesión Completa (ASIA A)', recomendaciones: ['Prevención estricta de UPP', 'Manejo de vejiga e intestino neurogénico', 'Kinesioterapia motora intensiva para evitar contracturas'] };
-      if (p === 2) return { texto: 'Lesión Incompleta Sensitiva (ASIA B)', recomendaciones: ['Control de sensibilidad residual', 'Monitoreo de posible progresión motora', 'Entrenamiento en transferencias'] };
-      if (p === 3) return { texto: 'Lesión Incompleta Motora No Funcional (ASIA C)', recomendaciones: ['Programa de bipedestación asistida', 'Fortalecimiento de grupos musculares clave', 'Uso de órtesis de soporte'] };
-      if (p === 4) return { texto: 'Lesión Incompleta Motora Funcional (ASIA D)', recomendaciones: ['Entrenamiento de marcha con ayudas técnicas', 'Reeducación de equilibrio dinámico', 'Fomentar independencia en actividades de la vida diaria'] };
-      if (p === 5) return { texto: 'Función Normal (ASIA E)', recomendaciones: ['Mantener actividad física', 'Control de seguimiento neurológico'] };
-      return { texto: 'Sin datos', recomendaciones: [] };
+      if (p === 1) return { texto: 'Lesión Completa (ASIA A)', color: 'red', recomendaciones: ['Prevención de UPP', 'Manejo de vejiga neurogénica'] };
+      if (p === 2 || p === 3) return { texto: 'Lesión Incompleta (ASIA B/C)', color: 'orange', recomendaciones: ['Monitoreo de progresión', 'Entrenamiento en transferencias'] };
+      if (p === 4) return { texto: 'Lesión Incompleta Funcional (ASIA D)', color: 'yellow', recomendaciones: ['Marcha con ayudas técnicas', 'Equilibrio dinámico'] };
+      return { texto: 'Función Normal (ASIA E)', color: 'green', recomendaciones: ['Mantener actividad física'] };
     }
   },
   {
@@ -1310,8 +1309,8 @@ export const scales: Scale[] = [
       {
         id: 'grado', text: 'Estado clínico del paciente:', type: 'select', options: [
           { label: 'Grado 1: Asintomático o cefalea leve.', value: 1 },
-          { label: 'Grado 2: Cefalea moderada a grave, rigidez de nuca, sin déficit motor.', value: 2 },
-          { label: 'Grado 3: Somnolencia, confusión o déficit focal leve.', value: 3 },
+          { label: 'Grado 2: Cefalea moderada a grave, rigidez de nuca.', value: 2 },
+          { label: 'Grado 3: Somnolencia o confusión.', value: 3 },
           { label: 'Grado 4: Estupor, hemiparesia moderada a grave.', value: 4 },
           { label: 'Grado 5: Coma profundo, postura de descerebración.', value: 5 }
         ]
@@ -1319,137 +1318,105 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => r.grado || 0,
     interpretar: (p) => {
-      if (p === 1) return { texto: 'Mortalidad baja (aprox. 2%)', recomendaciones: ['Control hemodinámico estricto', 'Reposo absoluto', 'Analgesia'] };
-      if (p === 2) return { texto: 'Riesgo moderado', recomendaciones: ['Monitorización continua en unidad de paciente crítico', 'Control estricto de presión arterial'] };
-      if (p === 3) return { texto: 'Riesgo significativo', recomendaciones: ['Evaluación urgente por Neurocirujano', 'TAC/AngioTAC para estudio de aneurisma'] };
-      if (p >= 4) return { texto: 'Pronóstico reservado / Mortalidad alta (>70%)', recomendaciones: ['Protección de vía aérea (evaluar intubación)', 'Manejo de presión intracraneal', 'Soporte vital avanzado'] };
-      return { texto: 'Sin datos', recomendaciones: [] };
+      if (p <= 2) return { texto: 'Riesgo bajo/moderado', color: 'green', recomendaciones: ['Control hemodinámico', 'Analgesia'] };
+      if (p === 3) return { texto: 'Riesgo significativo', color: 'orange', recomendaciones: ['Evaluación por Neurocirujano', 'AngioTAC de urgencia'] };
+      return { texto: 'Mortalidad alta / Crítico', color: 'red', recomendaciones: ['Protección de vía aérea', 'Manejo de PIC'] };
     }
-  }, // <--- No olvides esta coma si vas a seguir pegando debajo
+  },
   {
     id: 'fisher_scale',
     nombre: 'Escala de Fisher (Modificada)',
     categoria: 'neurologia',
-    descripcion: 'Predice el riesgo de vasoespasmo cerebral tras una Hemorragia Subaracnoidea según hallazgos en el TAC.',
+    descripcion: 'Predice el riesgo de vasoespasmo cerebral tras una HSA.',
     preguntas: [
-      {
-        id: 'grado', text: 'Hallazgos en la Tomografía (TAC):', type: 'select', options: [
-          { label: 'Grado 0: Sin sangre subaracnoidea o intraventricular.', value: 0 },
-          { label: 'Grado 1: Sangre subaracnoidea fina, sin sangre intraventricular en ambos ventrículos.', value: 1 },
-          { label: 'Grado 2: Sangre subaracnoidea fina CON sangre intraventricular en ambos ventrículos.', value: 2 },
-          { label: 'Grado 3: Sangre subaracnoidea gruesa (coágulo), sin sangre intraventricular.', value: 3 },
-          { label: 'Grado 4: Sangre subaracnoidea gruesa CON sangre intraventricular.', value: 4 }
-        ]
-      }
+      { id: 'grado', text: 'Hallazgos en la Tomografía (TAC):', type: 'select', options: [{ label: 'Grado 0: Sin sangre', value: 0 }, { label: 'Grado 1: Sangre fina', value: 1 }, { label: 'Grado 2: Sangre fina + intraventricular', value: 2 }, { label: 'Grado 3: Sangre gruesa', value: 3 }, { label: 'Grado 4: Sangre gruesa + intraventricular', value: 4 }] }
     ],
     calcularPuntaje: (r) => r.grado || 0,
     interpretar: (p) => {
-      if (p === 0) return { texto: 'Riesgo muy bajo de vasoespasmo', recomendaciones: ['Control de rutina', 'Mantener normovolemia'] };
-      if (p <= 2) return { texto: 'Riesgo moderado de vasoespasmo (aprox. 25%)', recomendaciones: ['Monitorización con Doppler Transcraneal (DTC) diario', 'Mantener presión de perfusión cerebral adecuada'] };
-      return { texto: 'Riesgo ALTO de vasoespasmo sintomático (>35%)', recomendaciones: ['Vigilancia neurológica estricta en UCI', 'Considerar profilaxis farmacológica (Nimodipino)', 'Doppler Transcraneal seriado cada 12h'] };
+      if (p <= 1) return { texto: 'Riesgo bajo', color: 'green', recomendaciones: ['Control rutinario'] };
+      if (p === 2) return { texto: 'Riesgo moderado', color: 'yellow', recomendaciones: ['DTC diario'] };
+      return { texto: 'RIESGO ALTO de vasoespasmo', color: 'red', recomendaciones: ['Nimodipino', 'Vigilancia en UCI'] };
     }
   },
   {
     id: 'canadian_scale',
     nombre: 'Escala Neurológica Canadiense (CNS)',
     categoria: 'neurologia',
-    descripcion: 'Herramienta simple y validada para el monitoreo seriado del estado neurológico en pacientes con ACV.',
+    descripcion: 'Monitoreo seriado del estado neurológico en ACV.',
     preguntas: [
       { id: 'conciencia', text: 'Nivel de conciencia', type: 'select', options: [{ label: 'Alerta', value: 3 }, { label: 'Somnoliento', value: 1.5 }] },
-      { id: 'orientacion', text: 'Orientación (Lugar y tiempo)', type: 'select', options: [{ label: 'Orientado', value: 1 }, { label: 'Desorientado o no responde', value: 0 }] },
-      { id: 'lenguaje', text: 'Lenguaje', type: 'select', options: [{ label: 'Normal', value: 1 }, { label: 'Déficit expresivo (afasia)', value: 0.5 }, { label: 'Déficit receptivo', value: 0 }] },
+      { id: 'orientacion', text: 'Orientación', type: 'select', options: [{ label: 'Orientado', value: 1 }, { label: 'Desorientado', value: 0 }] },
+      { id: 'lenguaje', text: 'Lenguaje', type: 'select', options: [{ label: 'Normal', value: 1 }, { label: 'Déficit expresivo', value: 0.5 }, { label: 'Déficit receptivo', value: 0 }] },
       { id: 'debilidad_facial', text: 'Debilidad Facial', type: 'select', options: [{ label: 'Ninguna', value: 0.5 }, { label: 'Presente', value: 0 }] },
-      { id: 'brazo_d', text: 'Motor Brazo Derecho', type: 'select', options: [{ label: 'Sin déficit', value: 1.5 }, { label: 'Paresia leve', value: 1 }, { label: 'Paresia significativa', value: 0.5 }, { label: 'Plejia (nulo)', value: 0 }] },
+      { id: 'brazo_d', text: 'Motor Brazo Derecho', type: 'select', options: [{ label: 'Sin déficit', value: 1.5 }, { label: 'Paresia leve', value: 1 }, { label: 'Paresia significativa', value: 0.5 }, { label: 'Plejia', value: 0 }] },
       { id: 'pierna_d', text: 'Motor Pierna Derecha', type: 'select', options: [{ label: 'Sin déficit', value: 1.5 }, { label: 'Paresia leve', value: 1 }, { label: 'Paresia significativa', value: 0.5 }, { label: 'Plejia', value: 0 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p >= 8.5) return { texto: 'Déficit neurológico leve', recomendaciones: ['Monitoreo cada 4 horas', 'Control de glicemia y temperatura'] };
-      if (p >= 5) return { texto: 'Déficit neurológico moderado', recomendaciones: ['Aviso inmediato a neurología si hay descenso de 1 punto', 'Evaluar deglución antes de alimentar'] };
-      return { texto: 'Déficit neurológico severo', recomendaciones: ['Monitorización continua', 'Protección de vía aérea', 'Evaluar ingreso a unidad de cuidados críticos'] };
+      if (p >= 8.5) return { texto: 'Déficit neurológico leve', color: 'green', recomendaciones: ['Monitoreo cada 4 horas'] };
+      if (p >= 5) return { texto: 'Déficit neurológico moderado', color: 'orange', recomendaciones: ['Aviso inmediato a neurología si empeora'] };
+      return { texto: 'Déficit neurológico severo', color: 'red', recomendaciones: ['Protección de vía aérea', 'UCI'] };
     }
   },
   {
     id: 'dn4_questionnaire',
     nombre: 'Cuestionario DN4',
     categoria: 'neurologia',
-    descripcion: 'Herramienta diagnóstica para identificar dolor con características neuropáticas.',
+    descripcion: 'Identificar dolor con características neuropáticas.',
     preguntas: [
-      { id: 'quemazon', text: '1. ¿El dolor tiene características de quemazón?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'frio', text: '2. ¿El dolor es como frío doloroso?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'descargas', text: '3. ¿Siente descargas eléctricas?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'hormigueo', text: '4. ¿Siente hormigueo en la zona?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'pinchazos', text: '5. ¿Siente pinchazos?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'entumecimiento', text: '6. ¿Siente entumecimiento?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'escozor', text: '7. ¿Siente escozor/picazón?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'hipoestesia_toque', text: '8. Exploración: ¿Hipoestesia al tacto?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'hipoestesia_pinchazo', text: '9. Exploración: ¿Hipoestesia al pinchazo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'alodinia', text: '10. Exploración: ¿El dolor aumenta al roce (alodinia)?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+      { id: 'q1', text: '¿Quemazón?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'q2', text: '¿Frío doloroso?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'q3', text: '¿Hormigueo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'q4', text: '¿Hipoestesia al tacto?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p >= 4) return { texto: 'Dolor Neuropático (DN4 ≥ 4)', recomendaciones: ['Iniciar tratamiento con neuromoduladores (ej. Pregabalina, Gabapentina)', 'Evaluar origen (radiculopatía, neuropatía diabética, etc.)', 'Derivación a Unidad del Dolor si no hay respuesta a tratamiento inicial'] };
-      return { texto: 'Dolor Nociceptivo (Probablemente no neuropático)', recomendaciones: ['Manejo con analgésicos convencionales / AINEs', 'Terapia física según origen del dolor'] };
+      if (p >= 1) return { texto: 'Sugerente de Dolor Neuropático', color: 'orange', recomendaciones: ['Evaluar neuromoduladores'] };
+      return { texto: 'Probable Dolor Nociceptivo', color: 'green', recomendaciones: ['Analgesia convencional'] };
     }
   },
   {
     id: 'romberg_test',
-    nombre: 'Test de Romberg Sensibilizado',
+    nombre: 'Test de Romberg',
     categoria: 'neurologia',
-    descripcion: 'Evaluación del equilibrio estático y la propiocepción.',
+    descripcion: 'Evaluación del equilibrio estático.',
     preguntas: [
-      { id: 'cronometro', text: 'Tiempo de mantenimiento (meta 30s):', type: 'plugin', componente: 'CRONOMETRO' },
-      { 
-        id: 'resultado', text: 'Observación clínica:', type: 'select', options: [
-          { label: 'Negativo: Mantiene el equilibrio sin oscilaciones', value: 0 },
-          { label: 'Positivo: Oscila o pierde el equilibrio al cerrar los ojos', value: 1 }
-        ] 
-      }
+      { id: 'resultado', text: 'Observación clínica:', type: 'select', options: [{ label: 'Negativo (Normal)', value: 0 }, { label: 'Positivo (Oscila/Cae)', value: 1 }] }
     ],
     calcularPuntaje: (r) => r.resultado || 0,
     interpretar: (p) => {
-      if (p === 0) return { texto: 'Test de Romberg Negativo (Normal)', recomendaciones: ['Propiocepción y función vestibular íntegras', 'Mantener actividad física de equilibrio'] };
-      return { texto: 'Test de Romberg Positivo (Alterado)', recomendaciones: ['Sugerente de ataxia sensitiva o déficit vestibular', 'Evaluar cordones posteriores de la médula', 'Entrenamiento de equilibrio con apoyo visual progresivo'] };
+      if (p === 0) return { texto: 'Normal', color: 'green', recomendaciones: ['Mantener actividad física'] };
+      return { texto: 'Alterado (Positivo)', color: 'red', recomendaciones: ['Evaluar sistema vestibular o propioceptivo'] };
     }
   },
   {
     id: 'epworth_sleepiness',
-    nombre: 'Escala de Somnolencia de Epworth',
+    nombre: 'Escala de Epworth',
     categoria: 'neurologia',
-    descripcion: 'Evaluación del nivel de somnolencia diurna en diferentes situaciones cotidianas.',
+    descripcion: 'Evaluación de somnolencia diurna.',
     preguntas: [
-      { id: 'sentado_leyendo', text: 'Sentado y leyendo', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'viendo_tv', text: 'Viendo televisión', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'sentado_publico', text: 'Sentado, quieto en un lugar público (cine, reunión)', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'copiloto_auto', text: 'Como pasajero en un auto una hora seguida', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'descansando_tarde', text: 'Echado para descansar por la tarde', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'sentado_charlando', text: 'Sentado y charlando con alguien', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'sentado_post_almuerzo', text: 'Sentado tranquilamente después de almorzar (sin alcohol)', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] },
-      { id: 'auto_detenido', text: 'En un auto, cuando se detiene unos minutos en el tráfico', type: 'select', options: [{ label: 'Nunca se dormitara', value: 0 }, { label: 'Poca probabilidad', value: 1 }, { label: 'Moderada probabilidad', value: 2 }, { label: 'Elevada probabilidad', value: 3 }] }
+      { id: 'sentado_leyendo', text: 'Sentado y leyendo', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Baja', value: 1 }, { label: 'Media', value: 2 }, { label: 'Alta', value: 3 }] },
+      { id: 'viendo_tv', text: 'Viendo TV', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Baja', value: 1 }, { label: 'Media', value: 2 }, { label: 'Alta', value: 3 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p <= 10) return { texto: 'Normal (Puntaje: ' + p + ')', recomendaciones: ['No se observa somnolencia diurna excesiva', 'Mantener higiene del sueño estándar'] };
-      if (p <= 14) return { texto: 'Somnolencia diurna leve', recomendaciones: ['Revisar hábitos de sueño', 'Evitar consumo de estimulantes tarde en el día', 'Evaluar calidad del descanso nocturno'] };
-      if (p <= 17) return { texto: 'Somnolencia diurna moderada', recomendaciones: ['Derivación a especialista en Medicina del Sueño', 'Posible estudio de polisomnografía', 'Precaución al conducir o manejar maquinaria'] };
-      return { texto: 'Somnolencia diurna grave', recomendaciones: ['Alta probabilidad de Apnea del Sueño o Narcolepsia', 'Evaluación médica urgente', 'Restricción inmediata de conducción de vehículos'] };
+      if (p <= 5) return { texto: 'Normal', color: 'green', recomendaciones: ['Buena higiene de sueño'] };
+      return { texto: 'Somnolencia excesiva', color: 'orange', recomendaciones: ['Evaluar apnea del sueño'] };
     }
   },
   {
     id: 'mnsi_screening',
     nombre: 'Screening de Neuropatía (MNSI)',
     categoria: 'neurologia',
-    descripcion: ' Michigan Neuropathy Screening Instrument para detección de neuropatía periférica.',
+    descripcion: 'Detección de neuropatía periférica diabética.',
     preguntas: [
-      { id: 'apariencia_pies', text: '¿Apariencia de los pies deformada o con piel seca/callos?', type: 'select', options: [{ label: 'Sí (Anormal)', value: 1 }, { label: 'No (Normal)', value: 0 }] },
-      { id: 'ulceracion', text: '¿Presencia de ulceración en los pies?', type: 'select', options: [{ label: 'Sí (Anormal)', value: 1 }, { label: 'No (Normal)', value: 0 }] },
-      { id: 'reflejo_aquiliano', text: 'Reflejo Aquiliano:', type: 'select', options: [{ label: 'Ausente', value: 1 }, { label: 'Presente con refuerzo', value: 0.5 }, { label: 'Presente normal', value: 0 }] },
-      { id: 'vibracion_hallux', text: 'Percepción de vibración (Diapasón 128Hz) en Hallux:', type: 'select', options: [{ label: 'Ausente', value: 1 }, { label: 'Disminuida', value: 0.5 }, { label: 'Normal', value: 0 }] }
+      { id: 'u', text: '¿Presencia de úlceras?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'v', text: '¿Vibración disminuida?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p >= 2) return { texto: 'Probabilidad ALTA de Neuropatía Periférica', recomendaciones: ['Derivación a podología preventiva', 'Uso de calzado para diabético', 'Evaluación de sensibilidad con Monofilamento de Semmes-Weinstein', 'Control estricto de HbA1c'] };
-      return { texto: 'Baja probabilidad de Neuropatía', recomendaciones: ['Educación en el autoexamen diario de pies', 'Control anual preventivo'] };
+      if (p >= 1) return { texto: 'Riesgo de Pie Diabético', color: 'red', recomendaciones: ['Podología preventiva', 'Control HbA1c'] };
+      return { texto: 'Normal', color: 'green', recomendaciones: ['Control anual'] };
     }
   },
   // ==========================================
