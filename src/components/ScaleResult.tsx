@@ -1,5 +1,5 @@
 import { Scale } from '../data/scalesData';
-import { ClipboardCheck, ArrowLeft, Copy } from 'lucide-react';
+import { ClipboardCheck, ArrowLeft, Copy, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
 interface ScaleResultProps {
@@ -11,20 +11,30 @@ interface ScaleResultProps {
 export default function ScaleResult({ scale, totalScore, onBack }: ScaleResultProps) {
   const [copied, setCopied] = useState(false);
 
-  // Usamos la función interpretar que ya viene en la definición de la escala
-  const interpretation = scale.interpretar(totalScore);
+  // Ejecutamos la función interpretar
+  const result = scale.interpretar(totalScore);
+  
+  // Detectamos si es el formato antiguo (string) o el nuevo (objeto con recomendaciones)
+  const isAdvanced = typeof result === 'object' && result !== null;
+  const interpretationText = isAdvanced ? result.texto : result;
+  const recommendations = isAdvanced && result.recomendaciones ? result.recomendaciones : [];
 
   const generateReport = () => {
     const date = new Date().toLocaleDateString();
     
-    const report = `EVALUACIÓN CLÍNICA - EscalaPro
+    let report = `EVALUACIÓN CLÍNICA - EscalaPro
 ------------------------------
 Fecha: ${date}
 Escala: ${scale.nombre}
 Puntaje Total: ${totalScore} puntos
-Interpretación: ${interpretation}
-------------------------------
-Generado por EscalaPro`.trim();
+Interpretación: ${interpretationText}`;
+
+    // Si hay recomendaciones, las agregamos al reporte copiado
+    if (recommendations.length > 0) {
+      report += `\n\nRecomendaciones:\n${recommendations.map((r: string) => `- ${r}`).join('\n')}`;
+    }
+
+    report += `\n------------------------------\nGenerado por EscalaPro`;
 
     navigator.clipboard.writeText(report);
     setCopied(true);
@@ -41,16 +51,34 @@ Generado por EscalaPro`.trim();
         <p className="text-gray-500 font-medium">{scale.nombre}</p>
       </div>
 
-      <div className="bg-gradient-to-br from-teal-600 to-blue-600 rounded-3xl p-10 text-white text-center shadow-lg mb-8 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-teal-600 to-blue-600 rounded-3xl p-10 text-white text-center shadow-lg mb-6 relative overflow-hidden">
         <div className="relative z-10">
           <p className="text-teal-100 font-bold uppercase tracking-widest text-sm mb-2">Puntaje Obtenido</p>
           <div className="text-7xl font-black mb-4">{totalScore}</div>
           <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl font-bold text-xl">
-            {interpretation}
+            {interpretationText}
           </div>
         </div>
         <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* NUEVA SECCIÓN: Solo se renderiza si existen recomendaciones */}
+      {recommendations.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 text-left shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="w-6 h-6 text-amber-600" />
+            <h3 className="text-lg font-bold text-amber-900">Recomendaciones Clínicas</h3>
+          </div>
+          <ul className="space-y-2">
+            {recommendations.map((rec: string, index: number) => (
+              <li key={index} className="flex items-start gap-2 text-amber-800 font-medium">
+                <span className="text-amber-500 mt-0.5">•</span>
+                {rec}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <button
