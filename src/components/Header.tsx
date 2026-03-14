@@ -2,42 +2,40 @@ import { Heart, Activity, FileText, ShieldCheck } from 'lucide-react';
 
 export default function Header() {
   return (
-    <header className="bg-white border-b border-gray-100 pt-10 pb-8 px-4 mb-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col items-center text-center space-y-6">
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 pb-4 pt-6 px-6 mb-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           
-          {/* Logo Principal */}
-          <div className="flex items-center gap-3">
-            <div className="bg-teal-600 p-2.5 rounded-2xl shadow-lg shadow-teal-100">
-              <Heart className="w-8 h-8 text-white fill-white" />
+          {/* Lado Izquierdo: Marca y Slogan */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-teal-500 to-teal-600 p-2 rounded-xl shadow-md shadow-teal-100">
+                <Heart className="w-7 h-7 text-white fill-white/20" />
+              </div>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+                Escala<span className="text-teal-600">Pro</span>
+              </h1>
             </div>
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-              Escala<span className="text-teal-600">Pro</span>
-            </h1>
+            <p className="text-gray-500 font-semibold text-base sm:text-lg max-w-xl leading-snug">
+              Soporte clínico con <span className="text-teal-600 underline decoration-teal-200 decoration-2 underline-offset-4">interpretación automática</span> basada en evidencia.
+            </p>
           </div>
 
-          {/* Slogan y Pitch */}
-          <div className="max-w-2xl">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
-              Plataforma de soporte clínico con <span className="text-teal-600">interpretación automática</span> basada en evidencia.
-            </h2>
-          </div>
-
-          {/* Badges de Funcionalidad */}
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+          {/* Lado Derecho: Badges Estilizados */}
+          <div className="flex flex-wrap gap-2 pb-1">
+            <div className="group flex items-center gap-2 bg-teal-50/50 border border-teal-100 px-3 py-1.5 rounded-xl transition-all hover:bg-teal-50">
               <Activity className="w-4 h-4 text-teal-600" />
-              <span className="text-gray-700 text-xs sm:text-sm font-bold">+50 Escalas Validadas</span>
+              <span className="text-teal-900 text-xs font-bold tracking-wide">+58 ESCALAS</span>
             </div>
             
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+            <div className="group flex items-center gap-2 bg-blue-50/50 border border-blue-100 px-3 py-1.5 rounded-xl transition-all hover:bg-blue-50">
               <FileText className="w-4 h-4 text-blue-600" />
-              <span className="text-gray-700 text-xs sm:text-sm font-bold">Reportes PDF Profesionales</span>
+              <span className="text-blue-900 text-xs font-bold tracking-wide">REPORTES PDF</span>
             </div>
 
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+            <div className="group flex items-center gap-2 bg-emerald-50/50 border border-emerald-100 px-3 py-1.5 rounded-xl transition-all hover:bg-emerald-50">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span className="text-gray-700 text-xs sm:text-sm font-bold">Guía de Acción Clínica</span>
+              <span className="text-emerald-900 text-xs font-bold tracking-wide">GUÍA CLÍNICA</span>
             </div>
           </div>
 
