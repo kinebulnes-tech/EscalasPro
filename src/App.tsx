@@ -4,39 +4,45 @@ import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
 import ScaleForm from './components/ScaleForm';
+import PatientModal from './components/PatientModal'; // <--- Importamos el nuevo Modal
 import { 
   Accessibility, Stethoscope, Siren, MessageSquare, 
   Brain, HandHelping, ArrowLeft, ChevronRight, Star,
-  Apple, Zap, Smile // <--- Nuevos iconos importados
+  Apple, Zap, Smile, UserPlus, ClipboardList, UserMinus // <--- Añadimos UserMinus para cerrar sesión
 } from 'lucide-react';
+
+// --- DEFINICIÓN DE ESTRUCTURAS ---
+interface Paciente {
+  nombre: string;
+  rut: string;
+  edad: string;
+  diagnostico: string;
+}
+
+interface ResultadoSesion {
+  idEscala: string;
+  nombreEscala: string;
+  puntaje: number;
+  interpretacion: string;
+  color: string;
+  recomendaciones: string[];
+  fecha: string;
+}
 
 const getCategoryIcon = (id: string) => {
   const props = { className: "w-10 h-10 mb-4 transition-transform group-hover:scale-110 duration-300" };
   
   switch (id) {
-    case 'kinesiologia': 
-      return <Accessibility {...props} className={props.className + " text-blue-600"} />;
-    case 'enfermeria': 
-      return <Stethoscope {...props} className={props.className + " text-rose-600"} />;
-    case 'emergencias': 
-      return <Siren {...props} className={props.className + " text-red-600"} />;
-    case 'fonoaudiologia': 
-      return <MessageSquare {...props} className={props.className + " text-orange-600"} />;
-    case 'cognitivas': 
-      return <Brain {...props} className={props.className + " text-purple-600"} />;
-    case 'terapia_ocupacional': 
-      return <HandHelping {...props} className={props.className + " text-emerald-600"} />;
-    
-    // NUEVAS CATEGORÍAS CON SUS ICONOS Y COLORES
-    case 'psicologia': 
-      return <Smile {...props} className={props.className + " text-pink-500"} />;
-    case 'nutricion': 
-      return <Apple {...props} className={props.className + " text-orange-500"} />;
-    case 'neurologia': 
-      return <Zap {...props} className={props.className + " text-indigo-600"} />;
-
-    default: 
-      return <Accessibility {...props} className={props.className + " text-gray-400"} />;
+    case 'kinesiologia': return <Accessibility {...props} className={props.className + " text-blue-600"} />;
+    case 'enfermeria': return <Stethoscope {...props} className={props.className + " text-rose-600"} />;
+    case 'emergencias': return <Siren {...props} className={props.className + " text-red-600"} />;
+    case 'fonoaudiologia': return <MessageSquare {...props} className={props.className + " text-orange-600"} />;
+    case 'cognitivas': return <Brain {...props} className={props.className + " text-purple-600"} />;
+    case 'terapia_ocupacional': return <HandHelping {...props} className={props.className + " text-emerald-600"} />;
+    case 'psicologia': return <Smile {...props} className={props.className + " text-pink-500"} />;
+    case 'nutricion': return <Apple {...props} className={props.className + " text-orange-500"} />;
+    case 'neurologia': return <Zap {...props} className={props.className + " text-indigo-600"} />;
+    default: return <Accessibility {...props} className={props.className + " text-gray-400"} />;
   }
 };
 
@@ -45,6 +51,12 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
   
+  // --- ESTADOS DE SESIÓN Y MODAL (PASO 2) ---
+  const [showPatientModal, setShowPatientModal] = useState(false);
+  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(null);
+  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>([]);
+
+  // Favoritos
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     return saved ? JSON.parse(saved) : [];
@@ -80,6 +92,45 @@ export default function App() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* INDICADOR DE PACIENTE ACTIVO */}
+        {pacienteActivo && (
+          <div className="bg-teal-600 text-white p-6 rounded-[2rem] mb-8 flex flex-col md:flex-row justify-between items-center shadow-xl animate-in fade-in slide-in-from-top-6 duration-500">
+            <div className="flex items-center gap-5 mb-4 md:mb-0">
+              <div className="bg-white/20 p-3 rounded-2xl">
+                <ClipboardList className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-xs font-black uppercase opacity-70 tracking-tighter">Informe en curso para:</p>
+                <h2 className="text-xl font-black leading-none mb-1">{pacienteActivo.nombre}</h2>
+                <div className="flex gap-3 text-xs font-bold opacity-80">
+                   <span>RUT: {pacienteActivo.rut}</span>
+                   <span>Edad: {pacienteActivo.edad} años</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-[10px] font-black uppercase opacity-70">Escalas</p>
+                <p className="text-2xl font-black leading-none">{listaResultados.length}</p>
+              </div>
+              <button 
+                onClick={() => {
+                  if(confirm("¿Deseas finalizar la sesión actual? Se borrarán los datos temporales.")) {
+                    setPacienteActivo(null);
+                    setListaResultados([]);
+                  }
+                }}
+                className="bg-red-500/20 hover:bg-red-500 text-white p-3 rounded-xl transition-all flex items-center gap-2 font-bold text-sm"
+              >
+                <UserMinus className="w-5 h-5" />
+                Finalizar
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeScale && selectedScale ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <button 
@@ -93,6 +144,22 @@ export default function App() {
         ) : !selectedCategory ? (
           <div className="animate-in fade-in zoom-in duration-500">
             
+            {/* BOTÓN INICIAR NUEVO PACIENTE (PASO 2) */}
+            {!pacienteActivo && (
+              <button 
+                onClick={() => setShowPatientModal(true)}
+                className="w-full mb-12 bg-white border-4 border-dashed border-teal-100 p-12 rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-teal-500 hover:bg-teal-50/30 transition-all duration-500"
+              >
+                <div className="bg-teal-50 p-5 rounded-3xl mb-4 group-hover:scale-110 group-hover:bg-teal-500 group-hover:text-white transition-all duration-500">
+                  <UserPlus className="w-10 h-10 text-teal-600 group-hover:text-white" />
+                </div>
+                <h3 className="text-2xl font-black text-gray-900">Nueva Evaluación de Paciente</h3>
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2 text-center">
+                  Identifica al paciente para generar un informe consolidado con múltiples escalas
+                </p>
+              </button>
+            )}
+
             {/* SECCIÓN DE FAVORITOS */}
             {favoriteScales.length > 0 && (
               <div className="mb-12">
@@ -170,6 +237,17 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* MODAL DE PACIENTE (PASO 2) */}
+      {showPatientModal && (
+        <PatientModal 
+          onConfirm={(data) => {
+            setPacienteActivo(data);
+            setShowPatientModal(false);
+          }}
+          onClose={() => setShowPatientModal(false)}
+        />
+      )}
     </div>
   );
 }
