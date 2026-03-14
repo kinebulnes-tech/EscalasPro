@@ -1,57 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Heart, Activity, FileText, ShieldCheck } from 'lucide-react';
 
 export default function Header() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Al cargar, revisar si ya existía una preferencia guardada
-  useEffect(() => {
-    const savedMode = localStorage.getItem('escalapro_theme');
-    if (savedMode === 'dark') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('escalapro_theme', 'light');
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('escalapro_theme', 'dark');
-    }
-    setDarkMode(!darkMode);
-  };
-
   return (
-    <header className="bg-gradient-to-r from-teal-600 to-blue-600 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Ícono clínico */}
-          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-          <h1 className="text-2xl font-bold tracking-tight">EscalaPro</h1>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <p className="text-sm font-medium opacity-90 hidden sm:block">
-            Herramientas Clínicas
-          </p>
+    <header className="bg-white border-b border-gray-100 pt-10 pb-8 px-4 mb-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col items-center text-center space-y-6">
           
-          {/* Botón Switch Modo Oscuro */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all active:scale-90"
-            aria-label="Cambiar tema"
-          >
-            {darkMode ? (
-              <Sun className="w-6 h-6 text-yellow-300 fill-yellow-300" />
-            ) : (
-              <Moon className="w-6 h-6 text-white" />
-            )}
-          </button>
+          {/* Logo Principal */}
+          <div className="flex items-center gap-3">
+            <div className="bg-teal-600 p-2.5 rounded-2xl shadow-lg shadow-teal-100">
+              <Heart className="w-8 h-8 text-white fill-white" />
+            </div>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+              Escala<span className="text-teal-600">Pro</span>
+            </h1>
+          </div>
+
+          {/* Slogan y Pitch */}
+          <div className="max-w-2xl">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 leading-tight">
+              Plataforma de soporte clínico con <span className="text-teal-600">interpretación automática</span> basada en evidencia.
+            </h2>
+          </div>
+
+          {/* Badges de Funcionalidad */}
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+              <Activity className="w-4 h-4 text-teal-600" />
+              <span className="text-gray-700 text-xs sm:text-sm font-bold">+50 Escalas Validadas</span>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span className="text-gray-700 text-xs sm:text-sm font-bold">Reportes PDF Profesionales</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-full">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span className="text-gray-700 text-xs sm:text-sm font-bold">Guía de Acción Clínica</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </header>
