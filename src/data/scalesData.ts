@@ -1047,7 +1047,7 @@ export const scales: Scale[] = [
   },
 
   // ==========================================
-  // ENFERMERÍA (NUEVAS)
+  // ENFERMERÍA
   // ==========================================
   {
     id: 'braden',
@@ -1078,14 +1078,14 @@ export const scales: Scale[] = [
     preguntas: [
       { id: 'fisico', text: 'Estado físico general', type: 'select', options: [{ label: '4 - Bueno', value: 4 }, { label: '3 - Mediano/Regular', value: 3 }, { label: '2 - Pobre', value: 2 }, { label: '1 - Muy Malo', value: 1 }] },
       { id: 'mental', text: 'Estado mental', type: 'select', options: [{ label: '4 - Alerta', value: 4 }, { label: '3 - Apático', value: 3 }, { label: '2 - Confuso', value: 2 }, { label: '1 - Estuporoso/Comatoso', value: 1 }] },
-      { id: 'actividad', text: 'Actividad', type: 'select', options: [{ label: '4 - Ambulante', value: 4 }, { label: '3 - Camina con ayuda', value: 3 }, { label: '2 - Sentado', value: 2 }, { label: '1 - Encamado', value: 1 }] },
+      { id: 'actividad', text: 'Activity', type: 'select', options: [{ label: '4 - Ambulante', value: 4 }, { label: '3 - Camina con ayuda', value: 3 }, { label: '2 - Sentado', value: 2 }, { label: '1 - Encamado', value: 1 }] },
       { id: 'movilidad', text: 'Movilidad', type: 'select', options: [{ label: '4 - Total', value: 4 }, { label: '3 - Disminuida', value: 3 }, { label: '2 - Muy Limitada', value: 2 }, { label: '1 - Inmóvil', value: 1 }] },
       { id: 'incontinencia', text: 'Incontinencia', type: 'select', options: [{ label: '4 - Ninguna', value: 4 }, { label: '3 - Ocasional', value: 3 }, { label: '2 - Urinaria o Fecal', value: 2 }, { label: '1 - Urinaria y Fecal', value: 1 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p <= 11) return { texto: 'Riesgo Muy Alto de UPP', recomendaciones: ['Instaurar protocolo de prevención máxima (SEMP: Superficie Especial de Manejo de Presión)', 'Manejo estricto de incontinencia (pañales de alta absorción, aseo inmediato)', 'Protección de prominencias óseas (taloneras)'] };
-      if (p <= 14) return { texto: 'Riesgo Evidente de UPP', recomendaciones: ['Cambios posturales programados', 'Evitar masajes sobre prominencias óseas enrojecidas', 'Optimizar estado nutricional'] };
+      if (p <= 11) return { texto: 'Riesgo Muy Alto de UPP', recomendaciones: ['Instaurar protocolo de prevención máxima (SEMP)', 'Manejo estricto de incontinencia', 'Protección de prominencias óseas'] };
+      if (p <= 14) return { texto: 'Riesgo Evidente de UPP', recomendaciones: ['Cambios posturales programados', 'Evitar masajes sobre prominencias enrojecidas', 'Optimizar estado nutricional'] };
       return { texto: 'Riesgo Mínimo o Nulo (15-20 pts)', recomendaciones: ['Promover higiene, hidratación y deambulación', 'Reevaluación semanal'] };
     }
   },
@@ -1104,9 +1104,9 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p >= 45) return { texto: 'Riesgo Alto de Caída', recomendaciones: ['Instalar pulsera de identificación (Riesgo de Caída/Amarilla)', 'Mantener las 4 barandas de la cama elevadas', 'Timbre al alcance de la mano. Asistencia obligatoria para ir al baño', 'Cama en posición más baja y frenada', 'Restricción física o contención neuropsiquiátrica SÓLO como última medida y con orden médica'] };
-      if (p >= 25) return { texto: 'Riesgo Medio de Caída', recomendaciones: ['Instalar barandas laterales nocturnas', 'Uso de calzado antideslizante', 'Iluminación nocturna de seguridad', 'Supervisión en la deambulación inicial'] };
-      return { texto: 'Riesgo Bajo de Caída', recomendaciones: ['Timbre a mano, cama frenada', 'Educación al paciente sobre cuidados básicos al levantarse'] };
+      if (p >= 45) return { texto: 'Riesgo Alto de Caída', recomendaciones: ['Instalar pulsera de identificación', 'Barandas elevadas', 'Asistencia obligatoria para deambular'] };
+      if (p >= 25) return { texto: 'Riesgo Medio de Caída', recomendaciones: ['Iluminación nocturna', 'Calzado antideslizante', 'Supervisión en la unidad'] };
+      return { texto: 'Riesgo Bajo de Caída', recomendaciones: ['Timbre a mano', 'Educación preventiva básica'] };
     }
   },
   {
@@ -1123,8 +1123,8 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p >= 3) return { texto: 'Alto Riesgo de Caída (≥3 pts)', recomendaciones: ['Acompañamiento permanente (cuidador/familiar)', 'Revisar prescripción farmacológica (reducir BZD o ajustar horario de diuréticos)', 'Corrección de déficit sensorial (uso de audífonos y lentes limpios)'] };
-      return { texto: 'Bajo Riesgo de Caída', recomendaciones: ['Protocolo estándar de seguridad de la unidad'] };
+      if (p >= 3) return { texto: 'Alto Riesgo de Caída (≥3 pts)', recomendaciones: ['Acompañamiento permanente', 'Revisar medicación', 'Corrección de déficit sensorial'] };
+      return { texto: 'Bajo Riesgo de Caída', recomendaciones: ['Protocolo estándar de seguridad'] };
     }
   },
   {
@@ -1146,10 +1146,10 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => r.nivel || 0,
     interpretar: (p) => {
-      if (p === 1) return { texto: 'Agitación / Ansiedad', recomendaciones: ['Tratar causa subyacente (hipoxia, dolor, globo vesical)', 'Titular analgésicos/sedantes al alza según protocolo médico', 'Manejo ambiental (reducir ruido/luces)'] };
-      if (p === 2 || p === 3) return { texto: 'Sedación Consciente / Óptima', recomendaciones: ['Sedación ideal para destete ventilatorio temprano', 'Mantener dosis actual', 'Aplicar test de despertar diario (SAT)'] };
-      if (p === 4 || p === 5) return { texto: 'Sedación Profunda', recomendaciones: ['Reevaluar necesidad de esta profundidad (Solo justificado en TEC grave, SDRA severo o asincronía)', 'Disminuir tasa de infusión de sedantes (Propofol/Midazolam) si se busca extubar', 'Prevenir neumonía asociada a ventilación (VAP)'] };
-      if (p === 6) return { texto: 'Coma profundo', recomendaciones: ['Reducir/Suspender sedación inmediatamente (salvo indicación de coma inducido)', 'Proteger córneas (colirios/cinta)', 'Evitar úlceras y contracturas neurológicas'] };
+      if (p === 1) return { texto: 'Agitación / Ansiedad', recomendaciones: ['Tratar causa subyacente', 'Titular analgésicos/sedantes'] };
+      if (p === 2 || p === 3) return { texto: 'Sedación Consciente / Óptima', recomendaciones: ['Ideal para destete ventilatorio', 'Test de despertar diario'] };
+      if (p === 4 || p === 5) return { texto: 'Sedación Profunda', recomendaciones: ['Disminuir tasa de sedantes si se busca extubar', 'Prevenir neumonía asociada a ventilación'] };
+      if (p === 6) return { texto: 'Coma profundo', recomendaciones: ['Reducir sedación inmediatamente (salvo indicación médica específica)', 'Proteger córneas'] };
       return { texto: 'Sin datos', recomendaciones: [] };
     }
   },
@@ -1173,10 +1173,10 @@ export const scales: Scale[] = [
     calcularPuntaje: (r) => r.signos || 0,
     interpretar: (p) => {
       if (p === 0) return { texto: 'Sin signos de flebitis. Vía permeable.', recomendaciones: ['Continuar observación rutinaria cada turno'] };
-      if (p === 1) return { texto: 'Posible primer signo de flebitis.', recomendaciones: ['Observar cánula intensamente', 'No requiere retiro inmediato, pero sí vigilancia estricta'] };
-      if (p === 2) return { texto: 'Etapa temprana de flebitis.', recomendaciones: ['RETIRAR cánula venosa inmediatamente', 'Reubicar acceso venoso en otra extremidad'] };
-      if (p === 3) return { texto: 'Etapa media de flebitis.', recomendaciones: ['Retirar cánula inmediatamente', 'Aplicar compresas tibias y secas', 'Considerar tratamiento antiinflamatorio tópico'] };
-      if (p >= 4) return { texto: 'Etapa avanzada de flebitis o tromboflebitis inicial.', recomendaciones: ['Retirar cánula inmediatamente', 'Tomar cultivo de la punta del catéter y hemocultivo', 'Notificar a médico tratante', 'Documentar incidente', 'Considerar necesidad de VVP central si el capital venoso está agotado'] };
+      if (p === 1) return { texto: 'Posible primer signo de flebitis.', recomendaciones: ['Observar cánula intensamente', 'Vigilancia estricta'] };
+      if (p === 2) return { texto: 'Etapa temprana de flebitis.', recomendaciones: ['RETIRAR cánula venosa inmediatamente', 'Reubicar acceso venoso'] };
+      if (p === 3) return { texto: 'Etapa media de flebitis.', recomendaciones: ['Retirar cánula inmediatamente', 'Compresas tibias y secas'] };
+      if (p >= 4) return { texto: 'Etapa avanzada de flebitis.', recomendaciones: ['Retirar cánula inmediatamente', 'Tomar cultivo de la punta del catéter', 'Notificar a médico tratante'] };
       return { texto: 'Sin datos', recomendaciones: [] };
     }
   },
@@ -1194,10 +1194,10 @@ export const scales: Scale[] = [
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p === 0) return { texto: 'Sin dolor', recomendaciones: ['Mantener esquema de analgesia basal actual'] };
-      if (p <= 3) return { texto: 'Dolor Leve a Moderado', recomendaciones: ['Administrar analgesia no opioide (Paracetamol, AINEs)', 'Asegurar posicionamiento confortable (cambio de pañal, tubo endotraqueal, etc.)'] };
-      if (p <= 6) return { texto: 'Dolor Moderado a Severo', recomendaciones: ['Evaluar uso de opioides menores o dosis bajas de Morfina/Fentanilo', 'Revisar parámetros del ventilador (descartar asincronía puramente respiratoria)'] };
-      return { texto: 'Dolor Muy Severo', recomendaciones: ['Aumentar infusión analgésica continua URGENTE o dar bolo de rescate opioide', 'Manejo avanzado: bloqueo neuromuscular solo si la analgesia/sedación máxima no controla la agitación extrema', 'Evaluación médica inmediata'] };
+      if (p === 0) return { texto: 'Sin dolor', recomendaciones: ['Mantener esquema de analgesia basal'] };
+      if (p <= 3) return { texto: 'Dolor Leve a Moderado', recomendaciones: ['Analgesia no opioide', 'Asegurar posicionamiento confortable'] };
+      if (p <= 6) return { texto: 'Dolor Moderado a Severo', recomendaciones: ['Evaluar uso de opioides menores', 'Revisar parámetros del ventilador'] };
+      return { texto: 'Dolor Muy Severo', recomendaciones: ['Aumentar infusión analgésica URGENTE', 'Evaluación médica inmediata'] };
     }
   },
   {
@@ -1207,16 +1207,72 @@ export const scales: Scale[] = [
     descripcion: 'Evaluación del riesgo de parto inminente prehospitalario.',
     preguntas: [
       { id: 'paridad', text: 'Nº partos anteriores', type: 'select', options: [{ label: 'Ninguno (Nulípara)', value: 0 }, { label: '1 a 2', value: 1 }, { label: '3 o más (Multípara)', value: 2 }] },
-      { id: 'tiempo', text: 'Duración trabajo de parto (desde contracciones dolorosas)', type: 'select', options: [{ label: '< 3 horas', value: 0 }, { label: '3 a 5 horas', value: 1 }, { label: '> 5 horas', value: 2 }] },
+      { id: 'tiempo', text: 'Duración trabajo de parto', type: 'select', options: [{ label: '< 3 horas', value: 0 }, { label: '3 a 5 horas', value: 1 }, { label: '> 5 horas', value: 2 }] },
       { id: 'duracion', text: 'Duración de cada contracción', type: 'select', options: [{ label: '< 1 minuto', value: 0 }, { label: '~ 1 minuto', value: 1 }, { label: '> 1 minuto', value: 2 }] },
       { id: 'intervalo', text: 'Intervalo entre contracciones', type: 'select', options: [{ label: '> 5 min', value: 0 }, { label: '3 a 5 min', value: 1 }, { label: '< 3 min', value: 2 }] },
-      { id: 'bolsa', text: 'Rotura de membranas (rompió aguas)', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Reciente (<1h)', value: 1 }, { label: '> 1 hora', value: 2 }] }
+      { id: 'bolsa', text: 'Rotura de membranas', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Reciente (<1h)', value: 1 }, { label: '> 1 hora', value: 2 }] }
     ],
     calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
     interpretar: (p) => {
-      if (p < 5) return { texto: 'Bajo riesgo de parto inminente. Traslado factible.', recomendaciones: ['Traslado normal a centro obstétrico', 'Posición decúbito lateral izquierdo', 'Reevaluar contracciones durante el trayecto'] };
-      if (p <= 6) return { texto: 'Peligro inminente de parto. Cautela.', recomendaciones: ['Evaluar distancia al hospital: si es > 15 minutos, preparar equipo de parto en ambulancia', 'Instalar vía venosa periférica gruesa (18G)', 'Traslado con sirena y baliza (Código Maternidad)'] };
-      return { texto: 'Parto Inminente (≥7). NO TRASLADAR.', recomendaciones: ['¡Detener ambulancia! Atender el parto en el lugar', 'Preparar caja de parto, pinzas umbilicales, paños calientes y aspirador de peritas', 'Preparar reanimación neonatal por si se requiere', 'Aviso al centro regulador para apoyo pediátrico/obstétrico'] };
+      if (p < 5) return { texto: 'Bajo riesgo de parto inminente.', recomendaciones: ['Traslado normal a centro obstétrico', 'Decúbito lateral izquierdo'] };
+      if (p <= 6) return { texto: 'Peligro inminente de parto. Cautela.', recomendaciones: ['Si > 15 min al hospital, preparar equipo de parto', 'Traslado con sirena y baliza'] };
+      return { texto: 'Parto Inminente (≥7). NO TRASLADAR.', recomendaciones: ['¡Detener ambulancia! Atender el parto en el lugar', 'Preparar caja de parto y reanimación neonatal'] };
+    }
+  },
+
+  // ==========================================
+  // NEUROLOGÍA
+  // ==========================================
+  {
+    id: 'nihss',
+    nombre: 'Escala NIHSS',
+    categoria: 'neurologia',
+    descripcion: 'Evaluación de la gravedad del accidente cerebrovascular isquémico.',
+    preguntas: [
+      { id: 'conciencia', text: '1a. Nivel de conciencia', type: 'select', options: [{ label: '0 - Alerta', value: 0 }, { label: '1 - Somnoliento', value: 1 }, { label: '2 - Estuporoso', value: 2 }, { label: '3 - Coma', value: 3 }] },
+      { id: 'mirada', text: '2. Mirada conjugada', type: 'select', options: [{ label: '0 - Normal', value: 0 }, { label: '1 - Parálisis parcial de la mirada', value: 1 }, { label: '2 - Desviación forzada', value: 2 }] },
+      { id: 'campos', text: '3. Campos visuales', type: 'select', options: [{ label: '0 - Sin pérdida de visión', value: 0 }, { label: '1 - Hemianopsia parcial', value: 1 }, { label: '2 - Hemianopsia completa', value: 2 }, { label: '3 - Hemianopsia bilateral (ciego)', value: 3 }] },
+      { id: 'facial', text: '4. Parálisis facial', type: 'select', options: [{ label: '0 - Movimiento normal', value: 0 }, { label: '1 - Paresia menor', value: 1 }, { label: '2 - Parálisis parcial', value: 2 }, { label: '3 - Parálisis completa', value: 3 }] },
+      { id: 'motor_brazo_d', text: '5a. Motor Brazo Derecho', type: 'select', options: [{ label: '0 - Sin caída', value: 0 }, { label: '1 - Cae antes de 10s', value: 1 }, { label: '2 - Algún esfuerzo contra gravedad', value: 2 }, { label: '3 - No esfuerzo contra gravedad', value: 3 }, { label: '4 - Sin movimiento', value: 4 }] },
+      { id: 'motor_brazo_i', text: '5b. Motor Brazo Izquierdo', type: 'select', options: [{ label: '0 - Sin caída', value: 0 }, { label: '1 - Cae antes de 10s', value: 1 }, { label: '2 - Algún esfuerzo', value: 2 }, { label: '3 - No esfuerzo', value: 3 }, { label: '4 - Sin movimiento', value: 4 }] },
+      { id: 'ataxia', text: '7. Ataxia de miembros', type: 'select', options: [{ label: '0 - Ausente', value: 0 }, { label: '1 - Presente en un miembro', value: 1 }, { label: '2 - Presente en dos miembros', value: 2 }] },
+      { id: 'lenguaje', text: '9. Mejor lenguaje (Afasia)', type: 'select', options: [{ label: '0 - Normal', value: 0 }, { label: '1 - Afasia leve a moderada', value: 1 }, { label: '2 - Afasia grave', value: 2 }, { label: '3 - Mudo/Afasia global', value: 3 }] },
+      { id: 'disartria', text: '10. Disartria', type: 'select', options: [{ label: '0 - Articulación normal', value: 0 }, { label: '1 - Leve a moderada', value: 1 }, { label: '2 - Grave', value: 2 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p === 0) return { texto: 'Sin déficit neurológico', recomendaciones: ['Observación clínica', 'Control de factores de riesgo'] };
+      if (p <= 4) return { texto: 'ACV Leve', recomendaciones: ['Evaluar trombólisis sistémica', 'Ingreso a UTAC'] };
+      if (p <= 15) return { texto: 'ACV Moderado', recomendaciones: ['Urgente Código ACV', 'Considerar Trombectomía', 'Protección de vía aérea'] };
+      if (p <= 20) return { texto: 'ACV Moderadamente Grave', recomendaciones: ['Riesgo de transformación hemorrágica', 'Evaluación por neurocirugía'] };
+      return { texto: 'ACV Grave', recomendaciones: ['Pronóstico reservado', 'Soporte vital avanzado', 'Monitorizar PIC'] };
+    }
+  },
+  {
+    id: 'rankin',
+    nombre: 'Escala de Rankin Modificada (mRS)',
+    categoria: 'neurologia',
+    descripcion: 'Mide el grado de discapacidad funcional post-ACV.',
+    preguntas: [
+      {
+        id: 'grado', text: 'Estado actual del paciente:', type: 'select', options: [
+          { label: '0 - Sin síntomas', value: 0 },
+          { label: '1 - Sin discapacidad significativa', value: 1 },
+          { label: '2 - Discapacidad leve', value: 2 },
+          { label: '3 - Discapacidad moderada', value: 3 },
+          { label: '4 - Discapacidad moderadamente grave', value: 4 },
+          { label: '5 - Discapacidad grave', value: 5 },
+          { label: '6 - Muerto', value: 6 }
+        ]
+      }
+    ],
+    calcularPuntaje: (r) => r.grado || 0,
+    interpretar: (p) => {
+      if (p <= 1) return { texto: 'Resultado favorable', recomendaciones: ['Mantener controles', 'Prevención secundaria'] };
+      if (p === 2) return { texto: 'Discapacidad leve', recomendaciones: ['Kinesiología motora y TO'] };
+      if (p === 3) return { texto: 'Discapacidad moderada', recomendaciones: ['Rehabilitación intensiva de marcha'] };
+      if (p >= 4) return { texto: 'Discapacidad grave', recomendaciones: ['Prevención de complicaciones por inmovilismo', 'Soporte al cuidador'] };
+      return { texto: 'Fallecido', recomendaciones: [] };
     }
   }
 ];
@@ -1228,8 +1284,7 @@ export const categories = [
   { id: 'terapia_ocupacional', nombre: 'Terapia Ocupacional', descripcion: 'Función manual' },
   { id: 'emergencias', nombre: 'Emergencias', descripcion: 'Trauma y Triage' },
   { id: 'enfermeria', nombre: 'Enfermería', descripcion: 'Valoración de cuidados y riesgos' },
-  // NUEVAS CATEGORÍAS AGREGADAS:
-  { id: 'psicologia', nombre: 'Psicología', descripcion: 'Evaluación de salud mental y conducta' },
-  { id: 'nutricion', nombre: 'Nutrición', descripcion: 'Estado nutricional y requerimientos' },
-  { id: 'neurologia', nombre: 'Neurología', descripcion: 'Examen neurológico y daño cerebral' }
+  { id: 'psicologia', nombre: 'Psicología', descripcion: 'Salud mental y conducta' },
+  { id: 'nutricion', nombre: 'Nutrición', descripcion: 'Estado nutricional' },
+  { id: 'neurologia', nombre: 'Neurología', descripcion: 'Examen neurológico' }
 ];
