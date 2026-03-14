@@ -1646,6 +1646,56 @@ export const scales: Scale[] = [
       if (p >= 5) return { texto: 'Alto Riesgo Nutricional en UCI', recomendaciones: ['Inicio temprano de Nutrición Enteral', 'Ajustar aporte proteico al alza', 'Monitoreo de tolerancia gastrointestinal'] };
       return { texto: 'Bajo Riesgo Nutricional en UCI', recomendaciones: ['Monitorización rutinaria', 'Aporte nutricional estándar'] };
     }
+  },
+  // ==========================================
+  // PSICOLOGÍA
+  // ==========================================
+  {
+    id: 'phq_9',
+    nombre: 'Cuestionario PHQ-9',
+    categoria: 'psicologia',
+    descripcion: 'Cuestionario sobre la salud del paciente para detectar severidad de síntomas depresivos.',
+    preguntas: [
+      { id: 'interes', text: '1. Poco interés o placer en hacer las cosas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'animo', text: '2. Sentirse decaído/a, deprimido/a o sin esperanzas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'sueno', text: '3. Dificultad para dormir o dormir demasiado:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'energia', text: '4. Sentirse cansado/a o tener poca energía:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'apetito', text: '5. Poco apetito o comer en exceso:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'falla', text: '6. Sentirse mal con usted mismo/a (sentirse fracasado):', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'concentracion', text: '7. Dificultad para concentrarse (leer, ver TV):', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'lentitud', text: '8. ¿Se mueve o habla tan lento (o tan rápido) que otros lo notan?:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'suicidio', text: '9. Pensamientos de que estaría mejor muerto/a o de lastimarse:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 4) return { texto: 'Síntomas depresivos mínimos', recomendaciones: ['No requiere intervención específica', 'Fomentar hábitos de vida saludable'] };
+      if (p <= 9) return { texto: 'Depresión Leve', recomendaciones: ['Psicoeducación', 'Seguimiento clínico en 1 mes', 'Evaluar apoyo social'] };
+      if (p <= 14) return { texto: 'Depresión Moderada', recomendaciones: ['Derivación a Psicología', 'Considerar inicio de farmacoterapia según criterio médico', 'Control frecuente'] };
+      if (p <= 19) return { texto: 'Depresión Moderadamente Grave', recomendaciones: ['Tratamiento combinado (Fármacos + Psicoterapia)', 'Derivación prioritaria a Salud Mental'] };
+      return { texto: 'Depresión Grave', recomendaciones: ['Derivación inmediata a especialista', 'Evaluación de riesgo suicida urgente', 'Soporte familiar intensivo'] };
+    }
+  },
+  {
+    id: 'gad_7',
+    nombre: 'Escala GAD-7',
+    categoria: 'psicologia',
+    descripcion: 'Tamizaje para Trastorno de Ansiedad Generalizada.',
+    preguntas: [
+      { id: 'nervios', text: '1. Sentirse nervioso/a, intranquilo/a o con los nervios de punta:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'control', text: '2. No poder dejar de preocuparse o controlar la preocupación:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'exceso', text: '3. Preocuparse demasiado por diferentes cosas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'relajacion', text: '4. Dificultad para relajarse:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'inquietud', text: '5. Estar tan inquieto/a que es difícil permanecer sentado/a:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'irritabilidad', text: '6. Sentirse fácilmente irritado/a o malhumorado/a:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
+      { id: 'miedo', text: '7. Sentirse asustado/a como si algo terrible pudiera pasar:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] }
+    ],
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+    interpretar: (p) => {
+      if (p <= 4) return { texto: 'Ansiedad Mínima', recomendaciones: ['Mantener técnicas de autocuidado'] };
+      if (p <= 9) return { texto: 'Ansiedad Leve', recomendaciones: ['Monitorización clínica', 'Técnicas de relajación / Mindfulness'] };
+      if (p <= 14) return { texto: 'Ansiedad Moderada', recomendaciones: ['Derivación a evaluación psicológica', 'Considerar terapia cognitivo-conductual'] };
+      return { texto: 'Ansiedad Grave', recomendaciones: ['Derivación a especialista (Psicólogo/Psiquiatra)', 'Evaluación farmacológica indicada'] };
+    }
   }
 ];
 
