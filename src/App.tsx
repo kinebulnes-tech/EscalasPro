@@ -5,6 +5,7 @@ import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
 import ScaleForm from './components/ScaleForm';
 import PatientModal from './components/PatientModal';
+import ReportSummary from './components/ReportSummary'; // <--- Importamos el Paso 4.1
 import { 
   Accessibility, Stethoscope, Siren, MessageSquare, 
   Brain, HandHelping, ArrowLeft, ChevronRight, Star,
@@ -51,10 +52,11 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
   
-  // --- ESTADOS DE SESIÓN Y MODAL ---
+  // --- ESTADOS DE SESIÓN Y NAVEGACIÓN (PASO 4.2) ---
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(null);
   const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>([]);
+  const [viewingReport, setViewingReport] = useState(false); // <--- Nuevo estado
 
   // Favoritos
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -86,6 +88,28 @@ export default function App() {
 
   const selectedScale = scales.find(s => s.id === activeScale);
   const currentCategory = categories.find(c => c.id === selectedCategory);
+
+  // --- RENDERIZADO CONDICIONAL DE LA PANTALLA DE INFORME (PASO 4.2) ---
+  if (viewingReport && pacienteActivo) {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-20">
+        <Header />
+        <ReportSummary 
+          paciente={pacienteActivo}
+          resultados={listaResultados}
+          onBack={() => setViewingReport(false)}
+          onRemoveScale={(index) => {
+            setListaResultados(prev => prev.filter((_, i) => i !== index));
+          }}
+          onFinalize={() => {
+            setPacienteActivo(null);
+            setListaResultados([]);
+            setViewingReport(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -140,13 +164,12 @@ export default function App() {
               <ArrowLeft className="w-5 h-5" /> Volver al listado
             </button>
             
-            {/* --- MEJORA PASO 3.1: PASAR PROPS DE GUARDADO --- */}
             <ScaleForm 
               scale={selectedScale} 
               onBack={() => setActiveScale(null)} 
               onSave={(nuevoResultado: ResultadoSesion) => {
                 setListaResultados(prev => [...prev, nuevoResultado]);
-                setActiveScale(null); // Al guardar, volvemos automáticamente al Dashboard
+                setActiveScale(null);
               }}
               pacienteNombre={pacienteActivo?.nombre}
             />
@@ -154,7 +177,6 @@ export default function App() {
         ) : !selectedCategory ? (
           <div className="animate-in fade-in zoom-in duration-500">
             
-            {/* BOTÓN INICIAR NUEVO PACIENTE */}
             {!pacienteActivo && (
               <button 
                 onClick={() => setShowPatientModal(true)}
@@ -165,12 +187,11 @@ export default function App() {
                 </div>
                 <h3 className="text-2xl font-black text-gray-900">Nueva Evaluación de Paciente</h3>
                 <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2 text-center">
-                  Identifica al paciente para generar un informe consolidado con múltiples escalas
+                  Identifica al paciente para generar un informe consolidado
                 </p>
               </button>
             )}
 
-            {/* SECCIÓN DE FAVORITOS */}
             {favoriteScales.length > 0 && (
               <div className="mb-12">
                 <div className="flex items-center gap-2 mb-6">
@@ -247,6 +268,24 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* --- PASO 4.3: BOTÓN FLOTANTE DE INFORME --- */}
+      {pacienteActivo && listaResultados.length > 0 && !activeScale && !viewingReport && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
+          <button 
+            onClick={() => setViewingReport(true)}
+            className="w-full bg-slate-900 text-white p-5 rounded-[2rem] shadow-2xl flex items-center justify-between hover:bg-black transition-all hover:scale-105 active:scale-95 border-2 border-teal-500"
+          >
+            <div className="flex items-center gap-3">
+              <ClipboardList className="text-teal-400 w-6 h-6" />
+              <span className="font-black text-xs uppercase tracking-widest">Ver Informe</span>
+            </div>
+            <span className="bg-teal-500 text-white px-3 py-1 rounded-full text-xs font-black shadow-sm">
+              {listaResultados.length}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* MODAL DE PACIENTE */}
       {showPatientModal && (
