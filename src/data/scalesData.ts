@@ -1731,27 +1731,81 @@ export const scales: Scale[] = [
   // ==========================================
   // ENFERMERÍA
   // ==========================================
-  {
-    id: 'braden',
-    nombre: 'Escala de Braden',
-    categoria: 'enfermeria',
-    descripcion: 'Valoración del riesgo de desarrollar Úlceras por Presión (UPP).',
-    preguntas: [
-      { id: 'percepcion', text: '1. Percepción Sensorial', type: 'select', options: [{ label: '1 - Completamente limitada', value: 1 }, { label: '2 - Muy limitada', value: 2 }, { label: '3 - Ligeramente limitada', value: 3 }, { label: '4 - Sin limitaciones', value: 4 }] },
-      { id: 'humedad', text: '2. Exposición a la Humedad', type: 'select', options: [{ label: '1 - Constantemente húmeda', value: 1 }, { label: '2 - A menudo húmeda', value: 2 }, { label: '3 - Ocasionalmente húmeda', value: 3 }, { label: '4 - Raramente húmeda', value: 4 }] },
-      { id: 'actividad', text: '3. Actividad', type: 'select', options: [{ label: '1 - Encamado', value: 1 }, { label: '2 - En silla', value: 2 }, { label: '3 - Deambula ocasionalmente', value: 3 }, { label: '4 - Deambula frecuentemente', value: 4 }] },
-      { id: 'movilidad', text: '4. Movilidad', type: 'select', options: [{ label: '1 - Completamente inmóvil', value: 1 }, { label: '2 - Muy limitada', value: 2 }, { label: '3 - Ligeramente limitada', value: 3 }, { label: '4 - Sin limitaciones', value: 4 }] },
-      { id: 'nutricion', text: '5. Nutrición', type: 'select', options: [{ label: '1 - Muy pobre', value: 1 }, { label: '2 - Probablemente inadecuada', value: 2 }, { label: '3 - Adecuada', value: 3 }, { label: '4 - Excelente', value: 4 }] },
-      { id: 'roce', text: '6. Roce y Peligro de Lesiones', type: 'select', options: [{ label: '1 - Problema (requiere asistencia máx)', value: 1 }, { label: '2 - Problema potencial', value: 2 }, { label: '3 - Sin problema aparente', value: 3 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 12) return { texto: 'Alto Riesgo de UPP', recomendaciones: ['Cambios posturales rigurosos cada 2 horas (reloj rotatorio)', 'Uso obligatorio de colchón antiescaras dinámico', 'Protección estricta de talones, sacro y trocánteres con apósitos hidrocelulares', 'Manejo proactivo de humedad (barreras de zinc o película protectora)', 'Suplementación hiperproteica (evaluar por nutricionista)'] };
-      if (p <= 14) return { texto: 'Riesgo Moderado de UPP', recomendaciones: ['Cambios posturales cada 3-4 horas', 'Colchón de espuma de alta densidad viscoelástica', 'Revisión de la piel una vez por turno', 'Evitar arrastre en transferencias, usar sábanas de movimiento'] };
-      if (p <= 16) return { texto: 'Bajo Riesgo de UPP', recomendaciones: ['Estimular movilización activa o deambulación precoz', 'Hidratación de la piel con cremas ricas en ácidos grasos hiperoxigenados (AGHO)', 'Protección básica en zonas de apoyo'] };
-      return { texto: 'Sin Riesgo (17-23 pts)', recomendaciones: ['Fomentar independencia', 'Reevaluar si hay cambios en la condición clínica'] };
-    }
-  },
+ {
+  id: 'braden_upp',
+  nombre: 'Escala de Braden',
+  categoria: 'kinesiologia',
+  descripcion: 'Herramienta para evaluar el riesgo de desarrollar úlceras por presión (UPP) en pacientes encamados o con movilidad reducida.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3302609) ---
+  bibliografia: "Bergstrom N, Braden BJ, Laguzza A, Holman V. The Braden Scale for Predicting Pressure Sore Risk. Nurs Res. 1987 Jul-Aug;36(4):205-10.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3302609/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Evalúa 6 subescalas: percepción sensorial, humedad, actividad, movilidad, nutrición y fricción/cizallamiento. Un puntaje menor indica un mayor riesgo.",
+
+  preguntas: [
+    { 
+      id: 'percepcion', 
+      text: 'Percepción Sensorial (Capacidad de reaccionar ante la presión):', 
+      type: 'select', 
+      options: [
+        { label: '1: Completamente limitada', value: 1 },
+        { label: '2: Muy limitada', value: 2 },
+        { label: '3: Ligeramente limitada', value: 3 },
+        { label: '4: Sin limitaciones', value: 4 }
+      ] 
+    },
+    { id: 'humedad', text: 'Exposición a la Humedad:', type: 'select', options: [{ label: '1: Constantemente húmeda', value: 1 }, { label: '2: A menudo húmeda', value: 2 }, { label: '3: Ocasionalmente húmeda', value: 3 }, { label: '4: Raramente húmeda', value: 4 }] },
+    { id: 'actividad', text: 'Grado de Actividad Física:', type: 'select', options: [{ label: '1: Encamado', value: 1 }, { label: '2: En silla', value: 2 }, { label: '3: Camina ocasionalmente', value: 3 }, { label: '4: Camina frecuentemente', value: 4 }] },
+    { id: 'movilidad', text: 'Capacidad de Cambiar de Posición:', type: 'select', options: [{ label: '1: Completamente inmóvil', value: 1 }, { label: '2: Muy limitada', value: 2 }, { label: '3: Ligeramente limitada', value: 3 }, { label: '4: Sin limitaciones', value: 4 }] },
+    { id: 'nutricion', text: 'Patrón de Ingesta Alimentaria:', type: 'select', options: [{ label: '1: Muy pobre', value: 1 }, { label: '2: Probablemente inadecuada', value: 2 }, { label: '3: Adecuada', value: 3 }, { label: '4: Excelente', value: 4 }] },
+    { id: 'friccion', text: 'Roce y Peligro de Lesiones (Cizallamiento):', type: 'select', options: [{ label: '1: Problema (requiere ayuda máxima)', value: 1 }, { label: '2: Problema potencial (ayuda mínima)', value: 2 }, { label: '3: Sin problema aparente', value: 3 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje >= 19) return { 
+      texto: 'Riesgo Mínimo / Sin Riesgo', 
+      color: 'emerald-600', 
+      evidencia: 'Puntaje que sugiere baja probabilidad de desarrollar UPP bajo las condiciones actuales.',
+      recomendaciones: ['Mantener cuidados generales de piel', 'Re-evaluar si cambia la condición clínica'] 
+    };
+
+    if (puntaje >= 15) return { 
+      texto: 'Riesgo Bajo', 
+      color: 'yellow-600', 
+      evidencia: 'Riesgo presente. Requiere vigilancia de puntos de presión.',
+      recomendaciones: [
+        'Protocolo de rotación cada 4 horas',
+        'Mantener piel hidratada y seca',
+        'Uso de protectores en talones y codos'
+      ] 
+    };
+
+    if (puntaje >= 13) return { 
+      texto: 'Riesgo Moderado', 
+      color: 'orange-600', 
+      evidencia: 'Riesgo significativo de lesión tisular por presión.',
+      recomendaciones: [
+        'Cambios posturales frecuentes (cada 2 horas)',
+        'Uso de superficies especiales de manejo de presión (SEMP)',
+        'Asegurar aporte proteico-calórico adecuado'
+      ] 
+    };
+
+    return { 
+      texto: 'RIESGO ALTO / MUY ALTO', 
+      color: 'red-600', 
+      evidencia: 'Probabilidad inminente de UPP si no se aplican medidas intensivas.',
+      recomendaciones: [
+        'Colchón de aire motorizado obligatorio',
+        'Manejo estricto de la humedad y cizallamiento',
+        'Inspección de piel en cada turno',
+        'Intervención nutricional intensiva'
+      ] 
+    };
+  }
+},
   {
     id: 'norton',
     nombre: 'Escala de Norton',
