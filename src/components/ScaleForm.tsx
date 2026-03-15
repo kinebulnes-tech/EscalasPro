@@ -2,14 +2,17 @@ import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
 import { calcularEscala, validarRespuestas } from '../utils/scaleEngine';
 import ScaleResult from './ScaleResult';
-import TimerPlugin from './plugins/TimerPlugin'; // Verificamos que la ruta coincida
+import TimerPlugin from './plugins/TimerPlugin';
 
 interface ScaleFormProps {
   scale: Scale;
   onBack: () => void;
+  // --- NUEVAS PROPS PASO 3.2 ---
+  onSave?: (resultado: any) => void;
+  pacienteNombre?: string;
 }
 
-export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
+export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: ScaleFormProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
   const [resultado, setResultado] = useState<{
     puntaje: number;
@@ -39,7 +42,7 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validarRespuestas(scale, respuestas)) {
-      alert('Por favor complete todos los campos (incluyendo el cronómetro si aplica) antes de calcular.');
+      alert('Por favor complete todos los campos antes de calcular.');
       return;
     }
     const result = calcularEscala(scale, respuestas);
@@ -54,12 +57,17 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
     setResultado(null);
   };
 
+  // --- EL PUENTE ---
+  // Si ya tenemos resultado, mostramos el componente ScaleResult
+  // pasando las nuevas props que recibimos de App.tsx
   if (resultado) {
     return (
       <ScaleResult
         scale={scale}
         totalScore={resultado.puntaje}
         onBack={onBack}
+        onSave={onSave}
+        pacienteNombre={pacienteNombre}
       />
     );
   }
@@ -105,7 +113,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
                 {pregunta.text}
               </label>
 
-              {/* RENDERIZADO CONDICIONAL: ¿PLUGIN O INPUT NORMAL? */}
               {pregunta.type === 'plugin' && pregunta.componente === 'CRONOMETRO' ? (
                 <TimerPlugin 
                   label="Asistente de tiempo"
@@ -172,7 +179,6 @@ export default function ScaleForm({ scale, onBack }: ScaleFormProps) {
         </form>
       </div>
 
-      {/* PUNTAJE FLOTANTE */}
       <div className="fixed bottom-6 right-6 z-50">
         <div className="bg-white/90 backdrop-blur-md border-2 border-teal-500 rounded-3xl p-4 shadow-2xl flex flex-col items-center min-w-[140px]">
           <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-1">Puntaje Actual</span>
