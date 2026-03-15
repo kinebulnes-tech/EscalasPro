@@ -423,21 +423,71 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'eva',
-    nombre: 'Escala Visual Analógica del Dolor (EVA)',
-    categoria: 'kinesiologia',
-    descripcion: 'Evaluación subjetiva de la intensidad del dolor',
-    preguntas: [
-      { id: 'intensidad', text: 'Intensidad del dolor (0 = sin dolor, 10 = dolor máximo)', type: 'number', min: 0, max: 10 }
-    ],
-    calcularPuntaje: (respuestas) => Number(respuestas.intensidad) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Sin dolor', recomendaciones: ['Mantener plan de cuidados actuales'] };
-      if (puntaje <= 3) return { texto: 'Dolor leve', recomendaciones: ['Analgesia de escalón 1 (Paracetamol, AINEs tópicos)', 'Fisioterapia analgésica (TENS, Termoterapia)', 'Reevaluar en 2 horas'] };
-      if (puntaje <= 6) return { texto: 'Dolor moderado', recomendaciones: ['Analgesia de escalón 2 (AINEs VO/IV, opioides débiles)', 'Limitar movilización activa de la zona afectada', 'Reevaluar a los 60 minutos post-analgesia'] };
-      return { texto: 'Dolor severo', recomendaciones: ['Analgesia de escalón 3 (Opioides fuertes, derivación médica)', 'Reposo de la zona afectada', 'Buscar signos de alarma (ej. compromiso vascular/nervioso)', 'Reevaluar a los 30 minutos'] };
+  id: 'eva',
+  nombre: 'Escala Visual Analógica (EVA)',
+  categoria: 'kinesiologia',
+  descripcion: 'Evaluación subjetiva de la intensidad del dolor percibida por el paciente.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 4139420) ---
+  bibliografia: "Huskisson EC. Measurement of pain. Lancet. 1974 Nov 9;2(7889):1127-31.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/4139420/",
+  evidenciaClinica: "La EVA es el estándar de oro para medir la intensidad del dolor. Una reducción de 2 puntos o el 33% se considera un Cambio Mínimo Clínicamente Significativo (MCID).",
+
+  preguntas: [
+    { 
+      id: 'intensidad', 
+      text: 'En una escala de 0 a 10, donde 0 es "sin dolor" y 10 es "el peor dolor imaginable", ¿cuánto le duele ahora?', 
+      type: 'number',
+      min: 0,
+      max: 10
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.intensidad) || 0,
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'Sin dolor', 
+      color: 'green', 
+      evidencia: 'Estado basal. No se reporta sintomatología dolorosa.',
+      recomendaciones: ['Mantener plan de ejercicios habitual', 'Registrar como valor de referencia'] 
+    };
+    
+    if (puntaje <= 3) return { 
+      texto: 'Dolor Leve', 
+      color: 'yellow', 
+      evidencia: 'Dolor que permite la realización de actividades de la vida diaria (AVD) con mínimas limitaciones.',
+      recomendaciones: [
+        'Uso de agentes físicos (calor/frío según fase)',
+        'Ejercicios de movilidad suave',
+        'Educación sobre manejo de cargas'
+      ] 
+    };
+    
+    if (puntaje <= 6) return { 
+      texto: 'Dolor Moderado', 
+      color: 'orange', 
+      evidencia: 'Dolor que interfiere significativamente con las AVD y el sueño.',
+      recomendaciones: [
+        'Considerar terapia manual analgésica',
+        'Ajustar intensidad del entrenamiento',
+        'Evaluar necesidad de fármacos según protocolo médico'
+      ] 
+    };
+
+    return { 
+      texto: 'Dolor Severo', 
+      color: 'red', 
+      evidencia: 'Dolor incapacitante. Requiere atención inmediata para evitar cronificación o compromiso sistémico.',
+      recomendaciones: [
+        'Reposo relativo de la zona afectada',
+        'Evaluación médica prioritaria',
+        'Técnicas de desensibilización central'
+      ] 
+    };
+  }
+},
+  
   {
     id: 'escala_numerica_dolor',
     nombre: 'Escala Numérica del Dolor',
