@@ -10,7 +10,7 @@ import {
   Accessibility, Stethoscope, Siren, MessageSquare, 
   Brain, HandHelping, ArrowLeft, ChevronRight, Star,
   Apple, Zap, Smile, UserPlus, ClipboardList, UserMinus,
-  Heart // Icono para el footer
+  Heart 
 } from 'lucide-react';
 
 // --- ESTRUCTURAS ---
@@ -52,10 +52,26 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
   const [showPatientModal, setShowPatientModal] = useState(false);
-  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(null);
-  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>([]);
   const [viewingReport, setViewingReport] = useState(false);
 
+  // --- PERSISTENCIA DE SESIÓN (OPCIÓN 3) ---
+  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(() => {
+    const saved = sessionStorage.getItem('escalapro_paciente');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(() => {
+    const saved = sessionStorage.getItem('escalapro_resultados');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Guardado automático en SessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('escalapro_paciente', JSON.stringify(pacienteActivo));
+    sessionStorage.setItem('escalapro_resultados', JSON.stringify(listaResultados));
+  }, [pacienteActivo, listaResultados]);
+
+  // Favoritos (LocalStorage)
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     return saved ? JSON.parse(saved) : [];
@@ -90,7 +106,12 @@ export default function App() {
           resultados={listaResultados}
           onBack={() => setViewingReport(false)}
           onRemoveScale={(index) => setListaResultados(prev => prev.filter((_, i) => i !== index))}
-          onFinalize={() => { setPacienteActivo(null); setListaResultados([]); setViewingReport(false); }}
+          onFinalize={() => { 
+            setPacienteActivo(null); 
+            setListaResultados([]); 
+            setViewingReport(false);
+            sessionStorage.clear(); // Limpiamos al finalizar
+          }}
         />
       </div>
     );
@@ -121,7 +142,13 @@ export default function App() {
                 <p className="text-2xl font-black leading-none">{listaResultados.length}</p>
               </div>
               <button 
-                onClick={() => { if(confirm("¿Deseas finalizar la sesión?")) { setPacienteActivo(null); setListaResultados([]); } }}
+                onClick={() => { 
+                  if(confirm("¿Deseas finalizar la sesión?")) { 
+                    setPacienteActivo(null); 
+                    setListaResultados([]); 
+                    sessionStorage.clear();
+                  } 
+                }}
                 className="bg-red-500/20 hover:bg-red-500 text-white p-3 rounded-xl transition-all flex items-center gap-2 font-bold text-sm"
               >
                 <UserMinus className="w-5 h-5" /> Finalizar
@@ -130,7 +157,7 @@ export default function App() {
           </div>
         )}
 
-        {/* CONTENIDO PRINCIPAL (Dashboard / Formulario) */}
+        {/* CONTENIDO PRINCIPAL */}
         {activeScale && selectedScale ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <button onClick={() => setActiveScale(null)} className="flex items-center gap-2 text-gray-500 font-bold mb-6 hover:text-teal-600 transition-colors">
@@ -146,7 +173,10 @@ export default function App() {
         ) : !selectedCategory ? (
           <div className="animate-in fade-in zoom-in duration-500 pt-4">
             {!pacienteActivo && (
-              <button onClick={() => setShowPatientModal(true)} className="w-full mb-12 bg-white border-4 border-dashed border-teal-100 p-12 rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-teal-500 transition-all duration-500">
+              <button 
+                onClick={() => setShowPatientModal(true)} 
+                className="w-full mb-12 bg-white border-4 border-dashed border-teal-100 p-12 rounded-[3.5rem] flex flex-col items-center justify-center group hover:border-teal-500 active:scale-[0.98] transition-all duration-500"
+              >
                 <div className="bg-teal-50 p-5 rounded-3xl mb-4 group-hover:bg-teal-500 group-hover:text-white transition-all"><UserPlus className="w-10 h-10 text-teal-600 group-hover:text-white" /></div>
                 <h3 className="text-2xl font-black text-gray-900">Nueva Evaluación de Paciente</h3>
                 <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2 text-center">Identifica al paciente para generar un informe consolidado</p>
@@ -165,9 +195,13 @@ export default function App() {
             )}
 
             <div className="mb-10"><h3 className="text-2xl font-black text-gray-900 mb-2">Especialidades</h3><p className="text-gray-500 font-medium text-lg">Selecciona una categoría para explorar.</p></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
               {categories.map(category => (
-                <button key={category.id} onClick={() => setSelectedCategory(category.id)} className="group bg-white p-10 rounded-[3rem] border-2 border-transparent hover:border-teal-500 hover:shadow-2xl transition-all duration-300 text-left flex flex-col items-start relative overflow-hidden">
+                <button 
+                  key={category.id} 
+                  onClick={() => setSelectedCategory(category.id)} 
+                  className="group bg-white p-10 rounded-[3rem] border-2 border-transparent hover:border-teal-500 hover:shadow-2xl active:scale-95 active:shadow-inner transition-all duration-300 text-left flex flex-col items-start relative overflow-hidden"
+                >
                   {getCategoryIcon(category.id)}
                   <h4 className="text-2xl font-black text-gray-900 mb-1">{category.nombre}</h4>
                   <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">{scales.filter(s => s.categoria === category.id).length} Escalas</p>
@@ -192,24 +226,22 @@ export default function App() {
         )}
       </main>
 
-      {/* --- EL FOOTER QUE REGRESA --- */}
       <footer className="mt-20 pb-10 border-t border-gray-100 pt-10 text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <Heart className="w-4 h-4 text-teal-500 fill-teal-500" />
           <p className="text-gray-900 font-black text-sm uppercase tracking-tighter">EscalaPro</p>
         </div>
-        <p className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em] mb-1">
-          Soporte Clínico con Base en Evidencia
-        </p>
-        <p className="text-gray-300 text-[10px] font-medium">
-          © 2026 — Desarrollado por Klgo.Maximiliano Villarroel Ávila
-        </p>
+        <p className="text-gray-400 font-bold text-[11px] uppercase tracking-[0.2em] mb-1">Soporte Clínico con Base en Evidencia</p>
+        <p className="text-gray-300 text-[10px] font-medium">© 2026 — Desarrollado por Klgo. Maximiliano Villarroel Ávila</p>
       </footer>
 
       {/* BOTÓN FLOTANTE */}
       {pacienteActivo && listaResultados.length > 0 && !activeScale && !viewingReport && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-xs px-4">
-          <button onClick={() => setViewingReport(true)} className="w-full bg-slate-900 text-white p-5 rounded-[2rem] shadow-2xl flex items-center justify-between hover:bg-black transition-all border-2 border-teal-500">
+          <button 
+            onClick={() => setViewingReport(true)} 
+            className="w-full bg-slate-900 text-white p-5 rounded-[2rem] shadow-2xl flex items-center justify-between hover:bg-black active:scale-95 transition-all border-2 border-teal-500 animate-bounce-short"
+          >
             <div className="flex items-center gap-3"><ClipboardList className="text-teal-400 w-6 h-6" /><span className="font-black text-xs uppercase tracking-widest">Ver Informe</span></div>
             <span className="bg-teal-500 text-white px-3 py-1 rounded-full text-xs font-black shadow-sm">{listaResultados.length}</span>
           </button>
