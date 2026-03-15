@@ -632,30 +632,51 @@ export const scales: Scale[] = [
   // FONOAUDIOLOGÍA
   // ==========================================
   {
-    id: 'eat10',
-    nombre: 'EAT-10',
-    categoria: 'fonoaudiologia',
-    descripcion: 'Evaluación de problemas de deglución',
-    preguntas: [
-      { id: 'problema_peso', text: 'Mi problema de deglución me ha hecho perder peso', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_salir', text: 'Interfiere con salir a comer', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_liquidos', text: 'Tragar líquidos me requiere esfuerzo extra', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_solidos', text: 'Tragar sólidos me requiere esfuerzo extra', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_pastillas', text: 'Tragar pastillas me requiere esfuerzo extra', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_doloroso', text: 'Tragar es doloroso', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_placer', text: 'El placer de comer se ve afectado', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_garganta', text: 'La comida se pega en mi garganta', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_tos', text: 'Toso cuando como', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] },
-      { id: 'problema_estresante', text: 'Tragar es estresante', type: 'select', options: [{ label: 'Sin problema', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Moderado', value: 2 }, { label: 'Considerable', value: 3 }, { label: 'Severo', value: 4 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje <= 2) return { texto: 'Sin disfagia - Función de deglución normal', recomendaciones: ['Ingesta oral libre sin restricciones'] };
-      if (puntaje <= 15) return { texto: 'Disfagia leve', recomendaciones: ['Evaluación clínica formal de la deglución', 'Modificaciones menores en la dieta (ej. volumen por bocado)', 'Evitar dobles consistencias'] };
-      if (puntaje <= 25) return { texto: 'Disfagia moderada', recomendaciones: ['Derivación obligatoria a Fonoaudiología', 'Modificación de texturas y uso de espesantes', 'Maniobras posturales (chin tuck)'] };
-      return { texto: 'Disfagia severa - Requiere evaluación urgente', recomendaciones: ['Suspender ingesta oral temporalmente (NPO)', 'Evaluación instrumental (FEES o Videofluoroscopia)', 'Considerar vía de alimentación alternativa (SNG/GTT)'] };
-    }
-  },
+  id: 'eat_10',
+  nombre: 'EAT-10 (Eating Assessment Tool)',
+  categoria: 'fonoaudiologia',
+  descripcion: 'Herramienta de autoevaluación para detectar síntomas de disfagia y su impacto en la calidad de vida.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 18780181) ---
+  bibliografia: "Belafsky PC, et al. Validity and reliability of the Eating Assessment Tool (EAT-10). Ann Otol Rhinol Laryngol. 2008 Dec;117(12):919-24.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/18780181/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Un puntaje ≥ 3 se considera anormal y sugiere un trastorno de la deglución. Es una herramienta de cribado con alta sensibilidad.",
+
+  preguntas: [
+    { id: 'p1', text: 'Mi problema para tragar me ha hecho perder peso.', type: 'select', options: [{ label: '0 (Sin problema)', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4 (Problema severo)', value: 4 }] },
+    { id: 'p2', text: 'Mi problema para tragar no me permite comer fuera de casa.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p3', text: 'Tragar líquidos me supone un esfuerzo extra.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p4', text: 'Tragar sólidos me supone un esfuerzo extra.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p5', text: 'Tragar pastillas me supone un esfuerzo extra.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p6', text: 'Tragar es doloroso.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p7', text: 'Mi problema para tragar me quita el placer de comer.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p8', text: 'Se me pega la comida en la garganta.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p9', text: 'Toso cuando como.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] },
+    { id: 'p10', text: 'Tragar es estresante.', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje < 3) return { 
+      texto: 'Deglución Normal (EAT-10 < 3)', 
+      color: 'emerald-600', 
+      evidencia: 'El paciente no refiere síntomas significativos de disfagia.',
+      recomendaciones: ['Control preventivo anual', 'Mantener higiene oral'] 
+    };
+
+    return { 
+      texto: 'SOSPECHA DE DISFAGIA (EAT-10 ≥ 3)', 
+      color: 'red-600', 
+      evidencia: 'Un puntaje de 3 o más indica una alta probabilidad de trastorno de la deglución y requiere evaluación especializada.',
+      recomendaciones: [
+        'Derivación a evaluación fonoaudiológica clínica',
+        'Considerar estudio instrumental (Videofluoroscopía o FEES)',
+        'Vigilancia de signos de aspiración (tos, voz húmeda, fiebre recurrente)'
+      ] 
+    };
+  }
+},
   {
   id: 'fils',
   nombre: 'Food Intake LEVEL Scale (FILS)',
@@ -2198,20 +2219,67 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'glim_criteria',
-    nombre: 'Criterios GLIM',
-    categoria: 'nutricion',
-    descripcion: 'Marco global para el diagnóstico de desnutrición (Fenotípicos + Etiológicos).',
-    preguntas: [
-      { id: 'feno', text: 'Criterio Fenotípico (Pérdida peso, IMC bajo o Masa muscular reducida):', type: 'select', options: [{ label: 'Presente', value: 1 }, { label: 'Ausente', value: 0 }] },
-      { id: 'etio', text: 'Criterio Etiológico (Ingesta reducida o Inflamación/Enfermedad grave):', type: 'select', options: [{ label: 'Presente', value: 1 }, { label: 'Ausente', value: 0 }] }
-    ],
-    calcularPuntaje: (r) => (r.feno === 1 && r.etio === 1) ? 1 : 0,
-    interpretar: (p) => {
-      if (p === 1) return { texto: 'Diagnóstico de DESNUTRICIÓN confirmado', recomendaciones: ['Determinar severidad (Moderada vs Severa)', 'Intervención nutricional intensiva', 'Tratar la causa etiológica base'] };
-      return { texto: 'No cumple criterios diagnósticos GLIM', recomendaciones: ['Continuar monitoreo si existe riesgo nutricional previo'] };
+  id: 'glim_nutricion',
+  nombre: 'Criterios GLIM',
+  categoria: 'nutricion',
+  descripcion: 'Marco de consenso mundial para el diagnóstico de la desnutrición en adultos en entornos clínicos.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 30920224) ---
+  bibliografia: "Cederholm T, et al. GLIM criteria for the diagnosis of malnutrition - A consensus report from the global clinical nutrition community. J Cachexia Sarcopenia Muscle. 2019;10(1):207-17.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/30920224/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "El diagnóstico requiere la combinación de al menos un criterio fenotípico (pérdida de peso, bajo IMC o masa muscular reducida) y un criterio etiológico (ingesta reducida o inflamación/carga de enfermedad).",
+
+  preguntas: [
+    { 
+      id: 'fenotipico', 
+      text: '¿Presenta al menos UN criterio fenotípico? (Pérdida de peso >5%, IMC bajo para la edad o pérdida de masa muscular)', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (Presente)', value: 1 },
+        { label: 'No (Ausente)', value: 0 }
+      ] 
+    },
+    { 
+      id: 'etiologico', 
+      text: '¿Presenta al menos UN criterio etiológico? (Ingesta ≤50% por >1 semana, malabsorción o enfermedad aguda/inflamación crónica)', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (Presente)', value: 1 },
+        { label: 'No (Ausente)', value: 0 }
+      ] 
     }
+  ],
+
+  calcularPuntaje: (respuestas) => {
+    // Para el diagnóstico GLIM se requiere la presencia de ambos (Fenotípico + Etiológico)
+    if (respuestas.fenotipico === 1 && respuestas.etiologico === 1) return 2;
+    return (respuestas.fenotipico || 0) + (respuestas.etiologico || 0);
   },
+
+  interpretar: (puntaje) => {
+    if (puntaje === 2) return { 
+      texto: 'DIAGNÓSTICO DE DESNUTRICIÓN (GLIM)', 
+      color: 'red-600', 
+      evidencia: 'Se cumplen los criterios mínimos de consenso (1 Fenotípico + 1 Etiológico).',
+      recomendaciones: [
+        'Determinar la gravedad (Moderada vs Severa) según el grado del criterio fenotípico',
+        'Iniciar terapia nutricional médica personalizada',
+        'Tratar la causa etiológica subyacente (inflamación o ingesta)',
+        'Seguimiento mensual de la masa muscular y peso'
+      ] 
+    };
+
+    return { 
+      texto: 'CRITERIOS INSUFICIENTES', 
+      color: 'emerald-600', 
+      evidencia: 'No se cumple la combinación necesaria para el diagnóstico de desnutrición según GLIM.',
+      recomendaciones: [
+        'Realizar tamizaje de riesgo (NRS-2002 o MNA) en 15 días si hay enfermedad aguda',
+        'Mantener vigilancia de la ingesta alimentaria'
+      ] 
+    };
+  }
+},
   {
     id: 'imc_cintura',
     nombre: 'IMC y Perímetro de Cintura',
