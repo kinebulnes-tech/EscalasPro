@@ -1,7 +1,10 @@
 import { Scale, InterpretacionAvanzada } from '../data/scalesData';
-import { ClipboardCheck, ArrowLeft, Copy, AlertCircle, FileText, User, Save } from 'lucide-react';
+import { 
+  ClipboardCheck, ArrowLeft, Copy, AlertCircle, 
+  FileText, User, Save, ShieldCheck, BookOpen, 
+  ExternalLink, Activity // <--- Agregamos 'Activity' aquí
+} from 'lucide-react';
 import { useState } from 'react';
-import { jsPDF } from 'jspdf';
 
 interface ScaleResultProps {
   scale: Scale;
@@ -19,26 +22,33 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
   const interpretationText = isAdvanced ? (result as InterpretacionAvanzada).texto : result;
   const recommendationsList = isAdvanced ? (result as InterpretacionAvanzada).recomendaciones : [];
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'blue';
+  
+  // EXTRAEMOS LA EVIDENCIA ESPECÍFICA DEL RESULTADO (Paso 1.2 del TUG)
+  const evidenciaEspecifica = isAdvanced ? (result as any).evidencia : null;
 
   const getAlertStyles = (color?: string) => {
     switch (color) {
-      case 'green': return { bg: 'from-green-600 to-emerald-700', light: 'bg-green-50 border-green-200 text-green-900', icon: 'text-green-600' };
-      case 'yellow': return { bg: 'from-yellow-500 to-amber-600', light: 'bg-yellow-50 border-yellow-200 text-yellow-900', icon: 'text-yellow-600' };
-      case 'orange': return { bg: 'from-orange-500 to-red-600', light: 'bg-orange-50 border-orange-200 text-orange-900', icon: 'text-orange-600' };
+      case 'emerald-600':
+      case 'green': return { bg: 'from-emerald-600 to-teal-700', light: 'bg-emerald-50 border-emerald-200 text-emerald-900', icon: 'text-emerald-600' };
+      case 'blue-600':
+      case 'blue': return { bg: 'from-blue-600 to-indigo-700', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
+      case 'amber-600':
+      case 'yellow': return { bg: 'from-amber-500 to-orange-600', light: 'bg-amber-50 border-amber-200 text-amber-900', icon: 'text-amber-600' };
+      case 'red-600':
       case 'red': return { bg: 'from-red-600 to-rose-800 animate-pulse', light: 'bg-red-50 border-red-200 text-red-900', icon: 'text-red-600' };
-      default: return { bg: 'from-teal-600 to-blue-600', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
+      default: return { bg: 'from-slate-700 to-slate-900', light: 'bg-slate-50 border-slate-200 text-slate-900', icon: 'text-slate-600' };
     }
   };
 
   const styles = getAlertStyles(alertColor);
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 max-w-2xl mx-auto border border-gray-100 mb-10">
+    <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-10 max-w-2xl mx-auto border border-gray-100 mb-10 animate-in fade-in zoom-in duration-500">
       
-      {/* --- BOTÓN DE PRUEBA: SIEMPRE VISIBLE SI HAY PACIENTE --- */}
+      {/* PANEL DE GUARDADO (Persistencia) */}
       {pacienteNombre ? (
-        <div className="mb-6 p-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl animate-in zoom-in duration-500">
-           <p className="text-[10px] font-black text-emerald-600 uppercase mb-2 text-center">Panel de Guardado Directo</p>
+        <div className="mb-8 p-5 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem]">
+           <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Informe de Sesión Activo</p>
            <button
             onClick={() => {
               if (onSave) {
@@ -49,46 +59,104 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
                   interpretacion: interpretationText,
                   color: alertColor,
                   recomendaciones: recommendationsList,
+                  evidencia: evidenciaEspecifica, // Guardamos la evidencia en el informe
                   fecha: new Date().toLocaleDateString()
                 });
-              } else {
-                alert("Error: La sesión está activa pero el sistema de guardado no responde. Revisa la consola.");
+                alert("✓ Resultado añadido al informe de " + pacienteNombre);
               }
             }}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-black text-lg shadow-lg flex items-center justify-center gap-3 transition-all active:scale-95"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-emerald-200 flex items-center justify-center gap-3 transition-all active:scale-95"
           >
             <Save className="w-6 h-6" />
-            Guardar en el informe de {pacienteNombre}
+            Vincular a {pacienteNombre}
           </button>
         </div>
       ) : (
-        <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl text-center">
-          <p className="text-sm font-bold text-amber-700">⚠️ No hay paciente activo. Inicia uno en el Dashboard para guardar.</p>
+        <div className="mb-8 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+          <p className="text-xs font-bold text-slate-500">Modo Consulta (Sin paciente activo)</p>
         </div>
       )}
 
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-black text-gray-900">{scale.nombre}</h2>
-        <p className="text-gray-500 font-medium">Resultado de la evaluación</p>
+      {/* CABECERA */}
+      <div className="text-center mb-8">
+        <div className="inline-block p-3 bg-gray-50 rounded-2xl mb-4">
+          <ClipboardCheck className="w-8 h-8 text-teal-600" />
+        </div>
+        <h2 className="text-3xl font-black text-gray-900 leading-tight">{scale.nombre}</h2>
       </div>
 
-      <div className={`bg-gradient-to-br ${styles.bg} rounded-3xl p-8 text-white text-center shadow-lg mb-6`}>
-        <p className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">Puntaje</p>
-        <div className="text-6xl font-black mb-3">{totalScore}</div>
-        <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-md rounded-xl font-bold">
+      {/* SCORE CARD */}
+      <div className={`bg-gradient-to-br ${styles.bg} rounded-[2rem] p-8 text-white text-center shadow-xl mb-8 relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <Activity size={120} />
+        </div>
+        <p className="text-white/70 font-black uppercase tracking-[0.2em] text-[10px] mb-2">Puntaje Obtenido</p>
+        <div className="text-7xl font-black mb-4 tracking-tighter">{totalScore}</div>
+        <div className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md rounded-2xl font-black text-sm uppercase tracking-wide">
           {interpretationText}
         </div>
       </div>
 
-      {/* Botones de acción secundaria */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <button onClick={onBack} className="flex items-center justify-center gap-2 py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-200 transition-all">
+      {/* --- NUEVO: BLOQUE DE EVIDENCIA CLÍNICA --- */}
+      {evidenciaEspecifica && (
+        <div className={`mb-8 p-6 rounded-[2rem] border-2 ${styles.light} animate-in slide-in-from-bottom-4 duration-700`}>
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldCheck className={styles.icon + " w-5 h-5"} />
+            <h4 className="font-black uppercase text-xs tracking-widest">Respaldo de Evidencia</h4>
+          </div>
+          <p className="text-sm font-bold leading-relaxed italic">
+            "{evidenciaEspecifica}"
+          </p>
+        </div>
+      )}
+
+      {/* RECOMENDACIONES */}
+      {recommendationsList.length > 0 && (
+        <div className="mb-8">
+          <h4 className="text-gray-900 font-black text-xs uppercase tracking-widest mb-4 px-2">Sugerencias Clínicas</h4>
+          <div className="space-y-3">
+            {recommendationsList.map((rec, i) => (
+              <div key={i} className="flex gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-[10px] font-black text-teal-600 shrink-0 shadow-sm">{i+1}</div>
+                <p className="text-sm font-semibold text-gray-700">{rec}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* BOTONES DE NAVEGACIÓN */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <button onClick={onBack} className="flex items-center justify-center gap-2 py-5 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all uppercase text-xs tracking-widest">
           <ArrowLeft size={18} /> Volver
         </button>
-        <button onClick={() => window.print()} className="flex items-center justify-center gap-2 py-4 bg-teal-50 text-teal-700 font-bold rounded-2xl border border-teal-100">
+        <button onClick={() => window.print()} className="flex items-center justify-center gap-2 py-5 bg-teal-50 text-teal-700 font-black rounded-2xl border-2 border-teal-100 hover:bg-teal-100 transition-all uppercase text-xs tracking-widest">
           <FileText size={18} /> Imprimir
         </button>
       </div>
+
+      {/* --- PIE DE PÁGINA BIBLIOGRÁFICO --- */}
+      {scale.bibliografia && (
+        <div className="pt-8 border-t border-gray-100">
+          <div className="flex items-center gap-2 mb-3 text-gray-400">
+            <BookOpen size={14} />
+            <span className="text-[10px] font-black uppercase tracking-widest">Referencia Científica</span>
+          </div>
+          <p className="text-[10px] text-gray-500 italic leading-relaxed mb-3">
+            {scale.bibliografia}
+          </p>
+          {scale.referenciaUrl && (
+            <a 
+              href={scale.referenciaUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[10px] font-black text-teal-600 hover:underline"
+            >
+              <ExternalLink size={12} /> VER ESTUDIO ORIGINAL (PUBMED)
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 }
