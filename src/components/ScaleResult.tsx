@@ -2,42 +2,52 @@ import { Scale, InterpretacionAvanzada } from '../data/scalesData';
 import { 
   ClipboardCheck, ArrowLeft, Copy, AlertCircle, 
   FileText, User, Save, ShieldCheck, BookOpen, 
-  ExternalLink, Activity // <--- Agregamos 'Activity' aquí
+  ExternalLink, Activity, // Iconos verificados
+  Activity as ActivityIcon // Alias por si acaso
 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ScaleResultProps {
   scale: Scale;
   totalScore: number;
+  respuestas: Record<string, number>; // ✅ Ahora el componente reconoce las respuestas
   onBack: () => void;
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
 }
 
-export default function ScaleResult({ scale, totalScore, onBack, onSave, pacienteNombre }: ScaleResultProps) {
+export default function ScaleResult({ 
+  scale, 
+  totalScore, 
+  respuestas, 
+  onBack, 
+  onSave, 
+  pacienteNombre 
+}: ScaleResultProps) {
   const [copied, setCopied] = useState(false);
 
-  const result = scale.interpretar(totalScore);
+  // ✅ Enviamos puntaje Y respuestas para que Sit to Stand calcule el predicho
+  const result = scale.interpretar(totalScore, respuestas); 
+  
   const isAdvanced = typeof result === 'object' && result !== null;
   const interpretationText = isAdvanced ? (result as InterpretacionAvanzada).texto : result;
   const recommendationsList = isAdvanced ? (result as InterpretacionAvanzada).recomendaciones : [];
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'blue';
   
-  // EXTRAEMOS LA EVIDENCIA ESPECÍFICA DEL RESULTADO (Paso 1.2 del TUG)
   const evidenciaEspecifica = isAdvanced ? (result as any).evidencia : null;
 
+  // Sistema de colores robusto que acepta nombres simples o clases de Tailwind
   const getAlertStyles = (color?: string) => {
-    switch (color) {
-      case 'emerald-600':
-      case 'green': return { bg: 'from-emerald-600 to-teal-700', light: 'bg-emerald-50 border-emerald-200 text-emerald-900', icon: 'text-emerald-600' };
-      case 'blue-600':
-      case 'blue': return { bg: 'from-blue-600 to-indigo-700', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
-      case 'amber-600':
-      case 'yellow': return { bg: 'from-amber-500 to-orange-600', light: 'bg-amber-50 border-amber-200 text-amber-900', icon: 'text-amber-600' };
-      case 'red-600':
-      case 'red': return { bg: 'from-red-600 to-rose-800 animate-pulse', light: 'bg-red-50 border-red-200 text-red-900', icon: 'text-red-600' };
-      default: return { bg: 'from-slate-700 to-slate-900', light: 'bg-slate-50 border-slate-200 text-slate-900', icon: 'text-slate-600' };
-    }
+    const c = color?.toLowerCase() || '';
+    if (c.includes('emerald') || c.includes('green')) 
+      return { bg: 'from-emerald-600 to-teal-700', light: 'bg-emerald-50 border-emerald-200 text-emerald-900', icon: 'text-emerald-600' };
+    if (c.includes('blue')) 
+      return { bg: 'from-blue-600 to-indigo-700', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
+    if (c.includes('amber') || c.includes('yellow') || c.includes('orange')) 
+      return { bg: 'from-amber-500 to-orange-600', light: 'bg-amber-50 border-amber-200 text-amber-900', icon: 'text-amber-600' };
+    if (c.includes('red') || c.includes('rose')) 
+      return { bg: 'from-red-600 to-rose-800 animate-pulse', light: 'bg-red-50 border-red-200 text-red-900', icon: 'text-red-600' };
+    return { bg: 'from-slate-700 to-slate-900', light: 'bg-slate-50 border-slate-200 text-slate-900', icon: 'text-slate-600' };
   };
 
   const styles = getAlertStyles(alertColor);
@@ -45,7 +55,7 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
   return (
     <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-10 max-w-2xl mx-auto border border-gray-100 mb-10 animate-in fade-in zoom-in duration-500">
       
-      {/* PANEL DE GUARDADO (Persistencia) */}
+      {/* PANEL DE GUARDADO */}
       {pacienteNombre ? (
         <div className="mb-8 p-5 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem]">
            <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Informe de Sesión Activo</p>
@@ -59,7 +69,7 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
                   interpretacion: interpretationText,
                   color: alertColor,
                   recomendaciones: recommendationsList,
-                  evidencia: evidenciaEspecifica, // Guardamos la evidencia en el informe
+                  evidencia: evidenciaEspecifica,
                   fecha: new Date().toLocaleDateString()
                 });
                 alert("✓ Resultado añadido al informe de " + pacienteNombre);
@@ -90,14 +100,14 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Activity size={120} />
         </div>
-        <p className="text-white/70 font-black uppercase tracking-[0.2em] text-[10px] mb-2">Puntaje Obtenido</p>
+        <p className="text-white/70 font-black uppercase tracking-[0.2em] text-[10px] mb-2">Resultado Final</p>
         <div className="text-7xl font-black mb-4 tracking-tighter">{totalScore}</div>
         <div className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md rounded-2xl font-black text-sm uppercase tracking-wide">
           {interpretationText}
         </div>
       </div>
 
-      {/* --- NUEVO: BLOQUE DE EVIDENCIA CLÍNICA --- */}
+      {/* BLOQUE DE EVIDENCIA CLÍNICA */}
       {evidenciaEspecifica && (
         <div className={`mb-8 p-6 rounded-[2rem] border-2 ${styles.light} animate-in slide-in-from-bottom-4 duration-700`}>
           <div className="flex items-center gap-2 mb-3">
@@ -135,7 +145,7 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
         </button>
       </div>
 
-      {/* --- PIE DE PÁGINA BIBLIOGRÁFICO --- */}
+      {/* PIE DE PÁGINA BIBLIOGRÁFICO */}
       {scale.bibliografia && (
         <div className="pt-8 border-t border-gray-100">
           <div className="flex items-center gap-2 mb-3 text-gray-400">
