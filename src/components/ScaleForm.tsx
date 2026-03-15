@@ -61,6 +61,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
       <ScaleResult
         scale={scale}
         totalScore={resultado.puntaje}
+        respuestas={respuestas} // ✅ PASO 2: Ahora pasamos todas las respuestas al resultado
         onBack={onBack}
         onSave={onSave}
         pacienteNombre={pacienteNombre}
@@ -92,7 +93,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-4">{scale.descripcion}</p>
 
-          {/* --- BLOQUE DE RIGOR CIENTÍFICO --- */}
+          {/* --- BLOQUE DE RIGOR CIENTÍFICO (CORREGIDO) --- */}
           {(scale.bibliografia || scale.evidenciaClinica) && (
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-700">
               <div className="flex items-center gap-2 mb-2">
@@ -125,7 +126,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold text-teal-600 hover:underline"
                 >
-                  <ExternalLink size={12} /> Ver fuente en PubMed/Google Scholar
+                  <ExternalLink size={12} /> Ver fuente original
                 </a>
               )}
             </div>
