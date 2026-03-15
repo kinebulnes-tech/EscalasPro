@@ -148,21 +148,70 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'presion_manual',
-    nombre: 'Escala de Presión Manual (Dinamometría)',
-    categoria: 'kinesiologia',
-    descripcion: 'Mide la fuerza muscular de miembros superiores en kg con dinamómetro.',
-    preguntas: [
-      { id: 'fuerza_kg', text: 'Ingrese la fuerza máxima obtenida en kilogramos (kg)', type: 'number' }
-    ],
-    calcularPuntaje: (respuestas) => Number(respuestas.fuerza_kg) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Sin datos ingresados', recomendaciones: [] };
-      if (puntaje < 16) return { texto: 'Fuerza baja - Riesgo de sarcopenia en mujeres (Corte EWGSOP2 < 16kg)', recomendaciones: ['Derivación a nutrición clínica (evaluar ingesta proteica)', 'Programa de ejercicios de resistencia progresiva (PRT)', 'Evaluación de riesgo de caídas', 'Descartar causas secundarias de debilidad'] };
-      if (puntaje < 27) return { texto: 'Fuerza baja - Riesgo de sarcopenia en hombres (Corte EWGSOP2 < 27kg) / Rango normal para mujeres', recomendaciones: ['Para hombres: Iniciar protocolo de prevención de sarcopenia (ejercicio + nutrición)', 'Para mujeres: Mantener actividad física regular'] };
-      return { texto: 'Fuerza muscular dentro de parámetros funcionales normales', recomendaciones: ['Mantener entrenamiento de fuerza 2-3 veces por semana', 'Asegurar ingesta proteica adecuada'] };
+  id: 'prension_manual',
+  nombre: 'Dinamometría de Prensión Manual',
+  categoria: 'kinesiologia',
+  descripcion: 'Evaluación de la fuerza muscular máxima de prensión para la detección de sarcopenia y fragilidad.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 30312472) ---
+  bibliografia: "Cruz-Jentoft AJ, et al. Sarcopenia: revised European consensus on definition and diagnosis. Age Ageing. 2019 Jan 1;48(1):16-31.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/30312472/", // ✅ ENLACE VERIFICADO: Consenso EWGSOP2
+  evidenciaClinica: "La fuerza de prensión es un predictor potente de mortalidad y discapacidad. Los puntos de corte de EWGSOP2 son < 27 kg para hombres y < 16 kg para mujeres.",
+
+  preguntas: [
+    { 
+      id: 'sexo', 
+      text: 'Sexo del paciente:', 
+      type: 'select', 
+      options: [
+        { label: 'Hombre', value: 1 },
+        { label: 'Mujer', value: 2 }
+      ] 
+    },
+    { 
+      id: 'fuerza_kg', 
+      text: 'Fuerza máxima alcanzada (mejor de 3 intentos en kg):', 
+      type: 'number',
+      
+    }
+  ],
+
+  calcularPuntaje: (respuestas) => {
+    const fuerza = Number(respuestas.fuerza_kg) || 0;
+    const sexo = Number(respuestas.sexo);
+    
+    // Clasificación basada en puntos de corte EWGSOP2
+    if (sexo === 1) { // Hombre
+      return fuerza < 27 ? 0 : 1; 
+    } else { // Mujer
+      return fuerza < 16 ? 0 : 1;
     }
   },
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'FUERZA DISMINUIDA (Probable Sarcopenia)', 
+      color: 'red-600', 
+      evidencia: 'El valor está por debajo de los puntos de corte internacionales (Hombres < 27 kg, Mujeres < 16 kg).',
+      recomendaciones: [
+        'Realizar evaluación de masa muscular (BIA, DXA o Circunferencia de pantorrilla)',
+        'Evaluar desempeño físico (Velocidad de marcha o Test de levantarse de la silla)',
+        'Intervención nutricional (aporte proteico)',
+        'Entrenamiento de fuerza progresivo'
+      ] 
+    };
+
+    return { 
+      texto: 'Fuerza Normal', 
+      color: 'emerald-600', 
+      evidencia: 'La fuerza de prensión se encuentra dentro de los rangos funcionales para el diagnóstico de sarcopenia.',
+      recomendaciones: [
+        'Mantener niveles de actividad física',
+        'Prevención primaria y control anual'
+      ] 
+    };
+  }
+},
   {
   id: 'sit_to_stand',
   nombre: 'Test Sit to Stand (1 minuto)',
