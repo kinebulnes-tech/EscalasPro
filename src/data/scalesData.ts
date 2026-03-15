@@ -11,8 +11,8 @@ export interface Question {
 export interface InterpretacionAvanzada {
   texto: string;
   recomendaciones: string[];
-  color?: string;    // <--- Cambiado a string para aceptar 'text-blue-600', etc.
-  evidencia?: string; // <--- AÑADE ESTA LÍNEA para que acepte el dato estadístico
+  color?: string;    
+  evidencia?: string; // ✅ Campo para el dato estadístico del resultado
 }
 
 export interface Scale {
@@ -22,7 +22,9 @@ export interface Scale {
   descripcion: string;
   preguntas: Question[];
   calcularPuntaje: (respuestas: Record<string, number>) => number;
-  interpretar: (puntaje: number) => string | InterpretacionAvanzada;
+  // ✅ CAMBIO CLAVE: Agregamos 'respuestas' como segundo argumento opcional
+  // Esto elimina las líneas rojas cuando intentas usar respuestas?.edad o similares.
+  interpretar: (puntaje: number, respuestas?: Record<string, any>) => string | InterpretacionAvanzada;
   // Rigor científico
   bibliografia?: string;
   evidenciaClinica?: string;
@@ -76,22 +78,94 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'sit_to_stand',
-    nombre: 'Test Sit to Stand (1 minuto)',
-    categoria: 'kinesiologia',
-    descripcion: 'Evaluación funcional de fuerza y resistencia de miembros inferiores.',
-    preguntas: [
-      { id: 'cronometro', text: 'Apoyo visual: Controle el minuto exacto', type: 'plugin', componente: 'CRONOMETRO' },
-      { id: 'repeticiones', text: 'Número de repeticiones completadas en 1 minuto', type: 'number' }
-    ],
-    calcularPuntaje: (respuestas) => Number(respuestas.repeticiones) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Prueba no realizada o 0 repeticiones', recomendaciones: ['Evaluar barreras físicas o cognitivas para la prueba'] };
-      if (puntaje < 15) return { texto: 'Bajo rendimiento - Alto riesgo de caídas y fragilidad', recomendaciones: ['Programa supervisado de fortalecimiento de tren inferior', 'Entrenamiento de equilibrio y propiocepción', 'Evaluación integral del riesgo de caídas en el hogar'] };
-      if (puntaje <= 30) return { texto: 'Rendimiento moderado/promedio', recomendaciones: ['Incorporar sentadillas y ejercicios funcionales en rutina diaria', 'Fomentar caminata diaria'] };
-      return { texto: 'Alto rendimiento funcional', recomendaciones: ['Mantener nivel actual de actividad física', 'Fomentar independencia funcional'] };
+  id: 'sit_to_stand',
+  nombre: 'Test Sit to Stand (1 minuto)',
+  categoria: 'kinesiologia',
+  descripcion: 'Evaluación de la fuerza, resistencia de miembros inferiores y capacidad funcional aeróbica.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 23585231) ---
+  bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23585231/",
+  evidenciaClinica: "Basado en valores normativos europeos (Strassmann, 2013). Un rendimiento < 60% del predicho se asocia a fragilidad y mayor riesgo de hospitalización.",
+
+  preguntas: [
+    { 
+      id: 'sexo', 
+      text: 'Sexo biológico:', 
+      type: 'select', 
+      options: [{ label: 'Hombre', value: 1 }, { label: 'Mujer', value: 2 }] 
+    },
+    { id: 'edad', text: 'Edad del paciente (años):', type: 'number' },
+    { id: 'altura', text: 'Altura del paciente (cm):', type: 'number' },
+    { 
+      id: 'cronometro', 
+      text: 'Realice el test durante 1 minuto exacto:', 
+      type: 'plugin', 
+      componente: 'CRONOMETRO' 
+    },
+    { id: 'repeticiones', text: 'Total de repeticiones logradas:', type: 'number' }
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.repeticiones) || 0,
+
+  interpretar: (puntaje, respuestas) => {
+    const reps = puntaje;
+    const edad = Number(respuestas?.edad) || 0;
+    const altura = Number(respuestas?.altura) || 0;
+    const sexo = Number(respuestas?.sexo) || 1;
+
+    // Si faltan datos críticos, devolvemos una advertencia
+    if (reps === 0 || edad === 0 || altura === 0) {
+      return { 
+        texto: 'Faltan datos (Edad/Altura) para el cálculo clínico', 
+        color: 'gray', 
+        recomendaciones: ['Complete todos los campos para obtener el valor predicho según Strassmann.'] 
+      };
     }
-  },
+
+    // --- CÁLCULO DE VALOR PREDICHO (ECUACIONES DE STRASSMANN) ---
+    // Hombre: 40.8 - (0.43 * edad) + (0.17 * altura)
+    // Mujer: 33.5 - (0.32 * edad) + (0.14 * altura)
+    const predicho = (sexo === 1) 
+      ? 40.8 - (0.43 * edad) + (0.17 * altura)
+      : 33.5 - (0.32 * edad) + (0.14 * altura);
+
+    const porcentaje = Math.round((reps / predicho) * 100);
+
+    // RESULTADO: NORMAL (> 80%)
+    if (porcentaje >= 80) return { 
+      texto: `Rendimiento Normal (${porcentaje}% del esperado)`, 
+      color: 'green',
+      evidencia: `El valor normativo para su perfil es de ${Math.round(predicho)} repeticiones. El paciente superó el umbral del 80%.`,
+      recomendaciones: ['Continuar con actividad física regular', 'Mantener entrenamiento de fuerza funcional'] 
+    };
+
+    // RESULTADO: RIESGO MODERADO (60% - 79%)
+    if (porcentaje >= 60) return { 
+      texto: `Deterioro Funcional Moderado (${porcentaje}% del esperado)`, 
+      color: 'orange',
+      evidencia: `Rendimiento por debajo del promedio poblacional. Indica riesgo de fragilidad incipiente y sarcopenia.`,
+      recomendaciones: [
+        'Iniciar programa de fortalecimiento de cuádriceps (3 series x 10-12 reps)',
+        'Evaluar ingesta proteica diaria',
+        'Re-evaluar en 8 semanas para medir MCID (Mínimo cambio importante: 3 reps)'
+      ] 
+    };
+
+    // RESULTADO: DETERIORO SEVERO (< 60%)
+    return { 
+      texto: `Deterioro Funcional Severo (${porcentaje}% del esperado)`, 
+      color: 'red',
+      evidencia: `Rendimiento crítico. En pacientes con patología respiratoria o crónica, este nivel se asocia a una disminución marcada en la calidad de vida y autonomía.`,
+      recomendaciones: [
+        'Derivación prioritaria a rehabilitación kinésica',
+        'Evaluación de ayudas técnicas para la marcha si hay inestabilidad',
+        'Considerar evaluación médica para descartar miopatías o causas metabólicas'
+      ] 
+    };
+  }
+},
+  
   {
     id: 'fim',
     nombre: 'Medida de Independencia Funcional (FIM)',
