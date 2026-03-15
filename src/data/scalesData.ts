@@ -2476,30 +2476,73 @@ export const scales: Scale[] = [
   // PSICOLOGÍA
   // ==========================================
   {
-    id: 'phq_9',
-    nombre: 'Cuestionario PHQ-9',
-    categoria: 'psicologia',
-    descripcion: 'Cuestionario sobre la salud del paciente para detectar severidad de síntomas depresivos.',
-    preguntas: [
-      { id: 'interes', text: '1. Poco interés o placer en hacer las cosas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'animo', text: '2. Sentirse decaído/a, deprimido/a o sin esperanzas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'sueno', text: '3. Dificultad para dormir o dormir demasiado:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'energia', text: '4. Sentirse cansado/a o tener poca energía:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'apetito', text: '5. Poco apetito o comer en exceso:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'falla', text: '6. Sentirse mal con usted mismo/a (sentirse fracasado):', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'concentracion', text: '7. Dificultad para concentrarse (leer, ver TV):', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'lentitud', text: '8. ¿Se mueve o habla tan lento (o tan rápido) que otros lo notan?:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'suicidio', text: '9. Pensamientos de que estaría mejor muerto/a o de lastimarse:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 4) return { texto: 'Síntomas depresivos mínimos', recomendaciones: ['No requiere intervención específica', 'Fomentar hábitos de vida saludable'] };
-      if (p <= 9) return { texto: 'Depresión Leve', recomendaciones: ['Psicoeducación', 'Seguimiento clínico en 1 mes', 'Evaluar apoyo social'] };
-      if (p <= 14) return { texto: 'Depresión Moderada', recomendaciones: ['Derivación a Psicología', 'Considerar inicio de farmacoterapia según criterio médico', 'Control frecuente'] };
-      if (p <= 19) return { texto: 'Depresión Moderadamente Grave', recomendaciones: ['Tratamiento combinado (Fármacos + Psicoterapia)', 'Derivación prioritaria a Salud Mental'] };
-      return { texto: 'Depresión Grave', recomendaciones: ['Derivación inmediata a especialista', 'Evaluación de riesgo suicida urgente', 'Soporte familiar intensivo'] };
-    }
-  },
+  id: 'phq_9',
+  nombre: 'Cuestionario PHQ-9',
+  categoria: 'psicologia',
+  descripcion: 'Herramienta de 9 ítems para el tamizaje, diagnóstico y monitoreo de la severidad de la depresión.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11556941) ---
+  bibliografia: "Kroenke K, Spitzer RL, Williams JB. The PHQ-9: validity of a brief depression severity measure. J Gen Intern Med. 2001 Sep;16(9):606-13.",
+  referenciaUrl: "https://pmc.ncbi.nlm.nih.gov/articles/PMC1495268/", // ✅ ENLACE FULL TEXT GRATUITO
+  evidenciaClinica: "Un puntaje ≥ 10 tiene una sensibilidad y especificidad del 88% para el diagnóstico de depresión mayor. Es sensible al cambio tras el tratamiento.",
+
+  preguntas: [
+    { 
+      id: 'p1', 
+      text: 'Poco interés o placer en hacer las cosas:', 
+      type: 'select', 
+      options: [
+        { label: '0: Nunca', value: 0 },
+        { label: '1: Varios días', value: 1 },
+        { label: '2: Más de la mitad de los días', value: 2 },
+        { label: '3: Casi todos los días', value: 3 }
+      ] 
+    },
+    { id: 'p2', text: 'Sentirse desanimado/a, deprimido/a o sin esperanzas:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p3', text: 'Problemas para dormir o para mantenerse dormido, o dormir demasiado:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p4', text: 'Sentirse cansado/a o con poca energía:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p5', text: 'Poco apetito o comer demasiado:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p6', text: 'Sentirse mal consigo mismo/a (sentir que es un fracaso o que ha decepcionado a su familia):', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p7', text: 'Dificultad para concentrarse en cosas tales como leer el periódico o ver televisión:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p8', text: 'Moverse o hablar tan lentamente que otras personas podrían notarlo. O lo contrario: estar tan inquieto que se mueve mucho más de lo normal:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p9', text: 'Pensamientos de que sería mejor estar muerto/a o de lastimarse de alguna manera:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 4) return { 
+      texto: 'Depresión Mínima o Ausente', 
+      color: 'emerald-600', 
+      evidencia: 'Puntaje en rango de normalidad. Generalmente no requiere tratamiento específico.',
+      recomendaciones: ['Seguimiento si aparecen nuevos síntomas'] 
+    };
+    if (puntaje <= 9) return { 
+      texto: 'Depresión Leve', 
+      color: 'yellow-600', 
+      evidencia: 'Sintomatología presente pero con impacto funcional limitado.',
+      recomendaciones: ['Vigilancia clínica', 'Apoyo psicoeducativo', 'Re-evaluar en 1-2 meses'] 
+    };
+    if (puntaje <= 14) return { 
+      texto: 'Depresión Moderada', 
+      color: 'orange-600', 
+      evidencia: 'Requiere plan de tratamiento (psicoterapia y/o fármacos).',
+      recomendaciones: ['Derivación a Salud Mental', 'Considerar inicio de terapia'] 
+    };
+    if (puntaje <= 19) return { 
+      texto: 'Depresión Moderadamente Severa', 
+      color: 'red-500', 
+      evidencia: 'Alto impacto en la vida diaria. Requiere tratamiento activo.',
+      recomendaciones: ['Tratamiento farmacológico e interdisciplinario'] 
+    };
+    return { 
+      texto: 'Depresión Severa', 
+      color: 'red-700', 
+      evidencia: 'Gravedad máxima. Riesgo de complicaciones funcionales y vitales.',
+      recomendaciones: ['Intervención intensiva inmediata', 'Evaluar riesgo de autoagresión'] 
+    };
+  }
+},
   {
     id: 'gad_7',
     nombre: 'Escala GAD-7',
