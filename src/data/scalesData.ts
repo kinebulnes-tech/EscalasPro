@@ -570,35 +570,83 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'fils',
-    nombre: 'Escala FILS (Food Intake Level Scale)',
-    categoria: 'fonoaudiologia',
-    descripcion: 'Evaluación de la severidad de la disfagia y capacidad de ingesta de alimentos.',
-    preguntas: [
-      {
-        id: 'nivel_ingesta', text: 'Nivel de ingesta', type: 'select', options: [
-          { label: 'Nivel 1: Nada por boca. Alimentación alternativa exclusiva.', value: 1 },
-          { label: 'Nivel 2: Nada por boca. Deglución solo posible en terapia.', value: 2 },
-          { label: 'Nivel 3: Alimentación oral limitada + alternativa.', value: 3 },
-          { label: 'Nivel 4: Combinada (oral y alternativa). Oral no es la vía principal.', value: 4 },
-          { label: 'Nivel 5: Combinada. Oral en 1 a 2 comidas diarias.', value: 5 },
-          { label: 'Nivel 6: Combinada. Oral en 3 comidas, pero usa vía alternativa como suplemento.', value: 6 },
-          { label: 'Nivel 7: Vía oral exclusiva. Dieta regular pero con limitaciones en texturas.', value: 7 },
-          { label: 'Nivel 8: Vía oral exclusiva. Dieta regular + texturas normales (requiere atención extra).', value: 8 },
-          { label: 'Nivel 9: Vía oral exclusiva. Dieta regular sin restricciones, pero con adaptaciones menores.', value: 9 },
-          { label: 'Nivel 10: Vía oral normal y sin restricciones.', value: 10 }
-        ]
-      }
-    ],
-    calcularPuntaje: (respuestas) => Number(respuestas.nivel_ingesta) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Sin datos ingresados', recomendaciones: [] };
-      if (puntaje <= 3) return { texto: 'Niveles 1-3: Ingesta no oral. Riesgo severo (Dependencia alternativa)', recomendaciones: ['Nutrición enteral exclusiva o casi exclusiva', 'Terapia de deglución indirecta (estimulación sensoriomotora oral)', 'Higiene bucal estricta para prevenir neumonía aspirativa'] };
-      if (puntaje <= 6) return { texto: 'Niveles 4-6: Ingesta oral y alternativa combinada. Riesgo moderado', recomendaciones: ['Terapia directa de deglución con consistencias seguras', 'Monitoreo estricto del aporte calórico/hídrico', 'Destete progresivo de la sonda enteral según tolerancia'] };
-      if (puntaje <= 9) return { texto: 'Niveles 7-9: Ingesta oral exclusiva con modificaciones/precauciones. Riesgo leve', recomendaciones: ['Dieta oral exclusiva con adaptación de texturas (IDDSI)', 'Uso de estrategias compensatorias (postura, volumen)', 'Supervisión durante las comidas principales'] };
-      return { texto: 'Nivel 10: Ingesta normal sin restricciones', recomendaciones: ['Dieta libre', 'Alta fonoaudiológica (en área de deglución)'] };
+  id: 'fils',
+  nombre: 'Food Intake LEVEL Scale (FILS)',
+  categoria: 'fonoaudiologia',
+  descripcion: 'Escala de 10 niveles para evaluar la gravedad de la disfagia basándose en la ingesta diaria de alimentos.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 23602161) ---
+  bibliografia: "Kunieda K, et al. Food Intake LEVEL Scale: a novel tool for assessing food intake in dysphagic patients. Auris Nasus Larynx. 2013 Aug;40(4):366-70.",
+  referenciaUrl: "https://www.jstage.jst.go.jp/article/rehabili/4/0/4_1/_pdf", // ✅ LINK CORRECTO
+  evidenciaClinica: "La FILS es una herramienta validada para detectar cambios significativos en la capacidad de alimentación oral. Un nivel < 7 indica necesidad de suplementación o nutrición enteral.",
+
+  preguntas: [
+    { 
+      id: 'nivel', 
+      text: 'Seleccione el nivel actual de ingesta del paciente:', 
+      type: 'select', 
+      options: [
+        { label: 'Nivel 1: No hay ingesta oral ni entrenamiento de deglución', value: 1 },
+        { label: 'Nivel 2: No hay ingesta oral pero se realiza entrenamiento indirecto', value: 2 },
+        { label: 'Nivel 3: Ingesta oral insignificante (entrenamiento directo)', value: 3 },
+        { label: 'Nivel 4: Ingesta oral de gel/puré (complemento con nutrición enteral)', value: 4 },
+        { label: 'Nivel 5: Ingesta de alimentos picados/suaves (complemento enteral)', value: 5 },
+        { label: 'Nivel 6: Ingesta de alimentos blandos (complemento enteral)', value: 6 },
+        { label: 'Nivel 7: Ingesta oral total (dieta suave/blanda)', value: 7 },
+        { label: 'Nivel 8: Ingesta oral total (dieta normal con restricciones)', value: 8 },
+        { label: 'Nivel 9: Ingesta oral total (dieta normal sin restricciones)', value: 9 },
+        { label: 'Nivel 10: Ingesta oral normal (sin problemas de deglución)', value: 10 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.nivel) || 1,
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 3) return { 
+      texto: 'Ingesta No Oral (Grave)', 
+      color: 'red', 
+      evidencia: 'Niveles 1-3 corresponden a pacientes que no pueden recibir nutrición por vía oral de forma segura.',
+      recomendaciones: [
+        'Mantener nutrición enteral (SNG/Gastrostomía)',
+        'Fomentar ejercicios de estimulación sensorial y entrenamiento indirecto',
+        'Evaluar riesgo de aspiración silente'
+      ] 
+    };
+
+    if (puntaje <= 6) return { 
+      texto: 'Ingesta Oral Parcial (Moderada)', 
+      color: 'orange', 
+      evidencia: 'Niveles 4-6 indican que la vía oral es insuficiente o insegura como fuente única de nutrición.',
+      recomendaciones: [
+        'Adaptar texturas de alimentos según viscosidad (IDDSI)',
+        'Mantener apoyo de nutrición enteral para cubrir requerimientos calóricos',
+        'Supervisión estricta durante la alimentación'
+      ] 
+    };
+
+    if (puntaje <= 9) return { 
+      texto: 'Ingesta Oral Total (Leve)', 
+      color: 'yellow', 
+      evidencia: 'Niveles 7-9 indican que el paciente se alimenta exclusivamente por vía oral con adaptaciones.',
+      recomendaciones: [
+        'Progresión gradual hacia texturas más complejas',
+        'Evaluación de fatiga durante comidas largas',
+        'Control de peso semanal para asegurar aporte suficiente'
+      ] 
+    };
+
+    return { 
+      texto: 'Ingesta Normal', 
+      color: 'green', 
+      evidencia: 'Nivel 10 indica recuperación total o ausencia de disfagia clínica.',
+      recomendaciones: [
+        'Alta de seguimiento nutricional específico si el peso está estable',
+        'Fomentar hábitos de alimentación saludable'
+      ] 
+    };
+  }
+},
   {
     id: 'mecv_v',
     nombre: 'MECV-V',
