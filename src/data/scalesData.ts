@@ -113,6 +113,83 @@ export const scales: Scale[] = [
     };
   }
 },
+{
+  id: 'borg_modificada',
+  nombre: 'Escala de Borg Modificada (0-10)',
+  categoria: 'kinesiologia',
+  descripcion: 'Herramienta para cuantificar la percepción subjetiva del esfuerzo y la disnea durante el ejercicio o en reposo.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 7154893) ---
+  bibliografia: "Borg GA. Psychophysical bases of perceived exertion. Med Sci Sports Exerc. 1982;14(5):377-81.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/7154893/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "La escala CR10 es una medida válida y confiable para evaluar la intensidad del ejercicio y los síntomas respiratorios. Un puntaje > 3 suele asociarse con el umbral ventilatorio.",
+
+  preguntas: [
+    { 
+      id: 'esfuerzo', 
+      text: '¿Cómo calificaría su sensación de falta de aire o esfuerzo físico ahora?', 
+      type: 'select', 
+      
+      options: [
+        { label: '0: Nada en absoluto (Reposo)', value: 0 },
+        { label: '0.5: Muy, muy ligero (Apenas perceptible)', value: 0.5 },
+        { label: '1: Muy ligero', value: 1 },
+        { label: '2: Ligero (Suave)', value: 2 },
+        { label: '3: Moderado', value: 3 },
+        { label: '4: Algo pesado (Fuerte)', value: 4 },
+        { label: '5: Pesado (Fuerte)', value: 5 },
+        { label: '6: Pesado+', value: 6 },
+        { label: '7: Muy pesado (Muy fuerte)', value: 7 },
+        { label: '8: Muy pesado+', value: 8 },
+        { label: '9: Muy, muy pesado (Casi máximo)', value: 9 },
+        { label: '10: Máximo (Insuperable)', value: 10 }
+      ] 
+    }
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.esfuerzo) ?? 0,
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'Reposo / Basal', 
+      color: 'emerald-600', 
+      evidencia: 'Ausencia de disnea o esfuerzo percibido.',
+      recomendaciones: ['Estado de reposo fisiológico.'] 
+    };
+
+    if (puntaje <= 2) return { 
+      texto: 'Esfuerzo Ligero', 
+      color: 'green-500', 
+      evidencia: 'Intensidad baja. Permite mantener una conversación fluida sin dificultad.',
+      recomendaciones: ['Rango óptimo para calentamiento o recuperación activa.'] 
+    };
+
+    if (puntaje <= 4) return { 
+      texto: 'Esfuerzo Moderado', 
+      color: 'yellow-500', 
+      evidencia: 'Sensación de trabajo físico claro. La respiración se acelera pero es controlable.',
+      recomendaciones: ['Zona de entrenamiento aeróbico de base.', 'Monitorear fatiga si se prolonga mucho tiempo.'] 
+    };
+
+    if (puntaje <= 6) return { 
+      texto: 'Esfuerzo Intenso (Pesado)', 
+      color: 'orange-600', 
+      evidencia: 'Cerca del umbral anaeróbico. Dificultad para hablar en frases completas.',
+      recomendaciones: ['Zona de entrenamiento de alta intensidad.', 'Evaluar signos de apremio respiratorio en pacientes clínicos.'] 
+    };
+
+    return { 
+      texto: 'Esfuerzo Muy Intenso / Máximo', 
+      color: 'red-600', 
+      evidencia: 'Fatiga muscular severa o disnea incapacitante.',
+      recomendaciones: [
+        'Cesar actividad si no es un test de esfuerzo controlado.',
+        'En pacientes clínicos, indica falla en la tolerancia a la actividad.',
+        'Monitorear recuperación de frecuencia cardíaca y saturación.'
+      ] 
+    };
+  }
+},
   {
   id: 'barthel_funcional',
   nombre: 'Índice de Barthel',
