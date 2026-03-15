@@ -11,7 +11,8 @@ export interface Question {
 export interface InterpretacionAvanzada {
   texto: string;
   recomendaciones: string[];
-  color?: 'green' | 'yellow' | 'orange' | 'red' | 'blue' | 'gray'; // <--- Agregamos esto
+  color?: string;    // <--- Cambiado a string para aceptar 'text-blue-600', etc.
+  evidencia?: string; // <--- AÑADE ESTA LÍNEA para que acepte el dato estadístico
 }
 
 export interface Scale {
@@ -22,6 +23,10 @@ export interface Scale {
   preguntas: Question[];
   calcularPuntaje: (respuestas: Record<string, number>) => number;
   interpretar: (puntaje: number) => string | InterpretacionAvanzada;
+  // Rigor científico
+  bibliografia?: string;
+  evidenciaClinica?: string;
+  referenciaUrl?: string;
 }
 
 export const scales: Scale[] = [
@@ -132,22 +137,63 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'tug',
-    nombre: 'Timed Up and Go (TUG)',
-    categoria: 'kinesiologia',
-    descripcion: 'Evaluación de movilidad, equilibrio y riesgo de caídas',
-    preguntas: [
-      { id: 'tiempo', text: 'Inicie el cronómetro al despegar de la silla y deténgalo al volver a sentarse:', type: 'plugin', componente: 'CRONOMETRO' }
-    ],
-    calcularPuntaje: (respuestas) => Number(respuestas.tiempo) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Prueba no realizada o sin datos', recomendaciones: [] };
-      if (puntaje <= 10) return { texto: '< 10 seg: Movilidad normal. Bajo riesgo.', recomendaciones: ['Movilidad comunitaria independiente', 'Continuar actividad física regular'] };
-      if (puntaje <= 20) return { texto: '11-20 seg: Movilidad aceptable. Fragilidad leve.', recomendaciones: ['Evaluar necesidad de ayudas técnicas para la marcha (bastón)', 'Programa de ejercicios de equilibrio (Ej. Tai Chi o rutina de Berg)'] };
-      if (puntaje <= 30) return { texto: '> 20 seg: Limitación funcional significativa. Mayor riesgo de caídas.', recomendaciones: ['Intervención kinesiológica formal', 'Prescripción de andador o bastón canadiense', 'Educación en prevención de caídas domiciliarias'] };
-      return { texto: 'Alto riesgo de caídas - Requiere evaluación detallada', recomendaciones: ['Asistencia permanente para deambular', 'Evaluación médica para descartar causas neurológicas/farmacológicas', 'Restricción de movilidad no supervisada'] };
+  id: 'tug',
+  nombre: 'Timed Up and Go (TUG)',
+  categoria: 'kinesiologia',
+  descripcion: 'Evaluación de la movilidad funcional, el equilibrio dinámico y el riesgo de caídas.',
+  
+  // --- RIGOR CIENTÍFICO ---
+  bibliografia: "Podsiadlo D, Richardson S. The timed 'Up & Go': a test of basic functional mobility for frail elderly persons. J Am Geriatr Soc. 1991 Feb;39(2):142-8.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1991915/",
+  evidenciaClinica: "Un tiempo > 13.5 segundos es el punto de corte (cut-off) validado para predecir caídas en adultos mayores independientes, con una precisión diagnóstica del 80%.",
+
+  preguntas: [
+    { 
+      id: 'tiempo', 
+      text: 'Inicie el cronómetro al despegar de la silla y deténgalo al volver a sentarse:', 
+      type: 'plugin', 
+      componente: 'CRONOMETRO' 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.tiempo) || 0,
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { texto: 'Prueba no realizada o sin datos', color: 'text-gray-400', recomendaciones: [] };
+    
+    // < 10 segundos: Independencia Total
+    if (puntaje < 10) return { 
+      texto: 'Movilidad Normal - Bajo Riesgo', 
+      color: 'text-emerald-600',
+      evidencia: 'Puntaje asociado a independencia total en actividades básicas de la vida diaria (ABVD).',
+      recomendaciones: ['Mantener actividad física regular', 'Re-evaluación en 6 meses'] 
+    };
+
+    // 10 - 13.5 segundos: Rango de Vigilancia
+    if (puntaje <= 13.5) return { 
+      texto: 'Movilidad Aceptable - Riesgo Leve', 
+      color: 'text-blue-600',
+      evidencia: 'Se encuentra dentro del promedio para adultos mayores sanos, pero cercano al umbral de riesgo.',
+      recomendaciones: ['Iniciar ejercicios de equilibrio preventivos', 'Evaluar calzado habitual'] 
+    };
+
+    // 13.6 - 20 segundos: Riesgo de Caídas Presente
+    if (puntaje <= 20) return { 
+      texto: 'Riesgo de Caídas - Fragilidad Moderada', 
+      color: 'text-amber-600',
+      evidencia: 'Según Podsiadlo (1991), tiempos > 13.5s predicen caídas en adultos mayores comunitarios con alta sensibilidad.',
+      recomendaciones: ['Programa de entrenamiento de fuerza (cuádriceps)', 'Evaluar necesidad de bastón simple', 'Revisar polifarmacia'] 
+    };
+
+    // > 20 segundos: Limitación funcional severa
+    return { 
+      texto: 'Alto Riesgo de Caídas - Dependencia Funcional', 
+      color: 'text-red-600',
+      evidencia: 'Tiempos > 20s indican una limitación funcional severa y una alta probabilidad de requerir asistencia técnica.',
+      recomendaciones: ['Prescripción inmediata de ayuda técnica (Andador/Bastones)', 'Intervención de Terapia Ocupacional para adaptaciones en el hogar', 'Supervisión constante en traslados'] 
+    };
+  }
+},
   {
     id: 'six_minute_walk',
     nombre: 'Test de Caminata de 6 Minutos',
