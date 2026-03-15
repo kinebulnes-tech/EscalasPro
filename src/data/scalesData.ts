@@ -1152,21 +1152,74 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'cincinnati',
-    nombre: 'Escala Cincinnati para ACV',
-    categoria: 'emergencias',
-    descripcion: 'Detección prehospitalaria de accidente cerebrovascular',
-    preguntas: [
-      { id: 'facial', text: 'Asimetría facial', type: 'select', options: [{ label: 'Normal', value: 0 }, { label: 'Anormal', value: 1 }] },
-      { id: 'brazos', text: 'Debilidad brazos', type: 'select', options: [{ label: 'Normal', value: 0 }, { label: 'Anormal', value: 1 }] },
-      { id: 'habla', text: 'Alteración habla', type: 'select', options: [{ label: 'Normal', value: 0 }, { label: 'Anormal', value: 1 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje >= 1) return { texto: 'Alta probabilidad de ACV (72%)', recomendaciones: ['Activar Código ACV prehospitalario ("Time is Brain")', 'Determinar hora exacta de inicio de síntomas (Last Known Well)', 'Medir Hemoglucotest para descartar hipoglicemia', 'Traslado rápido a centro con disponibilidad de TAC y Trombólisis'] };
-      return { texto: 'Baja probabilidad de ACV clásico', recomendaciones: ['Evaluar síntomas no motores (vértigo severo, ataxia, ACV de fosa posterior)', 'Buscar otras causas neurológicas o metabólicas'] };
+  id: 'cincinnati',
+  nombre: 'Escala de Cincinnati (CPSS)',
+  categoria: 'emergencias',
+  descripcion: 'Evaluación rápida de tres signos físicos clave para la identificación de un Accidente Cerebrovascular (ACV).',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10030554) ---
+  bibliografia: "Kothari RU, et al. Cincinnati Prehospital Stroke Scale: reproducibility and validity. Ann Emerg Med. 1999 Feb;33(2):161-6.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10030554/",
+  evidenciaClinica: "La presencia de 1 de los 3 signos de la escala tiene una probabilidad del 72% de ser un ACV. Si los 3 están presentes, la probabilidad sube al >85%.",
+
+  preguntas: [
+    { 
+      id: 'facial', 
+      text: 'Asimetría Facial (Pida al paciente que sonría o muestre los dientes):', 
+      type: 'select', 
+      options: [
+        { label: 'Normal (Ambos lados se mueven igual)', value: 0 }, 
+        { label: 'Anormal (Un lado de la cara no se mueve)', value: 1 }
+      ] 
+    },
+    { 
+      id: 'brazo', 
+      text: 'Descenso del Brazo (Paciente con ojos cerrados extiende ambos brazos al frente 10 seg.):', 
+      type: 'select', 
+      options: [
+        { label: 'Normal (Ambos brazos se mueven igual o no caen)', value: 0 }, 
+        { label: 'Anormal (Un brazo no se mueve o cae respecto al otro)', value: 1 }
+      ] 
+    },
+    { 
+      id: 'habla', 
+      text: 'Lenguaje Anormal (Pida al paciente que diga: "El perro de San Roque no tiene rabo"):', 
+      type: 'select', 
+      options: [
+        { label: 'Normal (Usa palabras correctas sin arrastrar la voz)', value: 0 }, 
+        { label: 'Anormal (Arrastra palabras, usa palabras incorrectas o no puede hablar)', value: 1 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje >= 1) return { 
+      texto: 'HALLAZGO SUGESTIVO DE ACV (Positivo)', 
+      color: 'red', 
+      evidencia: 'La presencia de al menos 1 signo clínico positivo indica una alta probabilidad de ACV agudo.',
+      recomendaciones: [
+        'Activar de inmediato el Código ACV / Clave Azul',
+        'Registrar la "Hora de Última Vez Visto Normal" (LKW)',
+        'Mantener al paciente en ayuno (Nada por boca)',
+        'Traslado urgente a centro con capacidad de resolución (TAC/Trombolisis)',
+        'Monitorizar saturación de oxígeno y presión arterial'
+      ] 
+    };
+
+    return { 
+      texto: 'SIN SIGNOS EVIDENTES (Negativo)', 
+      color: 'green', 
+      evidencia: 'No se detectan anomalías en los tres parámetros evaluados. No excluye ACV posterior o AIT.',
+      recomendaciones: [
+        'Realizar evaluación neurológica más detallada si persisten dudas (ej. NIHSS)',
+        'Evaluar otros diagnósticos diferenciales (hipoglicemia, migraña)',
+        'Informar al paciente sobre signos de alarma para re-consulta'
+      ] 
+    };
+  }
+},
   {
     id: 'fast_ed',
     nombre: 'FAST-ED',
