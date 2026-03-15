@@ -145,8 +145,7 @@ export const scales: Scale[] = [
   // --- RIGOR CIENTÍFICO ---
   bibliografia: "Podsiadlo D, Richardson S. The timed 'Up & Go': a test of basic functional mobility for frail elderly persons. J Am Geriatr Soc. 1991 Feb;39(2):142-8.",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1991915/",
-  evidenciaClinica: "Un tiempo > 13.5 segundos es el punto de corte (cut-off) validado para predecir caídas en adultos mayores independientes, con una precisión diagnóstica del 80%.",
-
+  evidenciaClinica: "El punto de corte de 13.5 segundos fue validado por Shumway-Cook (2000) como predictor de caídas con un 87% de sensibilidad en adultos mayores.",
   preguntas: [
     { 
       id: 'tiempo', 
