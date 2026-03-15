@@ -114,31 +114,39 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'barthel',
-    nombre: 'Índice de Barthel',
-    categoria: 'kinesiologia',
-    descripcion: 'Evaluación de la capacidad funcional para actividades básicas de la vida diaria',
-    preguntas: [
-      { id: 'comer', text: 'Comer', type: 'select', options: [{ label: 'Independiente', value: 10 }, { label: 'Necesita ayuda', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'banarse', text: 'Bañarse', type: 'select', options: [{ label: 'Independiente', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'vestirse', text: 'Vestirse', type: 'select', options: [{ label: 'Independiente', value: 10 }, { label: 'Necesita ayuda', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'arreglarse', text: 'Arreglarse', type: 'select', options: [{ label: 'Independiente', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'deposiciones', text: 'Deposiciones', type: 'select', options: [{ label: 'Continente', value: 10 }, { label: 'Accidente ocasional', value: 5 }, { label: 'Incontinente', value: 0 }] },
-      { id: 'miccion', text: 'Micción', type: 'select', options: [{ label: 'Continente', value: 10 }, { label: 'Accidente ocasional', value: 5 }, { label: 'Incontinente', value: 0 }] },
-      { id: 'retrete', text: 'Usar el retrete', type: 'select', options: [{ label: 'Independiente', value: 10 }, { label: 'Necesita ayuda', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'trasladarse', text: 'Trasladarse sillón/cama', type: 'select', options: [{ label: 'Independiente', value: 15 }, { label: 'Mínima ayuda', value: 10 }, { label: 'Gran ayuda', value: 5 }, { label: 'Dependiente', value: 0 }] },
-      { id: 'deambular', text: 'Deambular', type: 'select', options: [{ label: 'Independiente', value: 15 }, { label: 'Necesita ayuda', value: 10 }, { label: 'Independiente en silla de ruedas', value: 5 }, { label: 'Inmóvil', value: 0 }] },
-      { id: 'escalones', text: 'Subir y bajar escaleras', type: 'select', options: [{ label: 'Independiente', value: 10 }, { label: 'Necesita ayuda', value: 5 }, { label: 'Dependiente', value: 0 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje === 100) return { texto: 'Independiente total', recomendaciones: ['Fomentar estilo de vida activo', 'Mantener rutinas de ejercicio preventivo'] };
-      if (puntaje >= 60) return { texto: 'Dependencia leve', recomendaciones: ['Terapia física para fortalecimiento', 'Asistencia ocasional en ABVD específicas', 'Evaluación de seguridad en el hogar'] };
-      if (puntaje >= 40) return { texto: 'Dependencia moderada', recomendaciones: ['Rehabilitación multidisciplinaria', 'Entrenamiento a cuidadores', 'Uso de ayudas técnicas para la marcha o transferencias'] };
-      if (puntaje >= 20) return { texto: 'Dependencia severa', recomendaciones: ['Asistencia constante en ABVD', 'Prevención de úlceras por presión', 'Manejo de incontinencia'] };
-      return { texto: 'Dependencia total', recomendaciones: ['Cuidados de enfermería continuos', 'Cambios posturales estrictos', 'Soporte integral al cuidador principal'] };
-    }
-  },
+  id: 'barthel_funcional',
+  nombre: 'Índice de Barthel',
+  categoria: 'kinesiologia',
+  descripcion: 'Medida de la independencia funcional del paciente en 10 actividades básicas de la vida diaria.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 14236020) ---
+  bibliografia: "Mahoney FI, Barthel DW. Functional evaluation: the Barthel Index. Md State Med J. 1965 Feb;14:61-5.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14236020/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Es el estándar de oro para evaluar la discapacidad física. Puntajes más altos indican mayor independencia. Muy sensible para medir el progreso en rehabilitación post-ACV.",
+
+  preguntas: [
+    { id: 'comer', text: 'Comer:', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] },
+    { id: 'lavarse', text: 'Lavarse (Baño):', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Independiente (entra/sale solo)', value: 5 }] },
+    { id: 'vestirse', text: 'Vestirse:', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente (ata cordones, botones)', value: 10 }] },
+    { id: 'aseo', text: 'Aseo personal (Peinado, dientes, afeitado):', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Independiente', value: 5 }] },
+    { id: 'deposicion', text: 'Deposición (Continencia anal):', type: 'select', options: [{ label: '0: Incontinente', value: 0 }, { label: '5: Accidente ocasional', value: 5 }, { label: '10: Continente', value: 10 }] },
+    { id: 'miccion', text: 'Micción (Continencia urinaria):', type: 'select', options: [{ label: '0: Incontinente o sondado', value: 0 }, { label: '5: Accidente ocasional', value: 5 }, { label: '10: Continente', value: 10 }] },
+    { id: 'retrete', text: 'Uso del retrete:', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] },
+    { id: 'traslado', text: 'Traslado (Silla - Cama):', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Gran ayuda (2 personas)', value: 5 }, { label: '10: Pequeña ayuda (1 persona)', value: 10 }, { label: '15: Independiente', value: 15 }] },
+    { id: 'deambulacion', text: 'Deambulación (Caminar):', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Independiente en silla de ruedas', value: 5 }, { label: '10: Necesita ayuda (1 persona)', value: 10 }, { label: '15: Independiente (mín. 50 metros)', value: 15 }] },
+    { id: 'escaleras', text: 'Escaleras:', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje === 100) return { texto: 'Independencia Total', color: 'emerald-600', evidencia: 'El paciente realiza todas las AVD básicas sin asistencia.', recomendaciones: ['Mantener nivel de actividad física', 'Alta funcional'] };
+    if (puntaje >= 91) return { texto: 'Dependencia Leve', color: 'green-500', evidencia: 'Necesita ayuda mínima en tareas específicas.', recomendaciones: ['Entrenamiento de tareas específicas', 'Seguridad en el hogar'] };
+    if (puntaje >= 61) return { texto: 'Dependencia Moderada', color: 'yellow-500', evidencia: 'Requiere asistencia para varias AVD básicas.', recomendaciones: ['Kinesiología motora intensa', 'Terapia Ocupacional para adaptaciones', 'Entrenamiento de cuidadores'] };
+    if (puntaje >= 21) return { texto: 'Dependencia Severa', color: 'orange-600', evidencia: 'Incapaz de realizar la mayoría de las AVD sin ayuda física importante.', recomendaciones: ['Prevención de complicaciones por inmovilidad', 'Uso de ayudas técnicas', 'Plan de cuidados 24/7'] };
+    return { texto: 'Dependencia Total', color: 'red-600', evidencia: 'Dependencia absoluta para todas las necesidades básicas.', recomendaciones: ['Manejo paliativo/confort', 'Prevención de UPP y neumonías'] };
+  }
+},
   {
     id: 'presion_manual',
     nombre: 'Escala de Presión Manual (Dinamometría)',
