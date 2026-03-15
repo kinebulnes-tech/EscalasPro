@@ -1569,30 +1569,78 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'rankin_mod',
-    nombre: 'Escala de Rankin Modificada (mRS)',
-    categoria: 'neurologia',
-    descripcion: 'Medida de discapacidad funcional post-ACV.',
-    preguntas: [
-      { id: 'g', text: 'Grado de discapacidad:', type: 'select', options: [
-        { label: '0 - Sin síntomas', value: 0 },
-        { label: '1 - Sin discapacidad significativa (pese a síntomas)', value: 1 },
-        { label: '2 - Discapacidad leve (capaz de valerse solo)', value: 2 },
-        { label: '3 - Discapacidad moderada (necesita ayuda, pero camina solo)', value: 3 },
-        { label: '4 - Discapacidad moderadamente grave (necesita ayuda para caminar/aseo)', value: 4 },
-        { label: '5 - Discapacidad grave (encamado, incontinente)', value: 5 },
-        { label: '6 - Fallecido', value: 6 }
-      ]}
-    ],
-    calcularPuntaje: (r) => r.g || 0,
-    interpretar: (p) => {
-      if (p <= 1) return { texto: 'Resultado favorable', color: 'green', recomendaciones: ['Mantener controles', 'Prevención secundaria'] };
-      if (p === 2) return { texto: 'Discapacidad leve', color: 'yellow', recomendaciones: ['Kinesiología motora y Terapia Ocupacional'] };
-      if (p === 3) return { texto: 'Discapacidad moderada', color: 'orange', recomendaciones: ['Rehabilitación intensiva de la marcha'] };
-      if (p >= 4 && p <= 5) return { texto: 'Discapacidad grave', color: 'red', recomendaciones: ['Prevención de complicaciones por inmovilismo', 'Soporte al cuidador'] };
-      return { texto: 'Fallecido', color: 'gray', recomendaciones: [] };
+  id: 'rankin',
+  nombre: 'Escala de Rankin Modificada (mRS)',
+  categoria: 'neurologia',
+  descripcion: 'Escala utilizada para medir el grado de incapacidad o dependencia en las actividades diarias de personas que han sufrido un ACV.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3336421) ---
+  bibliografia: "van Swieten JC, et al. Interobserver agreement for the assessment of handicap in stroke patients. Stroke. 1988;19(5):604-7.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3363593/",
+  evidenciaClinica: "Es el marcador de resultado funcional más utilizado en ensayos clínicos de ACV. Un puntaje ≤ 2 se considera generalmente un 'buen resultado' funcional.",
+
+  preguntas: [
+    { 
+      id: 'grado', 
+      text: 'Seleccione el estado funcional del paciente:', 
+      type: 'select', 
+      options: [
+        { label: '0: Sin síntomas', value: 0 },
+        { label: '1: Discapacidad no significativa (pese a síntomas, realiza actividades habituales)', value: 1 },
+        { label: '2: Discapacidad ligera (incapaz de realizar actividades previas, pero autónomo)', value: 2 },
+        { label: '3: Discapacidad moderada (requiere alguna ayuda, pero camina sin asistencia)', value: 3 },
+        { label: '4: Discapacidad moderadamente severa (incapaz de caminar sin ayuda y de atender necesidades corporales)', value: 4 },
+        { label: '5: Discapacidad severa (encamado, incontinente, requiere cuidado constante)', value: 5 },
+        { label: '6: Fallecido', value: 6 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.grado) ?? 0,
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'Sin síntomas', 
+      color: 'emerald-600', 
+      evidencia: 'Recuperación ad integrum. No hay déficits neurológicos residuales detectables.',
+      recomendaciones: ['Alta kinésica motora', 'Seguimiento preventivo de factores de riesgo'] 
+    };
+
+    if (puntaje <= 2) return { 
+      texto: 'Independencia Funcional', 
+      color: 'green', 
+      evidencia: 'El paciente puede valerse por sí mismo para las actividades básicas e instrumentales simples.',
+      recomendaciones: [
+        'Reincorporación progresiva a roles sociales/laborales',
+        'Pauta de ejercicios de mantenimiento',
+        'Control de factores de riesgo cardiovascular'
+      ] 
+    };
+
+    if (puntaje === 3) return { 
+      texto: 'Discapacidad Moderada', 
+      color: 'amber-600', 
+      evidencia: 'Requiere ayuda para actividades instrumentales, pero mantiene marcha independiente.',
+      recomendaciones: [
+        'Kinesiología enfocada en equilibrio y fatiga',
+        'Entrenamiento en actividades de la vida diaria (Terapia Ocupacional)',
+        'Evaluar adaptaciones en el hogar'
+      ] 
+    };
+
+    return { 
+      texto: 'Dependencia Severa', 
+      color: 'red-600', 
+      evidencia: 'Dependencia total o casi total para las necesidades básicas.',
+      recomendaciones: [
+        'Prevención de úlceras por presión (UPP)',
+        'Kinesiología motora de mantenimiento (rangos articulares)',
+        'Apoyo y educación al cuidador principal (Escala Zarit recomendada)',
+        'Manejo de la espasticidad si estuviera presente'
+      ] 
+    };
+  }
+},
   {
     id: 'asia_medular',
     nombre: 'Escala de ASIA',
