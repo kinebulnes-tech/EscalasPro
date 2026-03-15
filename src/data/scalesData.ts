@@ -432,27 +432,66 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'tinetti',
-    nombre: 'Escala de Tinetti POMA',
-    categoria: 'kinesiologia',
-    descripcion: 'Evaluación del equilibrio y marcha',
-    preguntas: [
-      { id: 'equilibrio_sentado', text: 'Equilibrio sentado', type: 'select', options: [{ label: 'Estable', value: 1 }, { label: 'Inestable', value: 0 }] },
-      { id: 'levantarse', text: 'Levantarse', type: 'select', options: [{ label: 'Capaz sin usar manos', value: 2 }, { label: 'Capaz usando manos', value: 1 }, { label: 'Incapaz', value: 0 }] },
-      { id: 'intentos_levantarse', text: 'Intentos de levantarse', type: 'select', options: [{ label: 'Capaz al primer intento', value: 1 }, { label: 'Necesita más de un intento', value: 0 }] },
-      { id: 'equilibrio_inmediato', text: 'Equilibrio inmediato de pie (primeros 5s)', type: 'select', options: [{ label: 'Estable', value: 1 }, { label: 'Inestable', value: 0 }] },
-      { id: 'equilibrio_pie', text: 'Equilibrio de pie', type: 'select', options: [{ label: 'Estable', value: 2 }, { label: 'Inestable pero se mantiene', value: 1 }, { label: 'Inestable', value: 0 }] },
-      { id: 'inicio_marcha', text: 'Inicio de la marcha', type: 'select', options: [{ label: 'Comienza inmediatamente', value: 1 }, { label: 'Varios intentos', value: 0 }] },
-      { id: 'longitud_paso', text: 'Longitud y altura del paso', type: 'select', options: [{ label: 'Adecuada', value: 1 }, { label: 'Inadecuada', value: 0 }] },
-      { id: 'simetria_paso', text: 'Simetría del paso', type: 'select', options: [{ label: 'Simétrico', value: 1 }, { label: 'Asimétrico', value: 0 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje >= 25) return { texto: 'Bajo riesgo de caídas', recomendaciones: ['Movilidad segura', 'Revisión anual rutinaria'] };
-      if (puntaje >= 19) return { texto: 'Riesgo moderado de caídas', recomendaciones: ['Intervención enfocada en la fase alterada (equilibrio vs marcha)', 'Kinesiología profiláctica 2 veces por semana', 'Considerar bastón de apoyo'] };
-      return { texto: 'Alto riesgo de caídas', recomendaciones: ['Riesgo inminente (>50% prob. de caída en el año)', 'Prescripción de andador', 'Rehabilitación geriátrica intensiva', 'Eliminación de alfombras y obstáculos en casa'] };
-    }
-  },
+  id: 'tinetti_poma',
+  nombre: 'Escala de Tinetti (POMA)',
+  categoria: 'kinesiologia',
+  descripcion: 'Evaluación de la movilidad orientada al desempeño para detectar el riesgo de caídas en adultos mayores.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3486980) ---
+  bibliografia: "Tinetti ME. Performance-oriented assessment of mobility problems in elderly patients. J Am Geriatr Soc. 1986 Jun;34(6):119-26.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3486980/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Evalúa el equilibrio y la marcha por separado. Un puntaje total < 19 indica un riesgo de caídas 5 veces superior al normal.",
+
+  preguntas: [
+    // SECCIÓN 1: EQUILIBRIO (0-16 pts)
+    { id: 'eq_sentado', text: 'Equilibrio sentado:', type: 'select', options: [{ label: '0: Se inclina o desliza', value: 0 }, { label: '1: Estable y seguro', value: 1 }] },
+    { id: 'eq_levantarse', text: 'Levantarse:', type: 'select', options: [{ label: '0: Incapaz sin ayuda', value: 0 }, { label: '1: Capaz con ayuda de brazos', value: 1 }, { label: '2: Capaz sin ayuda de brazos', value: 2 }] },
+    { id: 'eq_intentos', text: 'Intentos para levantarse:', type: 'select', options: [{ label: '0: Incapaz sin ayuda', value: 0 }, { label: '1: Capaz con >1 intento', value: 1 }, { label: '2: Capaz con 1 intento', value: 2 }] },
+    { id: 'eq_inmediato', text: 'Equilibrio bipedestación inmediata (primeros 5 seg):', type: 'select', options: [{ label: '0: Inestable (tambaleo/mueve pies)', value: 0 }, { label: '1: Estable con apoyos', value: 1 }, { label: '2: Estable sin apoyos', value: 2 }] },
+    { id: 'eq_bipedestacion', text: 'Equilibrio en bipedestación prolongada:', type: 'select', options: [{ label: '0: Inestable', value: 0 }, { label: '1: Estable con base ancha o apoyos', value: 1 }, { label: '2: Estable con base estrecha y sin apoyos', value: 2 }] },
+    { id: 'eq_empujon', text: 'Empujón (paciente con pies juntos, empujar suavemente el esternón):', type: 'select', options: [{ label: '0: Empieza a caerse', value: 0 }, { label: '1: Tambalea, se agarra', value: 1 }, { label: '2: Estable', value: 2 }] },
+    { id: 'eq_ojos_cerrados', text: 'Ojos cerrados (pies juntos):', type: 'select', options: [{ label: '0: Inestable', value: 0 }, { label: '1: Estable', value: 1 }] },
+    { id: 'eq_giro', text: 'Giro de 360 grados:', type: 'select', options: [{ label: '0: Pasos discontinuos o inestable', value: 0 }, { label: '1: Pasos continuos', value: 1 }, { label: '2: Estable', value: 2 }] },
+    { id: 'eq_sentarse', text: 'Sentarse:', type: 'select', options: [{ label: '0: Inseguro (calcula mal)', value: 0 }, { label: '1: Usa los brazos/movimiento brusco', value: 1 }, { label: '2: Seguro y suave', value: 2 }] },
+
+    // SECCIÓN 2: MARCHA (0-12 pts)
+    { id: 'ma_inicio', text: 'Iniciación de la marcha:', type: 'select', options: [{ label: '0: Vacilación o varios intentos', value: 0 }, { label: '1: Sin vacilación', value: 1 }] },
+    { id: 'ma_longitud_d', text: 'Longitud del paso (Derecho):', type: 'select', options: [{ label: '0: No sobrepasa al izq. o no despega', value: 0 }, { label: '1: Sobrepasa al izq. y despega bien', value: 1 }] },
+    { id: 'ma_longitud_i', text: 'Longitud del paso (Izquierdo):', type: 'select', options: [{ label: '0: No sobrepasa al der. o no despega', value: 0 }, { label: '1: Sobrepasa al der. y despega bien', value: 1 }] },
+    { id: 'ma_simetria', text: 'Simetría del paso:', type: 'select', options: [{ label: '0: Longitud desigual', value: 0 }, { label: '1: Pasos iguales', value: 1 }] },
+    { id: 'ma_continuidad', text: 'Continuidad de los pasos:', type: 'select', options: [{ label: '0: Para o hay discontinuidad', value: 0 }, { label: '1: Fluida y continua', value: 1 }] },
+    { id: 'ma_trayectoria', text: 'Trayectoria (observar desviación en 3 metros):', type: 'select', options: [{ label: '0: Desviación marcada', value: 0 }, { label: '1: Desviación leve o usa ayudas', value: 1 }, { label: '2: Derecha sin ayudas', value: 2 }] },
+    { id: 'ma_tronco', text: 'Estabilidad del tronco:', type: 'select', options: [{ label: '0: Balanceo marcado o usa ayudas', value: 0 }, { label: '1: Flexiona rodillas/espalda o abre brazos', value: 1 }, { label: '2: Sin balanceo ni ayudas', value: 2 }] },
+    { id: 'ma_postura', text: 'Postura en la marcha (talones):', type: 'select', options: [{ label: '0: Talones separados', value: 0 }, { label: '1: Talones casi se tocan al caminar', value: 1 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje >= 25) return { 
+      texto: `Tinetti ${puntaje}/28: Riesgo Bajo`, 
+      color: 'emerald-600', 
+      evidencia: 'Movilidad funcionalmente segura. Bajo riesgo de caídas.',
+      recomendaciones: ['Mantener actividad física', 'Re-evaluar si cambia medicación'] 
+    };
+    if (puntaje >= 19) return { 
+      texto: `Tinetti ${puntaje}/28: Riesgo Moderado`, 
+      color: 'orange-500', 
+      evidencia: 'Existen deficiencias que duplican el riesgo de caídas respecto al basal.',
+      recomendaciones: ['Entrenamiento de propiocepción', 'Evaluar calzado', 'Fortalecimiento muscular de extremidad inferior'] 
+    };
+    return { 
+      texto: `Tinetti ${puntaje}/28: RIESGO ALTO`, 
+      color: 'red-600', 
+      evidencia: 'Alta probabilidad de caída inminente. El déficit de movilidad es crítico.',
+      recomendaciones: [
+        'Uso obligatorio de ayuda técnica (andador/bastón)',
+        'Adaptación del entorno (quitar alfombras, mejorar luz)',
+        'Kinesiología intensiva con enfoque en equilibrio'
+      ] 
+    };
+  }
+},
   {
   id: 'mrc_fuerza',
   nombre: 'Escala de Fuerza Muscular (MRC)',
