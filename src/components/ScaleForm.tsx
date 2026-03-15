@@ -3,11 +3,12 @@ import { Scale } from '../data/scalesData';
 import { calcularEscala, validarRespuestas } from '../utils/scaleEngine';
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
+// Importamos iconos para el respaldo científico
+import { BookOpen, ExternalLink, ShieldCheck, Info } from 'lucide-react';
 
 interface ScaleFormProps {
   scale: Scale;
   onBack: () => void;
-  // --- NUEVAS PROPS PASO 3.2 ---
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
 }
@@ -19,14 +20,12 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
     interpretacion: string;
   } | null>(null);
 
-  // --- PROGRESO ---
   const progress = useMemo(() => {
     const totalPreguntas = scale.preguntas.length;
     const respondidas = Object.keys(respuestas).length;
     return (respondidas / totalPreguntas) * 100;
   }, [respuestas, scale.preguntas.length]);
 
-  // --- PUNTAJE DINÁMICO ---
   const currentScore = useMemo(() => {
     if (Object.keys(respuestas).length === 0) return 0;
     return scale.calcularPuntaje(respuestas);
@@ -57,9 +56,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
     setResultado(null);
   };
 
-  // --- EL PUENTE ---
-  // Si ya tenemos resultado, mostramos el componente ScaleResult
-  // pasando las nuevas props que recibimos de App.tsx
   if (resultado) {
     return (
       <ScaleResult
@@ -74,7 +70,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
-      {/* BARRA DE PROGRESO */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-40">
         <div 
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
@@ -95,7 +90,46 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
         <div className="mb-8 border-b border-gray-100 pb-6">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">{scale.descripcion}</p>
+          <p className="text-gray-500 text-sm leading-relaxed mb-4">{scale.descripcion}</p>
+
+          {/* --- BLOQUE DE RIGOR CIENTÍFICO --- */}
+          {(scale.bibliografia || scale.evidenciaClinica) && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-700">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="text-teal-600 w-4 h-4" />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Respaldo Científico</span>
+              </div>
+              
+              {scale.bibliografia && (
+                <div className="flex gap-3 items-start mb-2">
+                  <BookOpen className="text-slate-400 w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="text-[11px] font-medium text-slate-600 italic leading-snug">
+                    {scale.bibliografia}
+                  </p>
+                </div>
+              )}
+
+              {scale.evidenciaClinica && (
+                <div className="flex gap-3 items-start">
+                  <Info className="text-blue-500 w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="text-[11px] font-bold text-slate-700 leading-snug">
+                    {scale.evidenciaClinica}
+                  </p>
+                </div>
+              )}
+
+              {scale.referenciaUrl && (
+                <a 
+                  href={scale.referenciaUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold text-teal-600 hover:underline"
+                >
+                  <ExternalLink size={12} /> Ver fuente en PubMed/Google Scholar
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
