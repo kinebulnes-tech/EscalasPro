@@ -54,24 +54,26 @@ export default function App() {
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [viewingReport, setViewingReport] = useState(false);
 
-  // --- PERSISTENCIA DE SESIÓN (OPCIÓN 3) ---
+  // --- PERSISTENCIA TOTAL (LOCALSTORAGE) ---
   const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(() => {
-    const saved = sessionStorage.getItem('escalapro_paciente');
+    // Cambiado a localStorage para que no se borre al cerrar la app
+    const saved = localStorage.getItem('escalapro_paciente');
     return saved ? JSON.parse(saved) : null;
   });
 
   const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(() => {
-    const saved = sessionStorage.getItem('escalapro_resultados');
+    // Cambiado a localStorage
+    const saved = localStorage.getItem('escalapro_resultados');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Guardado automático en SessionStorage
+  // Guardado automático persistente
   useEffect(() => {
-    sessionStorage.setItem('escalapro_paciente', JSON.stringify(pacienteActivo));
-    sessionStorage.setItem('escalapro_resultados', JSON.stringify(listaResultados));
+    localStorage.setItem('escalapro_paciente', JSON.stringify(pacienteActivo));
+    localStorage.setItem('escalapro_resultados', JSON.stringify(listaResultados));
   }, [pacienteActivo, listaResultados]);
 
-  // Favoritos (LocalStorage)
+  // Favoritos
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     return saved ? JSON.parse(saved) : [];
@@ -83,6 +85,14 @@ export default function App() {
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => prev.includes(id) ? prev.filter(fav => fav !== id) : [...prev, id]);
+  };
+
+  const finalizaSesionTotal = () => {
+    setPacienteActivo(null);
+    setListaResultados([]);
+    setViewingReport(false);
+    localStorage.removeItem('escalapro_paciente');
+    localStorage.removeItem('escalapro_resultados');
   };
 
   const filteredScales = useMemo(() => {
@@ -106,12 +116,7 @@ export default function App() {
           resultados={listaResultados}
           onBack={() => setViewingReport(false)}
           onRemoveScale={(index) => setListaResultados(prev => prev.filter((_, i) => i !== index))}
-          onFinalize={() => { 
-            setPacienteActivo(null); 
-            setListaResultados([]); 
-            setViewingReport(false);
-            sessionStorage.clear(); // Limpiamos al finalizar
-          }}
+          onFinalize={finalizaSesionTotal}
         />
       </div>
     );
@@ -142,16 +147,10 @@ export default function App() {
                 <p className="text-2xl font-black leading-none">{listaResultados.length}</p>
               </div>
               <button 
-                onClick={() => { 
-                  if(confirm("¿Deseas finalizar la sesión?")) { 
-                    setPacienteActivo(null); 
-                    setListaResultados([]); 
-                    sessionStorage.clear();
-                  } 
-                }}
+                onClick={() => { if(confirm("¿Deseas finalizar la sesión actual y borrar los datos?")) finalizaSesionTotal(); }}
                 className="bg-red-500/20 hover:bg-red-500 text-white p-3 rounded-xl transition-all flex items-center gap-2 font-bold text-sm"
               >
-                <UserMinus className="w-5 h-5" /> Finalizar
+                <UserMinus className="w-5 h-5" /> Finalizar Sesión
               </button>
             </div>
           </div>
