@@ -1207,24 +1207,78 @@ export const scales: Scale[] = [
   // EMERGENCIAS
   // ==========================================
   {
-    id: 'glasgow',
-    nombre: 'Escala de Glasgow',
-    categoria: 'emergencias',
-    descripcion: 'Evaluación del nivel de conciencia',
-    preguntas: [
-      { id: 'apertura_ocular', text: 'Apertura ocular', type: 'select', options: [{ label: 'Espontánea', value: 4 }, { label: 'A la voz', value: 3 }, { label: 'Al dolor', value: 2 }, { label: 'Ninguna', value: 1 }] },
-      { id: 'respuesta_verbal', text: 'Respuesta verbal', type: 'select', options: [{ label: 'Orientado', value: 5 }, { label: 'Confuso', value: 4 }, { label: 'Palabras inapropiadas', value: 3 }, { label: 'Sonidos incomprensibles', value: 2 }, { label: 'Ninguna', value: 1 }] },
-      { id: 'respuesta_motora', text: 'Respuesta motora', type: 'select', options: [{ label: 'Obedece órdenes', value: 6 }, { label: 'Localiza dolor', value: 5 }, { label: 'Retira al dolor', value: 4 }, { label: 'Flexión anormal', value: 3 }, { label: 'Extensión anormal', value: 2 }, { label: 'Ninguna', value: 1 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje === 15) return { texto: 'Alerta y orientado', recomendaciones: ['Observación rutinaria', 'Evaluación neurológica seriada si hay mecanismo de trauma'] };
-      if (puntaje >= 13) return { texto: 'TEC leve', recomendaciones: ['Control estricto de signos vitales', 'Considerar TAC cerebral según factores de riesgo (ej. uso de anticoagulantes, vómitos)', 'Mantener en observación 24h'] };
-      if (puntaje >= 9) return { texto: 'TEC moderado', recomendaciones: ['TAC cerebral urgente', 'Evaluación por neurocirugía', 'Monitorización neurológica continua', 'Prevenir hipoxia e hipotensión'] };
-      if (puntaje >= 6) return { texto: 'TEC grave', recomendaciones: ['Asegurar vía aérea (Intubación inmediata si GCS < 9)', 'Ventilación mecánica normocápnica', 'Derivación urgente a centro neuroquirúrgico', 'Cabecera a 30° y medidas de neuroprotección'] };
-      return { texto: 'TEC muy grave / Coma profundo', recomendaciones: ['Intubación y soporte vital avanzado inmediato', 'Traslado crítico', 'Altísima probabilidad de mortalidad o morbilidad severa'] };
+  id: 'glasgow_emergencias',
+  nombre: 'Escala de Coma de Glasgow (GCS)',
+  categoria: 'emergencias',
+  descripcion: 'Estándar universal para la evaluación del nivel de conciencia y gravedad del daño cerebral.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO MANUALMENTE (PMID: 4136544) ---
+  bibliografia: "Teasdale G, Jennett B. Assessment of coma and impaired consciousness. A practical scale. Lancet. 1974 Jul 13;2(7872):81-4.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/4136544/", // ✅ LINK CORRECTO: Lancet, 1974
+  evidenciaClinica: "Evalúa tres dimensiones de la respuesta: Ocular, Verbal y Motora. Un GCS ≤ 8 define clínicamente el estado de coma.",
+
+  preguntas: [
+    { 
+      id: 'ocular', 
+      text: 'Respuesta Ocular (E):', 
+      type: 'select', 
+      options: [
+        { label: '4: Espontánea', value: 4 },
+        { label: '3: Al orden verbal', value: 3 },
+        { label: '2: Al dolor (Presión en el lecho ungueal)', value: 2 },
+        { label: '1: Sin respuesta', value: 1 }
+      ] 
+    },
+    { 
+      id: 'verbal', 
+      text: 'Respuesta Verbal (V):', 
+      type: 'select', 
+      options: [
+        { label: '5: Orientado y conversando', value: 5 },
+        { label: '4: Desorientado y conversando', value: 4 },
+        { label: '3: Palabras inapropiadas (Gritos/Garabatos)', value: 3 },
+        { label: '2: Sonidos incomprensibles (Quejidos)', value: 2 },
+        { label: '1: Sin respuesta', value: 1 }
+      ] 
+    },
+    { 
+      id: 'motora', 
+      text: 'Respuesta Motora (M):', 
+      type: 'select', 
+      options: [
+        { label: '6: Obedece órdenes verbales', value: 6 },
+        { label: '5: Localiza el dolor', value: 5 },
+        { label: '4: Retirada al dolor (Flexión normal)', value: 4 },
+        { label: '3: Flexión anormal (Decorticación)', value: 3 },
+        { label: '2: Extensión anormal (Descerebración)', value: 2 },
+        { label: '1: Sin respuesta', value: 1 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => (Number(respuestas.ocular) || 0) + (Number(respuestas.verbal) || 0) + (Number(respuestas.motora) || 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje >= 13) return { 
+      texto: `GCS ${puntaje}: Trauma Leve`, 
+      color: 'emerald-600', 
+      evidencia: 'Bajo riesgo de lesión intracraneal aguda que requiera intervención.',
+      recomendaciones: ['Observación neurológica', 'Control de signos vitales cada 2 horas'] 
+    };
+    if (puntaje >= 9) return { 
+      texto: `GCS ${puntaje}: Trauma Moderado`, 
+      color: 'amber-600', 
+      evidencia: 'Riesgo inminente de deterioro neurológico. Requiere TAC de cerebro.',
+      recomendaciones: ['Traslado a centro de complejidad', 'Cabecera a 30°', 'Oxigenoterapia'] 
+    };
+    return { 
+      texto: `GCS ${puntaje}: Trauma SEVERO / COMA`, 
+      color: 'red-600', 
+      evidencia: 'Incapacidad para proteger vía aérea. Riesgo vital alto.',
+      recomendaciones: ['Intubación Orotraqueal inmediata', 'Soporte vital avanzado', 'Evaluación por Neurocirugía'] 
+    };
+  }
+},
   {
     id: 'rts',
     nombre: 'Revised Trauma Score (RTS)',
