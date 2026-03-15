@@ -2544,27 +2544,69 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'gad_7',
-    nombre: 'Escala GAD-7',
-    categoria: 'psicologia',
-    descripcion: 'Tamizaje para Trastorno de Ansiedad Generalizada.',
-    preguntas: [
-      { id: 'nervios', text: '1. Sentirse nervioso/a, intranquilo/a o con los nervios de punta:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'control', text: '2. No poder dejar de preocuparse o controlar la preocupación:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'exceso', text: '3. Preocuparse demasiado por diferentes cosas:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'relajacion', text: '4. Dificultad para relajarse:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'inquietud', text: '5. Estar tan inquieto/a que es difícil permanecer sentado/a:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'irritabilidad', text: '6. Sentirse fácilmente irritado/a o malhumorado/a:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] },
-      { id: 'miedo', text: '7. Sentirse asustado/a como si algo terrible pudiera pasar:', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Varios días', value: 1 }, { label: 'Más de la mitad de los días', value: 2 }, { label: 'Casi todos los días', value: 3 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 4) return { texto: 'Ansiedad Mínima', recomendaciones: ['Mantener técnicas de autocuidado'] };
-      if (p <= 9) return { texto: 'Ansiedad Leve', recomendaciones: ['Monitorización clínica', 'Técnicas de relajación / Mindfulness'] };
-      if (p <= 14) return { texto: 'Ansiedad Moderada', recomendaciones: ['Derivación a evaluación psicológica', 'Considerar terapia cognitivo-conductual'] };
-      return { texto: 'Ansiedad Grave', recomendaciones: ['Derivación a especialista (Psicólogo/Psiquiatra)', 'Evaluación farmacológica indicada'] };
-    }
-  },
+  id: 'gad_7',
+  nombre: 'Cuestionario GAD-7',
+  categoria: 'psicologia',
+  descripcion: 'Herramienta de 7 ítems para identificar y medir la severidad del trastorno de ansiedad generalizada.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 16717171) ---
+  bibliografia: "Spitzer RL, Kroenke K, Williams JB, Löwe B. A brief measure for assessing generalized anxiety disorder: the GAD-7. Arch Intern Med. 2006 May 22;166(10):1092-7.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/16717171/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Un puntaje ≥ 10 tiene una alta sensibilidad y especificidad para el diagnóstico de ansiedad generalizada. Se utiliza también para evaluar pánico, ansiedad social y TEPT.",
+
+  preguntas: [
+    { 
+      id: 'p1', 
+      text: 'Sentirse nervioso/a, intranquilo/a o con los nervios de punta:', 
+      type: 'select', 
+      options: [
+        { label: '0: Nunca', value: 0 },
+        { label: '1: Varios días', value: 1 },
+        { label: '2: Más de la mitad de los días', value: 2 },
+        { label: '3: Casi todos los días', value: 3 }
+      ] 
+    },
+    { id: 'p2', text: 'No poder dejar de preocuparse o no poder controlar la preocupación:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p3', text: 'Preocuparse demasiado por diferentes cosas:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p4', text: 'Dificultad para relajarse:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p5', text: 'Estar tan inquieto/a que es difícil permanecer sentado/a:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p6', text: 'Molestarse o irritarse fácilmente:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] },
+    { id: 'p7', text: 'Sentir miedo de que algo terrible pudiera pasar:', type: 'select', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }] }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 4) return { 
+      texto: 'Ansiedad Mínima', 
+      color: 'emerald-600', 
+      evidencia: 'Puntaje dentro de rangos normales de ansiedad cotidiana.',
+      recomendaciones: ['Higiene de sueño y manejo del estrés habitual'] 
+    };
+    if (puntaje <= 9) return { 
+      texto: 'Ansiedad Leve', 
+      color: 'yellow-600', 
+      evidencia: 'Sintomatología presente que requiere monitoreo si los síntomas persisten.',
+      recomendaciones: ['Seguimiento clínico', 'Técnicas de relajación/mindfulness'] 
+    };
+    if (puntaje <= 14) return { 
+      texto: 'Ansiedad Moderada', 
+      color: 'orange-600', 
+      evidencia: 'Probable presencia de trastorno de ansiedad. Se recomienda evaluación por especialista.',
+      recomendaciones: ['Derivación a Salud Mental', 'Evaluación para psicoterapia cognitiva-conductual'] 
+    };
+    return { 
+      texto: 'Ansiedad Severa', 
+      color: 'red-600', 
+      evidencia: 'Alto impacto funcional y emocional. Requiere intervención clínica inmediata.',
+      recomendaciones: [
+        'Derivación prioritaria a psiquiatría/psicología', 
+        'Evaluación para inicio de farmacoterapia',
+        'Abordaje interdisciplinario'
+      ] 
+    };
+  }
+},
   {
     id: 'bdi_ii',
     nombre: 'Inventario de Depresión de Beck (BDI-II)',
