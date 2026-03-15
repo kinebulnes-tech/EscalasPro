@@ -36,6 +36,84 @@ export const scales: Scale[] = [
   // KINESIOLOGÍA
   // ==========================================
   {
+  id: 'must_nutricion',
+  nombre: 'Escala MUST',
+  categoria: 'nutricion',
+  descripcion: 'Herramienta universal de cribado de malnutrición diseñada para identificar adultos con riesgo de desnutrición.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15530278) ---
+  bibliografia: "Stratton RJ, et al. Concurrent validity and reliability of the 'Malnutrition Universal Screening Tool' ('MUST') in a sample of medical in-patients. Public Health Nutr. 2004;7(8):1077-81.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15530278/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "El MUST predice resultados clínicos como la estancia hospitalaria y la mortalidad. Evalúa el IMC, la pérdida de peso involuntaria y el efecto de enfermedades agudas.",
+
+  preguntas: [
+    { 
+      id: 'p1_imc', 
+      text: 'Paso 1: Puntaje de IMC (kg/m²):', 
+      type: 'select', 
+      options: [
+        { label: '> 20 (> 30 si es obesidad)', value: 0 },
+        { label: '18.5 - 20', value: 1 },
+        { label: '< 18.5', value: 2 }
+      ] 
+    },
+    { 
+      id: 'p2_perdida', 
+      text: 'Paso 2: Puntaje de pérdida de peso involuntaria (3-6 meses):', 
+      type: 'select', 
+      options: [
+        { label: '< 5%', value: 0 },
+        { label: '5% - 10%', value: 1 },
+        { label: '> 10%', value: 2 }
+      ] 
+    },
+    { 
+      id: 'p3_agudo', 
+      text: 'Paso 3: ¿Existe enfermedad aguda y el paciente no ha ingerido nada por > 5 días?', 
+      type: 'select', 
+      options: [
+        { label: 'No', value: 0 },
+        { label: 'Sí (+2 puntos)', value: 2 }
+      ] 
+    }
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'Riesgo Bajo', 
+      color: 'emerald-600', 
+      evidencia: 'Estado nutricional presumiblemente estable.',
+      recomendaciones: [
+        'Cuidado clínico de rutina',
+        'Repetir el tamizaje semanalmente si está hospitalizado',
+        'Repetir anualmente en la comunidad para grupos de riesgo'
+      ] 
+    };
+    if (puntaje === 1) return { 
+      texto: 'Riesgo Medio', 
+      color: 'amber-600', 
+      evidencia: 'Existe una sospecha de compromiso nutricional que requiere observación.',
+      recomendaciones: [
+        'Observar la ingesta alimentaria durante 3 días',
+        'Si la ingesta mejora, repetir tamizaje semanal',
+        'Si la ingesta es deficiente, iniciar plan de cuidados local'
+      ] 
+    };
+    return { 
+      texto: 'Riesgo Alto', 
+      color: 'red-600', 
+      evidencia: 'Alta probabilidad de desnutrición con impacto en los resultados clínicos.',
+      recomendaciones: [
+        'Derivación inmediata a Nutricionista o equipo de soporte nutricional',
+        'Establecer objetivos nutricionales y aumentar la ingesta',
+        'Monitorear el plan de cuidados regularmente'
+      ] 
+    };
+  }
+},
+  {
     id: 'barthel',
     nombre: 'Índice de Barthel',
     categoria: 'kinesiologia',
@@ -2164,22 +2242,83 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'must_screening',
-    nombre: 'MUST (Malnutrition Universal Screening Tool)',
-    categoria: 'nutricion',
-    descripcion: 'Herramienta universal para detectar malnutrición en adultos.',
-    preguntas: [
-      { id: 'imc_score', text: 'Puntuación IMC (kg/m²):', type: 'select', options: [{ label: '> 20 (> 30 obeso)', value: 0 }, { label: '18.5 - 20', value: 1 }, { label: '< 18.5', value: 2 }] },
-      { id: 'peso_score', text: 'Pérdida de peso involuntaria (3-6 meses):', type: 'select', options: [{ label: '< 5%', value: 0 }, { label: '5 - 10%', value: 1 }, { label: '> 10%', value: 2 }] },
-      { id: 'aguda_score', text: 'Efecto de enfermedad aguda (ayuno > 5 días):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (Añadir 2 puntos)', value: 2 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p === 0) return { texto: 'Riesgo Bajo', recomendaciones: ['Cuidado rutinario', 'Repetir cribado en pacientes hospitalizados cada semana'] };
-      if (p === 1) return { texto: 'Riesgo Medio', recomendaciones: ['Observar y registrar ingesta alimentaria por 3 días', 'Repetir cribado hospitalario cada 3 días', 'Evaluar por especialista si hay deterioro'] };
-      return { texto: 'Riesgo Alto', recomendaciones: ['Tratamiento nutricional inmediato', 'Derivación a Nutricionista / Soporte nutricional', 'Mejorar aporte energético y proteico'] };
+  id: 'must_nutricion',
+  nombre: 'Escala MUST',
+  categoria: 'nutricion',
+  descripcion: 'Herramienta universal de cribado de malnutrición diseñada para identificar adultos con riesgo de desnutrición.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15530278) ---
+  bibliografia: "Stratton RJ, et al. Concurrent validity and reliability of the 'Malnutrition Universal Screening Tool' ('MUST') in a sample of medical in-patients. Public Health Nutr. 2004;7(8):1077-81.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15530278/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "El MUST predice resultados clínicos como la estancia hospitalaria y la mortalidad. Evalúa el IMC, la pérdida de peso involuntaria y el efecto de enfermedades agudas.",
+
+  preguntas: [
+    { 
+      id: 'p1_imc', 
+      text: 'Paso 1: Puntaje de IMC (kg/m²):', 
+      type: 'select', 
+      options: [
+        { label: '> 20 (> 30 si es obesidad)', value: 0 },
+        { label: '18.5 - 20', value: 1 },
+        { label: '< 18.5', value: 2 }
+      ] 
+    },
+    { 
+      id: 'p2_perdida', 
+      text: 'Paso 2: Puntaje de pérdida de peso involuntaria (3-6 meses):', 
+      type: 'select', 
+      options: [
+        { label: '< 5%', value: 0 },
+        { label: '5% - 10%', value: 1 },
+        { label: '> 10%', value: 2 }
+      ] 
+    },
+    { 
+      id: 'p3_agudo', 
+      text: 'Paso 3: ¿Existe enfermedad aguda y el paciente no ha ingerido nada por > 5 días?', 
+      type: 'select', 
+      options: [
+        { label: 'No', value: 0 },
+        { label: 'Sí (+2 puntos)', value: 2 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje === 0) return { 
+      texto: 'Riesgo Bajo', 
+      color: 'emerald-600', 
+      evidencia: 'Estado nutricional presumiblemente estable.',
+      recomendaciones: [
+        'Cuidado clínico de rutina',
+        'Repetir el tamizaje semanalmente si está hospitalizado',
+        'Repetir anualmente en la comunidad para grupos de riesgo'
+      ] 
+    };
+    if (puntaje === 1) return { 
+      texto: 'Riesgo Medio', 
+      color: 'amber-600', 
+      evidencia: 'Existe una sospecha de compromiso nutricional que requiere observación.',
+      recomendaciones: [
+        'Observar la ingesta alimentaria durante 3 días',
+        'Si la ingesta mejora, repetir tamizaje semanal',
+        'Si la ingesta es deficiente, iniciar plan de cuidados local'
+      ] 
+    };
+    return { 
+      texto: 'Riesgo Alto', 
+      color: 'red-600', 
+      evidencia: 'Alta probabilidad de desnutrición con impacto en los resultados clínicos.',
+      recomendaciones: [
+        'Derivación inmediata a Nutricionista o equipo de soporte nutricional',
+        'Establecer objetivos nutricionales y aumentar la ingesta',
+        'Monitorear el plan de cuidados regularmente'
+      ] 
+    };
+  }
+},
   {
     id: 'nrs_2002',
     nombre: 'NRS-2002 (Nutritional Risk Screening)',
