@@ -1072,21 +1072,64 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'qsofa',
-    nombre: 'qSOFA',
-    categoria: 'emergencias',
-    descripcion: 'Detección rápida de sepsis en áreas no-UCI',
-    preguntas: [
-      { id: 'fr', text: 'Frecuencia respiratoria ≥22 rpm', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'conciencia', text: 'Alteración del estado mental (Glasgow < 15)', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'pa', text: 'Presión arterial sistólica ≤100 mmHg', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
-    ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
-    interpretar: (puntaje) => {
-      if (puntaje >= 2) return { texto: 'Alto riesgo de Sepsis (qSOFA Positivo)', recomendaciones: ['Activar protocolo Sepsis Six de inmediato', 'Medir Lactato venoso/arterial', 'Tomar hemocultivos ANTES de dar antibióticos', 'Administrar antibióticos de amplio espectro IV', 'Bolo de cristaloides 30ml/kg si hay hipotensión', 'Derivar a UCI/UTI'] };
-      return { texto: 'Bajo riesgo (qSOFA Negativo)', recomendaciones: ['Continuar monitorización si hay sospecha de infección', 'Considerar calcular score NEWS2 o SOFA completo si la sospecha persiste'] };
+  id: 'qsofa',
+  nombre: 'qSOFA (Quick SOFA)',
+  categoria: 'emergencias',
+  descripcion: 'Criterios clínicos rápidos para identificar pacientes con sospecha de infección y alto riesgo de malos resultados.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 26903338) ---
+  bibliografia: "Singer M, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). JAMA. 2016 Feb 23;315(8):801-10.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/26903338/",
+  evidenciaClinica: "Un puntaje qSOFA ≥ 2 se asocia con un riesgo de mortalidad hospitalaria de aproximadamente el 10%, lo que justifica una evaluación urgente de disfunción orgánica.",
+
+  preguntas: [
+    { 
+      id: 'fr', 
+      text: 'Frecuencia respiratoria ≥ 22 respiraciones/minuto', 
+      type: 'select', 
+      options: [{ label: 'Sí (Presente)', value: 1 }, { label: 'No (Ausente)', value: 0 }] 
+    },
+    { 
+      id: 'conciencia', 
+      text: 'Alteración del estado mental (Glasgow < 15)', 
+      type: 'select', 
+      options: [{ label: 'Sí (Presente)', value: 1 }, { label: 'No (Ausente)', value: 0 }] 
+    },
+    { 
+      id: 'pas', 
+      text: 'Presión Arterial Sistólica ≤ 100 mmHg', 
+      type: 'select', 
+      options: [{ label: 'Sí (Presente)', value: 1 }, { label: 'No (Ausente)', value: 0 }] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+  interpretar: (puntaje) => {
+    if (puntaje >= 2) return { 
+      texto: 'qSOFA POSITIVO (Alto Riesgo)', 
+      color: 'red', 
+      evidencia: 'Puntaje ≥ 2 sugiere una alta probabilidad de resultados adversos (muerte o estancia prolongada en UCI).',
+      recomendaciones: [
+        'Activar protocolo de SEPSIS de inmediato',
+        'Monitorización continua de signos vitales',
+        'Notificación médica urgente para estudio de disfunción orgánica (lactato, SOFA completo)',
+        'Asegurar accesos venosos y oxigenoterapia si aplica'
+      ] 
+    };
+
+    return { 
+      texto: 'qSOFA NEGATIVO (Bajo Riesgo)', 
+      color: 'green', 
+      evidencia: 'El riesgo de mortalidad es bajo, pero no excluye sepsis. Mantener vigilancia clínica.',
+      recomendaciones: [
+        'Continuar observación clínica periódica',
+        'Evaluar otros focos infecciosos',
+        'Repetir evaluación si el estado clínico se deteriora'
+      ] 
+    };
+  }
+},
   {
     id: 'news2',
     nombre: 'NEWS2',
