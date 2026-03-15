@@ -1967,24 +1967,71 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'bristol_scale',
-    nombre: 'Escala de Bristol',
-    categoria: 'nutricion',
-    descripcion: 'Clasificación visual de la forma y consistencia de las heces.',
-    preguntas: [
-      { id: 'tipo', text: 'Seleccione el tipo de consistencia (1-7):', type: 'select', options: [
-        { label: 'Tipo 1-2: Estreñimiento', value: 1 },
-        { label: 'Tipo 3-4: Normal / Ideal', value: 2 },
-        { label: 'Tipo 5-7: Tendencia a diarrea', value: 3 }
-      ]}
-    ],
-    calcularPuntaje: (r) => r.tipo || 0,
-    interpretar: (p) => {
-      if (p === 1) return { texto: 'Estreñimiento', recomendaciones: ['Aumentar ingesta de fibra (25-30g/día)', 'Incrementar consumo de agua', 'Fomentar actividad física'] };
-      if (p === 2) return { texto: 'Consistencia Normal', recomendaciones: ['Mantener hábitos actuales'] };
-      return { texto: 'Tránsito acelerado / Diarrea', recomendaciones: ['Evaluar malabsorción o intolerancias', 'Asegurar reposición de electrolitos', 'Considerar dieta astringente si es agudo'] };
+  id: 'bristol',
+  nombre: 'Escala de Bristol',
+  categoria: 'nutricion',
+  descripcion: 'Clasificación visual de las heces humanas en 7 categorías para evaluar el tiempo de tránsito colónico.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 9299672) ---
+  bibliografia: "Lewis SJ, Heaton KW. Stool form scale as a useful guide to intestinal transit time. Scand J Gastroenterol. 1997 Sep;32(9):920-4.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9299672/", // ✅ LINK CORRECTO
+  evidenciaClinica: "Los tipos 1 y 2 indican estreñimiento; los tipos 3 y 4 son las 'heces ideales'; los tipos 5, 6 y 7 tienden hacia la diarrea o urgencia.",
+
+  preguntas: [
+    { 
+      id: 'tipo', 
+      text: 'Seleccione el tipo de heces que describe mejor la deposición habitual:', 
+      type: 'select', 
+      options: [
+        { label: 'Tipo 1: Trozos duros separados (como nueces), difíciles de evacuar', value: 1 },
+        { label: 'Tipo 2: Forma de salchicha pero compuesta de fragmentos', value: 2 },
+        { label: 'Tipo 3: Forma de salchicha con grietas en la superficie', value: 3 },
+        { label: 'Tipo 4: Forma de salchicha o serpiente, lisa y blanda (Ideal)', value: 4 },
+        { label: 'Tipo 5: Trozos de masa pastosa con bordes definidos', value: 5 },
+        { label: 'Tipo 6: Fragmentos blandos y esponjosos con bordes irregulares', value: 6 },
+        { label: 'Tipo 7: Acuosa, sin trozos sólidos (totalmente líquida)', value: 7 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.tipo) ?? 4,
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 2) return { 
+      texto: 'Estreñimiento / Tránsito Lento', 
+      color: 'red-600', 
+      evidencia: 'Los tipos 1 y 2 sugieren que las heces han pasado un tiempo excesivo en el colon, perdiendo agua.',
+      recomendaciones: [
+        'Aumentar la ingesta diaria de agua (mínimo 2-2.5 litros)',
+        'Incrementar el consumo de fibra insoluble (frutas, verduras, legumbres)',
+        'Evaluar actividad física para estimular el peristaltismo',
+        'Considerar masaje abdominal kinésico'
+      ] 
+    };
+
+    if (puntaje <= 4) return { 
+      texto: 'Heces Ideales / Tránsito Normal', 
+      color: 'emerald-600', 
+      evidencia: 'Los tipos 3 y 4 son los estándares de salud intestinal. Indican un tránsito equilibrado.',
+      recomendaciones: [
+        'Mantener hábitos actuales de alimentación e hidratación',
+        'Continuar con actividad física regular'
+      ] 
+    };
+
+    return { 
+      texto: 'Tendencia a Diarrea / Tránsito Rápido', 
+      color: 'amber-600', 
+      evidencia: 'Los tipos 5 a 7 indican un tránsito acelerado que impide la reabsorción adecuada de agua.',
+      recomendaciones: [
+        'Evaluar posibles intolerancias alimentarias o procesos infecciosos',
+        'Reponer electrolitos si la consistencia es tipo 7',
+        'Evitar irritantes intestinales (café, alcohol, picantes) temporalmente',
+        'Control médico si los síntomas persisten por más de 48 horas'
+      ] 
+    };
+  }
+},
   {
     id: 'strong_kids',
     nombre: 'StrongKids',
