@@ -85,7 +85,7 @@ export const scales: Scale[] = [
   
   // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 23585231) ---
   bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23585231/",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23974352/",
   evidenciaClinica: "Basado en valores normativos europeos (Strassmann, 2013). Un rendimiento < 60% del predicho se asocia a fragilidad y mayor riesgo de hospitalización.",
 
   preguntas: [
