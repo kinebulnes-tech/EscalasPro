@@ -1325,20 +1325,56 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'mallampati',
-    nombre: 'Escala Mallampati Modificada',
-    categoria: 'emergencias',
-    descripcion: 'Predicción anatómica de vía aérea difícil',
-    preguntas: [
-      { id: 'clase', text: 'Visualización de estructuras faríngeas', type: 'select', options: [{ label: 'Clase I (Total: pilares, úvula, paladar blando)', value: 1 }, { label: 'Clase II (Úvula parcial, paladar blando)', value: 2 }, { label: 'Clase III (Solo base de úvula y paladar blando)', value: 3 }, { label: 'Clase IV (Solo paladar duro visible)', value: 4 }] }
-    ],
-    calcularPuntaje: (respuestas) => respuestas.clase || 0,
-    interpretar: (puntaje) => {
-      if (puntaje <= 2) return { texto: 'Clase I/II: Intubación probablemente fácil', recomendaciones: ['Preparar laringoscopio Macintosh 3 o 4', 'Asegurar buena posición de olfateo (Sniffing position)'] };
-      if (puntaje === 3) return { texto: 'Clase III: Intubación moderadamente difícil', recomendaciones: ['Uso de videolaringoscopio de primera línea', 'Tener a mano bougie y máscaras laríngeas de rescate', 'Considerar intubación con paciente despierto (fibroscopio) si no hay urgencia'] };
-      return { texto: 'Clase IV: Intubación difícil', recomendaciones: ['¡ALERTA DE VÍA AÉREA DIFÍCIL!', 'Llamar a operador más experimentado (Anestesista / Intensivista)', 'Preparar carro de Vía Aérea Difícil (cricotiroidotomía lista)', 'Evitar relajantes musculares si no se asegura la ventilación con mascarilla (No Cannot Intubate, Cannot Ventilate)'] };
+  id: 'mallampati',
+  nombre: 'Clasificación de Mallampati',
+  categoria: 'emergencias',
+  descripcion: 'Evaluación visual de la distancia entre la base de la lengua y el paladar blando para predecir la dificultad de la intubación.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3592174) ---
+  bibliografia: "Samsoon GL, Young JR. Difficult tracheal intubation: a retrospective study. Anaesthesia. 1987 May;42(5):487-90.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3592174/", // ✅ VERIFICADO: "Difficult tracheal intubation"
+  evidenciaClinica: "Las clases III y IV se asocian con una alta probabilidad de visión laringoscópica difícil (Cormack-Lehane III-IV) y mayor riesgo de 'Vía Aérea Difícil'.",
+
+  preguntas: [
+    { 
+      id: 'clase', 
+      text: 'Visualización de estructuras orofaríngeas (Paciente sentado, boca abierta, lengua afuera sin fonar):', 
+      type: 'select', 
+      options: [
+        { label: 'Clase I: Visibilidad total (Paladar blando, úvula, pilares, fauces)', value: 1 },
+        { label: 'Clase II: Visibilidad parcial (Paladar blando, porción de la úvula, fauces)', value: 2 },
+        { label: 'Clase III: Visibilidad solo de paladar blando y base de la úvula', value: 3 },
+        { label: 'Clase IV: Solo es visible el paladar duro (No se ve el paladar blando)', value: 4 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.clase) ?? 1,
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 2) return { 
+      texto: 'Vía Aérea Probablemente Fácil', 
+      color: 'emerald-600', 
+      evidencia: 'Clases I y II indican buena visibilidad. Se asocian a una laringoscopia exitosa en la mayoría de los casos.',
+      recomendaciones: [
+        'Mantener protocolo estándar de manejo de vía aérea',
+        'Asegurar posición de olfateo para la intubación'
+      ] 
+    };
+
+    return { 
+      texto: 'ALERTA: Vía Aérea Probablemente DIFÍCIL', 
+      color: 'red-600', 
+      evidencia: 'Clases III y IV tienen una alta correlación con dificultades en la intubación orotraqueal.',
+      recomendaciones: [
+        'Tener disponible dispositivo supra-glótico (Máscara laríngea)',
+        'Considerar el uso de videolaringoscopio o guía tipo bougie',
+        'Asegurar presencia de un segundo operador experimentado',
+        'Preparar equipo de rescate de vía aérea quirúrgica si el protocolo lo indica'
+      ] 
+    };
+  }
+},
   {
     id: 'silverman',
     nombre: 'Escala de Silverman Anderson',
