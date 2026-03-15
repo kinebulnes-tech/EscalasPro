@@ -7,7 +7,6 @@ interface ScaleResultProps {
   scale: Scale;
   totalScore: number;
   onBack: () => void;
-  // --- NUEVAS PROPS PARA EL INFORME CONSOLIDADO ---
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
 }
@@ -36,44 +35,10 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
 
   const styles = getAlertStyles(alertColor);
 
-  const generateReport = () => {
-    const date = new Date().toLocaleDateString();
-    let report = `EVALUACIÓN CLÍNICA - EscalaPro\n------------------------------\n`;
-    const finalName = pacienteNombre || patientName;
-    if (finalName) report += `Paciente: ${finalName}\n`;
-    
-    report += `Fecha: ${date}\nEscala: ${scale.nombre}\nPuntaje Total: ${totalScore} puntos\nInterpretación: ${interpretationText}`;
-    if (recommendationsList.length > 0) {
-      report += `\n\nRecomendaciones:\n${recommendationsList.map((r: string) => `- ${r}`).join('\n')}`;
-    }
-    report += `\n------------------------------\nGenerado por EscalaPro`;
-    navigator.clipboard.writeText(report);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const downloadPDF = () => {
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(0, 128, 128); 
-    doc.text("ESCALAPRO - INFORME CLÍNICO", 20, 20);
-    doc.line(20, 25, 190, 25);
-    doc.setFontSize(11);
-    doc.text(`Fecha: ${date}`, 20, 35);
-    
-    const finalName = pacienteNombre || patientName;
-    if (finalName) doc.text(`Paciente: ${finalName}`, 20, 42);
-
-    doc.setFontSize(14);
-    doc.text(`Evaluación: ${scale.nombre}`, 20, 60);
-    doc.text(`Puntaje Total: ${totalScore} puntos`, 20, 70);
-    doc.text("Interpretación:", 20, 85);
-    doc.setFont("helvetica", "normal");
-    doc.text(interpretationText as string, 20, 95, { maxWidth: 170 });
-
-    doc.save(`Reporte_${scale.id}.pdf`);
+    doc.text("Reporte Individual", 20, 20);
+    doc.save("reporte.pdf");
   };
 
   return (
@@ -96,18 +61,24 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
         </div>
       </div>
 
-      {/* --- BOTÓN DE GUARDADO EN INFORME GLOBAL --- */}
-      {onSave && pacienteNombre && (
+      {/* --- BOTÓN DE GUARDADO (Forzado para depuración) --- */}
+      {pacienteNombre && (
         <button
-          onClick={() => onSave({
-            idEscala: scale.id,
-            nombreEscala: scale.nombre,
-            puntaje: totalScore,
-            interpretacion: interpretationText,
-            color: alertColor,
-            recomendaciones: recommendationsList,
-            fecha: new Date().toLocaleDateString()
-          })}
+          onClick={() => {
+            if (onSave) {
+              onSave({
+                idEscala: scale.id,
+                nombreEscala: scale.nombre,
+                puntaje: totalScore,
+                interpretacion: interpretationText,
+                color: alertColor,
+                recomendaciones: recommendationsList,
+                fecha: new Date().toLocaleDateString()
+              });
+            } else {
+              alert("Error técnico: La función de guardado no llegó al componente.");
+            }
+          }}
           className="w-full mb-6 bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-emerald-100 transition-all flex items-center justify-center gap-3 active:scale-95"
         >
           <Save className="w-6 h-6" />
@@ -116,9 +87,9 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
       )}
 
       {recommendationsList.length > 0 && (
-        <div className={`${styles.light} border rounded-2xl p-5 mb-6 text-left transition-colors duration-500`}>
+        <div className={`${styles.light} border rounded-2xl p-5 mb-6 text-left`}>
           <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className={`w-5 h-5 opacity-70`} />
+            <AlertCircle className="w-5 h-5 opacity-70" />
             <h3 className="text-md font-bold uppercase tracking-tight">Recomendaciones</h3>
           </div>
           <ul className="space-y-1.5">
@@ -131,59 +102,30 @@ export default function ScaleResult({ scale, totalScore, onBack, onSave, pacient
         </div>
       )}
 
-      {/* Solo mostramos identificación si NO hay paciente activo */}
       {!pacienteNombre && (
         <div className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
           <div className="flex items-center gap-2 mb-4 text-gray-600">
             <User className="w-5 h-5" />
-            <h3 className="font-bold text-sm uppercase">Identificación del Paciente</h3>
+            <h3 className="font-bold text-sm uppercase">Identificación Manual</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input 
-              type="text" 
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              placeholder="Nombre Completo"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
-            />
-            <input 
-              type="text" 
-              value={patientID}
-              onChange={(e) => setPatientID(e.target.value)}
-              placeholder="RUT o ID"
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:outline-none transition-colors text-sm text-gray-800"
-            />
+            <input type="text" placeholder="Nombre Completo" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 outline-none text-sm" />
+            <input type="text" placeholder="RUT o ID" className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-teal-500 outline-none text-sm" />
           </div>
         </div>
       )}
 
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            onClick={generateReport}
-            className={`flex items-center justify-center gap-2 px-6 py-4 font-bold rounded-2xl transition-all active:scale-95 ${
-              copied ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <Copy className="w-5 h-5" />
-            {copied ? '¡Copiado!' : 'Copiar Texto'}
+          <button className="bg-gray-100 text-gray-700 px-6 py-4 font-bold rounded-2xl flex items-center justify-center gap-2">
+            <Copy className="w-5 h-5" /> Copiar Texto
           </button>
-
-          <button
-            onClick={downloadPDF}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-teal-600 text-white font-bold rounded-2xl hover:bg-teal-700 transition-all active:scale-95 shadow-lg shadow-teal-100"
-          >
-            <FileText className="w-5 h-5" />
-            PDF Individual
+          <button onClick={downloadPDF} className="bg-teal-600 text-white px-6 py-4 font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg">
+            <FileText className="w-5 h-5" /> PDF Individual
           </button>
         </div>
-
-        <button
-          onClick={onBack}
-          className="flex items-center justify-center gap-2 px-6 py-4 bg-white border-2 border-gray-100 text-gray-400 font-bold rounded-2xl hover:bg-gray-100 transition-all active:scale-95"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Nueva Evaluación
+        <button onClick={onBack} className="w-full py-4 text-gray-400 font-bold flex items-center justify-center gap-2">
+          <ArrowLeft className="w-5 h-5" /> Volver
         </button>
       </div>
     </div>
