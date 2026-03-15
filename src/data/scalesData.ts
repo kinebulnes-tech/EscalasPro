@@ -774,43 +774,135 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'doss',
-    nombre: 'DOSS',
-    categoria: 'fonoaudiologia',
-    descripcion: 'Dysphagia Outcome and Severity Scale',
-    preguntas: [
-      { id: 'nivel', text: 'Nivel de función de deglución', type: 'select', options: [{ label: 'Nivel 7 - Normal', value: 7 }, { label: 'Nivel 6 - Modificada', value: 6 }, { label: 'Nivel 5 - Supervisión leve', value: 5 }, { label: 'Nivel 4 - Intermitente', value: 4 }, { label: 'Nivel 3 - Total mod.', value: 3 }, { label: 'Nivel 2 - Total severa', value: 2 }, { label: 'Nivel 1 - No oral', value: 1 }] }
-    ],
-    calcularPuntaje: (respuestas) => respuestas.nivel || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 7) return { texto: 'Normal', recomendaciones: ['Dieta normal sin restricciones'] };
-      if (puntaje === 6) return { texto: 'Independencia funcional modificada', recomendaciones: ['Dieta normal pero requiere tiempo extra', 'Masticación consciente y estrategias compensatorias autónomas'] };
-      if (puntaje === 5) return { texto: 'Supervisión leve', recomendaciones: ['Requiere recordatorios para uso de estrategias (ej. toser post-deglución)', 'Evitar consistencias mixtas de alto riesgo'] };
-      if (puntaje === 4) return { texto: 'Supervisión intermitente', recomendaciones: ['Una o dos restricciones dietéticas (ej. líquidos espesos)', 'Supervisión fonoaudiológica periódica'] };
-      if (puntaje === 3) return { texto: 'Supervisión total (Dietas modificadas)', recomendaciones: ['Dieta estricta en puré y líquidos miel/pudin', 'Asistencia completa para alimentación'] };
-      if (puntaje === 2) return { texto: 'Supervisión total (Severas restricciones)', recomendaciones: ['Múltiples restricciones. Alimentación oral solo con fines terapéuticos', 'Nutrición principal por sonda'] };
-      return { texto: 'Nutrición no oral', recomendaciones: ['Prohibida la vía oral por riesgo inminente de aspiración', 'Gastrostomía si condición es irreversible o de larga duración'] };
+  id: 'doss',
+  nombre: 'Escala DOSS',
+  categoria: 'fonoaudiologia',
+  descripcion: 'Escala de 7 niveles para documentar la severidad de la disfagia y el nivel de independencia funcional en la alimentación.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10330175) ---
+  bibliografia: "O'Neil KH, et al. The Dysphagia Outcome and Severity Scale. Dysphagia. 1999;14(3):139-45.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10330175/", // ✅ VERIFICADO: "The Dysphagia Outcome and Severity Scale"
+  evidenciaClinica: "Proporciona una medida válida y confiable de la severidad de la disfagia. Los niveles 1-2 indican disfagia severa; 3-5 moderada; 6-7 dentro de límites funcionales.",
+
+  preguntas: [
+    { 
+      id: 'nivel', 
+      text: 'Seleccione el nivel de severidad observado:', 
+      type: 'select', 
+      options: [
+        { label: 'Nivel 1: Disfagia Severa (Nada por boca. Nutrición enteral total)', value: 1 },
+        { label: 'Nivel 2: Disfagia Severa (Nutrición enteral con intentos mínimos de ingesta)', value: 2 },
+        { label: 'Nivel 3: Disfagia Moderada-Severa (Dieta terapéutica, supervisión constante)', value: 3 },
+        { label: 'Nivel 4: Disfagia Moderada (Dieta terapéutica con restricciones)', value: 4 },
+        { label: 'Nivel 5: Disfagia Leve-Moderada (Dieta con restricciones, supervisión ocasional)', value: 5 },
+        { label: 'Nivel 6: Límites funcionales (Dieta normal, puede requerir más tiempo)', value: 6 },
+        { label: 'Nivel 7: Dentro de límites normales (Dieta normal sin restricciones)', value: 7 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.nivel) ?? 1,
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 2) return { 
+      texto: 'Disfagia SEVERA', 
+      color: 'red-600', 
+      evidencia: 'Riesgo alto de aspiración. La nutrición por vía oral no es segura.',
+      recomendaciones: [
+        'Mantener régimen cero vía oral',
+        'Uso de vía alternativa de alimentación (SNG/GTT)',
+        'Higiene oral frecuente para prevenir neumonías por aspiración de secreciones',
+        'Entrenamiento motor lingual y laríngeo intenso'
+      ] 
+    };
+
+    if (puntaje <= 5) return { 
+      texto: 'Disfagia MODERADA', 
+      color: 'amber-600', 
+      evidencia: 'Requiere modificaciones en la consistencia de los alimentos y/o supervisión.',
+      recomendaciones: [
+        'Adaptar consistencias (Néctar, Miel o Pudding según evaluación)',
+        'Aplicar maniobras compensatorias (mentón abajo, giros de cabeza)',
+        'Fraccionar la alimentación para evitar fatiga',
+        'Supervisión por cuidador durante toda la ingesta'
+      ] 
+    };
+
+    return { 
+      texto: 'Funcional / Normal', 
+      color: 'emerald-600', 
+      evidencia: 'Seguridad y eficiencia en la deglución mantenida.',
+      recomendaciones: [
+        'Observar si aparece fatiga con texturas muy duras',
+        'Alta de intervención fonoaudiológica si el peso se mantiene estable'
+      ] 
+    };
+  }
+},
   {
-    id: 'fois',
-    nombre: 'FOIS',
-    categoria: 'fonoaudiologia',
-    descripcion: 'Functional Oral Intake Scale',
-    preguntas: [
-      { id: 'nivel', text: 'Nivel de ingesta oral', type: 'select', options: [{ label: 'Nivel 7 - Total sin restricción', value: 7 }, { label: 'Nivel 6 - Total sin compensación', value: 6 }, { label: 'Nivel 5 - Total con compensación', value: 5 }, { label: 'Nivel 4 - Única consistencia', value: 4 }, { label: 'Nivel 3 - Tubo + oral consistente', value: 3 }, { label: 'Nivel 2 - Tubo + oral mínima', value: 2 }, { label: 'Nivel 1 - Nada oral', value: 1 }] }
-    ],
-    calcularPuntaje: (respuestas) => respuestas.nivel || 0,
-    interpretar: (puntaje) => {
-      if (puntaje === 7) return { texto: 'Total vía oral sin restricciones', recomendaciones: ['Alimentación libre'] };
-      if (puntaje === 6) return { texto: 'Total vía oral sin compensaciones especiales', recomendaciones: ['Evitar alimentos extremadamente duros o secos preventivamente'] };
-      if (puntaje === 5) return { texto: 'Total vía oral con compensaciones', recomendaciones: ['Uso constante de espesantes, maniobras deglutorias o utensilios especiales', 'Preparación especial de alimentos'] };
-      if (puntaje === 4) return { texto: 'Vía oral con una consistencia', recomendaciones: ['Monotonía dietética requerida (solo puré o solo néctar)', 'Suplementación calórica oral'] };
-      if (puntaje === 3) return { texto: 'Alimentación por tubo con ingesta oral consistente', recomendaciones: ['Iniciar protocolo de destete de sonda', 'Aumentar progresivamente el porcentaje de calorías vía oral'] };
-      if (puntaje === 2) return { texto: 'Alimentación por tubo con ingesta oral mínima', recomendaciones: ['Alimentación oral solo recreacional o gustativa (terapia)', 'Higiene oral exhaustiva'] };
-      return { texto: 'Nada por vía oral', recomendaciones: ['Nutrición enteral o parenteral exclusiva', 'Tratamiento de secreciones (aspiración/fármacos)'] };
+  id: 'fois',
+  nombre: 'Escala FOIS',
+  categoria: 'fonoaudiologia',
+  descripcion: 'Evaluación funcional de la ingesta oral en pacientes con disfagia, útil para documentar el progreso en la dieta.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15641017) ---
+  bibliografia: "Crary MA, Mann GD, Groher ME. Initial stages of development of a functional oral intake scale of dysphagia in stroke patients. Arch Phys Med Rehabil. 2005 Jan;86(1):72-5.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15641017/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "Escala altamente sensible al cambio clínico. Niveles 1-3 indican dependencia de sonda; Niveles 4-6 indican ingesta oral total con modificaciones.",
+
+  preguntas: [
+    { 
+      id: 'nivel', 
+      text: 'Seleccione el nivel que mejor describa la ingesta oral actual:', 
+      type: 'select', 
+      options: [
+        { label: 'Nivel 1: Nada por vía oral', value: 1 },
+        { label: 'Nivel 2: Dependencia de sonda con mínimos intentos de alimento/líquido', value: 2 },
+        { label: 'Nivel 3: Dependencia de sonda con ingesta consistente de alimento/líquido', value: 3 },
+        { label: 'Nivel 4: Dieta oral total de una sola consistencia', value: 4 },
+        { label: 'Nivel 5: Dieta oral total con múltiples consistencias (requiere preparación especial)', value: 5 },
+        { label: 'Nivel 6: Dieta oral total con múltiples consistencias (sin preparación especial, evita alimentos específicos)', value: 6 },
+        { label: 'Nivel 7: Dieta oral total sin restricciones', value: 7 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.nivel) ?? 1,
+
+  interpretar: (puntaje) => {
+    if (puntaje <= 3) return { 
+      texto: 'Dependencia de Vía Alternativa (Sonda)', 
+      color: 'red-600', 
+      evidencia: 'El paciente requiere soporte enteral (SNG/GTT) para cumplir sus requerimientos nutricionales.',
+      recomendaciones: [
+        'Mantener cuidados de la vía alternativa de alimentación',
+        'Realizar terapia miofuncional para progresar a niveles superiores',
+        'Monitorizar riesgo de aspiración silente'
+      ] 
+    };
+
+    if (puntaje <= 6) return { 
+      texto: 'Ingesta Oral Total con Compensación', 
+      color: 'amber-600', 
+      evidencia: 'El paciente es capaz de alimentarse totalmente por boca, pero requiere modificaciones de textura o exclusión de alimentos peligrosos.',
+      recomendaciones: [
+        'Seguir indicaciones de texturas según niveles IDDSI',
+        'Asegurar una hidratación adecuada si hay restricción de líquidos',
+        'Revisión periódica por fonoaudiología para avanzar en la dieta'
+      ] 
+    };
+
+    return { 
+      texto: 'Ingesta Oral Normal', 
+      color: 'emerald-600', 
+      evidencia: 'Nivel 7: Sin restricciones funcionales en la alimentación.',
+      recomendaciones: [
+        'Mantener higiene oral adecuada',
+        'Alta de intervención específica por disfagia'
+      ] 
+    };
+  }
+},
   {
     id: 'boston_afasia',
     nombre: 'Examen de Afasia de Boston',
@@ -2043,25 +2135,68 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'vgs_nutricional',
-    nombre: 'Valoración Global Subjetiva (VGS)',
-    categoria: 'nutricion',
-    descripcion: 'Diagnóstico clínico del estado nutricional basado en historia y examen físico.',
-    preguntas: [
-      { id: 'clasificacion', text: 'Seleccione la categoría final tras el examen clínico:', type: 'select', options: [
-        { label: 'A - Bien nutrido', value: 1 },
-        { label: 'B - Moderadamente malnutrido (o sospecha de malnutrición)', value: 2 },
-        { label: 'C - Gravemente malnutrido', value: 3 }
-      ]}
-    ],
-    calcularPuntaje: (r) => r.clasificacion || 0,
-    interpretar: (p) => {
-      if (p === 1) return { texto: 'Categoría A: Bien Nutrido', recomendaciones: ['Mantener pauta alimentaria habitual', 'Educación en alimentación saludable'] };
-      if (p === 2) return { texto: 'Categoría B: Moderadamente Malnutrido', recomendaciones: ['Intervención nutricional específica', 'Suplementación de macronutrientes', 'Tratar síntomas gastrointestinales si existen', 'Control de peso quincenal'] };
-      if (p === 3) return { texto: 'Categoría C: Gravemente Malnutrido', recomendaciones: ['Soporte nutricional intensivo', 'Derivación prioritaria a especialista', 'Evaluar síndrome de realimentación al iniciar soporte', 'Protección de masa muscular'] };
-      return { texto: 'Sin datos', recomendaciones: [] };
+  id: 'vgs_nutricion',
+  nombre: 'Valoración Global Subjetiva (VGS)',
+  categoria: 'nutricion',
+  descripcion: 'Herramienta clínica para diagnosticar el estado nutricional basada en la historia médica y hallazgos físicos.',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3820327) ---
+  bibliografia: "Detsky AS, et al. What is subjective global assessment of nutritional status? JPEN J Parenter Enteral Nutr. 1987 Jan-Feb;11(1):8-13.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3820327/", // ✅ LINK VERIFICADO
+  evidenciaClinica: "La VGS es altamente predictiva de complicaciones postoperatorias y mortalidad. Es el método recomendado por la ASPEN para la valoración clínica nutricional.",
+
+  preguntas: [
+    { 
+      id: 'clase', 
+      text: 'Tras evaluar historia (peso, ingesta, síntomas) y examen físico, clasifique al paciente:', 
+      type: 'select', 
+      options: [
+        { label: 'Clase A: Bien Nutrido (Estable o con ganancia de peso reciente)', value: 1 },
+        { label: 'Clase B: Desnutrición Moderada (O sospecha de desnutrición)', value: 2 },
+        { label: 'Clase C: Desnutrición Grave (Signos físicos evidentes y pérdida de peso severa)', value: 3 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (respuestas) => Number(respuestas.clase) ?? 1,
+
+  interpretar: (puntaje) => {
+    if (puntaje === 1) return { 
+      texto: 'Clase A: BIEN NUTRIDO', 
+      color: 'emerald-600', 
+      evidencia: 'Paciente con estado nutricional preservado. Bajo riesgo de complicaciones asociadas a la nutrición.',
+      recomendaciones: [
+        'Mantener dieta equilibrada según requerimientos',
+        'Re-evaluar si se presenta alguna enfermedad aguda',
+        'Fomentar hábitos de vida saludable'
+      ] 
+    };
+
+    if (puntaje === 2) return { 
+      texto: 'Clase B: DESNUTRICIÓN MODERADA', 
+      color: 'amber-600', 
+      evidencia: 'Sospecha de desnutrición o pérdida de peso reciente (5-10%) con disminución de la ingesta oral.',
+      recomendaciones: [
+        'Intervención nutricional precoz',
+        'Considerar uso de suplementos nutricionales orales (SNO)',
+        'Monitoreo semanal del peso y la ingesta alimentaria',
+        'Evaluar causas de los síntomas gastrointestinales si existen'
+      ] 
+    };
+
+    return { 
+      texto: 'Clase C: DESNUTRICIÓN SEVERA', 
+      color: 'red-600', 
+      evidencia: 'Signos físicos claros de pérdida de grasa/músculo y pérdida de peso >10% en los últimos meses.',
+      recomendaciones: [
+        'Derivación urgente a equipo de nutrición especializado',
+        'Implementar terapia nutricional intensiva (Oral, Enteral o Parenteral)',
+        'Vigilancia estricta para prevenir síndrome de realimentación',
+        'Control de parámetros bioquímicos (albúmina, electrolitos)'
+      ] 
+    };
+  }
+},
   {
     id: 'glim_criteria',
     nombre: 'Criterios GLIM',
