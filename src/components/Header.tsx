@@ -1,6 +1,22 @@
-import { Heart, Activity, FileText, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, Activity, FileText, ShieldCheck, Wifi, WifiOff } from 'lucide-react';
 
 export default function Header() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Escuchamos los cambios de red en tiempo real
+  useEffect(() => {
+    const handleStatusChange = () => setIsOnline(navigator.onLine);
+
+    window.addEventListener('online', handleStatusChange);
+    window.addEventListener('offline', handleStatusChange);
+
+    return () => {
+      window.removeEventListener('online', handleStatusChange);
+      window.removeEventListener('offline', handleStatusChange);
+    };
+  }, []);
+
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 pb-4 pt-6 px-6 mb-6">
       <div className="max-w-7xl mx-auto">
@@ -36,6 +52,18 @@ export default function Header() {
             <div className="group flex items-center gap-2 bg-emerald-50/50 border border-emerald-100 px-3 py-1.5 rounded-xl transition-all hover:bg-emerald-50">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span className="text-emerald-900 text-xs font-bold tracking-wide">GUÍA CLÍNICA</span>
+            </div>
+
+            {/* NUEVO: Indicador de Estado de Conexión */}
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-500 ${
+              isOnline 
+              ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-100' 
+              : 'bg-amber-100 text-amber-700 border-amber-200 animate-pulse'
+            }`}>
+              {isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                {isOnline ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
 
