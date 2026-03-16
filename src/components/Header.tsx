@@ -41,7 +41,7 @@ export default function Header() {
           <div className="flex flex-wrap gap-2 pb-1">
             <div className="group flex items-center gap-2 bg-teal-50/50 border border-teal-100 px-3 py-1.5 rounded-xl transition-all hover:bg-teal-50">
               <Activity className="w-4 h-4 text-teal-600" />
-              <span className="text-teal-900 text-xs font-bold tracking-wide">+58 ESCALAS</span>
+              <span className="text-teal-900 text-xs font-bold tracking-wide">+100 ESCALAS</span>
             </div>
             
             <div className="group flex items-center gap-2 bg-blue-50/50 border border-blue-100 px-3 py-1.5 rounded-xl transition-all hover:bg-blue-50">
