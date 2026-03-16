@@ -1,3 +1,4 @@
+import React from 'react'; // <--- Agregado para soportar los tipos de eventos
 import { Scale } from '../data/scalesData';
 import { ChevronRight, ClipboardList, Star } from 'lucide-react';
 
@@ -5,17 +6,18 @@ interface ScaleCardProps {
   scale: Scale;
   onClick: () => void;
   isFavorite: boolean;
-  onToggleFavorite: () => void;
+  // Actualizamos para que acepte el evento (e) que le manda el Home
+  onToggleFavorite: (e: React.MouseEvent) => void; 
 }
 
 export default function ScaleCard({ scale, onClick, isFavorite, onToggleFavorite }: ScaleCardProps) {
   return (
     <div className="relative h-full animate-in fade-in duration-300">
-      {/* Botón de Favorito - Posicionado absolutamente sobre la tarjeta */}
+      {/* Botón de Favorito */}
       <button
         onClick={(e) => {
-          e.stopPropagation(); // Evita que se active el onClick de la tarjeta
-          onToggleFavorite();
+          e.stopPropagation(); 
+          onToggleFavorite(e); // <--- Ahora le pasamos el evento (e)
         }}
         className="absolute top-6 right-6 z-10 p-2.5 rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-lg transition-all duration-200 group/fav"
       >
@@ -52,7 +54,6 @@ export default function ScaleCard({ scale, onClick, isFavorite, onToggleFavorite
           <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-2 transition-transform duration-300" />
         </div>
 
-        {/* Detalle estético de fondo */}
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-gray-50/50 rounded-full group-hover:bg-teal-50/50 transition-colors -z-10"></div>
       </button>
     </div>
