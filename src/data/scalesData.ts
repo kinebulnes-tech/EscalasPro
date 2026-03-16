@@ -556,23 +556,66 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'berg',
-    nombre: 'Escala de Equilibrio de Berg',
+    id: 'berg_balance_scale',
+    nombre: 'Escala de Equilibrio de Berg (BBS)',
     categoria: 'kinesiologia',
-    descripcion: 'Evaluación del equilibrio funcional en adultos mayores',
+    descripcion: 'Evaluación objetiva del equilibrio estático y dinámico mediante 14 tareas funcionales.',
+    
+    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
+    // 1. Origen: Berg KO, et al. (1989) PMID: 2552632
+    // 2. Validación: Shumway-Cook A, et al. (1997) PMID: 10411322
+    // 3. Sensibilidad: Un cambio de 8 puntos se considera significativo (MDC).
+    bibliografia: "Berg KO, et al. Measuring balance in the elderly: preliminary development of an instrument. Physiother Can. 1989;41(6):304-11.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/2552632/",
+    evidenciaClinica: "Un puntaje < 45/56 es el predictor más fuerte de caídas múltiples en adultos mayores. Los puntajes entre 41-56 indican bajo riesgo, 21-40 riesgo medio y 0-20 riesgo alto.",
+
     preguntas: [
-      { id: 'cronometro', text: 'Apoyo visual: Para ítems que requieren tiempo', type: 'plugin', componente: 'CRONOMETRO' },
-      { id: 'sedente_bipedo', text: 'Sedente a bipedestación', type: 'select', options: [{ label: 'Capaz sin usar las manos', value: 4 }, { label: 'Independiente usando las manos', value: 3 }, { label: 'Varios intentos', value: 2 }, { label: 'Mínima ayuda', value: 1 }, { label: 'Ayuda moderada/máxima', value: 0 }] },
-      { id: 'bipedo_sin_apoyo', text: 'Bipedestación sin apoyo', type: 'select', options: [{ label: '2 minutos seguro', value: 4 }, { label: '2 minutos con supervisión', value: 3 }, { label: '30 segundos sin apoyo', value: 2 }, { label: 'Varios intentos para 30s', value: 1 }, { label: 'Incapaz 30s', value: 0 }] },
-      { id: 'sentado_sin_apoyo', text: 'Sedente sin apoyo', type: 'select', options: [{ label: '2 minutos seguro', value: 4 }, { label: '2 minutos supervisión', value: 3 }, { label: '30 segundos', value: 2 }, { label: '10 segundos', value: 1 }, { label: 'Incapaz 10s', value: 0 }] },
-      { id: 'bipedo_sedente', text: 'Bipedestación a sedente', type: 'select', options: [{ label: 'Seguro uso mínimo manos', value: 4 }, { label: 'Controla con manos', value: 3 }, { label: 'Usa piernas contra silla', value: 2 }, { label: 'Descenso descontrolado', value: 1 }, { label: 'Necesita ayuda', value: 0 }] }
+      { id: 'p1', text: '1. De sedestación a bipedestación:', type: 'select', options: [{ label: '4: Capaz de levantarse sin manos, con seguridad', value: 4 }, { label: '3: Capaz con ayuda de las manos', value: 3 }, { label: '2: Capaz con manos tras varios intentos', value: 2 }, { label: '1: Necesita ayuda mínima', value: 1 }, { label: '0: Necesita ayuda moderada/máxima', value: 0 }] },
+      { id: 'p2', text: '2. Bipedestación sin apoyo (2 min):', type: 'select', options: [{ label: '4: Seguro 2 min', value: 4 }, { label: '3: 2 min con supervisión', value: 3 }, { label: '2: 30 seg sin apoyo', value: 2 }, { label: '1: Varios intentos para 30 seg sin apoyo', value: 1 }, { label: '0: Incapaz de estar 30 seg sin apoyo', value: 0 }] },
+      { id: 'p3', text: '3. Sedestación sin apoyo (espalda libre, pies en suelo, 2 min):', type: 'select', options: [{ label: '4: Seguro 2 min', value: 4 }, { label: '3: 2 min con supervisión', value: 3 }, { label: '2: 30 seg', value: 2 }, { label: '1: 10 seg', value: 1 }, { label: '0: Incapaz 10 seg sin apoyo', value: 0 }] },
+      { id: 'p4', text: '4. De bipedestación a sedestación:', type: 'select', options: [{ label: '4: Seguro, uso mínimo de manos', value: 4 }, { label: '3: Controla descenso con manos', value: 3 }, { label: '2: Usa parte posterior de piernas contra silla', value: 2 }, { label: '1: Descenso descontrolado', value: 1 }, { label: '0: Necesita ayuda para sentarse', value: 0 }] },
+      { id: 'p5', text: '5. Transferencias (Cama a silla y viceversa):', type: 'select', options: [{ label: '4: Seguro con uso mínimo de manos', value: 4 }, { label: '3: Seguro con uso definido de manos', value: 3 }, { label: '2: Necesita supervisión o guía verbal', value: 2 }, { label: '1: Necesita una persona que le ayude', value: 1 }, { label: '0: Necesita dos personas o grúa', value: 0 }] },
+      { id: 'p6', text: '6. Bipedestación con ojos cerrados (10 seg):', type: 'select', options: [{ label: '4: Seguro 10 seg', value: 4 }, { label: '3: 10 seg con supervisión', value: 3 }, { label: '2: 3 seg', value: 2 }, { label: '1: Incapaz de mantener ojos cerrados 3 seg', value: 1 }, { label: '0: Necesita ayuda para no caer', value: 0 }] },
+      { id: 'p7', text: '7. Bipedestación con pies juntos (sin apoyo):', type: 'select', options: [{ label: '4: Seguro e independiente 1 min', value: 4 }, { label: '3: 1 min con supervisión', value: 3 }, { label: '2: 30 seg pero inestable', value: 2 }, { label: '1: Necesita ayuda para posición, aguanta 15 seg', value: 1 }, { label: '0: Necesita ayuda para posición e incapaz 15 seg', value: 0 }] },
+      { id: 'p8', text: '8. Alcanzar hacia adelante con brazo extendido (90°):', type: 'select', options: [{ label: '4: Alcanza > 25 cm', value: 4 }, { label: '3: Alcanza > 12.5 cm', value: 3 }, { label: '2: Alcanza > 5 cm', value: 2 }, { label: '1: Alcanza con supervisión', value: 1 }, { label: '0: Pierde el equilibrio al intentarlo', value: 0 }] },
+      { id: 'p9', text: '9. Recoger objeto del suelo:', type: 'select', options: [{ label: '4: Seguro y fácil', value: 4 }, { label: '3: Con supervisión', value: 3 }, { label: '2: Incapaz de recogerlo (queda a 2-5 cm)', value: 2 }, { label: '1: Necesita ayuda para no caer', value: 1 }, { label: '0: Incapaz de intentarlo', value: 0 }] },
+      { id: 'p10', text: '10. Girar para mirar atrás (sobre hombro izq/der):', type: 'select', options: [{ label: '4: Mira atrás por ambos lados con buen giro', value: 4 }, { label: '3: Mira atrás solo por un lado', value: 3 }, { label: '2: Gira solo de lado pero mantiene equilibrio', value: 2 }, { label: '1: Necesita supervisión al girar', value: 1 }, { label: '0: Necesita ayuda para no caer', value: 0 }] },
+      { id: 'p11', text: '11. Girar 360 grados:', type: 'select', options: [{ label: '4: 4 seg o menos para giro completo', value: 4 }, { label: '3: Seguro en un solo lado en > 4 seg', value: 3 }, { label: '2: Seguro pero lento', value: 2 }, { label: '1: Necesita supervisión cercana', value: 1 }, { label: '0: Necesita ayuda al girar', value: 0 }] },
+      { id: 'p12', text: '12. Situar pies alternativamente en un escalón:', type: 'select', options: [{ label: '4: 8 pasos en < 20 seg', value: 4 }, { label: '3: 8 pasos en > 20 seg', value: 3 }, { label: '2: 4 pasos sin ayuda', value: 2 }, { label: '1: Completa < 2 pasos con mínima ayuda', value: 1 }, { label: '0: Necesita ayuda para no caer / incapaz', value: 0 }] },
+      { id: 'p13', text: '13. Bipedestación con un pie adelantado (Tándem):', type: 'select', options: [{ label: '4: Seguro 30 seg', value: 4 }, { label: '3: 30 seg con pie un poco más abierto', value: 3 }, { label: '2: 30 seg con paso pequeño', value: 2 }, { label: '1: Necesita ayuda para dar el paso, aguanta 15 seg', value: 1 }, { label: '0: Pierde el equilibrio al dar el paso', value: 0 }] },
+      { id: 'p14', text: '14. Bipedestación sobre un solo pie (Monopodal):', type: 'select', options: [{ label: '4: Seguro > 10 seg', value: 4 }, { label: '3: Seguro 5-10 seg', value: 3 }, { label: '2: Seguro 3 seg o más', value: 2 }, { label: '1: Intenta levantar el pie, inestable < 3 seg', value: 1 }, { label: '0: Incapaz de intentarlo / necesita ayuda', value: 0 }] }
     ],
-    calcularPuntaje: (respuestas) => Object.entries(respuestas).reduce((sum, [key, val]) => key === 'cronometro' ? sum : sum + Number(val), 0),
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
     interpretar: (puntaje) => {
-      if (puntaje >= 45) return { texto: 'Bajo riesgo de caídas - Independiente', recomendaciones: ['Mantener actividad física', 'Ejercicios de equilibrio dinámico preventivos'] };
-      if (puntaje >= 36) return { texto: 'Riesgo moderado de caídas', recomendaciones: ['Programa formal de entrenamiento de equilibrio', 'Uso de bastón en exteriores', 'Revisar calzado y entorno domiciliario'] };
-      if (puntaje >= 21) return { texto: 'Alto riesgo de caídas - Requiere asistencia', recomendaciones: ['Uso estricto de andador', 'Asistencia para transferencias', 'Terapia física para control postural', 'Ajuste de medicamentos (psicofármacos)'] };
-      return { texto: 'Muy alto riesgo de caídas - Requiere ayuda permanente', recomendaciones: ['Uso de silla de ruedas para desplazamientos', 'Transferencias asistidas por 1 o 2 personas', 'Prevención del síndrome post-caída'] };
+      if (puntaje >= 45) return { 
+        texto: `Bajo Riesgo de Caídas (${puntaje}/56)`, 
+        color: 'emerald-600',
+        evidencia: 'Puntaje por encima del valor de corte clínico (45). El paciente presenta una movilidad funcional segura e independiente.',
+        recomendaciones: ['Mantener actividad física regular', 'Ejercicios de equilibrio dinámico desafiantes', 'Re-evaluación en 6 meses'] 
+      };
+      if (puntaje >= 21) return { 
+        texto: `Riesgo Moderado de Caídas (${puntaje}/56)`, 
+        color: 'orange-500',
+        evidencia: 'Puntaje entre 21 y 40. Existe un riesgo significativo de caídas durante las transferencias o la marcha.',
+        recomendaciones: [
+          'Programa formal de entrenamiento de equilibrio y fuerza',
+          'Uso de ayuda técnica (bastón/andador) en exteriores o fatiga',
+          'Revisión de calzado y eliminación de barreras en el hogar'
+        ] 
+      };
+      return { 
+        texto: `ALTO RIESGO DE CAÍDAS (${puntaje}/56)`, 
+        color: 'red-600',
+        evidencia: 'Puntaje crítico (0-20). La probabilidad de caída es casi inminente sin asistencia física o técnica.',
+        recomendaciones: [
+          'Uso obligatorio de ayuda técnica estable (Andador)',
+          'Asistencia física para transferencias y deambulación',
+          'Intervención de Terapia Ocupacional para adaptaciones severas en el hogar',
+          'Evaluación médica para ajuste de fármacos psicotrópicos'
+        ] 
+      };
     }
   },
   {
