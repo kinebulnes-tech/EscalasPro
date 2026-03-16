@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { categories, scales } from './data/scalesData';
+// ✅ MEJORA: Importamos categoryIcons para los dibujos de las especialidades
+import { categories, scales, categoryIcons } from './data/scalesData';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
@@ -8,11 +9,11 @@ import About from './pages/About';
 import Sidebar from './components/Sidebar'; 
 import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
-import DisclaimerModal from './components/DisclaimerModal'; // ✅ MEJORA: Importamos el aviso legal
+import DisclaimerModal from './components/DisclaimerModal';
 import { 
   ArrowLeft, ClipboardList, UserMinus, Heart, 
   Menu, ChevronRight, Activity, ShieldCheck,
-  UserPlus 
+  UserPlus, Search
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -95,7 +96,6 @@ export default function App() {
   return (
     <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans text-slate-900">
       
-      {/* ✅ MEJORA: El Gatekeeper de la aplicación (Blindaje Legal) */}
       <DisclaimerModal />
 
       <Header />
@@ -108,6 +108,7 @@ export default function App() {
             setShowAbout(false); 
             setViewingReport(false); 
             setActiveScale(null); 
+            setQuery(''); // Limpiamos búsqueda al cambiar categoría
           }}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
@@ -116,7 +117,6 @@ export default function App() {
         <main className="flex-1 overflow-y-auto bg-white/40 backdrop-blur-sm relative custom-scrollbar">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 py-10 min-h-full flex flex-col">
             
-            {/* VISTA: TÉRMINOS Y CONDICIONES */}
             {showAbout ? (
               <div className="animate-in fade-in zoom-in-95 duration-500">
                 <button 
@@ -124,13 +124,12 @@ export default function App() {
                   className="group flex items-center gap-3 text-slate-400 font-bold mb-12 hover:text-teal-600 transition-all"
                 >
                   <div className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></div>
-                  <span>Volver a Todas las Escalas</span>
+                  <span>Volver al Inicio</span>
                 </button>
                 <About />
               </div>
             ) : 
 
-            /* VISTA: REPORTE RESUMEN */
             viewingReport && pacienteActivo ? (
               <ReportSummary 
                 paciente={pacienteActivo} 
@@ -141,7 +140,6 @@ export default function App() {
               />
             ) : 
 
-            /* VISTA: FORMULARIO DE ESCALA */
             activeScale && selectedScale ? (
               <div className="animate-in slide-in-from-right-8 duration-500">
                 <button 
@@ -166,7 +164,6 @@ export default function App() {
               /* VISTA: DASHBOARD PRINCIPAL */
               <div className="animate-in fade-in duration-700 flex-grow">
                 
-                {/* Banner Paciente Activo */}
                 {pacienteActivo ? (
                   <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] mb-12 flex flex-col md:flex-row justify-between items-center shadow-2xl">
                     <div className="flex items-center gap-6">
@@ -211,34 +208,70 @@ export default function App() {
                 {/* Títulos y Buscador */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
                   <div className="space-y-2">
-                    <h3 className="text-5xl font-black text-slate-900 tracking-tighter italic leading-tight">
-                      {selectedCategory ? currentCategory?.nombre : 'Todas las Escalas'}
+                    <h3 className="text-5xl font-black text-slate-900 tracking-tighter italic leading-tight uppercase">
+                      {selectedCategory ? currentCategory?.nombre : query ? 'Resultados de Búsqueda' : 'Especialidades'}
                     </h3>
                     <p className="text-slate-400 font-bold uppercase text-[11px] tracking-[0.3em]">
-                      {filteredScales.length} Herramientas Disponibles
+                      {selectedCategory || query ? `${filteredScales.length} escalas encontradas` : 'Seleccione un área de atención'}
                     </p>
                   </div>
                   <div className="w-full md:w-[450px]">
-                    <SearchBar value={query} onChange={setQuery} />
+                    <SearchBar value={query} onChange={(v) => { setQuery(v); if(v && selectedCategory) setSelectedCategory(null); }} />
                   </div>
                 </div>
 
-                {/* Grid de Escalas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 pb-20">
-                  {filteredScales.map(s => (
-                    <ScaleCard 
-                      key={s.id} 
-                      scale={s} 
-                      isFavorite={favorites.includes(s.id)} 
-                      onToggleFavorite={() => toggleFavorite(s.id)} 
-                      onClick={() => setActiveScale(s.id)} 
-                    />
-                  ))}
-                </div>
+                {/* ✅ MEJORA: LÓGICA DE DASHBOARD DE CATEGORÍAS O GRID DE ESCALAS */}
+                {!selectedCategory && !query ? (
+                  /* DASHBOARD DE ICONOS POR ESPECIALIDAD */
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    {categories.map((cat) => {
+                      const IconComponent = categoryIcons[cat.id] || ClipboardList;
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className="group p-6 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-left flex items-center gap-5"
+                        >
+                          <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl group-hover:bg-teal-600 group-hover:text-white transition-colors shadow-inner">
+                            <IconComponent size={32} strokeWidth={2.5} />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-black text-slate-900 leading-none uppercase tracking-tighter mb-1">
+                              {cat.nombre}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase leading-tight line-clamp-2">
+                              {cat.descripcion}
+                            </p>
+                          </div>
+                          <ChevronRight size={20} className="text-slate-200 group-hover:text-teal-600 transition-colors" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* GRID DE ESCALAS (Cuando ya se filtró o buscó) */
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 pb-20 animate-in fade-in duration-500">
+                    {filteredScales.length > 0 ? (
+                      filteredScales.map(s => (
+                        <ScaleCard 
+                          key={s.id} 
+                          scale={s} 
+                          isFavorite={favorites.includes(s.id)} 
+                          onToggleFavorite={() => toggleFavorite(s.id)} 
+                          onClick={() => setActiveScale(s.id)} 
+                        />
+                      ))
+                    ) : (
+                      <div className="col-span-full py-20 text-center">
+                        <Search size={48} className="mx-auto text-slate-200 mb-4" />
+                        <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No encontramos escalas con ese nombre</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Pie de Página */}
             <footer className="py-12 border-t border-slate-200/50 mt-auto flex flex-col items-center gap-8">
                <button 
                   onClick={() => setShowAbout(true)} 
@@ -254,8 +287,6 @@ export default function App() {
           </div>
         </main>
       </div>
-
-      {/* --- ELEMENTOS FLOTANTES --- */}
 
       {pacienteActivo && listaResultados.length > 0 && !activeScale && !viewingReport && !showAbout && (
         <div className="fixed bottom-24 right-6 z-[40] animate-in slide-in-from-bottom-4">
