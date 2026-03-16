@@ -399,62 +399,74 @@ export const scales: Scale[] = [
   },
 
   {
-  id: 'tug',
-  nombre: 'Timed Up and Go (TUG)',
-  categoria: 'kinesiologia',
-  descripcion: 'Evaluación de la movilidad funcional, el equilibrio dinámico y el riesgo de caídas.',
-  
-  // --- RIGOR CIENTÍFICO ---
-  bibliografia: "Podsiadlo D, Richardson S. The timed 'Up & Go': a test of basic functional mobility for frail elderly persons. J Am Geriatr Soc. 1991 Feb;39(2):142-8.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1991946/",
-  evidenciaClinica: "El punto de corte de 13.5 segundos fue validado por Shumway-Cook (2000) como predictor de caídas con un 87% de sensibilidad en adultos mayores.",
-  preguntas: [
-    { 
-      id: 'tiempo', 
-      text: 'Inicie el cronómetro al despegar de la silla y deténgalo al volver a sentarse:', 
-      type: 'plugin', 
-      componente: 'CRONOMETRO' 
-    }
-  ],
-
-  calcularPuntaje: (respuestas) => Number(respuestas.tiempo) || 0,
-
-  interpretar: (puntaje) => {
-    if (puntaje === 0) return { texto: 'Prueba no realizada o sin datos', color: 'text-gray-400', recomendaciones: [] };
+    id: 'tug',
+    nombre: 'Timed Up and Go (TUG)',
+    categoria: 'kinesiologia',
+    descripcion: 'Prueba rápida para evaluar la movilidad funcional, el equilibrio dinámico y el riesgo de caídas en adultos mayores.',
     
-    // < 10 segundos: Independencia Total
-    if (puntaje < 10) return { 
-      texto: 'Movilidad Normal - Bajo Riesgo', 
-      color: 'text-emerald-600',
-      evidencia: 'Puntaje asociado a independencia total en actividades básicas de la vida diaria (ABVD).',
-      recomendaciones: ['Mantener actividad física regular', 'Re-evaluación en 6 meses'] 
-    };
+    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
+    // 1. Origen: Podsiadlo D, et al. (1991) PMID: 1991946
+    // 2. Validación: Shumway-Cook A, et al. (2000) PMID: 11020445
+    // 3. Estándar: Un tiempo > 13.5 segundos identifica a los sujetos con alto riesgo de caídas.
+    bibliografia: "Podsiadlo D, Richardson S. The timed 'Up & Go': a test of basic functional mobility for frail elderly persons. J Am Geriatr Soc. 1991;39(2):142-8.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1991946/",
+    evidenciaClinica: "El TUG mide el tiempo en segundos que le toma a una persona levantarse de una silla, caminar 3 metros, girar, regresar y sentarse. Es una medida excelente de la independencia funcional y la fragilidad motora.",
 
-    // 10 - 13.5 segundos: Rango de Vigilancia
-    if (puntaje <= 13.5) return { 
-      texto: 'Movilidad Aceptable - Riesgo Leve', 
-      color: 'text-blue-600',
-      evidencia: 'Se encuentra dentro del promedio para adultos mayores sanos, pero cercano al umbral de riesgo.',
-      recomendaciones: ['Iniciar ejercicios de equilibrio preventivos', 'Evaluar calzado habitual'] 
-    };
+    preguntas: [
+      { 
+        id: 'tiempo', 
+        text: 'Inicie el cronómetro al despegar de la silla y deténgalo cuando el paciente esté nuevamente sentado con la espalda apoyada:', 
+        type: 'plugin', 
+        componente: 'CRONOMETRO' 
+      }
+    ],
 
-    // 13.6 - 20 segundos: Riesgo de Caídas Presente
-    if (puntaje <= 20) return { 
-      texto: 'Riesgo de Caídas - Fragilidad Moderada', 
-      color: 'text-amber-600',
-      evidencia: 'Según Podsiadlo (1991), tiempos > 13.5s predicen caídas en adultos mayores comunitarios con alta sensibilidad.',
-      recomendaciones: ['Programa de entrenamiento de fuerza (cuádriceps)', 'Evaluar necesidad de bastón simple', 'Revisar polifarmacia'] 
-    };
+    calcularPuntaje: (respuestas) => Number(respuestas.tiempo) || 0,
 
-    // > 20 segundos: Limitación funcional severa
-    return { 
-      texto: 'Alto Riesgo de Caídas - Dependencia Funcional', 
-      color: 'text-red-600',
-      evidencia: 'Tiempos > 20s indican una limitación funcional severa y una alta probabilidad de requerir asistencia técnica.',
-      recomendaciones: ['Prescripción inmediata de ayuda técnica (Andador/Bastones)', 'Intervención de Terapia Ocupacional para adaptaciones en el hogar', 'Supervisión constante en traslados'] 
-    };
-  }
-},
+    interpretar: (puntaje) => {
+      if (puntaje === 0) return { texto: 'Sin datos', color: 'slate-400', recomendaciones: [] };
+      
+      if (puntaje < 10) return { 
+        texto: 'MOVILIDAD NORMAL (< 10s)', 
+        color: 'emerald-600',
+        evidencia: `Tiempo de ${puntaje}s. El paciente se considera independiente y con bajo riesgo de caídas.`,
+        recomendaciones: ['Mantener actividad física habitual', 'Re-evaluación anual preventivamente'] 
+      };
+
+      if (puntaje <= 13.5) return { 
+        texto: 'RIESGO LEVE / VIGILANCIA (10 - 13.5s)', 
+        color: 'blue-600',
+        evidencia: `Aunque es funcional, el tiempo de ${puntaje}s se acerca al umbral de riesgo de caídas en la comunidad.`,
+        recomendaciones: [
+          'Iniciar programa de ejercicios de equilibrio estático y dinámico',
+          'Evaluar seguridad del calzado y entorno del hogar',
+          'Considerar evaluación de visión y audición'
+        ] 
+      };
+
+      if (puntaje <= 20) return { 
+        texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (13.6 - 20s)', 
+        color: 'orange-600',
+        evidencia: `Puntaje por encima del punto de corte de Shumway-Cook (13.5s). Indica un riesgo significativo de caídas.`,
+        recomendaciones: [
+          'Entrenamiento intensivo de fuerza de miembros inferiores (Cuádriceps)',
+          'Evaluación de necesidad de ayuda técnica (Bastón simple)',
+          'Revisión médica de polifarmacia'
+        ] 
+      };
+
+      return { 
+        texto: 'ALTO RIESGO / MOVILIDAD LIMITADA (> 20s)', 
+        color: 'red-600',
+        evidencia: `Tiempo de ${puntaje}s. Indica una limitación funcional severa y alta probabilidad de requerir asistencia en comunidad.`,
+        recomendaciones: [
+          'Prescripción inmediata de ayuda técnica estable (Andador)',
+          'Supervisión constante en transferencias y deambulación',
+          'Intervención de Terapia Ocupacional para adaptaciones en el hogar'
+        ] 
+      };
+    }
+  },
   {
     id: 'six_minute_walk',
     nombre: 'Test de Caminata de 6 Minutos (6MWT)',
@@ -620,20 +632,71 @@ export const scales: Scale[] = [
   },
   {
     id: 'minibestest',
-    nombre: 'MiniBESTest',
+    nombre: 'Mini-BESTest',
     categoria: 'kinesiologia',
-    descripcion: 'Evaluación breve del equilibrio en 4 sistemas de control',
+    descripcion: 'Evaluación avanzada del equilibrio dividida en 4 sistemas: Ajustes anticipatorios, Control postural reactivo, Orientación sensorial y Marcha dinámica.',
+    
+    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
+    // 1. Origen: Franchignoni F, et al. (2010) PMID: 20411322
+    // 2. Punto de Corte: < 19/28 predice caídas en Parkinson (Sens: 89%).
+    // 3. MCID: 4 puntos (Cambio mínimo clínicamente significativo).
+    bibliografia: "Franchignoni F, et al. Using Psychometric Techniques to Improve the Balance Evaluation Systems Test: The Mini-BESTest. J Rehabil Med. 2010;42(4):323-31.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/20411322/",
+    evidenciaClinica: "A diferencia de Berg, el Mini-BESTest evalúa el equilibrio reactivo (respuestas a perturbaciones), lo que lo hace más sensible para pacientes con movilidad alta pero riesgo de caída oculto.",
+
     preguntas: [
-      { id: 'anticipatorio', text: 'Control postural anticipatorio', type: 'select', options: [{ label: 'Normal', value: 2 }, { label: 'Moderado', value: 1 }, { label: 'Severo', value: 0 }] },
-      { id: 'reactivo', text: 'Ajustes posturales reactivos', type: 'select', options: [{ label: 'Normal', value: 2 }, { label: 'Moderado', value: 1 }, { label: 'Severo', value: 0 }] },
-      { id: 'sensorial', text: 'Orientación sensorial', type: 'select', options: [{ label: 'Normal', value: 2 }, { label: 'Moderado', value: 1 }, { label: 'Severo', value: 0 }] },
-      { id: 'dinamico', text: 'Estabilidad en marcha', type: 'select', options: [{ label: 'Normal', value: 2 }, { label: 'Moderado', value: 1 }, { label: 'Severo', value: 0 }] }
+      // SISTEMA 1: AJUSTES ANTICIPATORIOS
+      { id: 'p1', text: '1. De sedestación a bipedestación (sin usar manos):', type: 'select', options: [{ label: '2: Normal', value: 2 }, { label: '1: Moderado (necesita manos)', value: 1 }, { label: '0: Severo (necesita ayuda física)', value: 0 }] },
+      { id: 'p2', text: '2. Levantarse sobre las puntas de los pies (mantener 3 seg):', type: 'select', options: [{ label: '2: Normal (altura máxima, 3s)', value: 2 }, { label: '1: Moderado (altura reducida o < 3s)', value: 1 }, { label: '0: Severo (incapaz)', value: 0 }] },
+      { id: 'p3', text: '3. Bipedestación monopodal (mantener 20 seg):', type: 'select', options: [{ label: '2: Normal (20 seg estable)', value: 2 }, { label: '1: Moderado (5-20 seg)', value: 1 }, { label: '0: Severo (< 5 seg)', value: 0 }] },
+      
+      // SISTEMA 2: CONTROL POSTURAL REACTIVO
+      { id: 'p4', text: '4. Paso compensatorio - Adelante (tras empuje en esternón):', type: 'select', options: [{ label: '2: Normal (1 paso recupera)', value: 2 }, { label: '1: Moderado (> 1 paso, pero recupera)', value: 1 }, { label: '0: Severo (caería sin ayuda)', value: 0 }] },
+      { id: 'p5', text: '5. Paso compensatorio - Atrás (tras empuje en escápulas):', type: 'select', options: [{ label: '2: Normal (1 paso)', value: 2 }, { label: '1: Moderado (> 1 paso)', value: 1 }, { label: '0: Severo (caería/sin paso)', value: 0 }] },
+      { id: 'p6', text: '6. Paso compensatorio - Lateral (tras empuje en hombros):', type: 'select', options: [{ label: '2: Normal (1 paso)', value: 2 }, { label: '1: Moderado (> 1 paso)', value: 1 }, { label: '0: Severo (caería)', value: 0 }] },
+      
+      // SISTEMA 3: ORIENTACIÓN SENSORIAL
+      { id: 'p7', text: '7. Ojos abiertos, superficie firme, pies juntos:', type: 'select', options: [{ label: '2: Normal (30 seg estable)', value: 2 }, { label: '1: Moderado (inestable)', value: 1 }, { label: '0: Severo (incapaz)', value: 0 }] },
+      { id: 'p8', text: '8. Ojos cerrados, superficie inestable (espuma), pies juntos:', type: 'select', options: [{ label: '2: Normal (30 seg estable)', value: 2 }, { label: '1: Moderado (inestable)', value: 1 }, { label: '0: Severo (incapaz)', value: 0 }] },
+      { id: 'p9', text: '9. Superficie inclinada (punta pies arriba), ojos cerrados:', type: 'select', options: [{ label: '2: Normal (30 seg estable)', value: 2 }, { label: '1: Moderado (inestable)', value: 1 }, { label: '0: Severo (incapaz)', value: 0 }] },
+      
+      // SISTEMA 4: MARCHA DINÁMICA
+      { id: 'p10', text: '10. Cambio en la velocidad de la marcha:', type: 'select', options: [{ label: '2: Normal (cambio fluido)', value: 2 }, { label: '1: Moderado (lento o desequilibrio)', value: 1 }, { label: '0: Severo (no puede cambiar)', value: 0 }] },
+      { id: 'p11', text: '11. Marcha con giros cefálicos (horizontales):', type: 'select', options: [{ label: '2: Normal (sin desvío)', value: 2 }, { label: '1: Moderado (desvío o reducción velocidad)', value: 1 }, { label: '0: Severo (pierde equilibrio)', value: 0 }] },
+      { id: 'p12', text: '12. Marcha con giro sobre eje (pivote):', type: 'select', options: [{ label: '2: Normal (giro rápido y seguro)', value: 2 }, { label: '1: Moderado (pasos extra/lento)', value: 1 }, { label: '0: Severo (inestable)', value: 0 }] },
+      { id: 'p13', text: '13. Superar obstáculos (caja):', type: 'select', options: [{ label: '2: Normal (seguro)', value: 2 }, { label: '1: Moderado (toca caja/duda)', value: 1 }, { label: '0: Severo (incapaz)', value: 0 }] },
+      { id: 'p14', text: '14. Timed Up and Go con doble tarea (contar hacia atrás):', type: 'select', options: [{ label: '2: Normal (sin interferencia dual)', value: 2 }, { label: '1: Moderado (> 10% de lentitud)', value: 1 }, { label: '0: Severo (detiene marcha o tarea)', value: 0 }] }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
     interpretar: (puntaje) => {
-      if (puntaje >= 7) return { texto: 'Bajo riesgo de caídas', recomendaciones: ['Sistemas de equilibrio funcionales', 'Recomendaciones preventivas generales'] };
-      if (puntaje >= 5) return { texto: 'Riesgo moderado de caídas', recomendaciones: ['Identificar sistema deficitario (ej. reactivo vs sensorial) y entrenar específicamente', 'Terapia propioceptiva'] };
-      return { texto: 'Alto riesgo de caídas', recomendaciones: ['Asistencia técnica para la marcha', 'Entrenamiento de reacciones de enderezamiento y paso compensatorio', 'Educación familiar en prevención de caídas'] };
+      if (puntaje >= 20) return { 
+        texto: `Equilibrio Funcional Seguro (${puntaje}/28)`, 
+        color: 'emerald-600',
+        evidencia: 'Puntaje por encima del riesgo de caídas. El paciente posee buenas estrategias anticipatorias y reactivas.',
+        recomendaciones: ['Mantener acondicionamiento físico general', 'Re-evaluación en 6-12 meses'] 
+      };
+      if (puntaje >= 16) return { 
+        texto: `Riesgo de Caídas Presente (${puntaje}/28)`, 
+        color: 'orange-500',
+        evidencia: 'Puntaje en rango de fragilidad. Se observa déficit en al menos uno de los sistemas de control postural.',
+        recomendaciones: [
+          'Identificar el sistema deficitario (ej. Postural Reactivo) y enfocar la terapia',
+          'Entrenamiento de pasos compensatorios',
+          'Entrenamiento de marcha con doble tarea cognitiva'
+        ] 
+      };
+      return { 
+        texto: `ALTO RIESGO DE CAÍDAS (${puntaje}/28)`, 
+        color: 'red-600',
+        evidencia: 'Puntaje crítico asociado a una alta probabilidad de eventos adversos y caídas en comunidad.',
+        recomendaciones: [
+          'Uso de ayuda técnica para la marcha',
+          'Supervisión en actividades de riesgo',
+          'Programa de rehabilitación intensiva centrado en estabilidad sensorial y reactiva'
+        ] 
+      };
     }
   },
   {
