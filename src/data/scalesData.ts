@@ -30,6 +30,24 @@ export interface Scale {
   evidenciaClinica?: string;
   referenciaUrl?: string;
 }
+// Mapeo de Iconos por Especialidad
+export const categoryIcons: Record<string, any> = {
+  kinesiologia: Activity,
+  fonoaudiologia: Mic2,
+  neurologia: Brain,
+  traumatologia: Bone,
+  geriatria: Accessibility,
+  cardiorespiratorio: Heart,
+  emergencias: Siren,
+  uci: Stethoscope,
+  pediatria: Baby,
+  enfermeria: Thermometer,
+  terapia_ocupacional: Puzzle,
+  psicologia: Smile,
+  nutricion: Apple,
+  paliativos: Flower2,
+  cognitivas: ClipboardList,
+};
 
 export const scales: Scale[] = [
   // ==========================================
@@ -3283,21 +3301,3 @@ import {
   Puzzle, Smile, Apple, Flower2, ClipboardList 
 } from 'lucide-react';
 
-// Mapeo de Iconos por Especialidad
-export const categoryIcons: Record<string, any> = {
-  kinesiologia: Activity,
-  fonoaudiologia: Mic2,
-  neurologia: Brain,
-  traumatologia: Bone,
-  geriatria: Accessibility,
-  cardiorespiratorio: Heart,
-  emergencias: Siren,
-  uci: Stethoscope,
-  pediatria: Baby,
-  enfermeria: Thermometer,
-  terapia_ocupacional: Puzzle,
-  psicologia: Smile,
-  nutricion: Apple,
-  paliativos: Flower2,
-  cognitivas: ClipboardList,
-};
