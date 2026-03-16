@@ -3276,3 +3276,28 @@ export const categories = [
   { id: 'paliativos', nombre: 'Cuidados Paliativos', descripcion: 'Manejo de síntomas, calidad de vida y escalas oncológicas.' },
   { id: 'cognitivas', nombre: 'Evaluación Cognitiva', descripcion: 'Estado mental, memoria y funciones ejecutivas.' }
 ];
+// Agrega estas importaciones al principio del archivo si no las tienes
+import { 
+  Activity, Mic2, Brain, Bone, Accessibility, 
+  Heart, Siren, Stethoscope, Baby, Thermometer, 
+  Puzzle, Smile, Apple, Flower2, ClipboardList 
+} from 'lucide-react';
+
+// Mapeo de Iconos por Especialidad
+export const categoryIcons: Record<string, any> = {
+  kinesiologia: Activity,
+  fonoaudiologia: Mic2,
+  neurologia: Brain,
+  traumatologia: Bone,
+  geriatria: Accessibility,
+  cardiorespiratorio: Heart,
+  emergencias: Siren,
+  uci: Stethoscope,
+  pediatria: Baby,
+  enfermeria: Thermometer,
+  terapia_ocupacional: Puzzle,
+  psicologia: Smile,
+  nutricion: Apple,
+  paliativos: Flower2,
+  cognitivas: ClipboardList,
+};
