@@ -11,9 +11,9 @@ import {
   ShieldCheck,
   X,
   ChevronRight,
-  Apple, // Nutrición
-  Smile, // Psicología
-  Zap    // Neurología
+  Apple, 
+  Smile, 
+  Zap    
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -72,17 +72,19 @@ export default function Sidebar({
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 flex flex-col transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:h-[calc(100vh-80px)]
+        lg:translate-x-0 lg:static lg:h-full
       `}>
         
-        <div className="p-6 flex items-center justify-between lg:hidden border-b border-gray-50">
+        {/* Cabecera Móvil */}
+        <div className="p-6 flex items-center justify-between lg:hidden border-b border-gray-50 flex-shrink-0">
           <span className="font-black text-teal-600 italic">EscalaPro</span>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="p-2 text-gray-400">
             <X size={24} />
           </button>
         </div>
 
-        <div className="flex-grow overflow-y-auto p-4 space-y-8">
+        {/* Zona con Scroll (Especialidades) */}
+        <div className="flex-grow overflow-y-auto p-4 space-y-8 custom-scrollbar">
           <div>
             <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
               Navegación
@@ -142,15 +144,19 @@ export default function Sidebar({
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-50 bg-gray-50/30">
+        {/* Zona Fija (Legal) - NO se mueve con el scroll */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
           <button
             onClick={() => { onShowAbout(); if(window.innerWidth < 1024) onClose(); }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-gray-500 hover:bg-white hover:text-red-600 hover:shadow-sm transition-all group"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-black text-slate-500 hover:bg-white hover:text-red-600 hover:shadow-sm transition-all group"
           >
-            <ShieldCheck className="w-5 h-5 text-gray-400 group-hover:text-red-500" />
+            <ShieldCheck className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" />
             <span>Términos y Legal</span>
-            <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-all" />
           </button>
+          <div className="mt-2 px-4 text-[9px] font-bold text-gray-300 uppercase tracking-tighter">
+            EscalaPro v1.0.0
+          </div>
         </div>
       </aside>
     </>
