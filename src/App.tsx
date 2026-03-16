@@ -8,10 +8,11 @@ import About from './pages/About';
 import Sidebar from './components/Sidebar'; 
 import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
+import DisclaimerModal from './components/DisclaimerModal'; // ✅ MEJORA: Importamos el aviso legal
 import { 
   ArrowLeft, ClipboardList, UserMinus, Heart, 
   Menu, ChevronRight, Activity, ShieldCheck,
-  UserPlus // Importamos UserPlus para el nuevo botón
+  UserPlus 
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -75,7 +76,8 @@ export default function App() {
       setListaResultados([]);
       setViewingReport(false);
       setActiveScale(null);
-      localStorage.clear();
+      localStorage.removeItem('escalapro_paciente');
+      localStorage.removeItem('escalapro_resultados');
     }
   };
 
@@ -92,6 +94,10 @@ export default function App() {
 
   return (
     <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans text-slate-900">
+      
+      {/* ✅ MEJORA: El Gatekeeper de la aplicación (Blindaje Legal) */}
+      <DisclaimerModal />
+
       <Header />
       
       <div className="flex flex-1 overflow-hidden relative">
@@ -183,7 +189,6 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  /* NUEVO: Llamado a la acción para iniciar sesión de paciente (Modo Libre por defecto) */
                   <div className="mb-12">
                     <button 
                       onClick={() => setShowPatientModal(true)}
@@ -218,7 +223,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Grid de Escalas (CORREGIDO: onClick entra directo) */}
+                {/* Grid de Escalas */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 pb-20">
                   {filteredScales.map(s => (
                     <ScaleCard 
@@ -250,9 +255,8 @@ export default function App() {
         </main>
       </div>
 
-      {/* --- ELEMENTOS FLOTANTES / FIJOS --- */}
+      {/* --- ELEMENTOS FLOTANTES --- */}
 
-      {/* 1. Botón Informe Flotante */}
       {pacienteActivo && listaResultados.length > 0 && !activeScale && !viewingReport && !showAbout && (
         <div className="fixed bottom-24 right-6 z-[40] animate-in slide-in-from-bottom-4">
           <button 
@@ -270,7 +274,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. Botón Menú Hamburguesa (FIJO) */}
       <button 
         onClick={() => setIsSidebarOpen(true)}
         className="lg:hidden fixed bottom-6 right-6 z-[50] bg-slate-900 text-white p-5 rounded-2xl shadow-2xl active:scale-95 border border-white/20 transition-all"
@@ -278,7 +281,6 @@ export default function App() {
         <Menu size={24} />
       </button>
 
-      {/* 3. Modal Nuevo Paciente */}
       {showPatientModal && (
         <PatientModal 
           onConfirm={(data) => { 
