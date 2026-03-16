@@ -10,15 +10,18 @@ import {
   LayoutGrid,
   ShieldCheck,
   X,
-  ChevronRight
+  ChevronRight,
+  Apple, // Nutrición
+  Smile, // Psicología
+  Zap    // Neurología
 } from 'lucide-react';
 
 interface SidebarProps {
   selectedCategory: string | null;
   onSelectCategory: (categoryId: string | null) => void;
-  onShowAbout: () => void; // Para abrir el Disclaimer
-  isOpen: boolean;        // Control de visibilidad en móvil
-  onClose: () => void;      // Función para cerrar
+  onShowAbout: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 const getIcon = (id: string | null) => {
@@ -30,6 +33,9 @@ const getIcon = (id: string | null) => {
     case 'fonoaudiologia': return <MessageSquare className={size} />;
     case 'cognitivas': return <Brain className={size} />;
     case 'terapia_ocupacional': return <HandHelping className={size} />;
+    case 'psicologia': return <Smile className={size} />;
+    case 'nutricion': return <Apple className={size} />;
+    case 'neurologia': return <Zap className={size} />;
     default: return <LayoutGrid className={size} />;
   }
 };
@@ -49,7 +55,7 @@ export default function Sidebar({
 
   const handleSelect = (id: string | null) => {
     onSelectCategory(id);
-    if (window.innerWidth < 1024) onClose(); // Cierra al elegir en móviles
+    if (window.innerWidth < 1024) onClose();
   };
 
   return (
@@ -57,7 +63,7 @@ export default function Sidebar({
       {/* Overlay para móvil */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -69,7 +75,6 @@ export default function Sidebar({
         lg:translate-x-0 lg:static lg:h-[calc(100vh-80px)]
       `}>
         
-        {/* Cabecera del Sidebar (Solo móvil para cerrar) */}
         <div className="p-6 flex items-center justify-between lg:hidden border-b border-gray-50">
           <span className="font-black text-teal-600 italic">EscalaPro</span>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600">
@@ -78,8 +83,6 @@ export default function Sidebar({
         </div>
 
         <div className="flex-grow overflow-y-auto p-4 space-y-8">
-          
-          {/* SECCIÓN GENERAL */}
           <div>
             <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
               Navegación
@@ -94,7 +97,7 @@ export default function Sidebar({
             >
               <div className="flex items-center gap-3">
                 {getIcon(null)}
-                <span>Todas las Escalas</span>
+                <span>Dashboard</span>
               </div>
               <span className={`text-[10px] px-2 py-0.5 rounded-lg ${
                 selectedCategory === null ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-400'
@@ -104,7 +107,6 @@ export default function Sidebar({
             </button>
           </div>
 
-          {/* SECCIÓN CATEGORÍAS */}
           <div>
             <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
               Especialidades
@@ -140,7 +142,6 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* SECCIÓN LEGAL / FOOTER SIDEBAR */}
         <div className="p-4 border-t border-gray-50 bg-gray-50/30">
           <button
             onClick={() => { onShowAbout(); if(window.innerWidth < 1024) onClose(); }}
