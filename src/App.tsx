@@ -8,10 +8,7 @@ import About from './pages/About';
 import Sidebar from './components/Sidebar'; 
 import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
-import { 
-  ArrowLeft, ClipboardList, UserMinus, Heart, 
-  Menu, ChevronRight, Activity, ShieldCheck 
-} from 'lucide-react';
+import { ArrowLeft, ClipboardList, UserMinus, Heart, Menu, ChevronRight, Activity, ShieldCheck } from 'lucide-react';
 
 // --- ESTRUCTURAS ---
 interface Paciente {
@@ -73,6 +70,7 @@ export default function App() {
     localStorage.removeItem('escalapro_resultados');
   };
 
+  // --- FILTRADO ---
   const filteredScales = useMemo(() => {
     return scales.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
@@ -89,12 +87,11 @@ export default function App() {
       <Header />
       
       <div className="flex flex-1 overflow-hidden relative">
-        {/* SIDEBAR LIMPIO (Sin la prop onShowAbout que daba error) */}
         <Sidebar 
           selectedCategory={selectedCategory}
           onSelectCategory={(id) => {
             setSelectedCategory(id);
-            setShowAbout(false); 
+            setShowAbout(false);
             setViewingReport(false);
             setActiveScale(null);
             setQuery('');
@@ -107,7 +104,7 @@ export default function App() {
           
           <button 
             onClick={() => setIsSidebarOpen(true)}
-            className="lg:hidden fixed bottom-8 right-8 z-40 bg-slate-900 text-white p-5 rounded-3xl shadow-2xl active:scale-95 transition-all"
+            className="lg:hidden fixed bottom-8 right-8 z-40 bg-slate-900 text-white p-5 rounded-3xl shadow-2xl active:scale-95 transition-all border border-white/20"
           >
             <Menu size={24} />
           </button>
@@ -123,7 +120,7 @@ export default function App() {
                   <div className="p-2 bg-white rounded-xl shadow-sm group-hover:shadow-md transition-all">
                     <ArrowLeft size={18} />
                   </div>
-                  <span>Volver al Dashboard</span>
+                  <span>Volver a Todas las Escalas</span>
                 </button>
                 <About />
               </div>
@@ -154,7 +151,7 @@ export default function App() {
               </div>
             ) : (
               <div className="animate-in fade-in duration-700 flex-grow">
-                {/* Banner Paciente */}
+                
                 {pacienteActivo && (
                   <div className="relative overflow-hidden bg-slate-900 text-white p-8 rounded-[2.5rem] mb-12 flex flex-col md:flex-row justify-between items-center shadow-2xl">
                     <div className="relative flex items-center gap-6">
@@ -175,11 +172,10 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Cabecera */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 relative z-20">
                   <div className="space-y-2">
                     <h3 className="text-5xl font-black text-slate-900 tracking-tighter italic">
-                      {selectedCategory ? currentCategory?.nombre : 'Dashboard'}
+                      {selectedCategory ? currentCategory?.nombre : 'Todas las Escalas'}
                     </h3>
                     <p className="text-slate-400 font-bold uppercase text-[11px] tracking-[0.3em]">
                       {filteredScales.length} Herramientas Clínicas
@@ -198,15 +194,9 @@ export default function App() {
               </div>
             )}
 
-            {/* PIE DE PÁGINA: Aquí vive el botón de Términos */}
             <footer className="py-12 border-t border-slate-200/50 mt-auto flex flex-col items-center gap-8">
                <button 
-                  onClick={() => {
-                    setShowAbout(true);
-                    setSelectedCategory(null);
-                    setViewingReport(false);
-                    setActiveScale(null);
-                  }}
+                  onClick={() => setShowAbout(true)}
                   className="flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-500 px-8 py-4 rounded-2xl transition-all group shadow-sm border border-slate-200"
                >
                   <ShieldCheck className="w-5 h-5 text-teal-600 group-hover:rotate-12 transition-transform" />
@@ -229,7 +219,6 @@ export default function App() {
         </main>
       </div>
 
-      {/* MODAL PACIENTE */}
       {showPatientModal && (
         <PatientModal onConfirm={(data) => { setPacienteActivo(data); setShowPatientModal(false); }} onClose={() => setShowPatientModal(false)} />
       )}
