@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
 import { calcularEscala, validarRespuestas } from '../utils/scaleEngine';
+import { feedback } from '../utils/feedback'; // ✅ Importamos el nuevo motor de feedback
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
-// Importamos iconos para el respaldo científico
 import { BookOpen, ExternalLink, ShieldCheck, Info } from 'lucide-react';
 
 interface ScaleFormProps {
@@ -32,6 +32,10 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
   }, [respuestas, scale]);
 
   const handleChange = (questionId: string, value: number) => {
+    // ✅ Feedback táctico y sonoro al seleccionar
+    feedback.playClick();
+    feedback.vibrate(10); 
+    
     setRespuestas(prev => ({
       ...prev,
       [questionId]: value
@@ -41,9 +45,15 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validarRespuestas(scale, respuestas)) {
+      // ✅ Alerta sensorial si falta completar campos
+      feedback.warning();
       alert('Por favor complete todos los campos antes de calcular.');
       return;
     }
+
+    // ✅ Feedback de éxito al procesar el resultado
+    feedback.success();
+    
     const result = calcularEscala(scale, respuestas);
     setResultado({
       puntaje: result.puntaje,
@@ -52,6 +62,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
   };
 
   const handleReset = () => {
+    feedback.vibrate(30); // Pequeña vibración de confirmación al limpiar
     setRespuestas({});
     setResultado(null);
   };
@@ -71,7 +82,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   return (
     <>
-      {/* 1. BARRA DE PROGRESO - Fuera de todo contenedor */}
+      {/* 1. BARRA DE PROGRESO */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-[60]">
         <div 
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
@@ -79,7 +90,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
         />
       </div>
 
-      {/* 2. PÍLDORA DE PUNTAJE - Posición absoluta respecto a la VENTANA (Viewport) */}
+      {/* 2. PÍLDORA DE PUNTAJE EN VIVO */}
       <div className="fixed top-28 right-4 z-[100] pointer-events-none">
         <div className="bg-white/95 backdrop-blur-xl border-2 border-teal-500 rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-3 pointer-events-auto">
           <div className="flex flex-col items-end border-r border-teal-100 pr-3">
