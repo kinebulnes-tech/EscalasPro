@@ -61,7 +61,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
       <ScaleResult
         scale={scale}
         totalScore={resultado.puntaje}
-        respuestas={respuestas} // ✅ PASO 2: Ahora pasamos todas las respuestas al resultado
+        respuestas={respuestas}
         onBack={onBack}
         onSave={onSave}
         pacienteNombre={pacienteNombre}
@@ -71,11 +71,23 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
+      {/* Barra de Progreso */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-40">
         <div 
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
+      </div>
+
+      {/* PASO 1: Píldora de Puntaje Flotante Superior */}
+      <div className="fixed top-20 right-4 z-50">
+        <div className="bg-white/80 backdrop-blur-md border border-teal-500 rounded-full px-4 py-2 shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
+          <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest border-r border-teal-100 pr-3">Puntaje</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl font-black text-gray-900">{currentScore}</span>
+            <span className="text-[10px] text-gray-400 font-bold uppercase">pts</span>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-4">
@@ -93,7 +105,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-4">{scale.descripcion}</p>
 
-          {/* --- BLOQUE DE RIGOR CIENTÍFICO (CORREGIDO) --- */}
           {(scale.bibliografia || scale.evidenciaClinica) && (
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-700">
               <div className="flex items-center gap-2 mb-2">
@@ -212,16 +223,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
             </button>
           </div>
         </form>
-      </div>
-
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-white/90 backdrop-blur-md border-2 border-teal-500 rounded-3xl p-4 shadow-2xl flex flex-col items-center min-w-[140px]">
-          <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-1">Puntaje Actual</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-black text-gray-900">{currentScore}</span>
-            <span className="text-gray-400 font-bold">pts</span>
-          </div>
-        </div>
       </div>
     </div>
   );
