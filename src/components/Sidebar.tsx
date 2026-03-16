@@ -33,7 +33,6 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
 
   return (
     <>
-      {/* Fondo desenfocado para móviles */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-40 lg:hidden transition-opacity duration-500" 
@@ -41,17 +40,16 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
         />
       )}
 
-      {/* Contenedor Lateral */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 ease-out
+        fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 ease-out h-screen
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:h-screen
+        lg:translate-x-0 lg:static
       `}>
         
-        {/* Branding / Logo */}
+        {/* CABECERA: Siempre visible */}
         <div className="p-8 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-200 rotate-3 transition-transform hover:rotate-0">
+            <div className="w-10 h-10 bg-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-200 rotate-3">
               <Activity className="text-white" size={24} />
             </div>
             <div>
@@ -67,10 +65,8 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
           </button>
         </div>
 
-        {/* Navegación Principal con Scroll Independiente */}
-        <nav className="flex-grow overflow-y-auto px-4 space-y-8 custom-scrollbar pb-10">
-          
-          {/* Dashboard */}
+        {/* NAVEGACIÓN: Con scroll independiente (overflow-y-auto) */}
+        <nav className="flex-1 overflow-y-auto px-4 space-y-8 custom-scrollbar pb-6">
           <div>
             <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">
               Explorar
@@ -86,16 +82,15 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
                   {getIcon(null, selectedCategory === null)}
                 </div>
                 <span className={`text-sm font-bold ${selectedCategory === null ? 'text-slate-900' : 'text-slate-500'}`}>
-                  Dashboard General
+                  Todas las Escalas
                 </span>
               </div>
-              <span className="text-[10px] font-black px-2 py-1 rounded-lg bg-slate-100 text-slate-400 group-hover:text-teal-600 transition-colors">
+              <span className="text-[10px] font-black px-2 py-1 rounded-lg bg-slate-100 text-slate-400 group-hover:text-teal-600">
                 {getCount(null)}
               </span>
             </button>
           </div>
 
-          {/* Especialidades */}
           <div>
             <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">
               Especialidades
@@ -120,7 +115,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
                       </span>
                     </div>
                     <span className={`text-[10px] font-black px-2 py-1 rounded-lg transition-colors ${
-                      isActive ? 'bg-teal-50 text-teal-600' : 'bg-slate-50 text-slate-300 group-hover:text-slate-400'
+                      isActive ? 'bg-teal-50 text-teal-600' : 'bg-slate-50 text-slate-300'
                     }`}>
                       {getCount(cat.id)}
                     </span>
@@ -131,8 +126,8 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
           </div>
         </nav>
 
-        {/* Info de Versión sutil al final */}
-        <div className="p-8 border-t border-slate-50 opacity-20 pointer-events-none">
+        {/* PIE DE PÁGINA: Sutil y siempre fijo abajo */}
+        <div className="p-8 border-t border-slate-50 opacity-20 flex-shrink-0 pointer-events-none">
           <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest text-center">
             EscalaPro v1.0 — 2026
           </p>
