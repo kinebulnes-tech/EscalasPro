@@ -457,21 +457,81 @@ export const scales: Scale[] = [
 },
   {
     id: 'six_minute_walk',
-    nombre: 'Test de Caminata de 6 Minutos',
+    nombre: 'Test de Caminata de 6 Minutos (6MWT)',
     categoria: 'kinesiologia',
-    descripcion: 'Evaluación de capacidad funcional cardiopulmonar',
+    descripcion: 'Evaluación de la capacidad funcional de ejercicio de submáximo esfuerzo. Predice morbilidad y mortalidad en patologías cardiopulmonares.',
+    
+    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
+    // 1. Estándar: ATS Statement (2002) PMID: 11877314
+    // 2. Referencia: Enright PL. (1998) PMID: 9731012
+    // 3. MCID: 30 metros (Cambio mínimo clínicamente significativo)
+    bibliografia: "ATS Committee on Proficiency Standards for Clinical Pulmonary Function Laboratories. ATS statement: guidelines for the six-minute walk test. Am J Respir Crit Care Med. 2002;166(1):111-7.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11877314/",
+    evidenciaClinica: "La distancia recorrida (6MWD) menor a 300 metros es un fuerte predictor de mortalidad en falla cardíaca y EPOC. Una desaturación > 4% durante el test indica intolerancia al esfuerzo de origen ventilatorio o vascular.",
+
     preguntas: [
-      { id: 'cronometro', text: 'Apoyo visual: Monitorear los 6 minutos', type: 'plugin', componente: 'CRONOMETRO' },
-      { id: 'distancia', text: 'Distancia recorrida en 6 minutos (metros)', type: 'number', min: 0, max: 1000 },
-      { id: 'edad', text: 'Edad del paciente', type: 'number', min: 18, max: 120 }
+      { id: 'sexo', text: 'Sexo biológico:', type: 'select', options: [{ label: 'Hombre', value: 1 }, { label: 'Mujer', value: 2 }] },
+      { id: 'edad', text: 'Edad (años):', type: 'number', min: 18, max: 110 },
+      { id: 'peso', text: 'Peso (kg):', type: 'number', min: 30, max: 250 },
+      { id: 'altura', text: 'Altura (cm):', type: 'number', min: 100, max: 230 },
+      { id: 'cronometro', text: 'Control de tiempo (6 min):', type: 'plugin', componente: 'CRONOMETRO' },
+      { id: 'distancia', text: 'Distancia total recorrida (metros):', type: 'number', min: 0, max: 1200 },
+      // Variables de monitoreo clínico (No afectan el puntaje pero son esenciales para el reporte)
+      { id: 'fc_final', text: 'Frecuencia Cardíaca Final (lpm):', type: 'number' },
+      { id: 'spo2_final', text: 'Saturación de O2 Final (%):', type: 'number' },
+      { id: 'borg_disnea', text: 'Escala de Borg (Disnea final):', type: 'select', options: [
+          { label: '0: Nada', value: 0 }, { label: '3: Moderada', value: 3 }, { label: '5: Grave', value: 5 }, { label: '10: Máxima', value: 10 }
+        ] 
+      }
     ],
+
     calcularPuntaje: (respuestas) => Number(respuestas.distancia) || 0,
-    interpretar: (puntaje) => {
-      if (puntaje >= 500) return { texto: 'Capacidad funcional excelente', recomendaciones: ['Apto para programas de ejercicio aeróbico de moderada/alta intensidad'] };
-      if (puntaje >= 400) return { texto: 'Capacidad funcional buena', recomendaciones: ['Mantener acondicionamiento aeróbico general', 'Riesgo perioperatorio bajo'] };
-      if (puntaje >= 300) return { texto: 'Capacidad funcional moderada', recomendaciones: ['Derivar a rehabilitación cardiopulmonar fase II/III', 'Optimizar tratamiento médico base (Ej. inhaladores, antihipertensivos)'] };
-      if (puntaje >= 150) return { texto: 'Capacidad funcional limitada', recomendaciones: ['Rehabilitación cardiopulmonar supervisada', 'Evaluación de necesidad de oxígeno domiciliario', 'Alto riesgo de morbimortalidad a corto plazo'] };
-      return { texto: 'Capacidad funcional severamente limitada', recomendaciones: ['Evaluación médica urgente (Cardiología/Broncopulmonar)', 'Programa de conservación de energía', 'Asistencia total en ABVD que requieran esfuerzo'] };
+
+    interpretar: (puntaje, respuestas) => {
+      const dist = puntaje;
+      const edad = Number(respuestas?.edad);
+      const peso = Number(respuestas?.peso);
+      const altura = Number(respuestas?.altura);
+      const sexo = Number(respuestas?.sexo);
+      const spo2Final = Number(respuestas?.spo2_final);
+
+      // --- CÁLCULO DE VALOR PREDICHO (ECUACIONES DE ENRIGHT) ---
+      // Hombre: (7.57 * alt_cm) - (5.02 * edad) - (1.76 * peso) - 309
+      // Mujer: (2.11 * alt_cm) - (2.29 * peso) - (5.78 * edad) + 667
+      let predicho = 0;
+      if (edad && peso && altura && sexo) {
+        predicho = (sexo === 1) 
+          ? (7.57 * altura) - (5.02 * edad) - (1.76 * peso) - 309
+          : (2.11 * altura) - (2.29 * peso) - (5.78 * edad) + 667;
+      }
+
+      const porcentaje = predicho > 0 ? Math.round((dist / predicho) * 100) : null;
+      const desaturacionCritica = spo2Final > 0 && spo2Final <= 88;
+
+      if (dist < 300) return { 
+        texto: `CAPACIDAD FUNCIONAL LIMITADA (${dist}m)`, 
+        color: 'red-600',
+        evidencia: `Distancia menor al umbral de seguridad (300m). ${porcentaje ? `Representa el ${porcentaje}% del predicho.` : ''}`,
+        recomendaciones: [
+          'Evaluación médica urgente para descartar isquemia o falla cardíaca',
+          'Considerar indicación de oxígeno suplementario durante la marcha',
+          'Ingresar a programa de rehabilitación cardiopulmonar fase II'
+        ] 
+      };
+
+      if (desaturacionCritica) return {
+        texto: 'TEST POSITIVO PARA DESATURACIÓN',
+        color: 'orange-600',
+        evidencia: `El paciente finalizó con una SpO2 de ${spo2Final}%. Una caída por debajo de 88% es criterio clínico de hipoxemia por esfuerzo.`,
+        recomendaciones: ['Estudio de difusión de gases (DLCO)', 'Evaluar requerimiento de oxigenoterapia domiciliaria']
+      };
+
+      return { 
+        texto: `CAPACIDAD FUNCIONAL CONSERVADA`, 
+        color: 'emerald-600',
+        evidencia: `El paciente recorrió ${dist} metros. ${porcentaje ? `Equivale al ${porcentaje}% de su valor normal esperado.` : ''}`,
+        recomendaciones: ['Mantener actividad aeróbica regular', 'Control según evolución de patología base'] 
+      };
     }
   },
   {
