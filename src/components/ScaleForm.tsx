@@ -71,7 +71,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
-      {/* Barra de Progreso */}
+      {/* Barra de Progreso - Fija */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-50">
         <div 
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
@@ -79,16 +79,14 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
         />
       </div>
 
-      {/* AJUSTE PASO 1: Píldora "Pro" con Z-Index superior y visibilidad persistente */}
-      <div className="fixed top-20 right-4 z-[100] pointer-events-none">
-        <div className="bg-white/70 backdrop-blur-xl border-2 border-teal-500/30 rounded-full px-5 py-2.5 shadow-[0_8px_32px_rgba(0,169,157,0.15)] flex items-center gap-3 animate-in fade-in zoom-in duration-300 pointer-events-auto">
+      {/* CORRECCIÓN FINAL PASO 1: Píldora persistente sin animaciones de conflicto */}
+      <div className="fixed top-24 right-4 z-[100] pointer-events-none">
+        <div className="bg-white/90 backdrop-blur-xl border-2 border-teal-500 rounded-full px-5 py-2 shadow-xl flex items-center gap-3 pointer-events-auto">
           <div className="flex flex-col items-end border-r border-teal-100 pr-3">
-            <span className="text-[9px] font-black text-teal-600 uppercase tracking-[0.15em] leading-none mb-1">Total</span>
+            <span className="text-[9px] font-black text-teal-600 uppercase tracking-widest leading-none mb-1">Total</span>
             <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Puntos</span>
           </div>
-          <div className="flex items-baseline">
-            <span className="text-2xl font-black text-gray-900 tabular-nums">{currentScore}</span>
-          </div>
+          <span className="text-2xl font-black text-gray-900 tabular-nums">{currentScore}</span>
         </div>
       </div>
 
