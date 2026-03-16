@@ -72,20 +72,22 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
   return (
     <div className="max-w-4xl mx-auto pb-10 px-4">
       {/* Barra de Progreso */}
-      <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-40">
+      <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-50">
         <div 
           className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {/* PASO 1: Píldora de Puntaje Flotante Superior */}
-      <div className="fixed top-20 right-4 z-50">
-        <div className="bg-white/80 backdrop-blur-md border border-teal-500 rounded-full px-4 py-2 shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
-          <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest border-r border-teal-100 pr-3">Puntaje</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-black text-gray-900">{currentScore}</span>
-            <span className="text-[10px] text-gray-400 font-bold uppercase">pts</span>
+      {/* AJUSTE PASO 1: Píldora "Pro" con Z-Index superior y visibilidad persistente */}
+      <div className="fixed top-20 right-4 z-[100] pointer-events-none">
+        <div className="bg-white/70 backdrop-blur-xl border-2 border-teal-500/30 rounded-full px-5 py-2.5 shadow-[0_8px_32px_rgba(0,169,157,0.15)] flex items-center gap-3 animate-in fade-in zoom-in duration-300 pointer-events-auto">
+          <div className="flex flex-col items-end border-r border-teal-100 pr-3">
+            <span className="text-[9px] font-black text-teal-600 uppercase tracking-[0.15em] leading-none mb-1">Total</span>
+            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Puntos</span>
+          </div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-black text-gray-900 tabular-nums">{currentScore}</span>
           </div>
         </div>
       </div>
