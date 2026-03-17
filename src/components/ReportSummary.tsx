@@ -1,4 +1,4 @@
-import { ClipboardList, Trash2, FileText, ArrowLeft, User, Calendar } from 'lucide-react';
+import { ClipboardList, Trash2, FileText, ArrowLeft, User } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface ReportSummaryProps {
@@ -12,71 +12,108 @@ interface ReportSummaryProps {
 export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize }: ReportSummaryProps) {
   
   const generateMasterPDF = () => {
+    // Creamos el documento con coordenadas fijas para que no dependa de cómo se ve la web
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
-    let yPos = 20;
+    const date = new Date().toLocaleDateString('es-CL');
+    let y = 20;
 
-    // --- ENCABEZADO ---
+    // 1. Encabezado Institucional
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(0, 128, 128);
-    doc.text("INFORME CLÍNICO CONSOLIDADO", 20, yPos);
+    doc.setFontSize(20);
+    doc.setTextColor(0, 128, 128); // Color Teal de EscalaPro
+    doc.text("INFORME CLÍNICO CONSOLIDADO", 20, y);
     
-    yPos += 10;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, yPos, 190, yPos);
+    y += 10;
+    doc.setDrawColor(0, 128, 128);
+    doc.setLineWidth(1);
+    doc.line(20, y, 190, y); // Línea divisoria superior
     
-    // --- DATOS PACIENTE ---
-    yPos += 15;
-    doc.setFontSize(12);
+    // 2. Cuadrante de Datos del Paciente
+    y += 15;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("DATOS DEL PACIENTE", 20, y);
+    
+    y += 8;
+    doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Paciente: ${paciente.nombre}`, 20, yPos);
-    doc.text(`RUT: ${paciente.rut}`, 120, yPos);
-    yPos += 8;
-    doc.text(`Edad: ${paciente.edad} años`, 20, yPos);
-    doc.text(`Fecha: ${date}`, 120, yPos);
-    yPos += 8;
-    doc.text(`Diagnóstico: ${paciente.diagnostico}`, 20, yPos);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Nombre: ${paciente.nombre.toUpperCase()}`, 20, y);
+    doc.text(`RUT: ${paciente.rut}`, 130, y);
+    
+    y += 7;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Edad: ${paciente.edad} años`, 20, y);
+    doc.text(`Fecha: ${date}`, 130, y);
+    
+    y += 7;
+    doc.text(`Diagnóstico: ${paciente.diagnostico}`, 20, y);
 
-    yPos += 15;
-    doc.setFontSize(14);
-    doc.text("RESUMEN DE EVALUACIONES", 20, yPos);
-    yPos += 5;
-    doc.line(20, yPos, 80, yPos);
+    // 3. Sección de Evaluaciones
+    y += 15;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 128, 128);
+    doc.text("RESUMEN DE RESULTADOS", 20, y);
+    
+    y += 4;
+    doc.setLineWidth(0.5);
+    doc.line(20, y, 80, y);
 
-    // --- RECORRER ESCALAS ---
+    // 4. Mapeo de Escalas (Con control de espacio)
     resultados.forEach((res, index) => {
-      if (yPos > 240) { doc.addPage(); yPos = 20; }
+      // Si nos acercamos al final de la página, creamos una nueva
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
       
-      yPos += 15;
+      y += 15;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.text(`${index + 1}. ${res.nombreEscala}`, 20, yPos);
-      
-      yPos += 7;
-      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text(`Puntaje: ${res.puntaje} pts - ${res.interpretacion}`, 25, yPos);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${index + 1}. ${res.nombreEscala}`, 20, y);
       
-      yPos += 7;
-      const recs = doc.splitTextToSize(`Recomendaciones: ${res.recomendaciones.join(', ')}`, 160);
-      doc.text(recs, 25, yPos);
-      yPos += (recs.length * 6);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      doc.text(`Puntaje obtenido: ${res.puntaje} pts`, 25, y);
+      
+      y += 5;
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 128, 128);
+      doc.text(`Interpretación: ${res.interpretacion}`, 25, y);
+      
+      // Recomendaciones (si existen)
+      if (res.recomendaciones && res.recomendaciones.length > 0) {
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(80, 80, 80);
+        const recs = doc.splitTextToSize(`Sugerencias: ${res.recomendaciones.join(', ')}`, 160);
+        doc.text(recs, 25, y);
+        y += (recs.length * 5);
+      }
+      y += 5; // Espacio entre escalas
     });
 
-    // --- FIRMA ---
-    doc.setFontSize(10);
+    // 5. Pie de página y Firma
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, pageHeight - 30, 90, pageHeight - 30);
+    
+    doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
-    doc.text("__________________________________", 20, 270);
-    doc.text("Firma y Timbre del Profesional", 20, 275);
-    doc.text("Documento generado por EscalaPro", 20, 285);
+    doc.text("Firma y Timbre del Profesional", 20, pageHeight - 25);
+    doc.text("Documento generado por EscalaPro - Soporte Clínico", 20, pageHeight - 15);
 
+    // Descarga el archivo con un nombre limpio
     doc.save(`Informe_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
-      <button onClick={onBack} className="flex items-center gap-2 text-teal-600 font-bold mb-8 hover:-translate-x-1 transition-all">
+      {/* El botón de volver lo marcamos como no-print para que no salga si alguien imprime desde el navegador */}
+      <button onClick={onBack} className="no-print flex items-center gap-2 text-teal-600 font-bold mb-8 hover:-translate-x-1 transition-all">
         <ArrowLeft className="w-5 h-5" /> Volver a evaluar
       </button>
 
@@ -88,7 +125,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
             </div>
             <div>
               <h2 className="text-3xl font-black">{paciente.nombre}</h2>
-              <p className="opacity-60 font-bold uppercase tracking-widest text-xs">Ficha Clínica Temporal</p>
+              <p className="opacity-60 font-bold uppercase tracking-widest text-xs">Informe de Sesión</p>
             </div>
           </div>
           
@@ -109,7 +146,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
 
           <div className="space-y-4 mb-10">
             {resultados.map((res, index) => (
-              <div key={index} className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-teal-100 transition-all group">
+              <div key={index} className="flex items-center gap-4 p-5 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-teal-100 transition-all">
                 <div className="bg-white w-12 h-12 rounded-2xl flex items-center justify-center font-black text-teal-600 shadow-sm">
                   {index + 1}
                 </div>
@@ -119,7 +156,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
                 </div>
                 <button 
                   onClick={() => onRemoveScale(index)}
-                  className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                  className="no-print p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -127,15 +164,15 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="no-print grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button 
               onClick={generateMasterPDF}
               className="flex items-center justify-center gap-3 bg-teal-600 text-white py-6 rounded-3xl font-black text-xl shadow-xl shadow-teal-100 hover:bg-teal-700 transition-all active:scale-95"
             >
-              <FileText className="w-6 h-6" /> Descargar Informe Completo
+              <FileText className="w-6 h-6" /> Descargar Informe PDF
             </button>
             <button 
-              onClick={() => { if(confirm("¿Cerrar ficha? Se borrarán los datos.")) onFinalize(); }}
+              onClick={() => { if(confirm("¿Cerrar sesión?")) onFinalize(); }}
               className="border-2 border-gray-100 text-gray-400 py-6 rounded-3xl font-black text-xl hover:bg-gray-50 transition-all"
             >
               Finalizar Sesión
