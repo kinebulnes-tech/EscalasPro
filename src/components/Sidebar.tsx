@@ -1,9 +1,6 @@
 import React from 'react';
-import { categories, scales } from '../data/scalesData';
-import { 
-  Accessibility, Stethoscope, Siren, MessageSquare, Brain, 
-  HandHelping, LayoutGrid, X, Apple, Smile, Zap, Activity
-} from 'lucide-react';
+import { categories, scales, categoryIcons } from '../data/scalesData';
+import { LayoutGrid, X, Activity } from 'lucide-react';
 
 interface SidebarProps {
   selectedCategory: string | null;
@@ -12,32 +9,35 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+/**
+ * Función optimizada para obtener el icono.
+ * Busca en el objeto categoryIcons importado de scalesData.
+ */
 const getIcon = (id: string | null, active: boolean) => {
   const props = { size: 20, className: active ? "text-white" : "text-teal-600" };
-  switch (id) {
-    case 'kinesiologia': return <Accessibility {...props} />;
-    case 'enfermeria': return <Stethoscope {...props} />;
-    case 'emergencias': return <Siren {...props} />;
-    case 'fonoaudiologia': return <MessageSquare {...props} />;
-    case 'cognitivas': return <Brain {...props} />;
-    case 'terapia_ocupacional': return <HandHelping {...props} />;
-    case 'psicologia': return <Smile {...props} />;
-    case 'nutricion': return <Apple {...props} />;
-    case 'neurologia': return <Zap {...props} />;
-    default: return <LayoutGrid {...props} />;
-  }
+  
+  // Si no hay ID o es la categoría "Todas", usamos LayoutGrid
+  if (!id) return <LayoutGrid {...props} />;
+  
+  // Buscamos el componente en el mapeo dinámico
+  const IconComponent = categoryIcons[id] || LayoutGrid;
+  
+  return <IconComponent {...props} />;
 };
 
 export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, onClose }: SidebarProps) {
-  const getCount = (id: string | null) => !id ? scales.length : scales.filter(s => s.categoria === id).length;
+  const getCount = (id: string | null) => 
+    !id ? scales.length : scales.filter(s => s.categoria === id).length;
 
   const handleCategoryClick = (id: string | null) => {
     onSelectCategory(id);
+    // Cierra automáticamente en móvil tras elegir una categoría
     if (window.innerWidth < 1024) onClose();
   };
 
   return (
     <>
+      {/* Overlay para móvil con desenfoque */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[60] lg:hidden" 
@@ -45,13 +45,13 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
         />
       )}
 
-      {/* CAMBIO CLAVE: Usamos h-full en lugar de h-screen para que respete el espacio del Header */}
       <aside className={`
         fixed inset-y-0 left-0 z-[70] w-80 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 ease-out h-full
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         lg:translate-x-0 lg:static
       `}>
         
+        {/* Header del Sidebar */}
         <div className="p-8 flex items-center justify-between flex-shrink-0 bg-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-teal-600 rounded-2xl flex items-center justify-center shadow-lg rotate-3">
@@ -67,10 +67,11 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
           </button>
         </div>
 
-        {/* ÁREA DE NAVEGACIÓN: Con padding bottom extra para que Neurología sea visible */}
+        {/* Listado de Categorías */}
         <nav className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
-          <div className="space-y-8 pb-32"> {/* <--- pb-32 le da aire al final de la lista */}
+          <div className="space-y-8 pb-32"> 
             
+            {/* Botón "Todas las Escalas" */}
             <div>
               <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Explorar</label>
               <button
@@ -89,6 +90,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
               </button>
             </div>
 
+            {/* Especialidades Dinámicas */}
             <div>
               <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Especialidades</label>
               <div className="space-y-1.5">
@@ -119,6 +121,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
           </div>
         </nav>
 
+        {/* Footer */}
         <div className="p-8 border-t border-slate-50 flex-shrink-0 bg-white">
           <p className="text-[9px] font-black uppercase text-slate-300 tracking-widest text-center italic">EscalaPro — Bulnes 2026</p>
         </div>
