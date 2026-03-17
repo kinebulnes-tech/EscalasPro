@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-// ✅ MEJORA: Importamos categoryIcons para los dibujos de las especialidades
 import { categories, scales, categoryIcons } from './data/scalesData';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
@@ -10,10 +9,11 @@ import Sidebar from './components/Sidebar';
 import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
 import DisclaimerModal from './components/DisclaimerModal';
+// ✅ NUEVA IMPORTACIÓN PARA EL PASO 1
+import CategoryPills from './components/CategoryPills'; 
+
 import { 
-  ArrowLeft, ClipboardList, UserMinus, Heart, 
-  Menu, ChevronRight, Activity, ShieldCheck,
-  UserPlus, Search
+  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -108,7 +108,7 @@ export default function App() {
             setShowAbout(false); 
             setViewingReport(false); 
             setActiveScale(null); 
-            setQuery(''); // Limpiamos búsqueda al cambiar categoría
+            setQuery('');
           }}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
@@ -119,10 +119,7 @@ export default function App() {
             
             {showAbout ? (
               <div className="animate-in fade-in zoom-in-95 duration-500">
-                <button 
-                  onClick={() => setShowAbout(false)} 
-                  className="group flex items-center gap-3 text-slate-400 font-bold mb-12 hover:text-teal-600 transition-all"
-                >
+                <button onClick={() => setShowAbout(false)} className="group flex items-center gap-3 text-slate-400 font-bold mb-12 hover:text-teal-600 transition-all">
                   <div className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></div>
                   <span>Volver al Inicio</span>
                 </button>
@@ -142,20 +139,14 @@ export default function App() {
 
             activeScale && selectedScale ? (
               <div className="animate-in slide-in-from-right-8 duration-500">
-                <button 
-                  onClick={() => setActiveScale(null)} 
-                  className="group flex items-center gap-3 text-slate-400 font-bold mb-8 hover:text-teal-600 transition-all"
-                >
+                <button onClick={() => setActiveScale(null)} className="group flex items-center gap-3 text-slate-400 font-bold mb-8 hover:text-teal-600 transition-all">
                   <div className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></div>
                   <span>Regresar</span>
                 </button>
                 <ScaleForm 
                   scale={selectedScale} 
                   onBack={() => setActiveScale(null)}
-                  onSave={(n) => { 
-                    setListaResultados(p => [...p, n]); 
-                    setActiveScale(null); 
-                  }} 
+                  onSave={(n) => { setListaResultados(p => [...p, n]); setActiveScale(null); }} 
                   pacienteNombre={pacienteActivo?.nombre} 
                 />
               </div>
@@ -173,56 +164,56 @@ export default function App() {
                       <div>
                         <p className="text-[10px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Evaluación Activa</p>
                         <h2 className="text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
-                          {listaResultados.length} escalas listas para reporte
-                        </p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">{listaResultados.length} escalas listas</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={finalizaSesionTotal} 
-                      className="mt-6 md:mt-0 bg-white/10 hover:bg-red-500 text-white px-8 py-4 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10"
-                    >
+                    <button onClick={finalizaSesionTotal} className="mt-6 md:mt-0 bg-white/10 hover:bg-red-500 text-white px-8 py-4 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10">
                       Finalizar Informe
                     </button>
                   </div>
                 ) : (
                   <div className="mb-12">
-                    <button 
-                      onClick={() => setShowPatientModal(true)}
-                      className="group flex items-center gap-6 bg-white border-2 border-dashed border-slate-200 p-6 rounded-[2.5rem] w-full hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left"
-                    >
+                    <button onClick={() => setShowPatientModal(true)} className="group flex items-center gap-6 bg-white border-2 border-dashed border-slate-200 p-6 rounded-[2.5rem] w-full hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left">
                       <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
                         <UserPlus size={24} className="text-slate-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-black text-slate-900 text-lg">¿Deseas generar un informe?</h4>
-                        <p className="text-slate-500 text-sm font-medium leading-tight">Inicia una sesión de paciente para vincular múltiples escalas en un solo PDF.</p>
-                      </div>
-                      <div className="hidden sm:flex items-center gap-2 text-teal-600 font-black text-[10px] uppercase tracking-widest">
-                        Registrar paciente <ChevronRight size={16} />
+                        <p className="text-slate-500 text-sm font-medium leading-tight">Inicia una sesión para vincular múltiples escalas.</p>
                       </div>
                     </button>
                   </div>
                 )}
 
                 {/* Títulos y Buscador */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-4"> {/* Reduje mb de 16 a 4 para dar espacio a las Pills */}
                   <div className="space-y-2">
                     <h3 className="text-5xl font-black text-slate-900 tracking-tighter italic leading-tight uppercase">
-                      {selectedCategory ? currentCategory?.nombre : query ? 'Resultados de Búsqueda' : 'Especialidades'}
+                      {selectedCategory ? currentCategory?.nombre : query ? 'Resultados' : 'Especialidades'}
                     </h3>
-                    <p className="text-slate-400 font-bold uppercase text-[11px] tracking-[0.3em]">
-                      {selectedCategory || query ? `${filteredScales.length} escalas encontradas` : 'Seleccione un área de atención'}
-                    </p>
                   </div>
                   <div className="w-full md:w-[450px]">
                     <SearchBar value={query} onChange={(v) => { setQuery(v); if(v && selectedCategory) setSelectedCategory(null); }} />
                   </div>
                 </div>
 
-                {/* ✅ MEJORA: LÓGICA DE DASHBOARD DE CATEGORÍAS O GRID DE ESCALAS */}
+                {/* ✅ PASO 1: Selector de Categorías Horizontal (Solo visible en móvil) */}
+                <CategoryPills 
+                  selectedCategory={selectedCategory} 
+                  onSelectCategory={(id) => {
+                    setSelectedCategory(id);
+                    setQuery('');
+                    setActiveScale(null);
+                  }} 
+                />
+
+                <div className="mb-12">
+                   <p className="text-slate-400 font-bold uppercase text-[11px] tracking-[0.3em]">
+                      {selectedCategory || query ? `${filteredScales.length} escalas encontradas` : 'Seleccione un área de atención'}
+                    </p>
+                </div>
+
                 {!selectedCategory && !query ? (
-                  /* DASHBOARD DE ICONOS POR ESPECIALIDAD */
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {categories.map((cat) => {
                       const IconComponent = categoryIcons[cat.id] || ClipboardList;
@@ -232,16 +223,12 @@ export default function App() {
                           onClick={() => setSelectedCategory(cat.id)}
                           className="group p-6 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-left flex items-center gap-5"
                         >
-                          <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl group-hover:bg-teal-600 group-hover:text-white transition-colors shadow-inner">
+                          <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl group-hover:bg-teal-600 group-hover:text-white transition-colors">
                             <IconComponent size={32} strokeWidth={2.5} />
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-lg font-black text-slate-900 leading-none uppercase tracking-tighter mb-1">
-                              {cat.nombre}
-                            </h4>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase leading-tight line-clamp-2">
-                              {cat.descripcion}
-                            </p>
+                            <h4 className="text-lg font-black text-slate-900 uppercase tracking-tighter mb-1">{cat.nombre}</h4>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase leading-tight line-clamp-2">{cat.descripcion}</p>
                           </div>
                           <ChevronRight size={20} className="text-slate-200 group-hover:text-teal-600 transition-colors" />
                         </button>
@@ -249,7 +236,6 @@ export default function App() {
                     })}
                   </div>
                 ) : (
-                  /* GRID DE ESCALAS (Cuando ya se filtró o buscó) */
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 pb-20 animate-in fade-in duration-500">
                     {filteredScales.length > 0 ? (
                       filteredScales.map(s => (
@@ -264,7 +250,7 @@ export default function App() {
                     ) : (
                       <div className="col-span-full py-20 text-center">
                         <Search size={48} className="mx-auto text-slate-200 mb-4" />
-                        <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No encontramos escalas con ese nombre</p>
+                        <p className="text-slate-400 font-bold uppercase tracking-widest text-sm">No hay coincidencias</p>
                       </div>
                     )}
                   </div>
@@ -272,38 +258,12 @@ export default function App() {
               </div>
             )}
 
-            <footer className="py-12 border-t border-slate-200/50 mt-auto flex flex-col items-center gap-8">
-               <button 
-                  onClick={() => setShowAbout(true)} 
-                  className="flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-500 px-8 py-4 rounded-2xl transition-all shadow-sm border border-slate-200"
-               >
-                  <ShieldCheck className="w-5 h-5 text-teal-600" />
-                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Términos y Responsabilidad</span>
-               </button>
-               <div className="text-center opacity-30 grayscale pointer-events-none">
-                 <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400">EscalaPro — Bulnes, Chile — 2026</p>
-               </div>
+            <footer className="py-12 border-t border-slate-200/50 mt-auto flex flex-col items-center gap-8 text-center">
+               <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-400 opacity-30">EscalaPro — Bulnes 2026</p>
             </footer>
           </div>
         </main>
       </div>
-
-      {pacienteActivo && listaResultados.length > 0 && !activeScale && !viewingReport && !showAbout && (
-        <div className="fixed bottom-24 right-6 z-[40] animate-in slide-in-from-bottom-4">
-          <button 
-            onClick={() => setViewingReport(true)} 
-            className="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-2xl flex items-center gap-4 border border-teal-500/30 hover:scale-105 active:scale-95 transition-all group"
-          >
-            <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center shadow-lg">
-              <ClipboardList className="text-white" size={20} />
-            </div>
-            <div className="text-left pr-2">
-              <p className="text-[10px] font-black text-teal-400 uppercase tracking-widest leading-none">Ver Informe</p>
-              <p className="text-sm font-bold text-white leading-none mt-1">{listaResultados.length} escalas listas</p>
-            </div>
-          </button>
-        </div>
-      )}
 
       <button 
         onClick={() => setIsSidebarOpen(true)}
@@ -313,13 +273,7 @@ export default function App() {
       </button>
 
       {showPatientModal && (
-        <PatientModal 
-          onConfirm={(data) => { 
-            setPacienteActivo(data); 
-            setShowPatientModal(false); 
-          }} 
-          onClose={() => setShowPatientModal(false)} 
-        />
+        <PatientModal onConfirm={(data) => { setPacienteActivo(data); setShowPatientModal(false); }} onClose={() => setShowPatientModal(false)} />
       )}
     </div>
   );
