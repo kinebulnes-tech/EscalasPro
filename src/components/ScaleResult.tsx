@@ -3,7 +3,8 @@ import {
   ClipboardCheck, ArrowLeft, Save, ShieldCheck, 
   BookOpen, ExternalLink, Activity, FileText 
 } from 'lucide-react';
-import { useState } from 'react';
+import { jsPDF } from 'jspdf';
+import { formatearPuntaje } from '../utils/scaleEngine';
 
 interface ScaleResultProps {
   scale: Scale;
@@ -23,57 +24,126 @@ export default function ScaleResult({
   pacienteNombre 
 }: ScaleResultProps) {
   
-  // 1. Obtenemos la interpretación (Enviando respuestas para cálculos complejos tipo Strassmann)
   const result = scale.interpretar(totalScore, respuestas); 
-  
   const isAdvanced = typeof result === 'object' && result !== null;
   const interpretationText = isAdvanced ? (result as InterpretacionAvanzada).texto : result;
   const recommendationsList = isAdvanced ? (result as InterpretacionAvanzada).recomendaciones : [];
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'slate';
   const evidenciaEspecifica = isAdvanced ? (result as any).evidencia : null;
 
-  // 2. Sistema de Normalización de Colores Clínicos (Mejora 1)
+  // Lógica de PDF Individual Profesional
+  const generateIndividualPDF = () => {
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('es-CL');
+    const hour = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    let y = 20;
+
+    // 1. Encabezado Teal Profesional
+    doc.setFillColor(0, 128, 128); 
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("REPORTE DE EVALUACIÓN", 20, 25);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("SOPORTE DE DECISIÓN CLÍNICA — ESCALAPRO", 20, 32);
+
+    // 2. Datos del Paciente (Si existen)
+    y = 55;
+    if (pacienteNombre) {
+      doc.setDrawColor(230, 230, 230);
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(15, y - 5, 180, 20, 2, 2, 'FD');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`PACIENTE: ${pacienteNombre.toUpperCase()}`, 20, y + 5);
+      doc.setFont("helvetica", "normal");
+      doc.text(`FECHA DE EVALUACIÓN: ${date} — ${hour}`, 20, y + 12);
+      y += 30;
+    } else {
+      y += 10;
+    }
+
+    // 3. Título de la Escala
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text(scale.nombre.toUpperCase(), 20, y);
+    y += 12;
+
+    // 4. Resultado Destacado
+    doc.setFillColor(240, 253, 250);
+    doc.setDrawColor(0, 128, 128);
+    doc.roundedRect(20, y, 170, 30, 3, 3, 'FD');
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 128, 128);
+    doc.text("PUNTAJE OBTENIDO", 25, y + 8);
+    
+    doc.setFontSize(28);
+    doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 22);
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(interpretationText.toUpperCase(), 90, y + 22);
+
+    // 5. Evidencia y Recomendaciones
+    y += 45;
+    if (evidenciaEspecifica) {
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text("EVIDENCIA DEL RESULTADO:", 20, y);
+      y += 7;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
+      doc.text(splitEvidencia, 20, y);
+      y += (splitEvidencia.length * 5) + 10;
+    }
+
+    if (recommendationsList.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("SUGERENCIAS DE INTERVENCIÓN:", 20, y);
+      y += 7;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      recommendationsList.forEach((rec, i) => {
+        const splitRec = doc.splitTextToSize(`${i + 1}. ${rec}`, 165);
+        doc.text(splitRec, 25, y);
+        y += (splitRec.length * 5) + 2;
+      });
+    }
+
+    // 6. Pie de Página Profesional
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, pageHeight - 35, 90, pageHeight - 35);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
+    
+    doc.setFontSize(7);
+    doc.setTextColor(160, 160, 160);
+    const disclaimer = "AVISO: Este reporte es un documento de apoyo clínico. Los resultados deben ser validados por el profesional responsable según el contexto clínico del paciente.";
+    doc.text(doc.splitTextToSize(disclaimer, 170), 20, pageHeight - 15);
+
+    doc.save(`Resultado_${scale.nombre.replace(/\s+/g, '_')}_${date}.pdf`);
+  };
+
   const getAlertStyles = (color?: string) => {
     const c = color?.toLowerCase() || '';
-    
-    // Verde / Éxito
     if (c.includes('emerald') || c.includes('green') || c.includes('success')) 
-      return { 
-        bg: 'from-emerald-600 to-teal-700', 
-        light: 'bg-emerald-50 border-emerald-200 text-emerald-900', 
-        icon: 'text-emerald-600' 
-      };
-    
-    // Azul / Información
+      return { bg: 'from-emerald-600 to-teal-700', light: 'bg-emerald-50 border-emerald-200 text-emerald-900', icon: 'text-emerald-600' };
     if (c.includes('blue') || c.includes('info')) 
-      return { 
-        bg: 'from-blue-600 to-indigo-700', 
-        light: 'bg-blue-50 border-blue-200 text-blue-900', 
-        icon: 'text-blue-600' 
-      };
-    
-    // Amarillo - Naranja / Advertencia
+      return { bg: 'from-blue-600 to-indigo-700', light: 'bg-blue-50 border-blue-200 text-blue-900', icon: 'text-blue-600' };
     if (c.includes('amber') || c.includes('yellow') || c.includes('orange') || c.includes('warning')) 
-      return { 
-        bg: 'from-amber-500 to-orange-600', 
-        light: 'bg-amber-50 border-amber-200 text-amber-900', 
-        icon: 'text-amber-600' 
-      };
-    
-    // Rojo / Peligro Crítico
+      return { bg: 'from-amber-500 to-orange-600', light: 'bg-amber-50 border-amber-200 text-amber-900', icon: 'text-amber-600' };
     if (c.includes('red') || c.includes('rose') || c.includes('danger')) 
-      return { 
-        bg: 'from-red-600 to-rose-800 animate-pulse', 
-        light: 'bg-red-50 border-red-200 text-red-900', 
-        icon: 'text-red-600' 
-      };
-      
-    // Default / Neutro
-    return { 
-      bg: 'from-slate-700 to-slate-900', 
-      light: 'bg-slate-50 border-slate-200 text-slate-900', 
-      icon: 'text-slate-600' 
-    };
+      return { bg: 'from-red-600 to-rose-800 animate-pulse', light: 'bg-red-50 border-red-200 text-red-900', icon: 'text-red-600' };
+    return { bg: 'from-slate-700 to-slate-900', light: 'bg-slate-50 border-slate-200 text-slate-900', icon: 'text-slate-600' };
   };
 
   const styles = getAlertStyles(alertColor);
@@ -81,7 +151,6 @@ export default function ScaleResult({
   return (
     <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-10 max-w-2xl mx-auto border border-gray-100 mb-10 animate-in fade-in zoom-in duration-500">
       
-      {/* PANEL DE VINCULACIÓN */}
       {pacienteNombre ? (
         <div className="mb-8 p-5 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem] animate-in slide-in-from-top-4">
            <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Paciente: {pacienteNombre}</p>
@@ -113,7 +182,6 @@ export default function ScaleResult({
         </div>
       )}
 
-      {/* TÍTULO */}
       <div className="text-center mb-8">
         <div className="inline-block p-3 bg-gray-50 rounded-2xl mb-4">
           <ClipboardCheck className="w-8 h-8 text-teal-600" />
@@ -121,19 +189,17 @@ export default function ScaleResult({
         <h2 className="text-3xl font-black text-gray-900 leading-tight">{scale.nombre}</h2>
       </div>
 
-      {/* SCORE CARD PROFESIONAL */}
       <div className={`bg-gradient-to-br ${styles.bg} rounded-[2rem] p-8 text-white text-center shadow-xl mb-8 relative overflow-hidden`}>
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Activity size={120} />
         </div>
         <p className="text-white/70 font-black uppercase tracking-[0.2em] text-[10px] mb-2">Puntaje Obtenido</p>
-        <div className="text-7xl font-black mb-4 tracking-tighter tabular-nums">{totalScore}</div>
+        <div className="text-7xl font-black mb-4 tracking-tighter tabular-nums">{formatearPuntaje(totalScore)}</div>
         <div className="inline-block px-6 py-2 bg-white/20 backdrop-blur-md rounded-2xl font-black text-sm uppercase tracking-wide">
           {interpretationText}
         </div>
       </div>
 
-      {/* BLOQUE DE RESPALDO (UPTODATE STYLE) */}
       {evidenciaEspecifica && (
         <div className={`mb-8 p-6 rounded-[2rem] border-2 ${styles.light} animate-in slide-in-from-bottom-4 duration-700`}>
           <div className="flex items-center gap-2 mb-3">
@@ -146,7 +212,6 @@ export default function ScaleResult({
         </div>
       )}
 
-      {/* RECOMENDACIONES CLÍNICAS */}
       {recommendationsList.length > 0 && (
         <div className="mb-8">
           <h4 className="text-gray-900 font-black text-xs uppercase tracking-widest mb-4 px-2">Sugerencias de Intervención</h4>
@@ -161,17 +226,16 @@ export default function ScaleResult({
         </div>
       )}
 
-      {/* ACCIONES FINALIZACIÓN */}
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <button onClick={onBack} className="flex items-center justify-center gap-2 py-5 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all uppercase text-xs tracking-widest active:scale-95">
+        <button onClick={onBack} className="flex items-center justify-center gap-2 py-5 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all uppercase text-[10px] tracking-widest active:scale-95">
           <ArrowLeft size={18} /> Nueva Evaluación
         </button>
-        <button onClick={() => window.print()} className="flex items-center justify-center gap-2 py-5 bg-teal-50 text-teal-700 font-black rounded-2xl border-2 border-teal-100 hover:bg-teal-100 transition-all uppercase text-xs tracking-widest active:scale-95">
+        {/* ✅ PASO CLAVE: Cambiamos window.print() por nuestro generador profesional */}
+        <button onClick={generateIndividualPDF} className="flex items-center justify-center gap-2 py-5 bg-teal-50 text-teal-700 font-black rounded-2xl border-2 border-teal-100 hover:bg-teal-100 transition-all uppercase text-[10px] tracking-widest active:scale-95">
           <FileText size={18} /> Imprimir PDF
         </button>
       </div>
 
-      {/* BIBLIOGRAFÍA */}
       {scale.bibliografia && (
         <div className="pt-8 border-t border-gray-100">
           <div className="flex items-center gap-2 mb-3 text-gray-400">
@@ -182,12 +246,7 @@ export default function ScaleResult({
             {scale.bibliografia}
           </p>
           {scale.referenciaUrl && (
-            <a 
-              href={scale.referenciaUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[10px] font-black text-teal-600 hover:text-teal-800 transition-colors"
-            >
+            <a href={scale.referenciaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-teal-600 hover:text-teal-800 transition-colors">
               <ExternalLink size={12} /> VER ESTUDIO ORIGINAL (PUBMED)
             </a>
           )}
