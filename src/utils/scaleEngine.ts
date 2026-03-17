@@ -1,29 +1,33 @@
 import { Scale, InterpretacionAvanzada } from '../data/scalesData';
 
-// Mejoramos la interfaz para que soporte tanto texto simple como interpretaciones Pro
+// ✅ MEJORA: Puntaje puede ser null para evitar falsos "ceros" en errores
 export interface ScaleResult {
-  puntaje: number;
+  puntaje: number | null; 
   interpretacion: string;
   detalleCompleto: string | InterpretacionAvanzada;
   escala: string;
   categoria: string;
+  error?: boolean; // Bandera para que la UI sepa si el cálculo es válido
 }
 
 /**
- * Calcula el resultado de una escala con soporte para lógica condicional.
- * Ahora pasa 'respuestas' al intérprete para cálculos personalizados.
+ * Calcula el resultado de una escala con blindaje clínico.
  */
 export const calcularEscala = (
   scale: Scale,
   respuestas: Record<string, number>
 ): ScaleResult => {
   try {
+    // 1. Verificamos integridad antes de calcular
+    if (!validarRespuestas(scale, respuestas)) {
+      throw new Error("Datos incompletos");
+    }
+
     const puntaje = scale.calcularPuntaje(respuestas);
     
-    // CRÍTICO: Pasamos 'respuestas' como segundo argumento para escalas tipo Strassmann
+    // CRÍTICO: Pasamos 'respuestas' al intérprete
     const interpretacionRaw = scale.interpretar(puntaje, respuestas);
 
-    // Normalizamos la interpretación para que siempre haya un string base
     const textoInterpretacion = typeof interpretacionRaw === 'string' 
       ? interpretacionRaw 
       : interpretacionRaw.texto;
@@ -33,56 +37,68 @@ export const calcularEscala = (
       interpretacion: textoInterpretacion,
       detalleCompleto: interpretacionRaw,
       escala: scale.nombre,
-      categoria: scale.categoria
+      categoria: scale.categoria,
+      error: false
     };
   } catch (error) {
-    console.error(`Error crítico en motor de cálculo (${scale.id}):`, error);
+    // ✅ MEJORA: En caso de error, devolvemos null para proteger al paciente
+    console.error(`🚨 Error crítico en motor (${scale.id}):`, error);
     return {
-      puntaje: 0,
-      interpretacion: "Error en el cálculo clínico",
-      detalleCompleto: "Error interno",
+      puntaje: null,
+      interpretacion: "Cálculo pendiente",
+      detalleCompleto: "Por favor, complete todos los campos obligatorios.",
       escala: scale.nombre,
-      categoria: scale.categoria
+      categoria: scale.categoria,
+      error: true
     };
   }
 };
 
 /**
- * Valida la integridad de los datos antes de procesar.
- * Incluye validación de rangos numéricos para evitar errores de entrada.
+ * ✅ NUEVA FUNCIÓN: Identifica exactamente qué preguntas faltan.
+ * Esto es vital para resaltar los campos en rojo en el formulario.
+ */
+export const obtenerPreguntasFaltantes = (
+  scale: Scale,
+  respuestas: Record<string, number>
+): string[] => {
+  return scale.preguntas
+    .filter(pregunta => {
+      const respuesta = respuestas[pregunta.id];
+
+      // Verifica si falta la respuesta
+      if (respuesta === undefined || respuesta === null) return true;
+
+      // Validación de rangos para tipos numéricos
+      if (pregunta.type === 'number') {
+        const min = pregunta.min ?? -Infinity;
+        const max = pregunta.max ?? Infinity;
+        return respuesta < min || respuesta > max;
+      }
+      return false;
+    })
+    .map(p => p.id);
+};
+
+/**
+ * Valida la integridad de los datos.
  */
 export const validarRespuestas = (
   scale: Scale,
   respuestas: Record<string, number>
 ): boolean => {
-  return scale.preguntas.every(pregunta => {
-    const respuesta = respuestas[pregunta.id];
-
-    // Verifica que la pregunta haya sido respondida (soporta el valor 0)
-    if (respuesta === undefined || respuesta === null) {
-      return false;
-    }
-
-    // Validación de seguridad para campos numéricos (Rigor UpToDate)
-    if (pregunta.type === 'number') {
-      const min = pregunta.min ?? -Infinity;
-      const max = pregunta.max ?? Infinity;
-      return respuesta >= min && respuesta <= max;
-    }
-
-    return true;
-  });
+  return obtenerPreguntasFaltantes(scale, respuestas).length === 0;
 };
 
 /**
- * Formatea el puntaje para visualización profesional.
+ * ✅ MEJORA: Formateo consistente.
+ * Si el puntaje es null (error), muestra un guion doble.
  */
-export const formatearPuntaje = (puntaje: number): string => {
+export const formatearPuntaje = (puntaje: number | null): string => {
+  if (puntaje === null) return "--";
+  
   if (Number.isInteger(puntaje)) return puntaje.toString();
   
-  // Para escalas con decimales (como Borg o test de 10 metros)
-  return puntaje.toLocaleString('es-CL', { 
-    minimumFractionDigits: 1, 
-    maximumFractionDigits: 2 
-  });
+  // Para escalas con decimales, forzamos formato profesional con coma
+  return puntaje.toFixed(2).replace('.', ',');
 };
