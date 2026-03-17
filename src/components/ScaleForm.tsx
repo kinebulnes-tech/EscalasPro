@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
-import { calcularEscala, validarRespuestas } from '../utils/scaleEngine';
-import { feedback } from '../utils/feedback'; // ✅ Importamos el nuevo motor de feedback
+// ✅ Importamos la nueva función del Paso 1
+import { calcularEscala, validarRespuestas, obtenerPreguntasFaltantes } from '../utils/scaleEngine';
+import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
-import { BookOpen, ExternalLink, ShieldCheck, Info } from 'lucide-react';
+import { BookOpen, ExternalLink, ShieldCheck, Info, AlertCircle } from 'lucide-react';
 
 interface ScaleFormProps {
   scale: Scale;
@@ -15,6 +16,7 @@ interface ScaleFormProps {
 
 export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: ScaleFormProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
+  const [faltantes, setFaltantes] = useState<string[]>([]); // ✅ Rastreo de campos vacíos
   const [resultado, setResultado] = useState<{
     puntaje: number;
     interpretacion: string;
@@ -28,14 +30,19 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   const currentScore = useMemo(() => {
     if (Object.keys(respuestas).length === 0) return 0;
+    // Usamos el motor para el cálculo en vivo (aunque sea parcial)
     return scale.calcularPuntaje(respuestas);
   }, [respuestas, scale]);
 
   const handleChange = (questionId: string, value: number) => {
-    // ✅ Feedback táctico y sonoro al seleccionar
     feedback.playClick();
     feedback.vibrate(10); 
     
+    // ✅ Limpiamos el error visual si el usuario ya respondió esta pregunta
+    if (faltantes.includes(questionId)) {
+      setFaltantes(prev => prev.filter(id => id !== questionId));
+    }
+
     setRespuestas(prev => ({
       ...prev,
       [questionId]: value
@@ -44,26 +51,34 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validarRespuestas(scale, respuestas)) {
-      // ✅ Alerta sensorial si falta completar campos
+    
+    // ✅ PASO 2: Verificamos qué preguntas faltan exactamente
+    const camposVacios = obtenerPreguntasFaltantes(scale, respuestas);
+    
+    if (camposVacios.length > 0) {
+      setFaltantes(camposVacios); // Marcamos visualmente
       feedback.warning();
-      alert('Por favor complete todos los campos antes de calcular.');
+      // No usamos alert, el feedback visual en las tarjetas es suficiente y más profesional
       return;
     }
 
-    // ✅ Feedback de éxito al procesar el resultado
     feedback.success();
     
     const result = calcularEscala(scale, respuestas);
-    setResultado({
-      puntaje: result.puntaje,
-      interpretacion: result.interpretacion
-    });
+    
+    // Si el motor devuelve puntaje null por seguridad, no avanzamos
+    if (result.puntaje !== null) {
+      setResultado({
+        puntaje: result.puntaje,
+        interpretacion: result.interpretacion
+      });
+    }
   };
 
   const handleReset = () => {
-    feedback.vibrate(30); // Pequeña vibración de confirmación al limpiar
+    feedback.vibrate(30);
     setRespuestas({});
+    setFaltantes([]);
     setResultado(null);
   };
 
@@ -101,9 +116,9 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
         </div>
       </div>
 
-      {/* 3. CONTENEDOR DEL FORMULARIO */}
       <div className="max-w-4xl mx-auto pb-10 px-4 pt-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-4">
+          
           <button
             onClick={onBack}
             className="mb-6 text-teal-600 hover:text-teal-800 font-bold flex items-center gap-2 transition-all hover:-translate-x-1"
@@ -111,121 +126,118 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Volver a escalas
+            Volver
           </button>
 
           <div className="mb-8 border-b border-gray-100 pb-6">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
-            <p className="text-gray-500 text-sm leading-relaxed mb-4">{scale.descripcion}</p>
-
-            {(scale.bibliografia || scale.evidenciaClinica) && (
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-700">
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldCheck className="text-teal-600 w-4 h-4" />
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Respaldo Científico</span>
-                </div>
-                
-                {scale.bibliografia && (
-                  <div className="flex gap-3 items-start mb-2">
-                    <BookOpen className="text-slate-400 w-4 h-4 shrink-0 mt-0.5" />
-                    <p className="text-[11px] font-medium text-slate-600 italic leading-snug">
-                      {scale.bibliografia}
-                    </p>
-                  </div>
-                )}
-
-                {scale.evidenciaClinica && (
-                  <div className="flex gap-3 items-start">
-                    <Info className="text-blue-500 w-4 h-4 shrink-0 mt-0.5" />
-                    <p className="text-[11px] font-bold text-slate-700 leading-snug">
-                      {scale.evidenciaClinica}
-                    </p>
-                  </div>
-                )}
-
-                {scale.referenciaUrl && (
-                  <a 
-                    href={scale.referenciaUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold text-teal-600 hover:underline"
-                  >
-                    <ExternalLink size={12} /> Ver fuente original
-                  </a>
-                )}
+            {pacienteNombre && (
+              <div className="bg-teal-50 text-teal-700 px-4 py-2 rounded-xl inline-flex items-center gap-2 mb-4">
+                 <ShieldCheck size={14} />
+                 <span className="text-[10px] font-black uppercase tracking-widest">Paciente: {pacienteNombre}</span>
               </div>
             )}
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
+            <p className="text-gray-500 text-sm leading-relaxed">{scale.descripcion}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {scale.preguntas.map((pregunta, index) => (
-              <div 
-                key={pregunta.id} 
-                className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
-                  respuestas[pregunta.id] !== undefined 
-                  ? 'bg-white border-teal-100 shadow-sm' 
-                  : 'bg-gray-50/50 border-transparent'
-                }`}
-              >
-                <label className="block text-lg font-semibold text-gray-800 mb-4 leading-snug">
-                  <span className="text-teal-600 mr-2">{index + 1}.</span> 
-                  {pregunta.text}
-                </label>
-
-                {pregunta.type === 'plugin' && pregunta.componente === 'CRONOMETRO' ? (
-                  <TimerPlugin 
-                    label="Asistente de tiempo"
-                    onValueChange={(val) => handleChange(pregunta.id, val)} 
-                  />
-                ) : (
-                  <div className="w-full">
-                    {(pregunta.type === 'select' || pregunta.type === 'radio') && pregunta.options && (
-                      <div className="flex flex-col gap-3">
-                        {pregunta.options.map((option, idx) => {
-                          const isSelected = respuestas[pregunta.id] === option.value;
-                          return (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => handleChange(pregunta.id, option.value)}
-                              className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                                isSelected
-                                  ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-sm'
-                                  : 'border-gray-100 bg-white text-gray-600 hover:border-teal-200'
-                              }`}
-                            >
-                              <span className={isSelected ? 'font-bold' : ''}>{option.label}</span>
-                              <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                isSelected ? 'border-teal-500 bg-teal-500' : 'border-gray-300'
-                              }`}>
-                                {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
-                              </div>
-                            </button>
-                          );
-                        })}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {scale.preguntas.map((pregunta, index) => {
+              const esFaltante = faltantes.includes(pregunta.id);
+              return (
+                <div 
+                  key={pregunta.id} 
+                  className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+                    esFaltante 
+                    ? 'bg-red-50 border-red-200 shadow-md ring-4 ring-red-50' // ✅ Estilo de error
+                    : respuestas[pregunta.id] !== undefined 
+                    ? 'bg-white border-teal-100 shadow-sm' 
+                    : 'bg-gray-50/50 border-transparent'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <label className={`text-lg font-semibold leading-snug ${esFaltante ? 'text-red-700' : 'text-gray-800'}`}>
+                      <span className={`${esFaltante ? 'text-red-600' : 'text-teal-600'} mr-2 font-black`}>{index + 1}.</span> 
+                      {pregunta.text}
+                    </label>
+                    {esFaltante && (
+                      <div className="bg-red-600 text-white p-1 rounded-full animate-pulse">
+                        <AlertCircle size={18} />
                       </div>
                     )}
-
-                    {pregunta.type === 'number' && (
-                      <input
-                        type="number"
-                        value={respuestas[pregunta.id] ?? ''}
-                        onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
-                        placeholder="Ingrese valor numérico..."
-                        className="w-full text-xl font-bold text-center p-4 border-2 border-gray-200 rounded-xl focus:border-teal-500 outline-none"
-                      />
-                    )}
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {esFaltante && (
+                    <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-1">
+                       Campo obligatorio para el cálculo
+                    </p>
+                  )}
+
+                  {pregunta.type === 'plugin' && pregunta.componente === 'CRONOMETRO' ? (
+                    <TimerPlugin 
+                      label="Asistente de tiempo"
+                      onValueChange={(val) => handleChange(pregunta.id, val)} 
+                    />
+                  ) : (
+                    <div className="w-full">
+                      {(pregunta.type === 'select' || pregunta.type === 'radio') && pregunta.options && (
+                        <div className="flex flex-col gap-2.5">
+                          {pregunta.options.map((option, idx) => {
+                            const isSelected = respuestas[pregunta.id] === option.value;
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => handleChange(pregunta.id, option.value)}
+                                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                                  isSelected
+                                    ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-sm'
+                                    : esFaltante
+                                    ? 'border-red-100 bg-white/50 text-red-400'
+                                    : 'border-gray-100 bg-white text-gray-600 hover:border-teal-200'
+                                }`}
+                              >
+                                <span className={isSelected ? 'font-bold' : ''}>{option.label}</span>
+                                <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                                  isSelected ? 'border-teal-500 bg-teal-500' : esFaltante ? 'border-red-200' : 'border-gray-300'
+                                }`}>
+                                  {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {pregunta.type === 'number' && (
+                        <input
+                          type="number"
+                          value={respuestas[pregunta.id] ?? ''}
+                          onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
+                          placeholder="Ingrese valor numérico..."
+                          className={`w-full text-xl font-bold text-center p-4 border-2 rounded-xl focus:border-teal-500 outline-none ${
+                            esFaltante ? 'border-red-300 bg-red-50 text-red-900' : 'border-gray-200'
+                          }`}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-8 border-t border-gray-100">
               <button
                 type="submit"
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-5 rounded-2xl font-black text-xl shadow-lg transition-all active:scale-95"
+                className={`flex-1 py-5 rounded-2xl font-black text-xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center leading-none ${
+                  faltantes.length > 0 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
+                  : 'bg-teal-600 hover:bg-teal-700 text-white'
+                }`}
               >
-                Calcular Resultado
+                <span>{faltantes.length > 0 ? 'Verificar Formulario' : 'Calcular Resultado'}</span>
+                {faltantes.length > 0 && (
+                  <span className="text-[10px] uppercase tracking-widest mt-2 opacity-80">Faltan {faltantes.length} campos</span>
+                )}
               </button>
               <button
                 type="button"
