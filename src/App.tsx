@@ -12,7 +12,7 @@ import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 
 import { 
-  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck
+  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck, FileText
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -165,9 +165,25 @@ export default function App() {
                         <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">{listaResultados.length} escalas listas</p>
                       </div>
                     </div>
-                    <button onClick={finalizaSesionTotal} className="mt-4 md:mt-0 bg-white/10 hover:bg-red-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10">
-                      Finalizar
-                    </button>
+                    
+                    {/* ACCIONES DEL PACIENTE: BOTÓN VER INFORME AÑADIDO */}
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+                      {listaResultados.length > 0 && (
+                        <button 
+                          onClick={() => setViewingReport(true)} 
+                          className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-teal-500/20 flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-900/20"
+                        >
+                          <FileText size={16} />
+                          Ver Informe
+                        </button>
+                      )}
+                      <button 
+                        onClick={finalizaSesionTotal} 
+                        className="bg-white/10 hover:bg-red-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10 active:scale-95"
+                      >
+                        Finalizar
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="mb-6 lg:mb-12">
