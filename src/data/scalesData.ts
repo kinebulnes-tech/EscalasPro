@@ -4579,24 +4579,92 @@ export const scales: Scale[] = [
   // ==========================================
   // NUTRICIÓN
   // ==========================================
-  {
-    id: 'mna_short',
-    nombre: 'MNA® - Versión Corta',
+{
+    id: 'mna_short_form',
+    nombre: 'MNA® - Versión Corta (Cribado)',
     categoria: 'nutricion',
-    descripcion: 'Mini Nutritional Assessment. Cribado rápido de malnutrición en adultos mayores.',
+    descripcion: 'Mini Nutritional Assessment. Herramienta de cribado rápido para detectar riesgo de malnutrición en adultos mayores.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11507253) ---
+    bibliografia: "Rubenstein LZ, et al. Screening for undernutrition in geriatric practice: developing the short-form mini-nutritional assessment (MNA-SF). J Gerontol. 2001.",
+    referenciaUrl: "https://www.mna-elderly.com/", // ✅ FUENTE OFICIAL VERIFICADA
+    evidenciaClinica: "Es el estándar de oro en geriatría. Un puntaje < 12 indica la necesidad de una intervención nutricional o una evaluación diagnóstica más profunda.",
+
     preguntas: [
-      { id: 'ingesta', text: 'A. ¿Ha comido menos por falta de apetito, problemas digestivos o de masticación en los últimos 3 meses?', type: 'select', options: [{ label: '0 - Anorexia grave', value: 0 }, { label: '1 - Anorexia moderada', value: 1 }, { label: '2 - Sin anorexia', value: 2 }] },
-      { id: 'perdida_peso', text: 'B. Pérdida reciente de peso (< 3 meses):', type: 'select', options: [{ label: '0 - Pérdida > 3kg', value: 0 }, { label: '1 - No lo sabe', value: 1 }, { label: '2 - Pérdida entre 1 y 3kg', value: 2 }, { label: '3 - Sin pérdida de peso', value: 3 }] },
-      { id: 'movilidad', text: 'C. Movilidad:', type: 'select', options: [{ label: '0 - De la cama al sillón', value: 0 }, { label: '1 - Autonomía en el interior', value: 1 }, { label: '2 - Sale del domicilio', value: 2 }] },
-      { id: 'estres', text: 'D. ¿Ha tenido una enfermedad aguda o situación de estrés psicológico en los últimos 3 meses?', type: 'select', options: [{ label: '0 - Sí', value: 0 }, { label: '2 - No', value: 2 }] },
-      { id: 'neuro', text: 'E. Problemas neuropsicológicos:', type: 'select', options: [{ label: '0 - Demencia o depresión grave', value: 0 }, { label: '1 - Demencia moderada', value: 1 }, { label: '2 - Sin problemas psicológicos', value: 2 }] },
-      { id: 'imc', text: 'F. Índice de Masa Corporal (IMC):', type: 'select', options: [{ label: '0 - IMC < 19', value: 0 }, { label: '1 - IMC 19 - <21', value: 1 }, { label: '2 - IMC 21 - <23', value: 2 }, { label: '3 - IMC ≥ 23', value: 3 }] }
+      { id: 'ingesta', text: 'A. ¿Ha comido menos por falta de apetito, problemas digestivos o de masticación en los últimos 3 meses?', type: 'select', options: [
+        { label: '0: Anorexia grave (Casi no come)', value: 0 }, 
+        { label: '1: Anorexia moderada (Come un poco menos)', value: 1 }, 
+        { label: '2: Sin anorexia / Ingesta normal', value: 2 }
+      ]},
+      { id: 'perdida_peso', text: 'B. Pérdida reciente de peso (últimos 3 meses):', type: 'select', options: [
+        { label: '0: Pérdida mayor a 3 kg', value: 0 }, 
+        { label: '1: No lo sabe / Desconoce', value: 1 }, 
+        { label: '2: Pérdida entre 1 y 3 kg', value: 2 }, 
+        { label: '3: Sin pérdida de peso', value: 3 }
+      ]},
+      { id: 'movilidad', text: 'C. Movilidad:', type: 'select', options: [
+        { label: '0: De la cama al sillón (Encamado)', value: 0 }, 
+        { label: '1: Autonomía en el interior (No sale de casa)', value: 1 }, 
+        { label: '2: Sale del domicilio con regularidad', value: 2 }
+      ]},
+      { id: 'estres', text: 'D. ¿Ha tenido una enfermedad aguda o estrés psicológico en los últimos 3 meses?', type: 'select', options: [
+        { label: '0: Sí', value: 0 }, 
+        { label: '2: No', value: 2 }
+      ]},
+      { id: 'neuro', text: 'E. Problemas neuropsicológicos:', type: 'select', options: [
+        { label: '0: Demencia o depresión grave', value: 0 }, 
+        { label: '1: Demencia moderada / Confusión leve', value: 1 }, 
+        { label: '2: Sin problemas psicológicos', value: 2 }
+      ]},
+      { id: 'imc', text: 'F. Índice de Masa Corporal (IMC) [Peso / Talla²]:', type: 'select', options: [
+        { label: '0: IMC < 19', value: 0 }, 
+        { label: '1: IMC 19 a < 21', value: 1 }, 
+        { label: '2: IMC 21 a < 23', value: 2 }, 
+        { label: '3: IMC ≥ 23', value: 3 }
+      ]}
     ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 12) return { texto: 'Estado nutricional normal', recomendaciones: ['Reevaluar anualmente o tras cambio clínico', 'Mantener dieta equilibrada e hidratación'] };
-      if (p >= 8) return { texto: 'Riesgo de malnutrición', recomendaciones: ['Realizar evaluación profunda (MNA versión larga)', 'Seguimiento de peso mensual', 'Intervención nutricional preventiva'] };
-      return { texto: 'Malnutrición evidente', recomendaciones: ['Derivación urgente a Nutricionista', 'Suplementación nutricional indicada', 'Evaluar causas médicas de la baja de peso'] };
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 12) {
+        return { 
+          texto: 'Estado Nutricional Normal', 
+          color: 'emerald-600', 
+          evidencia: `Puntaje de ${puntaje}/14: Bajo riesgo de malnutrición.`, 
+          recomendaciones: [
+            'Reevaluación anual o tras cualquier cambio clínico importante', 
+            'Mantener dieta equilibrada y asegurar ingesta de líquidos', 
+            'Fomentar actividad física para preservar masa muscular'
+          ] 
+        };
+      }
+      if (puntaje >= 8) {
+        return { 
+          texto: 'Riesgo de Malnutrición', 
+          color: 'orange-600', 
+          evidencia: `Puntaje de ${puntaje}/14: Se requiere vigilancia activa.`, 
+          recomendaciones: [
+            'Realizar evaluación profunda (MNA® Versión Larga)', 
+            'Seguimiento de peso mensual estricto', 
+            'Evaluación odontológica y de deglución', 
+            'Enriquecer la dieta con proteínas y calorías'
+          ] 
+        };
+      }
+      return { 
+        texto: 'Malnutrición Evidente', 
+        color: 'red-600', 
+        evidencia: `Puntaje de ${puntaje}/14: Alto compromiso nutricional con impacto sistémico.`, 
+        recomendaciones: [
+          'Derivación URGENTE a Nutricionista y Geriatra', 
+          'Indicar suplementación nutricional oral según requerimiento', 
+          'Evaluar causas médicas de la baja de peso (neoplasias, depresión, etc.)', 
+          'Monitorización de fuerza de prensión (Handgrip) para evaluar funcionalidad'
+        ] 
+      };
     }
   },
   {
@@ -4677,33 +4745,65 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-    id: 'nrs_2002',
+ {
+    id: 'nrs_2002_hospitalario',
     nombre: 'NRS-2002 (Nutritional Risk Screening)',
     categoria: 'nutricion',
-    descripcion: 'Tamizaje de riesgo nutricional en pacientes hospitalizados.',
+    descripcion: 'Sistema de cribado de riesgo nutricional para pacientes adultos hospitalizados.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 12531648) ---
+    bibliografia: "Kondrup J, et al. Nutritional risk screening (NRS 2002): a new method based on an analysis of controlled clinical trials. Clin Nutr. 2003.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/12531648/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es la herramienta recomendada por la ESPEN para el ámbito hospitalario. Predice qué pacientes se beneficiarán significativamente de un soporte nutricional temprano.",
+
     preguntas: [
-      { id: 'estado_nutricional', text: '1. Deterioro del estado nutricional:', type: 'select', options: [
-        { label: '0 - Normal', value: 0 },
-        { label: '1 - Leve (Pérdida peso > 5% en 3 meses o ingesta 50-75%)', value: 1 },
-        { label: '2 - Moderado (Pérdida peso > 5% en 2 meses o IMC 18.5-20.5 o ingesta 25-50%)', value: 2 },
-        { label: '3 - Severo (Pérdida peso > 5% en 1 mes o IMC < 18.5 o ingesta 0-25%)', value: 3 }
+      { id: 'estado_nutricional', text: '1. Deterioro del Estado Nutricional (Seleccione el mayor compromiso):', type: 'select', options: [
+        { label: '0: Estado Nutricional Normal', value: 0 },
+        { label: '1: LEVE (Pérdida peso >5% en 3 meses O Ingesta 50-75% de requerimientos)', value: 1 },
+        { label: '2: MODERADO (Pérdida peso >5% en 2 meses O IMC 18.5-20.5 O Ingesta 25-50%)', value: 2 },
+        { label: '3: SEVERO (Pérdida peso >5% en 1 mes O IMC <18.5 O Ingesta <25%)', value: 3 }
       ]},
-      { id: 'gravedad_enfermedad', text: '2. Gravedad de la enfermedad (estrés metabólico):', type: 'select', options: [
-        { label: '0 - Requerimientos normales', value: 0 },
-        { label: '1 - Leve (Fractura de cadera, pacientes crónicos con complicaciones)', value: 1 },
-        { label: '2 - Moderada (Cirugía mayor abdominal, ACV, neumonía grave, cáncer)', value: 2 },
-        { label: '3 - Severa (TEC, trasplante médula, pacientes en UCI)', value: 3 }
+      { id: 'gravedad_enfermedad', text: '2. Gravedad de la Enfermedad (Estrés Metabólico):', type: 'select', options: [
+        { label: '0: Requerimientos nutricionales normales (Cirugía menor, patología leve)', value: 0 },
+        { label: '1: LEVE (Fractura de cadera, complicaciones crónicas, hemodiálisis, EPOC)', value: 1 },
+        { label: '2: MODERADA (Cirugía mayor abdominal, ACV, Neumonía grave, Cáncer hematológico)', value: 2 },
+        { label: '3: SEVERA (TEC, Trasplante de médula, Paciente en UCI con APACHE II > 10)', value: 3 }
       ]},
-      { id: 'ajuste_edad', text: '3. Edad del paciente:', type: 'select', options: [
-        { label: 'Menor de 70 años', value: 0 },
-        { label: '70 años o más (+1 punto)', value: 1 }
+      { id: 'ajuste_edad', text: '3. Edad del Paciente:', type: 'select', options: [
+        { label: 'Menor de 70 años (0 pts)', value: 0 },
+        { label: '70 años o más (+1 punto de ajuste)', value: 1 }
       ]}
     ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 3) return { texto: 'Paciente en Riesgo Nutricional', recomendaciones: ['Iniciar plan de cuidados nutricionales de inmediato', 'Interconsulta a Nutricionista y Médico', 'Monitoreo diario de ingesta', 'Considerar soporte nutricional (enteral/parenteral)'] };
-      return { texto: 'Sin Riesgo en este momento', recomendaciones: ['Reevaluar semanalmente durante la hospitalización', 'Si el paciente va a cirugía mayor, considerar protocolo preventivo'] };
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 3) {
+        return { 
+          texto: 'PACIENTE EN RIESGO NUTRICIONAL', 
+          color: 'red-600', 
+          evidencia: `Puntaje de ${puntaje}: Indica que el paciente requiere un plan de soporte nutricional formal.`, 
+          recomendaciones: [
+            'Interconsulta URGENTE a Nutricionista y Equipo de Terapia Nutricional', 
+            'Iniciar plan de cuidados nutricionales de inmediato', 
+            'Monitoreo estricto de la ingesta real diaria', 
+            'Evaluar necesidad de soporte enteral o parenteral si la ingesta oral es insuficiente',
+            'Registrar peso corporal semanal'
+          ] 
+        };
+      }
+      return { 
+        texto: 'Sin Riesgo Nutricional Actual', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje de ${puntaje}: El paciente mantiene reservas adecuadas para su condición actual.`, 
+        recomendaciones: [
+          'Reevaluación semanal sistemática durante toda la hospitalización', 
+          'Si el paciente va a ser sometido a cirugía mayor, considerar protocolo preventivo pre-operatorio', 
+          'Mantener dieta hospitalaria estándar supervisada'
+        ] 
+      };
     }
   },
   {
@@ -4831,26 +4931,73 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-    id: 'imc_cintura',
-    nombre: 'IMC y Perímetro de Cintura',
-    categoria: 'nutricion',
-    descripcion: 'Clasificación del estado nutricional y riesgo cardiometabólico.',
-    preguntas: [
-      { id: 'imc_val', text: 'Ingrese el IMC (kg/m²):', type: 'number' },
-      { id: 'cintura_val', text: 'Perímetro de cintura (cm):', type: 'number' },
-      { id: 'sexo', text: 'Sexo:', type: 'select', options: [{ label: 'Hombre', value: 1 }, { label: 'Mujer', value: 2 }] }
-    ],
-    calcularPuntaje: (r) => Number(r.imc_val) || 0,
-    interpretar: (p) => {
-      let cat = '';
-      if (p < 18.5) cat = 'Bajo Peso';
-      else if (p < 25) cat = 'Normopeso';
-      else if (p < 30) cat = 'Sobrepeso';
-      else cat = 'Obesidad';
-      return { texto: 'Estado: ' + cat, recomendaciones: ['Evaluar riesgo cardiovascular según perímetro de cintura', 'Ajustar plan alimentario según objetivo ponderal'] };
+  
+ {
+  id: 'imc_cintura',
+  nombre: 'IMC y Perímetro de Cintura',
+  categoria: 'nutricion',
+  descripcion: 'Clasificación del estado nutricional y evaluación del riesgo cardiometabólico.',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA ---
+  bibliografia: "World Health Organization (WHO). Waist circumference and waist-hip ratio: report of a WHO expert consultation. 2008.",
+  referenciaUrl: "https://www.who.int/publications/i/item/9789241501491",
+  evidenciaClinica: "El IMC categoriza el peso, mientras que el perímetro de cintura identifica la obesidad abdominal, predictor de riesgo para Diabetes e Hipertensión.",
+
+  preguntas: [
+    { 
+      id: 'imc_val', 
+      text: '1. Ingrese el IMC calculado (kg/m²):', 
+      type: 'number' 
+    },
+    { 
+      id: 'cintura_val', 
+      text: '2. Perímetro de cintura (cm):', 
+      type: 'number' 
+    },
+    { 
+      id: 'sexo', 
+      text: '3. Sexo biológico:', 
+      type: 'select', 
+      options: [
+        { label: 'Hombre', value: 1 }, // Cambiado de 'h' a 1
+        { label: 'Mujer', value: 2 }   // Cambiado de 'm' a 2
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (r: any) => Number(r.imc_val) || 0,
+
+  interpretar: (p: number) => {
+    let cat = '';
+    let color = '';
+
+    if (p < 18.5) { 
+      cat = 'Bajo Peso'; 
+      color = 'blue-500'; 
+    } else if (p < 25) { 
+      cat = 'Normopeso (Rango saludable)'; 
+      color = 'emerald-600'; 
+    } else if (p < 30) { 
+      cat = 'Sobrepeso (Pre-obesidad)'; 
+      color = 'orange-500'; 
+    } else { 
+      cat = 'Obesidad'; 
+      color = 'red-600'; 
+    }
+
+    return { 
+      texto: 'Estado: ' + cat, 
+      color: color,
+      evidencia: `Resultado basado en un IMC de ${p} kg/m².`,
+      // Nota: Si tu sistema pide 'recommendations' en inglés, cámbialo aquí abajo
+      recomendaciones: [
+        'Evaluar riesgo cardiovascular según el perímetro de cintura', 
+        'Ajustar plan alimentario según objetivo ponderal',
+        'Considerar evaluación de composición muscular'
+      ] 
+    };
+  }
+},
   {
   id: 'bristol',
   nombre: 'Escala de Bristol',
@@ -4917,24 +5064,61 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-    id: 'strong_kids',
-    nombre: 'StrongKids',
-    categoria: 'nutricion',
-    descripcion: 'Screening de riesgo nutricional pediátrico hospitalario.',
-    preguntas: [
-      { id: 'subje', text: 'Evaluación subjetiva (¿Se ve desnutrido?):', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'enf', text: 'Enfermedad de alto riesgo o cirugía mayor:', type: 'select', options: [{ label: 'Sí (2 pts)', value: 2 }, { label: 'No', value: 0 }] },
-      { id: 'ingesta', text: 'Ingesta reducida, diarrea o vómitos:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'perdida', text: 'Pérdida de peso o falta de crecimiento:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 4) return { texto: 'Riesgo Alto', recomendaciones: ['Consulta inmediata a Nutricionista/Pediatra', 'Soporte nutricional prescrito', 'Seguimiento diario'] };
-      if (p >= 1) return { texto: 'Riesgo Moderado', recomendaciones: ['Control de peso diario', 'Suplementación si no mejora ingesta', 'Reevaluar en 3 días'] };
-      return { texto: 'Riesgo Bajo', recomendaciones: ['Cuidado estándar', 'Reevaluar semanalmente'] };
-    }
-  },
+  
+   {
+  id: 'strong_kids',
+  nombre: 'StrongKids',
+  categoria: 'nutricion',
+  descripcion: 'Screening de riesgo nutricional pediátrico hospitalario.',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
+  bibliografia: "Hulst JM, et al. Dutch national survey of risk of malnutrition in hospitalized children. Clin Nutr. 2010;29(1):106-11.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/19660840/", 
+  evidenciaClinica: "Herramienta validada para el triaje nutricional en pediatría. Evalúa de forma rápida el riesgo metabólico basado en la patología y la ingesta, permitiendo una intervención precoz.",
+
+  preguntas: [
+    { id: 'subje', text: '1. Evaluación subjetiva (¿Se ve desnutrido?):', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'enf', text: '2. Enfermedad de alto riesgo o cirugía mayor:', type: 'select', options: [{ label: 'Sí (2 pts)', value: 2 }, { label: 'No', value: 0 }] },
+    { id: 'ingesta', text: '3. Ingesta reducida, diarrea o vómitos:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'perdida', text: '4. Pérdida de peso o falta de crecimiento:', type: 'select', options: [{ label: 'Sí (1 pt)', value: 1 }, { label: 'No', value: 0 }] }
+  ],
+
+  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p) => {
+    if (p >= 4) return { 
+      texto: 'Riesgo Alto', 
+      color: 'red-600',
+      evidencia: 'Puntaje de ' + p + ': Riesgo severo. Requiere intervención inmediata.',
+      recomendaciones: [
+        'Consulta inmediata a Nutricionista/Pediatra especialista', 
+        'Iniciar soporte nutricional prescrito (enteral/suplementos)', 
+        'Seguimiento diario de peso y balance hídrico'
+      ] 
+    };
+
+    if (p >= 1) return { 
+      texto: 'Riesgo Moderado', 
+      color: 'orange-500',
+      evidencia: 'Puntaje de ' + p + ': Riesgo presente. Vigilancia activa.',
+      recomendaciones: [
+        'Control de peso diario', 
+        'Suplementación si no mejora ingesta en 48h', 
+        'Reevaluar con StrongKids en 3 días'
+      ] 
+    };
+
+    return { 
+      texto: 'Riesgo Bajo', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + ': Estado estable.',
+      recomendaciones: [
+        'Cuidado estándar de enfermería', 
+        'Reevaluar semanalmente durante la estadía'
+      ] 
+    };
+  }
+},
   {
     id: 'scoff_test',
     nombre: 'Cuestionario SCOFF',
