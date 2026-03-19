@@ -6082,7 +6082,6 @@ return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar f
   // ==========================================
 
 
-
 // Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
 
 export const categories = [
