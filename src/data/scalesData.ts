@@ -570,35 +570,7 @@ export const scales: Scale[] = [
     }
   },
 
-  {
-    id: 'ndi_cervical',
-    nombre: 'Índice de Discapacidad Cervical (NDI)',
-    categoria: 'traumatologia',
-    descripcion: 'Evaluación de cómo el dolor de cuello afecta la capacidad de gestionar la vida diaria.',
-    
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1730411) ---
-    bibliografia: "Vernon H, Mior S. The Neck Disability Index: a study of reliability and validity. J Manipulative Physiol Ther. 1991.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1730411/", 
-    evidenciaClinica: "Es la herramienta más validada para evaluar el latigazo cervical (whiplash) y radiculopatías cervicales. Un cambio de 5 puntos (10%) se considera clínicamente relevante.",
-
-    preguntas: [
-      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
-    ],
-
-    // Cálculo: (Suma / 50) * 100
-    calcularPuntaje: (respuestas) => {
-      const suma = Number(respuestas.suma_total) || 0;
-      return (suma / 50) * 100;
-    },
-
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 70) return { texto: 'DISCAPACIDAD COMPLETA', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación por neurocirujano o traumatólogo de columna', 'Manejo de dolor neuropático'] };
-      if (puntaje >= 50) return { texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia: Control motor cervical y ejercicios de estabilización profunda'] };
-      if (puntaje >= 30) return { texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}%`, recomendaciones: ['Higiene postural laboral', 'Pausas activas y ergonomía'] };
-      if (puntaje >= 10) return { texto: 'DISCAPACIDAD LEVE', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ejercicios de movilidad', 'Calor local y manejo de estrés'] };
-      return { texto: 'SIN DISCAPACIDAD', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa'] };
-    }
-  },
+ 
 
   {
     id: 'ndi_cervical',
