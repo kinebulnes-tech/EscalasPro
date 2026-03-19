@@ -1226,21 +1226,80 @@ export const scales: Scale[] = [
 },
   {
     id: 'mecv_v',
-    nombre: 'MECV-V',
+    nombre: 'MECV-V (Método de Exploración Clínica Volumen-Viscosidad)',
     categoria: 'fonoaudiologia',
-    descripcion: 'Método de Exploración Clínica Volumen-Viscosidad',
+    descripcion: 'Prueba de cribado para detectar disfagia orofaríngea, evaluando la seguridad y eficacia de la deglución con diferentes volúmenes y texturas.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 18457704) ---
+    bibliografia: "Clavé P, et al. Accuracy of the volume-viscosity swallow test for clinical screening of oropharyngeal dysphagia and aspiration. Clin Nutr. 2008 Dec;27(6):806-15.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/18457704/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es una herramienta con alta sensibilidad (88-100%) para detectar aspiración. Permite determinar el volumen y la viscosidad segura para la alimentación oral del paciente.",
+
     preguntas: [
-      { id: 'nectar_5ml', text: 'Deglución néctar 5ml - Seguridad', type: 'select', options: [{ label: 'Sin alteraciones', value: 0 }, { label: 'Tos/cambio voz', value: 1 }] },
-      { id: 'nectar_10ml', text: 'Deglución néctar 10ml - Seguridad', type: 'select', options: [{ label: 'Sin alteraciones', value: 0 }, { label: 'Tos/cambio voz', value: 1 }] },
-      { id: 'nectar_20ml', text: 'Deglución néctar 20ml - Seguridad', type: 'select', options: [{ label: 'Sin alteraciones', value: 0 }, { label: 'Tos/cambio voz', value: 1 }] },
-      { id: 'eficacia', text: 'Eficacia de la deglución', type: 'select', options: [{ label: 'Sin residuos', value: 0 }, { label: 'Deglución fraccionada', value: 1 }, { label: 'Residuo oral', value: 2 }] }
+      { 
+        id: 'seguridad', 
+        text: '¿Presenta signos de INSEGURIDAD? (Tos, cambio de tono de voz o caída de SatO2 ≥ 3% en cualquier volumen/viscosidad):', 
+        type: 'select', 
+        options: [
+          { label: 'No presenta (Seguro)', value: 0 },
+          { label: 'Sí presenta (Inseguro)', value: 1 }
+        ] 
+      },
+      { 
+        id: 'eficacia', 
+        text: '¿Presenta signos de INEFICACIA? (Residuos orales, deglución fraccionada o mal sello labial):', 
+        type: 'select', 
+        options: [
+          { label: 'No presenta (Eficaz)', value: 0 },
+          { label: 'Sí presenta (Ineficaz)', value: 1 }
+        ] 
+      },
+      { 
+        id: 'limite_viscosidad', 
+        text: 'Viscosidad de máxima seguridad alcanzada:', 
+        type: 'select', 
+        options: [
+          { label: 'Pudding (Extremadamente espesa)', value: 1 },
+          { label: 'Néctar (Moderadamente espesa)', value: 2 },
+          { label: 'Líquido fino', value: 3 }
+        ] 
+      }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    // Lógica clínica: La prioridad es la SEGURIDAD.
+    calcularPuntaje: (respuestas) => {
+      const seg = Number(respuestas.seguridad) || 0;
+      const efi = Number(respuestas.eficacia) || 0;
+      // Retornamos un código interno: 10 para inseguridad, 1 para ineficacia
+      return (seg * 10) + efi;
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Deglución segura y eficaz', recomendaciones: ['Puede iniciar dieta líquida y sólida normal', 'Mantener hidratación estándar'] };
-      if (puntaje <= 2) return { texto: 'Alteración leve de la deglución (Falla en eficacia)', recomendaciones: ['Higiene oral post-comidas para eliminar residuos', 'Alternar consistencias (sólido-líquido) para aclarar la vía', 'Comidas fraccionadas y de menor volumen'] };
-      if (puntaje <= 4) return { texto: 'Alteración moderada - Problemas de seguridad', recomendaciones: ['Ajuste estricto de la viscosidad de los líquidos (uso de espesantes a néctar/miel)', 'Prohibir líquidos finos libres', 'Maniobra de flexión cervical (chin tuck)'] };
-      return { texto: 'Alteración severa - Alto riesgo de aspiración', recomendaciones: ['Suspender vía oral para líquidos y texturas riesgosas', 'Alimentación por sonda nasogástrica', 'Derivar a Videofluoroscopia (VFS) o FEES'] };
+      if (puntaje === 0) {
+        return { 
+          texto: 'Deglución Normal (Segura y Eficaz)', 
+          color: 'emerald-600', 
+          evidencia: 'No se observan signos de aspiración ni residuos significativos en la exploración.', 
+          recomendaciones: ['Dieta estándar según edad/patología', 'Hidratación libre'] 
+        };
+      }
+      if (puntaje === 1) {
+        return { 
+          texto: 'Disfagia con Alteración de la EFICACIA', 
+          color: 'yellow-500', 
+          evidencia: 'Deglución segura (sin paso a vía aérea), pero con riesgo de desnutrición/deshidratación por residuos.', 
+          recomendaciones: ['Higiene oral exhaustiva post-ingesta', 'Uso de estrategias de incremento de bolo', 'Fraccionar alimentación'] 
+        };
+      }
+      if (puntaje >= 10) {
+        return { 
+          texto: 'Disfagia con Alteración de la SEGURIDAD', 
+          color: 'red-600', 
+          evidencia: 'ALTO RIESGO DE ASPIRACIÓN. Se detectaron signos de compromiso de la vía aérea.', 
+          recomendaciones: ['Suspender líquidos finos inmediatamente', 'Adaptación de viscosidad (Néctar/Pudding)', 'Intervención urgente por Fonoaudiología', 'Considerar vía de alimentación alternativa'] 
+        };
+      }
+      return { texto: 'Error en evaluación', color: 'gray-500', evidencia: 'Datos incompletos', recomendaciones: [] };
     }
   },
   {
