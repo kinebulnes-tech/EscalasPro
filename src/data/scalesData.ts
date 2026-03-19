@@ -6053,20 +6053,31 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'whoqol_bref_short',
-    nombre: 'WHOQOL-BREF (Calidad de Vida)',
-    categoria: 'psicologia',
-    descripcion: 'Evaluación abreviada de la OMS sobre la calidad de vida.',
-    preguntas: [
-      { id: 'q1', text: '¿Cómo calificaría su calidad de vida?', type: 'select', options: [{ label: 'Muy mala', value: 1 }, { label: 'Mala', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Buena', value: 4 }, { label: 'Muy buena', value: 5 }] },
-      { id: 'q2', text: '¿Cuán satisfecho está con su salud?', type: 'select', options: [{ label: 'Muy insatisfecho', value: 1 }, { label: 'Insatisfecho', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Satisfecho', value: 4 }, { label: 'Muy satisfecho', value: 5 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 4) return { texto: 'Calidad de vida percibida baja', recomendaciones: ['Evaluar factores determinantes (físicos, sociales)', 'Intervención integral'] };
-      return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar factores protectores'] };
-    }
-  }
+
+id: 'whoqol_bref_short',
+nombre: 'WHOQOL-BREF (Calidad de Vida)',
+categoria: 'psicologia',
+descripcion: 'Evaluación abreviada de la OMS sobre la calidad de vida.',
+preguntas: [
+
+{ id: 'q1', text: '¿Cómo calificaría su calidad de vida?', type: 'select', options: [{ label: 'Muy mala', value: 1 }, { label: 'Mala', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Buena', value: 4 }, { label: 'Muy buena', value: 5 }] },
+
+{ id: 'q2', text: '¿Cuán satisfecho está con su salud?', type: 'select', options: [{ label: 'Muy insatisfecho', value: 1 }, { label: 'Insatisfecho', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Satisfecho', value: 4 }, { label: 'Muy satisfecho', value: 5 }] }
+
+],
+
+calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+
+interpretar: (p) => {
+
+if (p <= 4) return { texto: 'Calidad de vida percibida baja', recomendaciones: ['Evaluar factores determinantes (físicos, sociales)', 'Intervención integral'] };
+
+return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar factores protectores'] };
+
+}
+
+}
+
 ];
 
 // Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
