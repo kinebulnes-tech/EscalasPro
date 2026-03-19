@@ -949,19 +949,77 @@ export const scales: Scale[] = [
   
   {
     id: 'escala_numerica_dolor',
-    nombre: 'Escala Numérica del Dolor',
+    nombre: 'Escala Numérica del Dolor (NRS-11)',
     categoria: 'kinesiologia',
-    descripcion: 'Evaluación numérica de la intensidad del dolor',
+    descripcion: 'Herramienta de unidimensional para la cuantificación de la intensidad del dolor referida por el paciente.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 713505) ---
+    bibliografia: "Downie WW, et al. Studies with pain rating scales. Ann Rheum Dis. 1978 Aug;37(4):378-81.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/713505/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es el estándar para pacientes comunicativos. Presenta una mayor validez estadística que la escala categórica verbal y es más fácil de aplicar que la EVA en contextos de urgencia.",
+
     preguntas: [
-      { id: 'dolor', text: 'Nivel de dolor del 0 al 10', type: 'number', min: 0, max: 10 }
+      { 
+        id: 'dolor', 
+        text: 'Instrucción al paciente: "En una escala de 0 a 10, donde 0 es la ausencia total de dolor y 10 es el peor dolor que pueda imaginar, ¿qué número le asigna a su dolor en este momento?"', 
+        type: 'select', 
+        options: [
+          { label: '0: Sin dolor', value: 0 },
+          { label: '1', value: 1 },
+          { label: '2', value: 2 },
+          { label: '3: Dolor leve', value: 3 },
+          { label: '4', value: 4 },
+          { label: '5: Dolor moderado', value: 5 },
+          { label: '6', value: 6 },
+          { label: '7: Dolor severo', value: 7 },
+          { label: '8', value: 8 },
+          { label: '9', value: 9 },
+          { label: '10: Dolor máximo / Insoportable', value: 10 }
+        ] 
+      }
     ],
+
     calcularPuntaje: (respuestas) => Number(respuestas.dolor) || 0,
+
     interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Sin dolor', recomendaciones: [] };
-      if (puntaje <= 3) return { texto: 'Dolor leve', recomendaciones: ['Medidas físicas de confort', 'AINEs o Paracetamol según protocolo'] };
-      if (puntaje <= 6) return { texto: 'Dolor moderado', recomendaciones: ['Escalón 2 de la OMS', 'Modificar o posponer terapia física extenuante'] };
-      if (puntaje <= 8) return { texto: 'Dolor severo', recomendaciones: ['Escalón 3 de la OMS (rescate con opioides)', 'Reevaluación médica inmediata'] };
-      return { texto: 'Dolor insoportable', recomendaciones: ['Analgesia endovenosa urgente', 'Considerar PCA (Analgesia Controlada por el Paciente)', 'Manejo multidisciplinario del dolor agudo'] };
+      if (puntaje === 0) {
+        return { 
+          texto: 'Sin Dolor', 
+          color: 'emerald-600', 
+          evidencia: 'El paciente niega cualquier percepción dolorosa.', 
+          recomendaciones: ['Registrar como basal', 'Continuar evaluación funcional'] 
+        };
+      }
+      if (puntaje <= 3) {
+        return { 
+          texto: 'Dolor Leve', 
+          color: 'green-500', 
+          evidencia: 'Dolor que permite la realización de la mayoría de las AVD y el descanso nocturno.', 
+          recomendaciones: ['Crioterapia/Termoterapia', 'Higiene postural', 'Educación en neurofisiología del dolor'] 
+        };
+      }
+      if (puntaje <= 6) {
+        return { 
+          texto: 'Dolor Moderado', 
+          color: 'yellow-500', 
+          evidencia: 'Interfiere significativamente con la actividad diaria. Requiere atención analgésica.', 
+          recomendaciones: ['Consultar protocolo farmacológico (Escalón 2 OMS)', 'Terapia manual no invasiva', 'Dosificar carga de ejercicio'] 
+        };
+      }
+      if (puntaje <= 8) {
+        return { 
+          texto: 'Dolor Severo', 
+          color: 'orange-600', 
+          evidencia: 'Dolor que impide el descanso y limita severamente la movilidad.', 
+          recomendaciones: ['Evaluación médica inmediata', 'Uso de fármacos de rescate', 'Reposo funcional'] 
+        };
+      }
+      return { 
+        texto: 'Dolor Insoportable', 
+        color: 'red-600', 
+        evidencia: 'Máximo nivel de estrés fisiológico por dolor. Riesgo de shock neurogénico.', 
+        recomendaciones: ['Manejo de urgencia', 'Analgesia multimodal endovenosa', 'Monitoreo constante'] 
+      };
     }
   },
   {
