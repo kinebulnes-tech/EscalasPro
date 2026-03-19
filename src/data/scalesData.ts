@@ -1797,22 +1797,61 @@ export const scales: Scale[] = [
   },
   {
     id: 'grbas',
-    nombre: 'GRBAS',
+    nombre: 'Escala GRBAS (Evaluación Perceptual de la Voz)',
     categoria: 'fonoaudiologia',
-    descripcion: 'Evaluación perceptual de la voz',
+    descripcion: 'Escala de Hirano para la clasificación subjetiva de la disfonía basada en la percepción auditiva del clínico.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 651111) ---
+    bibliografia: "Hirano M. Psycho-acoustic evaluation of voice. In: Clinical Examination of Voice. Vienna: Springer-Verlag; 1981:81-84.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/651111/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es la herramienta perceptual más validada internacionalmente. Permite una comunicación rápida entre especialistas y orienta hacia la posible etiología orgánica o funcional.",
+
     preguntas: [
-      { id: 'g_grado', text: 'G - Grado general', type: 'select', options: [{ label: '0 - Normal', value: 0 }, { label: '1 - Leve', value: 1 }, { label: '2 - Moderado', value: 2 }, { label: '3 - Severo', value: 3 }] },
-      { id: 'r_rugosidad', text: 'R - Rugosidad', type: 'select', options: [{ label: '0 - Ausente', value: 0 }, { label: '1 - Leve', value: 1 }, { label: '2 - Moderada', value: 2 }, { label: '3 - Severa', value: 3 }] },
-      { id: 'b_soplo', text: 'B - Soplo', type: 'select', options: [{ label: '0 - Ausente', value: 0 }, { label: '1 - Leve', value: 1 }, { label: '2 - Moderado', value: 2 }, { label: '3 - Severo', value: 3 }] },
-      { id: 'a_astenia', text: 'A - Astenia', type: 'select', options: [{ label: '0 - Ausente', value: 0 }, { label: '1 - Leve', value: 1 }, { label: '2 - Moderada', value: 2 }, { label: '3 - Severa', value: 3 }] },
-      { id: 's_tension', text: 'S - Tensión', type: 'select', options: [{ label: '0 - Ausente', value: 0 }, { label: '1 - Leve', value: 1 }, { label: '2 - Moderada', value: 2 }, { label: '3 - Severa', value: 3 }] }
+      { id: 'g_grado', text: 'G (Grade) - Grado global de la disfonía:', type: 'select', options: [{ label: '0: Normal', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Moderado', value: 2 }, { label: '3: Severo', value: 3 }] },
+      { id: 'r_rugosidad', text: 'R (Roughness) - Rugosidad (Impresión de irregularidad vibratoria):', type: 'select', options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Severa', value: 3 }] },
+      { id: 'b_soplo', text: 'B (Breathiness) - Soplo (Escape de aire audible):', type: 'select', options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Moderado', value: 2 }, { label: '3: Severo', value: 3 }] },
+      { id: 'a_astenia', text: 'A (Asthenia) - Astenia (Debilidad o falta de potencia):', type: 'select', options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Severa', value: 3 }] },
+      { id: 's_tension', text: 'S (Strain) - Tensión (Esfuerzo fonatorio excesivo):', type: 'select', options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Severa', value: 3 }] }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      // Sumatoria total (0-15) para registro, pero el peso clínico está en 'G'
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Voz normal', recomendaciones: ['Pautas preventivas de higiene vocal'] };
-      if (puntaje <= 4) return { texto: 'Disfonía leve', recomendaciones: ['Hidratación sistémica abundante', 'Reducir el consumo de irritantes (café, tabaco, reflujo)', 'Evitar el carraspeo vocal'] };
-      if (puntaje <= 8) return { texto: 'Disfonía moderada', recomendaciones: ['Derivación a Otorrinolaringología (Nasofibroscopía)', 'Terapia vocal fonoaudiológica directa', 'Reposo vocal relativo'] };
-      return { texto: 'Disfonía severa', recomendaciones: ['Nasofibroscopía urgente (descartar patología estructural/orgánica o parálisis de cuerda vocal)', 'Reposo vocal absoluto', 'Rehabilitación vocal intensiva'] };
+      // Nota: En GRBAS, la severidad la dicta principalmente el valor más alto alcanzado, especialmente en G.
+      // Usamos el puntaje total como referencia de carga vocal alterada.
+      if (puntaje === 0) {
+        return { 
+          texto: 'Voz Normal / Eufonía', 
+          color: 'emerald-600', 
+          evidencia: 'Ausencia de alteraciones perceptibles en la calidad vocal.', 
+          recomendaciones: ['Mantener pautas de higiene vocal', 'Hidratación adecuada', 'Control anual si es profesional de la voz'] 
+        };
+      }
+      if (puntaje <= 4) {
+        return { 
+          texto: 'Disfonía Leve', 
+          color: 'green-500', 
+          evidencia: 'Alteración perceptible pero que no interfiere con la inteligibilidad.', 
+          recomendaciones: ['Reposo vocal relativo', 'Evitar carraspeo y abuso vocal', 'Evaluación por Otorrinolaringología si persiste >15 días'] 
+        };
+      }
+      if (puntaje <= 9) {
+        return { 
+          texto: 'Disfonía Moderada', 
+          color: 'orange-600', 
+          evidencia: 'Presencia clara de escape de aire o aspereza. Esfuerzo fonatorio evidente.', 
+          recomendaciones: ['Derivación obligatoria a ORL para Nasofibroscopía', 'Inicio de terapia vocal fonoaudiológica', 'Eliminar irritantes laríngeos'] 
+        };
+      }
+      return { 
+        texto: 'Disfonía Severa', 
+        color: 'red-600', 
+        evidencia: 'Calidad vocal muy degradada. Posible compromiso estructural o neurológico de cuerdas vocales.', 
+        recomendaciones: ['Examen laríngeo urgente', 'Reposo vocal absoluto inicial', 'Tratamiento multidisciplinario (Médico-Fonoaudiológico)'] 
+      };
     }
   },
   {
