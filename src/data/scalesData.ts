@@ -1855,22 +1855,62 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'vhi',
-    nombre: 'Voice Handicap Index (VHI)',
+    id: 'vhi_10',
+    nombre: 'Voice Handicap Index (VHI-10)',
     categoria: 'fonoaudiologia',
-    descripcion: 'Índice de Discapacidad Vocal',
+    descripcion: 'Índice de Discapacidad Vocal abreviado. Mide la autopercepción del paciente sobre el impacto de su problema de voz en su vida.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15330342) ---
+    bibliografia: "Rosen CA, et al. Development and validation of the Voice Handicap Index-10. Laryngoscope. 2004 Sep;114(9):1549-56.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15330342/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es la herramienta de autoevaluación más robusta. Un puntaje >11 se considera fuera de los límites de la normalidad y sugiere una minusvalía vocal significativa.",
+
     preguntas: [
-      { id: 'funcional1', text: 'Mi voz dificulta que me oigan', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'A veces', value: 2 }, { label: 'Casi siempre', value: 3 }, { label: 'Siempre', value: 4 }] },
-      { id: 'funcional2', text: 'Me quedo sin aire', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'A veces', value: 2 }, { label: 'Casi siempre', value: 3 }, { label: 'Siempre', value: 4 }] },
-      { id: 'emocional1', text: 'Me siento tenso al hablar', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'A veces', value: 2 }, { label: 'Casi siempre', value: 3 }, { label: 'Siempre', value: 4 }] },
-      { id: 'fisica1', text: 'Mi voz varía en el día', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Casi nunca', value: 1 }, { label: 'A veces', value: 2 }, { label: 'Casi siempre', value: 3 }, { label: 'Siempre', value: 4 }] }
+      { id: 'f1', text: 'La gente tiene dificultad para oírme debido a mi voz:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'f2', text: 'La gente tiene dificultad para entenderme en lugares ruidosos:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'f3', text: 'Mi problema con la voz altera mi vida personal y social:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'f4', text: 'Me siento desplazado de las conversaciones por mi voz:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'p1', text: 'Siento que tengo que hacer un esfuerzo para hablar:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'p2', text: 'El sonido de mi voz es variable a lo largo del día:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'p3', text: 'Siento que mi voz se "agota" a mitad del día:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'e1', text: 'Mi problema con la voz me deprime:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'e2', text: 'Me siento menos "persona" debido a mi problema de voz:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] },
+      { id: 'e3', text: 'Mi problema de voz me hace sentir molesto / frustrado:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Casi nunca', value: 1 }, { label: '2: A veces', value: 2 }, { label: '3: Casi siempre', value: 3 }, { label: '4: Siempre', value: 4 }] }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
     interpretar: (puntaje) => {
-      if (puntaje <= 14) return { texto: 'Discapacidad vocal mínima', recomendaciones: ['Control preventivo anual si usa la voz profesionalmente'] };
-      if (puntaje <= 28) return { texto: 'Discapacidad vocal leve', recomendaciones: ['Entrenamiento en técnica vocal e higiene vocal', 'Amplificadores de voz si el entorno es ruidoso'] };
-      if (puntaje <= 50) return { texto: 'Discapacidad vocal moderada', recomendaciones: ['Impacto psicológico y laboral: iniciar terapia vocal', 'Derivación a psiquiatría/psicología si predomina el componente emocional'] };
-      return { texto: 'Discapacidad vocal severa', recomendaciones: ['Licencia médica fonoprotésica', 'Riesgo de pérdida de empleo por disfonía', 'Rehabilitación integral inmediata (ORL, Fonoaudiología, Psicología)'] };
+      if (puntaje <= 10) {
+        return { 
+          texto: 'Discapacidad Vocal Mínima / Normalidad', 
+          color: 'emerald-600', 
+          evidencia: 'La percepción del paciente está dentro de los rangos de normalidad o impacto insignificante.', 
+          recomendaciones: ['Mantener pautas de higiene vocal preventivas', 'Control si aparecen síntomas nuevos'] 
+        };
+      }
+      if (puntaje <= 20) {
+        return { 
+          texto: 'Discapacidad Vocal Leve', 
+          color: 'green-500', 
+          evidencia: 'Existe una autopercepción de limitación en situaciones específicas del día a día.', 
+          recomendaciones: ['Terapia vocal enfocada en técnica y eficiencia', 'Revisar ergonomía vocal laboral'] 
+        };
+      }
+      if (puntaje <= 30) {
+        return { 
+          texto: 'Discapacidad Vocal Moderada', 
+          color: 'orange-600', 
+          evidencia: 'Impacto significativo en la calidad de vida. El paciente evita situaciones comunicativas.', 
+          recomendaciones: ['Tratamiento fonoaudiológico intensivo', 'Evaluación por Otorrinolaringología (Nasofibroscopía)', 'Considerar apoyo psicológico si el componente emocional es alto'] 
+        };
+      }
+      return { 
+        texto: 'Discapacidad Vocal Severa', 
+        color: 'red-600', 
+        evidencia: 'La voz representa una minusvalía grave para el desempeño social, emocional y físico.', 
+        recomendaciones: ['Intervención multidisciplinaria urgente', 'Posible necesidad de reposo vocal o adecuación laboral', 'Monitoreo de salud mental asociado al impacto de la comunicación'] 
+      };
     }
   },
 
@@ -1878,25 +1918,67 @@ export const scales: Scale[] = [
   // EVALUACIÓN COGNITIVA
   // ==========================================
   {
-    id: 'moca',
-    nombre: 'MoCA',
+    id: 'moca_test',
+    nombre: 'MoCA (Montreal Cognitive Assessment)',
     categoria: 'cognitivas',
-    descripcion: 'Montreal Cognitive Assessment',
+    descripcion: 'Prueba de cribado de alta sensibilidad para la detección de deterioro cognitivo leve y estadios tempranos de demencia.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15817019) ---
+    bibliografia: "Nasreddine ZS, et al. The Montreal Cognitive Assessment, MoCA: a brief screening tool for mild cognitive impairment. J Am Geriatr Soc. 2005 Apr;53(4):695-9.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15817019/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Superior al MMSE en la detección de deterioro cognitivo leve (DCL). Evalúa dominios ejecutivos, visuoespaciales y de atención con mayor profundidad.",
+
     preguntas: [
-      { id: 'visuoespacial', text: 'Habilidades visuoespaciales/ejecutivas', type: 'number', min: 0, max: 5 },
-      { id: 'denominacion', text: 'Denominación', type: 'number', min: 0, max: 3 },
-      { id: 'memoria', text: 'Memoria', type: 'number', min: 0, max: 5 },
-      { id: 'atencion', text: 'Atención', type: 'number', min: 0, max: 6 },
-      { id: 'lenguaje', text: 'Lenguaje', type: 'number', min: 0, max: 3 },
-      { id: 'abstraccion', text: 'Abstracción', type: 'number', min: 0, max: 2 },
-      { id: 'recuerdo', text: 'Recuerdo diferido', type: 'number', min: 0, max: 5 },
-      { id: 'orientacion', text: 'Orientación', type: 'number', min: 0, max: 6 }
+      { id: 'escolaridad', text: '¿El paciente tiene 12 años o menos de educación formal?', type: 'select', options: [{ label: 'Sí (+1 punto)', value: 1 }, { label: 'No (0 puntos)', value: 0 }] },
+      { id: 'visuoespacial', text: 'Visuoespacial / Ejecutiva (Alternancia, Cubo, Reloj):', type: 'number', min: 0, max: 5 },
+      { id: 'denominacion', text: 'Denominación (León, Rinoceronte, Camello):', type: 'number', min: 0, max: 3 },
+      { id: 'atencion', text: 'Atención (Dígitos, letras, resta seriada):', type: 'number', min: 0, max: 6 },
+      { id: 'lenguaje', text: 'Lenguaje (Repetición, fluidez):', type: 'number', min: 0, max: 3 },
+      { id: 'abstraccion', text: 'Abstracción (Similitudes):', type: 'number', min: 0, max: 2 },
+      { id: 'recuerdo', text: 'Recuerdo Diferido (Memoria a corto plazo):', type: 'number', min: 0, max: 5 },
+      { id: 'orientacion', text: 'Orientación (Tiempo y Lugar):', type: 'number', min: 0, max: 6 }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      const escolaridadBonus = Number(respuestas.escolaridad) || 0;
+      // Sumamos todos los ítems excepto escolaridad para el subtotal
+      const subtotal = 
+        (Number(respuestas.visuoespacial) || 0) +
+        (Number(respuestas.denominacion) || 0) +
+        (Number(respuestas.atencion) || 0) +
+        (Number(respuestas.lenguaje) || 0) +
+        (Number(respuestas.abstraccion) || 0) +
+        (Number(respuestas.recuerdo) || 0) +
+        (Number(respuestas.orientacion) || 0);
+
+      const totalConBonus = subtotal + escolaridadBonus;
+      // El puntaje MoCA no puede exceder los 30 puntos
+      return Math.min(totalConBonus, 30);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje >= 26) return { texto: 'Cognición normal', recomendaciones: ['Fomentar reserva cognitiva con actividades desafiantes (lectura, idiomas)', 'Control de factores de riesgo vascular'] };
-      if (puntaje >= 18) return { texto: 'Deterioro cognitivo leve', recomendaciones: ['Derivación a Neurología/Geriatría', 'Revisión exhaustiva de polifarmacia (anticolinérgicos, BZD)', 'Terapia de estimulación cognitiva'] };
-      return { texto: 'Deterioro cognitivo moderado a severo', recomendaciones: ['Estudio de demencia (Imágenes, lab, B12, Tiroides)', 'Asesoría a familiares para toma de decisiones financieras/médicas', 'Evaluación de seguridad para vivir solo o conducir'] };
+      if (puntaje >= 26) {
+        return { 
+          texto: 'Cognición Normal', 
+          color: 'emerald-600', 
+          evidencia: `Puntaje de ${puntaje}/30. No se detectan déficits significativos en el tamizaje.`, 
+          recomendaciones: ['Fomentar reserva cognitiva (lectura, aprendizaje continuo)', 'Controlar factores de riesgo cardiovascular y metabólicos'] 
+        };
+      }
+      if (puntaje >= 18) {
+        return { 
+          texto: 'Deterioro Cognitivo Leve (DCL)', 
+          color: 'orange-600', 
+          evidencia: `Puntaje de ${puntaje}/30. Sugiere un declive cognitivo mayor al esperado para la edad, pero sin pérdida de autonomía funcional severa.`, 
+          recomendaciones: ['Derivación a Neurología o Geriatría para diagnóstico diferencial', 'Evaluación de actividades instrumentales de la vida diaria (IADL)', 'Estimulación cognitiva reglada'] 
+        };
+      }
+      return { 
+        texto: 'Deterioro Cognitivo Moderado / Sugerente de Demencia', 
+        color: 'red-600', 
+        evidencia: `Puntaje de ${puntaje}/30. Déficit marcado en múltiples dominios cognitivos.`, 
+        recomendaciones: ['Estudio etiológico completo (Imágenes de cerebro, laboratorio completo)', 'Evaluación de seguridad en el hogar y conducción', 'Apoyo y psicoeducación al cuidador/familia'] 
+      };
     }
   },
   {
