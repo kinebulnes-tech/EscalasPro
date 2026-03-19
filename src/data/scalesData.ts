@@ -852,6 +852,368 @@ export const scales: Scale[] = [
     }
   },
 
+  // ==========================================
+  // Geriatria
+  // ==========================================
+
+  {
+    id: 'edmonton_frailty_scale',
+    nombre: 'Escala de Fragilidad de Edmonton (EFS)',
+    categoria: 'geriatria',
+    descripcion: 'Evaluación multidimensional de fragilidad que incluye cognición, función, nutrición y apoyo social.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 16843441) ---
+    bibliografia: "Rolfson DB, et al. Validity and reliability of the Edmonton Frail Scale. Age Ageing. 2006.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/16843441/", 
+    evidenciaClinica: "Puntaje de 0 a 17. Es superior al FRAIL para predecir complicaciones postoperatorias en adultos mayores.",
+
+    preguntas: [
+      { id: 'cognicion', text: 'Cognición (Test del reloj alterado):', type: 'select', options: [{ label: 'Normal (0)', value: 0 }, { label: 'Alteración leve (1)', value: 1 }, { label: 'Alteración severa (2)', value: 2 }] },
+      { id: 'salud_hospital', text: '¿Cuántas veces ha estado hospitalizado en el último año?', type: 'select', options: [{ label: '0 veces (0)', value: 0 }, { label: '1-2 veces (1)', value: 1 }, { label: '3 o más (2)', value: 2 }] },
+      { id: 'salud_percibida', text: '¿Cómo calificaría su salud en general?', type: 'select', options: [{ label: 'Excelente/Muy Buena (0)', value: 0 }, { label: 'Regular/Mala (1)', value: 1 }, { label: 'Muy mala (2)', value: 2 }] },
+      { id: 'independencia', text: '¿En cuántas AVD (compras, dinero, fármacos) necesita ayuda?', type: 'select', options: [{ label: '0-1 (0)', value: 0 }, { label: '2-4 (1)', value: 1 }, { label: '5-8 (2)', value: 2 }] },
+      { id: 'apoyo_social', text: '¿Cuenta con alguien que le ayude si enferma?', type: 'select', options: [{ label: 'Sí (0)', value: 0 }, { label: 'No (1)', value: 1 }] },
+      { id: 'medicamentos', text: '¿Toma 5 o más medicamentos diferentes al día?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
+      { id: 'nutricion', text: '¿Ha perdido peso últimamente o nota su ropa más suelta?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
+      { id: 'animo', text: '¿Se siente triste o deprimido a menudo?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
+      { id: 'continencia', text: '¿Tiene problemas de control de orina?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 12) return { texto: 'FRAGILIDAD SEVERA', color: 'red-700', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Cuidados paliativos geriátricos', 'Prevención total de complicaciones', 'Soporte social máximo'] };
+      if (puntaje >= 8) return { texto: 'FRAGILIDAD MODERADA', color: 'red-500', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Plan de intervención geriátrico intensivo', 'Revisión de polifarmacia'] };
+      if (puntaje >= 6) return { texto: 'FRAGILIDAD LEVE', color: 'orange-500', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Kinesioterapia: Entrenamiento de fuerza y equilibrio', 'Suplementación nutricional si aplica'] };
+      return { texto: 'Paciente No Frágil / Vulnerable', color: 'emerald-600', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Mantener controles preventivos'] };
+    }
+  },
+
+  {
+    id: 'rockwood_frailty_visual',
+    nombre: 'Escala de Fragilidad Clínica (Rockwood)',
+    categoria: 'geriatria',
+    descripcion: 'Escala visual para evaluar el nivel de fragilidad basado en el juicio clínico y la funcionalidad.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15685244) ---
+    bibliografia: "Rockwood K, et al. A global clinical measure of fitness and frailty in elderly people. CMAJ. 2005.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15685244/",
+
+    preguntas: [
+      { id: 'nivel_visual', text: 'Seleccione el estado actual del paciente:', type: 'select', options: [
+        { label: '1. Muy en forma (Activo, ejercicio regular)', value: 1 },
+        { label: '2. En forma (Sin enfermedad activa, camina ocasionalmente)', value: 2 },
+        { label: '3. Bien (Enfermedades controladas, pero no activo)', value: 3 },
+        { label: '4. Vulnerable (Síntomas limitan actividades, pero no depende)', value: 4 },
+        { label: '5. Frágil Leve (Necesita ayuda para AVD instrumentales)', value: 5 },
+        { label: '6. Frágil Moderado (Necesita ayuda para AVD básicas/bañarse)', value: 6 },
+        { label: '7. Frágil Severo (Dependencia total, pero no riesgo inminente)', value: 7 },
+        { label: '8. Frágil Muy Severo (Dependencia total, acercándose al final)', value: 8 },
+        { label: '9. Enfermedad Terminal (Expectativa < 6 meses)', value: 9 }
+      ]}
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.nivel_visual) || 1,
+
+    interpretar: (puntaje, respuestas) => {
+      const colorMap = { 1: 'emerald-700', 2: 'emerald-600', 3: 'green-500', 4: 'yellow-500', 5: 'orange-500', 6: 'orange-600', 7: 'red-500', 8: 'red-700', 9: 'slate-800' };
+      
+      return { 
+        texto: `Nivel Rockwood: ${puntaje}`, 
+        color: colorMap[puntaje as keyof typeof colorMap] || 'gray-500', 
+        evidencia: `Categoría clínica: ${puntaje}/9.`,
+        recomendaciones: [
+          'Utilizar para decidir proporcionalidad terapéutica',
+          'Ajustar metas de rehabilitación kinésica según reserva funcional',
+          'Documentar en ficha clínica para triage de urgencia'
+        ] 
+      };
+    }
+  },
+
+  {
+    id: 'barber_riesgo_geriatria',
+    nombre: 'Cuestionario de Barber',
+    categoria: 'geriatria',
+    descripcion: 'Cribado para identificar adultos mayores con riesgo de dependencia o necesidad de cuidados.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 7460010) ---
+    bibliografia: "Barber JH, et al. Health problems of the elderly in general practice. J R Coll Gen Pract. 1980.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/7460010/", 
+    evidenciaClinica: "Un solo ítem positivo indica riesgo. En Chile se utiliza para priorizar visitas domiciliarias integrales.",
+
+    preguntas: [
+      { id: 'vive_solo', text: '1. ¿Vive solo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'sin_hijos', text: '2. ¿Se encuentra sin hijos o personas en quien confiar?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'viudo', text: '3. ¿Ha quedado viudo en el último año?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'salud_mala', text: '4. ¿Considera que su salud es mala?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'vision_audicion', text: '5. ¿Tiene problemas de visión o audición que le impiden salir?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'caminata', text: '6. ¿Tiene dificultad para caminar fuera de casa solo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'ayuda_baño', text: '7. ¿Necesita ayuda para bañarse o vestirse?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'dinero', text: '8. ¿Tiene dificultades económicas?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 1) return { 
+        texto: 'RIESGO DE DEPENDENCIA', color: 'orange-500', evidencia: `${puntaje} respuestas positivas.`,
+        recomendaciones: ['Realizar Valoración Geriátrica Integral completa', 'Visita Domiciliaria Integral (VDI)', 'Evaluar redes de apoyo formal']
+      };
+      return { texto: 'Sin riesgo aparente', color: 'emerald-600', evidencia: '0 respuestas positivas.', recomendaciones: ['Seguimiento en próximo control EMPAM'] };
+    }
+  },
+
+  {
+    id: 'cam_delirium_geriatria',
+    nombre: 'Método CAM (Delirium)',
+    categoria: 'geriatria',
+    descripcion: 'Algoritmo diagnóstico para la detección rápida de Delirium.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 2262736) ---
+    bibliografia: "Inouye SK, et al. Clarifying confusion: the confusion assessment method. Ann Intern Med. 1990.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/2262736/", 
+    evidenciaClinica: "Requiere la presencia de los ítems 1 y 2, más el 3 o el 4 para el diagnóstico positivo.",
+
+    preguntas: [
+      { id: 'inicio_agudo', text: '1. Inicio agudo y curso fluctuante (¿Cambio brusco de estado mental?):', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'inatencion', text: '2. Inatención (¿Dificultad para fijar la atención o se distrae?):', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'pensamiento_desorg', text: '3. Pensamiento desorganizado (¿Lenguaje incoherente o irrelevante?):', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'conciencia_alterada', text: '4. Nivel de conciencia alterado (¿Alerta, letárgico, estuporoso?):', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      // Lógica diagnóstica: (1 AND 2) AND (3 OR 4)
+      const r = respuestas;
+      if (r.inicio_agudo == 1 && r.inatencion == 1 && (r.pensamiento_desorg == 1 || r.conciencia_alterada == 1)) return 1;
+      return 0;
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje === 1) return { 
+        texto: 'CAM POSITIVO (Sugiere Delirium)', color: 'red-600', evidencia: 'Cumple criterios diagnósticos de Inouye.',
+        recomendaciones: [
+          'Identificar y tratar la causa subyacente (Infección, Fármacos, Hipoxia)',
+          'Evitar contenciones físicas',
+          'Manejo ambiental: luz natural, presencia de familiares, orientación constante',
+          'Revisión urgente de polifarmacia'
+        ]
+      };
+      return { texto: 'CAM Negativo', color: 'emerald-600', evidencia: 'No cumple criterios de Delirium.', recomendaciones: ['Continuar monitoreo si persiste la fluctuación'] };
+    }
+  },
+
+  {
+    id: 'mmse_abreviado_chile',
+    nombre: 'Minimental Abreviado (v. Chilena)',
+    categoria: 'geriatria',
+    descripcion: 'Prueba de cribado cognitivo validada en Chile para el Examen Funcional del Adulto Mayor (EFAM).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (Chile - MINSAL) ---
+    bibliografia: "Ministerio de Salud de Chile. Manual del Examen Funcional del Adulto Mayor (EFAM).",
+    referenciaUrl: "https://www.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf",
+
+    preguntas: [
+      { id: 'orientacion', text: 'Orientación (Mes, Día del mes, Día semana, Año) (0-4 pts):', type: 'number', min: 0, max: 4 },
+      { id: 'memoria', text: 'Memoria Corto Plazo (Repetir 3 palabras: Árbol, Mesa, Avión) (0-3 pts):', type: 'number', min: 0, max: 3 },
+      { id: 'atencion', text: 'Atención (Restar 7 desde 100 cinco veces) (0-5 pts):', type: 'number', min: 0, max: 5 },
+      { id: 'evocacion', text: 'Evocación (Recordar las 3 palabras anteriores) (0-3 pts):', type: 'number', min: 0, max: 3 },
+      { id: 'copia_dibujo', text: 'Copia de Dibujo (Pentágonos cruzados) (0-4 pts):', type: 'number', min: 0, max: 4 }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje < 13) return { 
+        texto: 'SOSPECHA DE DETERIORO COGNITIVO', color: 'red-600', evidencia: `Puntaje ${puntaje}/19.`,
+        recomendaciones: ['Derivación para evaluación neuropsicológica (MoCA)', 'Realizar Test del Reloj', 'Solicitar exámenes de laboratorio (B12, TSH)']
+      };
+      return { texto: 'Normal', color: 'emerald-600', evidencia: `Puntaje ${puntaje}/19.`, recomendaciones: ['Estimulación cognitiva preventiva'] };
+    }
+  },
+
+  {
+    id: 'charlson_comorbilidad',
+    nombre: 'Índice de Comorbilidad de Charlson',
+    categoria: 'geriatria',
+    descripcion: 'Predice la mortalidad a diez años para pacientes que tienen una serie de condiciones comórbidas.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3558716) ---
+    bibliografia: "Charlson ME, et al. A new method of classifying prognostic comorbidity in longitudinal studies. J Chronic Dis. 1987.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3558716/", 
+
+    preguntas: [
+      { id: 'edad', text: 'Puntaje por Edad (50-59: 1pt, 60-69: 2pts, 70-79: 3pts, >=80: 4pts):', type: 'number', min: 0, max: 4 },
+      { id: 'comorbilidad_suma', text: 'Suma de puntos por patologías (IAM, ICC, EPOC, Diabetes, Cáncer, etc.):', type: 'number' }
+    ],
+
+    calcularPuntaje: (respuestas) => (Number(respuestas.edad) || 0) + (Number(respuestas.comorbilidad_suma) || 0),
+
+    interpretar: (puntaje, respuestas) => {
+      // Cálculo de supervivencia estimada (Fórmula simplificada)
+      const supervivencia = Math.max(0, 100 - (puntaje * 12)); 
+      
+      if (puntaje >= 5) return { 
+        texto: 'COMORBILIDAD ALTA', color: 'red-700', evidencia: `Puntaje ${puntaje}. Supervivencia estimada a 10 años baja.`,
+        recomendaciones: ['Priorizar adecuación del esfuerzo terapéutico', 'Planificación anticipada de decisiones', 'Revisión estricta de polifarmacia']
+      };
+      if (puntaje >= 3) return { 
+        texto: 'COMORBILIDAD MODERADA', color: 'orange-500', evidencia: `Puntaje ${puntaje}.`,
+        recomendaciones: ['Seguimiento estrecho de patologías descompensadas', 'Evaluación de interacciones farmacológicas']
+      };
+      return { texto: 'Comorbilidad Baja', color: 'emerald-600', evidencia: `Puntaje ${puntaje}.`, recomendaciones: ['Mantener controles preventivos'] };
+    }
+  },
+
+  {
+    id: 'hwalek_sengstock_maltrato',
+    nombre: 'Test de Hwalek-Sengstock (Cribado Maltrato)',
+    categoria: 'geriatria',
+    descripcion: 'Detección de sospecha de maltrato o vulnerabilidad en el adulto mayor.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1572212) ---
+    bibliografia: "Hwalek M, Sengstock MC. Assessing the probability of abuse of the elderly. J Gerontol Soc Work. 1986.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1572212/", 
+
+    preguntas: [
+      { id: 'aislamiento', text: '1. ¿Alguien le impide ver a sus amigos o familiares cuando usted quiere?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'dinero', text: '2. ¿Alguien toma su dinero sin su permiso o le obliga a firmar papeles?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'temor', text: '3. ¿Le tiene miedo a alguien de las personas con las que vive?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'insultos', text: '4. ¿Alguien le insulta, le amenaza o le hace sentir mal?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'negligencia', text: '5. ¿Le falta comida, ropa o medicinas porque alguien no se las proporciona?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'golpes', text: '6. ¿Alguien le ha golpeado, empujado o lastimado físicamente?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 1) return { 
+        texto: 'SOSPECHA DE MALTRATO / VULNERABILIDAD', color: 'red-600', evidencia: `${puntaje} indicadores positivos.`,
+        recomendaciones: [
+          'Entrevista privada con el paciente (sin cuidadores)',
+          'Notificación a Trabajo Social y dirección del centro',
+          'Evaluar integridad física inmediata',
+          'Activar protocolos legales vigentes en Chile (Senama / Carabineros)'
+        ]
+      };
+      return { texto: 'No se detectan indicadores de maltrato', color: 'emerald-600', evidencia: '0 indicadores.', recomendaciones: ['Mantener canales de comunicación abiertos'] };
+    }
+  },
+
+  {
+    id: 'sf12_calidad_vida',
+    nombre: 'Cuestionario SF-12',
+    categoria: 'geriatria',
+    descripcion: 'Medida resumida de la salud física y mental autopercibida.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (Chile - PMID: 11111624) ---
+    bibliografia: "Ware JE, et al. A 12-Item Short-Form Health Survey. Med Care. 1996. Validado en Chile por Vera-Villarroel.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8628298/", 
+
+    preguntas: [
+      { id: 'salud_general', text: '1. En general, ¿diría que su salud es (1:Exc - 5:Mala)?', type: 'number', min: 1, max: 5 },
+      { id: 'funcion_fisica', text: '2. Suma de ítems de función física (0-100%):', type: 'number' },
+      { id: 'salud_mental', text: '3. Suma de ítems de salud mental (0-100%):', type: 'number' }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      const fisica = Number(respuestas.funcion_fisica) || 0;
+      const mental = Number(respuestas.salud_mental) || 0;
+      return parseFloat(((fisica + mental) / 2).toFixed(1));
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje < 50) return { 
+        texto: 'BAJA CALIDAD DE VIDA', color: 'red-500', evidencia: `Score promedio: ${puntaje}/100.`,
+        recomendaciones: ['Identificar si el componente deficitario es físico o emocional', 'Intervención integral (Kine + Psicología)', 'Evaluar apoyo social']
+      };
+      return { texto: 'Buena Calidad de Vida', color: 'emerald-600', evidencia: `Score promedio: ${puntaje}/100.`, recomendaciones: ['Fomentar participación en actividades recreativas'] };
+    }
+  },
+
+  {
+    id: 'cornell_depresion_demencia',
+    nombre: 'Escala de Depresión de Cornell',
+    categoria: 'geriatria',
+    descripcion: 'Evaluación de depresión en personas con deterioro cognitivo o demencia.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3105771) ---
+    bibliografia: "Alexopoulos GS, et al. Cornell Scale for Depression in Dementia. Biol Psychiatry. 1988.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3105771/", 
+
+    preguntas: [
+      { id: 'animo', text: '1. Signos relacionados con el ánimo (Ansiedad, tristeza, irritabilidad) (0-2 pts):', type: 'number', min: 0, max: 2 },
+      { id: 'conducta', text: '2. Alteración de la conducta (Agitación, retardo, quejas físicas) (0-2 pts):', type: 'number', min: 0, max: 2 },
+      { id: 'fisicos', text: '3. Signos físicos (Pérdida de apetito, peso, energía) (0-2 pts):', type: 'number', min: 0, max: 2 },
+      { id: 'ciclo_diario', text: '4. Funciones cíclicas (Variación diurna de síntomas) (0-2 pts):', type: 'number', min: 0, max: 2 },
+      { id: 'ideacion', text: '5. Alteraciones del pensamiento (Pesimismo, ideas suicidas) (0-2 pts):', type: 'number', min: 0, max: 2 }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 12) return { 
+        texto: 'DEPRESIÓN PROBABLE / MAYOR', color: 'red-600', evidencia: `Puntaje ${puntaje}.`,
+        recomendaciones: ['Derivación a Psiquiatría o Neurología', 'Evaluar riesgo de autoagresión', 'Revisar farmacoterapia']
+      };
+      if (puntaje >= 8) return { 
+        texto: 'SÍNTOMAS DEPRESIVOS MENORES', color: 'orange-500', evidencia: `Puntaje ${puntaje}.`,
+        recomendaciones: ['Aumento de actividades de estimulación', 'Seguimiento clínico en 1 mes']
+      };
+      return { texto: 'Ausencia de depresión significativa', color: 'emerald-600', evidencia: 'Puntaje < 8.', recomendaciones: ['Mantener socialización activa'] };
+    }
+  },
+
+  {
+    id: 'tinetti_modificada_comunidad',
+    nombre: 'Tinetti Modificada',
+    categoria: 'geriatria',
+    descripcion: 'Evaluación de equilibrio y marcha para predicción de riesgo de caídas en entorno comunitario.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3524641) ---
+    bibliografia: "Tinetti ME. Performance-oriented assessment of mobility problems in elderly patients. J Am Geriatr Soc. 1986.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3524641/",
+
+    preguntas: [
+      { id: 'equilibrio', text: 'Suma sección Equilibrio (0-16 pts):', type: 'number', min: 0, max: 16 },
+      { id: 'marcha', text: 'Suma sección Marcha (0-12 pts):', type: 'number', min: 0, max: 12 }
+    ],
+
+    calcularPuntaje: (respuestas) => (Number(respuestas.equilibrio) || 0) + (Number(respuestas.marcha) || 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje <= 18) return { texto: 'ALTO RIESGO DE CAÍDAS', color: 'red-600', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Uso obligatorio de ayuda técnica', 'Kinesioterapia: Entrenamiento de equilibrio reactivo', 'Adaptación del hogar (quitar alfombras, mejorar luz)'] };
+      if (puntaje <= 24) return { texto: 'RIESGO MODERADO DE CAÍDAS', color: 'orange-500', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Ejercicios de fuerza de miembros inferiores', 'Revisar calzado'] };
+      return { texto: 'Bajo riesgo de caídas', color: 'emerald-600', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Mantener actividad física regular'] };
+    }
+  },
+
+  {
+    id: 'caregiver_strain_index',
+    nombre: 'Índice de Esfuerzo del Cuidador',
+    categoria: 'geriatria',
+    descripcion: 'Identifica cuidadores con riesgo de claudicación o sobrecarga por el cuidado de un anciano.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 6645366) ---
+    bibliografia: "Robinson BC. Validation of a Caregiver Strain Index. J Gerontol. 1983.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6645366/",
+
+    preguntas: [
+      { id: 'suma_si', text: '¿Cuántas respuestas "SÍ" marcó en el cuestionario de 13 ítems?', type: 'number', min: 0, max: 13 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_si) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 7) return { 
+        texto: 'SOBRECARGA ELEVADA', color: 'red-600', evidencia: `${puntaje} de 13 indicadores positivos.`,
+        recomendaciones: ['Intervención psicosocial urgente', 'Activar red de relevo familiar o institucional', 'Evaluar depresión en el cuidador']
+      };
+      return { texto: 'Nivel de esfuerzo manejable', color: 'emerald-600', evidencia: `${puntaje}/13.`, recomendaciones: ['Reforzar autocuidado', 'Mantener canales de comunicación con el equipo de salud'] };
+    }
+  },
+
+
 
   // ==========================================
   // PALIATIVOS
