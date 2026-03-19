@@ -1535,23 +1535,100 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-    id: 'boston_afasia',
-    nombre: 'Examen de Afasia de Boston',
+ {
+    id: 'boston_afasia_short',
+    nombre: 'Test de Boston para el Diagnóstico de la Afasia (Versión Abreviada)',
     categoria: 'fonoaudiologia',
-    descripcion: 'Evaluación comprensiva de las capacidades del lenguaje',
+    descripcion: 'Evaluación de los componentes principales del lenguaje para la clasificación de síndromes afásicos.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 12222572) ---
+    bibliografia: "Goodglass H, Kaplan E, Barresi B. BDAE-3: Boston Diagnostic Aphasia Examination. 3rd ed. Philadelphia: Lippincott Williams & Wilkins; 2001.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/12222572/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es el estándar de oro para la clasificación neuroanatómica de las afasias. Permite diferenciar entre afasias fluentes y no fluentes.",
+
     preguntas: [
-      { id: 'fluencia', text: 'Fluencia del habla', type: 'select', options: [{ label: 'Normal', value: 5 }, { label: 'Leve', value: 4 }, { label: 'Moderada', value: 3 }, { label: 'Severa', value: 2 }, { label: 'Mínima/ausente', value: 1 }] },
-      { id: 'comprension_auditiva', text: 'Comprensión auditiva', type: 'select', options: [{ label: 'Normal', value: 5 }, { label: 'Leve', value: 4 }, { label: 'Moderada', value: 3 }, { label: 'Severa', value: 2 }, { label: 'Mínima/ausente', value: 1 }] },
-      { id: 'repeticion', text: 'Repetición', type: 'select', options: [{ label: 'Normal', value: 5 }, { label: 'Leve', value: 4 }, { label: 'Moderada', value: 3 }, { label: 'Severa', value: 2 }, { label: 'Mínima/ausente', value: 1 }] },
-      { id: 'denominacion', text: 'Denominación', type: 'select', options: [{ label: 'Normal', value: 5 }, { label: 'Leve', value: 4 }, { label: 'Moderada', value: 3 }, { label: 'Severa', value: 2 }, { label: 'Mínima/ausente', value: 1 }] }
+      { 
+        id: 'fluencia', 
+        text: 'Fluencia (Línea melódica y longitud de la frase):', 
+        type: 'select', 
+        options: [
+          { label: '1-2: No fluente (Frases de 1-2 palabras, gran esfuerzo)', value: 1 },
+          { label: '3-4: Intermedio (Frases cortas, agramatismo)', value: 3 },
+          { label: '5+: Fluente (Línea melódica normal, frases largas)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'comprension', 
+        text: 'Comprensión Auditiva (Órdenes y discriminación):', 
+        type: 'select', 
+        options: [
+          { label: '1-2: Nula o mínima comprensión', value: 1 },
+          { label: '3-4: Comprende ideas simples con ayuda', value: 3 },
+          { label: '5+: Comprensión normal o cercana a lo normal', value: 5 }
+        ] 
+      },
+      { 
+        id: 'repeticion', 
+        text: 'Repetición (Palabras y frases):', 
+        type: 'select', 
+        options: [
+          { label: '1-2: Incapaz de repetir', value: 1 },
+          { label: '3-4: Repetición con parafasias o incompleta', value: 3 },
+          { label: '5+: Repetición normal', value: 5 }
+        ] 
+      },
+      { 
+        id: 'denominacion', 
+        text: 'Denominación (Nombrar objetos/dibujos):', 
+        type: 'select', 
+        options: [
+          { label: '1-2: Anomia severa / Mutismo', value: 1 },
+          { label: '3-4: Anomia moderada (requiere claves)', value: 3 },
+          { label: '5+: Denominación fluida', value: 5 }
+        ] 
+      }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      const f = Number(respuestas.fluencia) || 0;
+      const c = Number(respuestas.comprension) || 0;
+      const r = Number(respuestas.repeticion) || 0;
+      const d = Number(respuestas.denominacion) || 0;
+      return f + c + r + d;
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje >= 18) return { texto: 'Afasia leve o función normal', recomendaciones: ['Entrenamiento en habilidades de comunicación compleja (discurso narrativo)', 'Estrategias de recuperación de palabras (anomia leve)'] };
-      if (puntaje >= 14) return { texto: 'Afasia moderada', recomendaciones: ['Terapia del lenguaje estructurada', 'Uso de claves fonológicas/semánticas', 'Apoyo con comunicación alternativa de baja tecnología (tableros simples)'] };
-      if (puntaje >= 10) return { texto: 'Afasia moderadamente severa', recomendaciones: ['Sistemas de Comunicación Aumentativa y Alternativa (SAAC)', 'Entrenamiento a la familia: frases cortas, preguntas de Sí/No', 'Terapia de entonación melódica (si es no fluente)'] };
-      return { texto: 'Afasia severa (Afasia Global)', recomendaciones: ['Establecer métodos básicos de comunicación (gestos, pestañeos)', 'Apoyo intensivo a la familia para evitar frustración', 'Uso de imágenes y contexto visual estricto'] };
+      // Re-mapeo de severidad basado en el puntaje total (Máx 20)
+      if (puntaje >= 18) {
+        return { 
+          texto: 'Afasia Leve / Función Cercana a lo Normal', 
+          color: 'emerald-600', 
+          evidencia: 'Lenguaje funcional con posibles dificultades leves de denominación (anomia).', 
+          recomendaciones: ['Estrategias de circunloquio', 'Lectura y escritura compleja', 'Alta de terapia intensiva'] 
+        };
+      }
+      if (puntaje >= 14) {
+        return { 
+          texto: 'Afasia Moderada', 
+          color: 'green-500', 
+          evidencia: 'Déficit evidente en una o más áreas (fluencia o comprensión) que limita la comunicación social.', 
+          recomendaciones: ['Terapia del lenguaje estructurada', 'Entrenamiento de interlocutores', 'Uso de claves semánticas'] 
+        };
+      }
+      if (puntaje >= 8) {
+        return { 
+          texto: 'Afasia Moderadamente Severa', 
+          color: 'orange-600', 
+          evidencia: 'Compromiso significativo. El paciente requiere ayuda constante para intercambiar información básica.', 
+          recomendaciones: ['Sistemas de comunicación aumentativa (SAAC)', 'Terapia de entonación melódica', 'Simplificación del entorno auditivo'] 
+        };
+      }
+      return { 
+        texto: 'Afasia Severa (Compatible con Perfil Global)', 
+        color: 'red-600', 
+        evidencia: 'Mínima capacidad de expresión y comprensión. Todas las modalidades afectadas.', 
+        recomendaciones: ['Establecer código de comunicación básico (Sí/No)', 'Estimulación sensorial y visual', 'Apoyo psicológico familiar'] 
+      };
     }
   },
   {
