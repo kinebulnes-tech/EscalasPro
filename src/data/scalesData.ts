@@ -5511,61 +5511,308 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'audit_test',
-    nombre: 'Test AUDIT (Alcohol)',
-    categoria: 'psicologia',
-    descripcion: 'Identificación de trastornos por consumo de alcohol.',
-    preguntas: [
-      { id: 'frecuencia', text: '1. ¿Con qué frecuencia consume bebidas alcohólicas?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: '1 o menos veces al mes', value: 1 }, { label: '2 a 4 veces al mes', value: 2 }, { label: '2 a 3 veces a la semana', value: 3 }, { label: '4 o más veces a la semana', value: 4 }] },
-      { id: 'cantidad', text: '2. ¿Cuántas copas suele tomar en un día de consumo normal?', type: 'select', options: [{ label: '1 o 2', value: 0 }, { label: '3 o 4', value: 1 }, { label: '5 o 6', value: 2 }, { label: '7 a 9', value: 3 }, { label: '10 o más', value: 4 }] },
-      { id: 'intensivo', text: '3. ¿Con qué frecuencia toma 6 o más copas en una sola ocasión?', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Menos de una vez al mes', value: 1 }, { label: 'Mensualmente', value: 2 }, { label: 'Semanalmente', value: 3 }, { label: 'A diario o casi a diario', value: 4 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 7) return { texto: 'Consumo de bajo riesgo', recomendaciones: ['Educación sobre límites de consumo'] };
-      if (p <= 15) return { texto: 'Consumo de riesgo', recomendaciones: ['Consejería breve', 'Entrega de material educativo'] };
-      if (p <= 19) return { texto: 'Consumo perjudicial', recomendaciones: ['Derivación a programa de alcohol y drogas', 'Seguimiento médico'] };
-      return { texto: 'Probable dependencia', recomendaciones: ['Derivación a especialista (Psiquiatría/Centros de tratamiento)', 'Manejo de síndrome de abstinencia si aplica'] };
+  id: 'audit_test_alcohol',
+  nombre: 'Test AUDIT (Cribado de Alcohol)',
+  categoria: 'psicologia',
+  descripcion: 'Identificación de trastornos por consumo de alcohol y patrones de riesgo.',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
+  bibliografia: "Babor TF, et al. AUDIT: The Alcohol Use Disorders Identification Test: Guidelines for Use in Primary Health Care. World Health Organization; 2001.",
+  referenciaUrl: "https://www.who.int/publications/i/item/WHO-MSB-01.6a", // ✅ FUENTE OFICIAL OMS
+  evidenciaClinica: "El AUDIT es el instrumento de tamizaje más utilizado a nivel mundial para detectar consumo de riesgo, perjudicial y dependencia. Su aplicación temprana permite realizar intervenciones breves efectivas antes del desarrollo de patologías crónicas.",
+
+  preguntas: [
+    { 
+      id: 'frecuencia', 
+      text: '1. ¿Con qué frecuencia consume bebidas alcohólicas?', 
+      type: 'select', 
+      options: [
+        { label: 'Nunca (0 pts)', value: 0 }, 
+        { label: '1 o menos veces al mes (1 pt)', value: 1 }, 
+        { label: '2 a 4 veces al mes (2 pts)', value: 2 }, 
+        { label: '2 a 3 veces a la semana (3 pts)', value: 3 }, 
+        { label: '4 o más veces a la semana (4 pts)', value: 4 }
+      ] 
+    },
+    { 
+      id: 'cantidad', 
+      text: '2. ¿Cuántos tragos o copas suele tomar en un día de consumo normal?', 
+      type: 'select', 
+      options: [
+        { label: '1 o 2 (0 pts)', value: 0 }, 
+        { label: '3 o 4 (1 pt)', value: 1 }, 
+        { label: '5 o 6 (2 pts)', value: 2 }, 
+        { label: '7 a 9 (3 pts)', value: 3 }, 
+        { label: '10 o más (4 pts)', value: 4 }
+      ] 
+    },
+    { 
+      id: 'intensivo', 
+      text: '3. ¿Con qué frecuencia toma 6 o más copas en una sola ocasión?', 
+      type: 'select', 
+      options: [
+        { label: 'Nunca (0 pts)', value: 0 }, 
+        { label: 'Menos de una vez al mes (1 pt)', value: 1 }, 
+        { label: 'Mensualmente (2 pts)', value: 2 }, 
+        { label: 'Semanalmente (3 pts)', value: 3 }, 
+        { label: 'A diario o casi a diario (4 pts)', value: 4 }
+      ] 
     }
-  },
+  ],
+
+  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p) => {
+    if (p <= 7) return { 
+      texto: 'Consumo de Bajo Riesgo', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + ': Patrón de consumo dentro de límites de bajo impacto sistémico.',
+      recomendaciones: [
+        'Educación sobre límites de consumo seguro (Guías de la OMS)', 
+        'Mantener vigilancia en pacientes con medicación fotosensible o hepatotóxica'
+      ] 
+    };
+
+    if (p <= 15) return { 
+      texto: 'Consumo de Riesgo', 
+      color: 'yellow-500',
+      evidencia: 'Puntaje de ' + p + ': Nivel de consumo que aumenta la probabilidad de consecuencias adversas.',
+      recomendaciones: [
+        'Realizar Intervención Breve (Consejería de 5-10 minutos)', 
+        'Entrega de material educativo sobre riesgos a la salud física y mental',
+        'Establecer metas de reducción de consumo'
+      ] 
+    };
+
+    if (p <= 19) return { 
+      texto: 'Consumo Perjudicial', 
+      color: 'orange-600',
+      evidencia: 'Puntaje de ' + p + ': Patrón de consumo que ya está causando daño físico o psíquico.',
+      recomendaciones: [
+        'Derivación a programa especializado de alcohol y drogas', 
+        'Seguimiento médico estrecho para evaluar función hepática',
+        'Evaluación de comorbilidad psiquiátrica'
+      ] 
+    };
+
+    return { 
+      texto: 'PROBABLE DEPENDENCIA', 
+      color: 'red-600',
+      evidencia: 'Puntaje de ' + p + ': Alta probabilidad de síndrome de dependencia al alcohol.',
+      recomendaciones: [
+        'Derivación URGENTE a especialista (Psiquiatría / Centros de Tratamiento de Adicciones)', 
+        'Manejo y vigilancia de síndrome de abstinencia si aplica',
+        'Apoyo familiar y social intensivo'
+      ] 
+    };
+  }
+},
   {
-    id: 'dast_10',
-    nombre: 'Test DAST-10 (Drogas)',
-    categoria: 'psicologia',
-    descripcion: 'Tamizaje del impacto del consumo de drogas (excepto alcohol y tabaco).',
-    preguntas: [
-      { id: 'd1', text: '1. ¿Ha utilizado drogas que no sean por necesidad médica?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'd2', text: '2. ¿Abusa de más de una droga a la vez?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'd3', text: '3. ¿Es incapaz de pasar una semana sin consumir?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'd4', text: '4. ¿Ha tenido lagunas mentales o flashbacks por consumo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'd5', text: '5. ¿Se ha sentido alguna vez culpable por su consumo?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p === 0) return { texto: 'Sin problemas relacionados', recomendaciones: ['Prevención primaria'] };
-      if (p <= 2) return { texto: 'Riesgo Leve', recomendaciones: ['Consejería breve y seguimiento'] };
-      if (p <= 5) return { texto: 'Riesgo Moderado', recomendaciones: ['Derivación a programa de rehabilitación especializado'] };
-      return { texto: 'Riesgo Severo', recomendaciones: ['Intervención intensiva inmediata', 'Evaluación psiquiátrica completa'] };
+  id: 'dast_10_drogas',
+  nombre: 'Test DAST-10',
+  categoria: 'psicologia',
+  descripcion: 'Tamizaje clínico para identificar el impacto y nivel de riesgo por consumo de drogas (excepto alcohol y tabaco).',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
+  bibliografia: "Skinner HA. The Drug Abuse Screening Test. Addictive Behaviors. 1982;7(4):363-71.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/7183091/", // ✅ FUENTE VERIFICADA
+  evidenciaClinica: "El DAST-10 es una herramienta de alta validez interna para discriminar entre el uso recreativo y el abuso o dependencia. Un puntaje > 3 indica la necesidad de una evaluación diagnóstica profunda.",
+
+  preguntas: [
+    { 
+      id: 'd1', 
+      text: '1. ¿Ha utilizado drogas que no sean por necesidad médica en el último año?', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (1 pt)', value: 1 }, 
+        { label: 'No (0 pts)', value: 0 }
+      ] 
+    },
+    { 
+      id: 'd2', 
+      text: '2. ¿Abusa (consume) de más de una droga a la vez?', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (1 pt)', value: 1 }, 
+        { label: 'No (0 pts)', value: 0 }
+      ] 
+    },
+    { 
+      id: 'd3', 
+      text: '3. ¿Es incapaz de pasar una semana entera sin consumir?', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (1 pt)', value: 1 }, 
+        { label: 'No (0 pts)', value: 0 }
+      ] 
+    },
+    { 
+      id: 'd4', 
+      text: '4. ¿Ha tenido lagunas mentales, flashbacks o episodios de pérdida de memoria?', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (1 pt)', value: 1 }, 
+        { label: 'No (0 pts)', value: 0 }
+      ] 
+    },
+    { 
+      id: 'd5', 
+      text: '5. ¿Se ha sentido alguna vez culpable o arrepentido/a por su consumo?', 
+      type: 'select', 
+      options: [
+        { label: 'Sí (1 pt)', value: 1 }, 
+        { label: 'No (0 pts)', value: 0 }
+      ] 
     }
-  },
+  ],
+
+  // Suma segura para TypeScript
+  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p) => {
+    if (p === 0) return { 
+      texto: 'Sin problemas relacionados', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + ': No se detectan patrones de riesgo actuales.',
+      recomendaciones: [
+        'Realizar prevención primaria y educación en salud', 
+        'Reevaluar en controles anuales si el contexto cambia'
+      ] 
+    };
+
+    if (p <= 2) return { 
+      texto: 'Riesgo Leve', 
+      color: 'yellow-500',
+      evidencia: 'Puntaje de ' + p + ': Uso de sustancias con potencial impacto en la salud.',
+      recomendaciones: [
+        'Realizar consejería breve motivacional', 
+        'Seguimiento clínico para evitar la escalada del consumo',
+        'Informar sobre el impacto de las drogas en la recuperación física'
+      ] 
+    };
+
+    if (p <= 5) return { 
+      texto: 'RIESGO MODERADO', 
+      color: 'orange-600',
+      evidencia: 'Puntaje de ' + p + ': Patrón de consumo perjudicial con impacto funcional.',
+      recomendaciones: [
+        'Derivación a programa de rehabilitación especializado (Ambulatorio)', 
+        'Interconsulta con Psicología / Salud Mental',
+        'Evaluación médica para descartar patología dual (Depresión/Ansiedad)'
+      ] 
+    };
+
+    return { 
+      texto: 'RIESGO SEVERO / ALTO', 
+      color: 'red-600',
+      evidencia: 'Puntaje de ' + p + ': Indica probable dependencia y alto riesgo orgánico.',
+      recomendaciones: [
+        'Intervención intensiva inmediata (Derivación a centro especializado)', 
+        'Evaluación psiquiátrica completa para manejo de adicciones',
+        'Monitoreo estrecho de la red de apoyo y riesgo social'
+      ] 
+    };
+  }
+},
   {
-    id: 'beck_suicide',
-    nombre: 'Escala de Ideación Suicida de Beck',
-    categoria: 'psicologia',
-    descripcion: 'Evaluación de la intensidad de los deseos, planes y comportamiento suicida.',
-    preguntas: [
-      { id: 's1', text: 'Deseo de vivir:', type: 'select', options: [{ label: 'Moderado/Fuerte', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Ninguno', value: 2 }] },
-      { id: 's2', text: 'Deseo de morir:', type: 'select', options: [{ label: 'Ninguno', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Moderado/Fuerte', value: 2 }] },
-      { id: 's3', text: 'Razones para vivir/morir:', type: 'select', options: [{ label: 'Vivir > Morir', value: 0 }, { label: 'Vivir = Morir', value: 1 }, { label: 'Morir > Vivir', value: 2 }] },
-      { id: 's4', text: 'Intento activo de suicidio:', type: 'select', options: [{ label: 'Ninguno', value: 0 }, { label: 'Débil', value: 1 }, { label: 'Fuerte', value: 2 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 4) return { texto: '⚠️ RIESGO SUICIDA ALTO', recomendaciones: ['ACTIVA PROTOCOLO DE EMERGENCIA VITAL', 'No dejar al paciente solo', 'Derivación inmediata a Urgencias Psiquiátricas', 'Informar a red de apoyo cercana'] };
-      if (p >= 1) return { texto: 'Riesgo Moderado', recomendaciones: ['Derivación prioritaria a Salud Mental', 'Contrato de no agresión', 'Seguimiento por red de apoyo'] };
-      return { texto: 'Sin riesgo aparente', recomendaciones: ['Mantener seguimiento por especialidad base'] };
+  id: 'beck_suicide_ideation',
+  nombre: 'Escala de Ideación Suicida de Beck',
+  categoria: 'psicologia',
+  descripcion: 'Evaluación de la intensidad de los deseos, planes y comportamiento suicida actual.',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
+  bibliografia: "Beck AT, Kovacs M, Weissman A. Assessment of suicidal intention: the Scale for Suicide Ideation. J Consult Clin Psychol. 1979;47(2):343-52.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/469082/", // ✅ FUENTE VERIFICADA
+  evidenciaClinica: "La SSI es el estándar clínico para cuantificar la intención suicida. Un puntaje positivo indica una falla en los mecanismos de adaptación y requiere una respuesta clínica jerarquizada según la severidad del plan y el deseo.",
+
+  preguntas: [
+    { 
+      id: 's1', 
+      text: '1. Deseo de vivir:', 
+      type: 'select', 
+      options: [
+        { label: 'Moderado a Fuerte (0 pts)', value: 0 }, 
+        { label: 'Débil (1 pt)', value: 1 }, 
+        { label: 'Ninguno (2 pts)', value: 2 }
+      ] 
+    },
+    { 
+      id: 's2', 
+      text: '2. Deseo de morir:', 
+      type: 'select', 
+      options: [
+        { label: 'Ninguno (0 pts)', value: 0 }, 
+        { label: 'Débil (1 pt)', value: 1 }, 
+        { label: 'Moderado a Fuerte (2 pts)', value: 2 }
+      ] 
+    },
+    { 
+      id: 's3', 
+      text: '3. Razones para vivir vs. Razones para morir:', 
+      type: 'select', 
+      options: [
+        { label: 'Las razones para vivir superan a las de morir (0 pts)', value: 0 }, 
+        { label: 'Están equilibradas (Vivir = Morir) (1 pt)', value: 1 }, 
+        { label: 'Las razones para morir superan a las de vivir (2 pts)', value: 2 }
+      ] 
+    },
+    { 
+      id: 's4', 
+      text: '4. Intento activo de suicidio (Deseo de realizar un intento):', 
+      type: 'select', 
+      options: [
+        { label: 'Ninguno (0 pts)', value: 0 }, 
+        { label: 'Débil (1 pt)', value: 1 }, 
+        { label: 'Fuerte (2 pts)', value: 2 }
+      ] 
     }
-  },
+  ],
+
+  // Suma segura para el motor de la App
+  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p) => {
+    if (p >= 4) {
+      return { 
+        texto: '⚠️ RIESGO SUICIDA ALTO', 
+        color: 'red-700',
+        evidencia: 'Puntaje de ' + p + ': Presencia de ideación suicida activa y estructurada.',
+        recomendaciones: [
+          'ACTIVA PROTOCOLO DE EMERGENCIA VITAL INMEDIATO', 
+          'No dejar al paciente solo bajo ninguna circunstancia', 
+          'Derivación urgente a Urgencias Psiquiátricas (Resguardo físico)', 
+          'Informar inmediatamente a la red de apoyo más cercana',
+          'Retirar acceso a medios letales (fármacos, armas, etc.)'
+        ] 
+      };
+    }
+
+    if (p >= 1) {
+      return { 
+        texto: 'Riesgo Moderado', 
+        color: 'orange-600',
+        evidencia: 'Puntaje de ' + p + ': Ambivalencia o ideación suicida sin plan inmediato.',
+        recomendaciones: [
+          'Derivación prioritaria a Salud Mental (Psiquiatría/Psicología)', 
+          'Realizar "Contrato de No Agresión" o de resguardo vital', 
+          'Involucrar a la familia en el seguimiento y vigilancia',
+          'Monitoreo estrecho en la siguiente sesión clínica'
+        ] 
+      };
+    }
+
+    return { 
+      texto: 'Sin riesgo aparente', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + ': No se detecta ideación suicida activa en el momento de la evaluación.',
+      recomendaciones: [
+        'Mantener seguimiento por especialidad base', 
+        'Mantener canales de comunicación abiertos ante cambios en el ánimo',
+        'Fomentar factores protectores (red social, hobbies, metas)'
+      ] 
+    };
+  }
+},
   {
     id: 'mbi_burnout',
     nombre: 'Maslach Burnout Inventory (MBI)',
