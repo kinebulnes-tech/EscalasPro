@@ -55,6 +55,92 @@ export const scales: Scale[] = [
   // PALIATIVOS
   // ==========================================
 
+  {
+    id: 'nudesc_delirium_paliativos',
+    nombre: 'Escala Nu-DESC',
+    categoria: 'paliativos',
+    descripcion: 'Nursing Delirium Screening Scale. Herramienta rápida para la detección y monitoreo del delirium.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 15905719) ---
+    bibliografia: "Gaudreau JD, et al. Fast and reliable: nursing delirium screening scale. J Pain Symptom Manage. 2005.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/15905719/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "La Nu-DESC tiene una sensibilidad del 85% para detectar delirium en cuidados paliativos. Un puntaje ≥ 2 indica alta probabilidad de cuadro confusional agudo.",
+
+    preguntas: [
+      { 
+        id: 'desorientacion', 
+        text: '1. Desorientación: ¿Presenta falta de atención a la orientación en tiempo, espacio o personas?', 
+        type: 'select',
+        options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Marcada', value: 2 }]
+      },
+      { 
+        id: 'comportamiento', 
+        text: '2. Comportamiento anómalo: ¿Presenta agitación, conductas inapropiadas o se quita sondas/vías?', 
+        type: 'select',
+        options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Marcada', value: 2 }]
+      },
+      { 
+        id: 'comunicacion', 
+        text: '3. Comunicación alterada: ¿Habla incoherente, pausada o inapropiada?', 
+        type: 'select',
+        options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Marcada', value: 2 }]
+      },
+      { 
+        id: 'ilusiones', 
+        text: '4. Ilusiones o alucinaciones: ¿Ve o escucha cosas que no existen?', 
+        type: 'select',
+        options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Marcada', value: 2 }]
+      },
+      { 
+        id: 'retardo', 
+        text: '5. Retardo psicomotor: ¿Escasa reactividad, mirada fija o lentitud extrema?', 
+        type: 'select',
+        options: [{ label: '0: Ausente', value: 0 }, { label: '1: Leve', value: 1 }, { label: '2: Marcada', value: 2 }]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 2) {
+        return {
+          texto: 'PROBABLE DELIRIUM (Positivo)',
+          color: 'red-600',
+          evidencia: `Puntaje ${puntaje}/10. Supera el umbral de corte clínico para cuadro confusional agudo.`,
+          recomendaciones: [
+            'Evaluar causas reversibles (Fármacos, infección urinaria, globo vesical, estreñimiento)',
+            'Garantizar ambiente seguro para evitar caídas o autolesiones',
+            'Considerar uso de neurolépticos (Haloperidol) si hay agitación severa',
+            'Informar y acompañar a la familia (explicar que es parte de la enfermedad)'
+          ]
+        };
+      }
+
+      if (puntaje === 1) {
+        return {
+          texto: 'ESTADO DE VIGILANCIA / DELIRIUM SUBSINDROMÁTICO',
+          color: 'orange-500',
+          evidencia: 'Puntaje de 1. No cumple criterios totales pero presenta signos incipientes.',
+          recomendaciones: [
+            'Monitoreo clínico cada 8 horas',
+            'Optimizar orientación ambiental (reloj, calendario, luz natural)',
+            'Evitar contenciones físicas si es posible'
+          ]
+        };
+      }
+
+      return {
+        texto: 'NORMAL / SIN SIGNOS DE DELIRIUM',
+        color: 'emerald-600',
+        evidencia: 'Puntaje 0. Función cognitiva y comportamiento estables.',
+        recomendaciones: [
+          'Mantener medidas de prevención de delirium',
+          'Asegurar descanso nocturno adecuado'
+        ]
+      };
+    }
+  },
+
 {
     id: 'rass_sedacion_paliativa',
     nombre: 'Escala RASS (Richmond Agitation-Sedation Scale)',
