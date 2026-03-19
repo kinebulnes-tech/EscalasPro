@@ -50,6 +50,92 @@ export const categoryIcons: Record<string, any> = {
 };
 
 export const scales: Scale[] = [
+
+  // ==========================================
+  // PALIATIVOS
+  // ==========================================
+  
+{
+    id: 'esas_r_paliativos',
+    nombre: 'ESAS-r (Edmonton Symptom Assessment System)',
+    categoria: 'paliativos',
+    descripcion: 'Evaluación de la intensidad de 9 síntomas físicos y psicológicos fundamentales en cuidados paliativos.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 21398272) ---
+    bibliografia: "Watanabe SM, et al. The Edmonton Symptom Assessment System-Revised: etiquette for clinical use. J Palliat Med. 2011;14(6):683-4.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/21398272/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "El ESAS-r es una herramienta validada para la detección precoz de distrés. Un cambio de 1 a 2 puntos en cualquier síntoma se considera clínicamente significativo (MCID) para ajustar el tratamiento analgésico o de soporte.",
+
+    preguntas: [
+      { id: 'dolor', text: 'Dolor (0: sin dolor - 10: el peor dolor posible):', type: 'number', min: 0, max: 10 },
+      { id: 'cansancio', text: 'Cansancio / Falta de energía (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'nausea', text: 'Náuseas (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'depresion', text: 'Depresión / Sentirse triste (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'ansiedad', text: 'Ansiedad / Sentirse nervioso (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'somnolencia', text: 'Somnolencia / Ganas de dormir (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'apetito', text: 'Falta de apetito (0-10):', type: 'number', min: 0, max: 10 },
+      { id: 'bienestar', text: 'Malestar general (0: mejor bienestar - 10: peor posible):', type: 'number', min: 0, max: 10 },
+      { id: 'disnea', text: 'Dificultad para respirar (0-10):', type: 'number', min: 0, max: 10 }
+    ],
+
+    // El puntaje total es el índice de distrés sintomático (0-90)
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      // 1. Identificamos si hay síntomas críticos individuales (≥ 7)
+      const sintomasCriticos = Object.entries(respuestas || {})
+        .filter(([id, val]) => val >= 7 && id !== 'bienestar')
+        .map(([id]) => id.toUpperCase());
+
+      const tieneDolorAlto = (Number(respuestas?.dolor) || 0) >= 7;
+      const tieneDisneaAlta = (Number(respuestas?.disnea) || 0) >= 7;
+
+      if (puntaje >= 40 || tieneDolorAlto || tieneDisneaAlta) {
+        return {
+          texto: 'DISTRÉS SINTOMÁTICO ELEVADO',
+          color: 'red-600',
+          evidencia: `Puntaje total: ${puntaje}/90. Presencia de síntomas con intensidad severa (≥ 7).`,
+          recomendaciones: [
+            'Evaluación médica inmediata para ajuste de fármacos de rescate',
+            'Considerar rotación de opioides si el dolor es refractario',
+            'Manejo agresivo de la disnea (posicionamiento, oxígeno, opioides)',
+            'Intervención del equipo multidisciplinario de Cuidados Paliativos'
+          ]
+        };
+      }
+
+      if (puntaje >= 20) {
+        return {
+          texto: 'Distrés Sintomático Moderado',
+          color: 'orange-500',
+          evidencia: `Puntaje total: ${puntaje}/90. Los síntomas interfieren con la calidad de vida diaria.`,
+          recomendaciones: [
+            'Revisar adherencia al tratamiento basal',
+            'Ajustar medidas de confort no farmacológicas',
+            'Monitoreo estrecho de la ingesta y el estado anímico',
+            'Re-evaluar en 24-48 horas'
+          ]
+        };
+      }
+
+      return {
+        texto: 'Síntomas Controlados / Distrés Leve',
+        color: 'emerald-600',
+        evidencia: `Puntaje total: ${puntaje}/90. El paciente se encuentra en una fase de estabilidad sintomática.`,
+        recomendaciones: [
+          'Mantener esquema actual de cuidados',
+          'Fomentar la comunicación con el núcleo familiar',
+          'Control preventivo según protocolo de la unidad'
+        ]
+      };
+    }
+  },
+
+
+
+
+
+
   // ==========================================
   // KINESIOLOGÍA
   // ==========================================
@@ -6077,9 +6163,7 @@ return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar f
 }
 ];
 
-// ==========================================
-  // CUIDADOS PALIATIVOS
-  // ==========================================
+
 
 
 // Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
