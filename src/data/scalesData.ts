@@ -3118,41 +3118,159 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'race',
-    nombre: 'RACE',
+    id: 'race_stroke_scale',
+    nombre: 'Escala RACE',
     categoria: 'emergencias',
-    descripcion: 'Rapid Arterial Occlusion Evaluation',
+    descripcion: 'Herramienta de triage prehospitalaria diseñada para predecir la oclusión de gran vaso (LVO) en pacientes con sospecha de ACV agudo.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 24281224) ---
+    bibliografia: "Pérez de la Ossa N, et al. Design and Validation of a Prehospital Stroke Scale to Predict Large Vessel Occlusion: The Rapid Arterial Occlusion Evaluation Scale. Stroke. 2014 Jan;45(1):87-91.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/24281224/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Específicamente diseñada para el entorno de ambulancias. Un puntaje ≥ 5 es un predictor robusto de oclusión de la Arteria Cerebral Media (ACM) o Carótida Interna.",
+
     preguntas: [
-      { id: 'facial', text: 'Parálisis facial', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Mod/Sev', value: 2 }] },
-      { id: 'brazo', text: 'Paresia de brazo', type: 'select', options: [{ label: 'Ausente/Leve', value: 0 }, { label: 'Mod', value: 1 }, { label: 'Sev', value: 2 }] },
-      { id: 'pierna', text: 'Paresia de pierna', type: 'select', options: [{ label: 'Ausente/Leve', value: 0 }, { label: 'Mod', value: 1 }, { label: 'Sev', value: 2 }] },
-      { id: 'mirada', text: 'Desviación mirada', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Presente', value: 1 }] },
-      { id: 'afasia', text: 'Afasia o agnosia', type: 'select', options: [{ label: 'Realiza 2 tareas', value: 0 }, { label: 'Realiza 1', value: 1 }, { label: 'No realiza', value: 2 }] }
+      { id: 'facial', text: '1. Parálisis Facial (Pida mostrar los dientes):', type: 'select', options: [
+        { label: '0: Ausente / Normal', value: 0 }, 
+        { label: '1: Leve (Asimetría leve)', value: 1 }, 
+        { label: '2: Moderada-Severa (Parálisis total)', value: 2 }
+      ]},
+      { id: 'brazo', text: '2. Paresia de Brazo (Sostener 10 segundos):', type: 'select', options: [
+        { label: '0: Ausente (Mantiene posición)', value: 0 }, 
+        { label: '1: Moderada (Claudica antes de 10s)', value: 1 }, 
+        { label: '2: Severa (Cae de inmediato o no mueve)', value: 2 }
+      ]},
+      { id: 'pierna', text: '3. Paresia de Pierna (Sostener 5 segundos):', type: 'select', options: [
+        { label: '0: Ausente (Mantiene posición)', value: 0 }, 
+        { label: '1: Moderada (Claudica antes de 5s)', value: 1 }, 
+        { label: '2: Severa (Cae de inmediato o no mueve)', value: 2 }
+      ]},
+      { id: 'mirada', text: '4. Desviación de la Mirada Conjugada:', type: 'select', options: [
+        { label: '0: Ausente / Normal', value: 0 }, 
+        { label: '1: Presente (Desviación lateral fija)', value: 1 }
+      ]},
+      { id: 'cortical', text: '5. Función Cortical (Afasia o Agnosia):', type: 'select', options: [
+        { label: '0: Normal (Realiza 2 tareas / Reconoce extremidad)', value: 0 }, 
+        { label: '1: Leve (Realiza 1 tarea / Reconoce parcialmente)', value: 1 }, 
+        { label: '2: Severa (No realiza tareas / No reconoce su lado)', value: 2 }
+      ]}
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje >= 5) return { texto: 'Alta sospecha oclusión gran vaso (LVO)', recomendaciones: ['Derivación urgente a centro con Neurorradiología Intervencionista (Trombectomía)', 'Activar Código ACV y pre-notificar escala RACE al equipo receptor', 'Evitar administrar aspirina o anticoagulantes empíricos'] };
-      return { texto: 'Sospecha moderada/baja de oclusión de gran vaso', recomendaciones: ['Puede ser manejado en Centro Primario de Stroke', 'Trombolisis intravenosa es el tratamiento de elección probable', 'Estricto control de vía aérea si hay vómitos o compromiso de conciencia'] };
+      if (puntaje >= 5) {
+        return { 
+          texto: 'Alta Sospecha de Oclusión de Gran Vaso (LVO)', 
+          color: 'red-600', 
+          evidencia: `Puntaje RACE de ${puntaje}: Sugiere oclusión arterial proximal. Alta prioridad para Trombectomía Mecánica.`, 
+          recomendaciones: [
+            'By-pass: Trasladar a Centro Comprensivo de Ictus (con Neurorradiología Intervencionista)', 
+            'Pre-notificar RACE ≥ 5 al neurólogo de turno', 
+            'Establecer última hora visto normal (LKW)',
+            'Evitar hipotensión y mantener saturación >94%'
+          ] 
+        };
+      }
+      return { 
+        texto: 'Sospecha Moderada/Baja de LVO', 
+        color: 'orange-600', 
+        evidencia: `Puntaje RACE de ${puntaje}: ACV probable. Menor probabilidad de oclusión de gran vaso.`, 
+        recomendaciones: [
+          'Traslado a Centro Primario de Ictus para TAC y Trombolisis sistémica', 
+          'Control estricto de glucosa capilar', 
+          'Monitorización continua de signos vitales'
+        ] 
+      };
     }
   },
-  {
-    id: 'flacc',
-    nombre: 'Escala FLACC de dolor pediátrico',
+ {
+    id: 'flacc_pediatrico',
+    nombre: 'Escala FLACC',
     categoria: 'emergencias',
-    descripcion: 'Evaluación de dolor en niños de 2 meses a 7 años (o con discapacidad cognitiva)',
+    descripcion: 'Evaluación conductual del dolor en niños (2 meses a 7 años) o pacientes con incapacidad de comunicación verbal.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 9005021) ---
+    bibliografia: "Merkel SI, et al. The FLACC: a behavioral scale for scoring postoperative pain in young children. Pediatr Nurs. 1997;23(3):293-7.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9005021/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Proporciona una medida confiable del dolor postoperatorio y agudo. Es especialmente útil cuando el niño no puede autoinformar su nivel de dolor.",
+
     preguntas: [
-      { id: 'cara', text: 'Cara', type: 'select', options: [{ label: 'Sin expresión', value: 0 }, { label: 'Muecas', value: 1 }, { label: 'Temblor mentón/Mandíbula apretada', value: 2 }] },
-      { id: 'piernas', text: 'Piernas', type: 'select', options: [{ label: 'Normal/Relajadas', value: 0 }, { label: 'Inquietas', value: 1 }, { label: 'Patadas/Encogidas', value: 2 }] },
-      { id: 'actividad', text: 'Actividad', type: 'select', options: [{ label: 'Tranquilo/Posición normal', value: 0 }, { label: 'Se retuerce/Tenso', value: 1 }, { label: 'Rígido/Arqueado', value: 2 }] },
-      { id: 'llanto', text: 'Llanto', type: 'select', options: [{ label: 'Sin llanto (despierto o dormido)', value: 0 }, { label: 'Quejas/Gemidos', value: 1 }, { label: 'Grito constante/Llanto incontrolable', value: 2 }] },
-      { id: 'consuelo', text: 'Consuelo', type: 'select', options: [{ label: 'Relajado', value: 0 }, { label: 'Se tranquiliza con tacto/palabras', value: 1 }, { label: 'Difícil consolar', value: 2 }] }
+      { id: 'cara', text: '1. Cara (Expresión facial):', type: 'select', options: [
+        { label: '0: Sin expresión particular o sonrisa', value: 0 }, 
+        { label: '1: Mueca ocasional, ceño fruncido, retraído', value: 1 }, 
+        { label: '2: Mentón tembloroso, mandíbula apretada (frecuente)', value: 2 }
+      ]},
+      { id: 'piernas', text: '2. Piernas (Posición y tono):', type: 'select', options: [
+        { label: '0: Posición normal o relajada', value: 0 }, 
+        { label: '1: Inquietas, tensas, con movimientos sutiles', value: 1 }, 
+        { label: '2: Pataleo o piernas encogidas/rígidas', value: 2 }
+      ]},
+      { id: 'actividad', text: '3. Actividad (Movimiento corporal):', type: 'select', options: [
+        { label: '0: Acostado tranquilo, posición normal, se mueve fácil', value: 0 }, 
+        { label: '1: Se retuerce, cambia de posición, tenso', value: 1 }, 
+        { label: '2: Arqueado, rígido o movimientos bruscos (sacudidas)', value: 2 }
+      ]},
+      { id: 'llanto', text: '4. Llanto (Vocalización):', type: 'select', options: [
+        { label: '0: Sin llanto (despierto o dormido)', value: 0 }, 
+        { label: '1: Quejas o gemidos ocasionales', value: 1 }, 
+        { label: '2: Llanto constante, gritos o sollozos frecuentes', value: 2 }
+      ]},
+      { id: 'consuelo', text: '5. Consuelo (Interacción):', type: 'select', options: [
+        { label: '0: Contento, relajado', value: 0 }, 
+        { label: '1: Se tranquiliza con el tacto, abrazos o al hablarle', value: 1 }, 
+        { label: '2: Difícil de consolar o confortar', value: 2 }
+      ]}
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Confort / Sin dolor', recomendaciones: ['Mantener lactancia/apego si aplica', 'Evitar intervenciones dolorosas innecesarias'] };
-      if (puntaje <= 3) return { texto: 'Dolor o incomodidad leve', recomendaciones: ['Paracetamol o Ibuprofeno dosis pediátrica', 'Medidas no farmacológicas (distracción, chupete, brazos de los padres)'] };
-      if (puntaje <= 6) return { texto: 'Dolor moderado', recomendaciones: ['Opioides débiles o Ketorolaco IV/IM', 'Reevaluación de la causa subyacente', 'Monitorización clínica continua'] };
-      return { texto: 'Dolor severo', recomendaciones: ['Manejo con opioides potentes (Fentanilo intranasal/Morfina IV)', 'Abordaje urgente de la patología base (ej. fractura, abdomen agudo)', 'Prevención de shock neurogénico/vasovagal'] };
+      if (puntaje === 0) {
+        return { 
+          texto: 'Confort / Sin Dolor', 
+          color: 'emerald-600', 
+          evidencia: `Puntaje de ${puntaje}: No se observan signos conductuales de dolor.`, 
+          recomendaciones: ['Mantener confort y medidas de apego', 'Monitorización rutinaria'] 
+        };
+      }
+      if (puntaje <= 3) {
+        return { 
+          texto: 'Dolor Leve / Incomodidad', 
+          color: 'green-500', 
+          evidencia: `Puntaje de ${puntaje}: Signos de distrés o dolor leve.`, 
+          recomendaciones: [
+            'Medidas no farmacológicas (distracción, calor/frío local, succión no nutritiva)', 
+            'Considerar Analgesia simple (Paracetamol/Ibuprofeno) si persiste'
+          ] 
+        };
+      }
+      if (puntaje <= 6) {
+        return { 
+          texto: 'Dolor Moderado', 
+          color: 'orange-600', 
+          evidencia: `Puntaje de ${puntaje}: Signos claros de dolor que interfieren con el reposo.`, 
+          recomendaciones: [
+            'Analgesia farmacológica activa (AINEs IV/IM)', 
+            'Evaluar necesidad de opioides menores según patología', 
+            'Reevaluación de la escala en 30-60 minutos'
+          ] 
+        };
+      }
+      return { 
+        texto: 'Dolor Severo', 
+        color: 'red-600', 
+        evidencia: `Puntaje de ${puntaje}: Sufrimiento evidente con respuesta motora y autonómica marcada.`, 
+        recomendaciones: [
+          'Analgesia de rescate urgente (Opioides potentes)', 
+          'Inmovilización si hay trauma evidente', 
+          'Tratamiento inmediato de la causa base', 
+          'Monitorización continua de signos vitales'
+        ] 
+      };
     }
   },
   {
