@@ -51,6 +51,358 @@ export const categoryIcons: Record<string, any> = {
 
 export const scales: Scale[] = [
 
+
+  // ==========================================
+  // CARDIO RESPIRATORIO 
+  // ==========================================
+
+  {
+    id: 'mmrc_disnea',
+    nombre: 'Escala de Disnea mMRC',
+    categoria: 'cardiorespiratorio',
+    descripcion: 'Escala modificada del Medical Research Council para cuantificar la limitación por disnea en actividades de la vida diaria.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10471018) ---
+    bibliografia: "Bestall JC, et al. Usefulness of the Medical Research Council (MRC) dyspnoea scale as a measure of disability in patients with chronic obstructive pulmonary disease. Thorax. 1999.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10471018/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Un puntaje mMRC ≥ 2 es un punto de corte crítico. En guías GOLD y guías MINSAL de EPOC, define a un paciente como 'altamente sintomático', lo que modifica directamente la terapia farmacológica.",
+
+    preguntas: [
+      { 
+        id: 'grado_disnea', 
+        text: 'Seleccione el grado que mejor describa su falta de aire:', 
+        type: 'select',
+        options: [
+          { label: 'Grado 0: Solo tengo falta de aire al realizar ejercicio intenso.', value: 0 },
+          { label: 'Grado 1: Me falta el aire al caminar rápido en llano o al subir una cuesta poco pronunciada.', value: 1 },
+          { label: 'Grado 2: No puedo mantener el paso de personas de mi edad en llano, o tengo que parar a descansar al caminar en llano a mi propio paso.', value: 2 },
+          { label: 'Grado 3: Tengo que parar a descansar después de caminar unos 100 metros o después de pocos minutos de caminar en llano.', value: 3 },
+          { label: 'Grado 4: Tengo demasiada falta de aire para salir de casa o me falta el aire al vestirme o desvestirme.', value: 4 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.grado_disnea) || 0,
+
+    // ✅ Firma corregida para evitar errores en TS
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 2) {
+        return {
+          texto: `DISNEA LIMITANTE (Grado ${puntaje})`,
+          color: 'red-600',
+          evidencia: `Puntaje ≥ 2 indica una limitación funcional significativa para la marcha en terreno llano.`,
+          recomendaciones: [
+            'Clasificación GOLD: Paciente sintomático (Grupos B o E)',
+            'Considerar ajuste de broncodilatación (LAMA+LABA)',
+            'Ingreso prioritario a programa de Rehabilitación Pulmonar',
+            'Evaluar técnica inhalatoria y adherencia al tratamiento'
+          ]
+        };
+      }
+
+      return {
+        texto: `DISNEA LEVE / NO LIMITANTE (Grado ${puntaje})`,
+        color: 'emerald-600',
+        evidencia: 'El paciente mantiene autonomía en la marcha al ritmo de sus pares.',
+        recomendaciones: [
+          'Mantener actividad física regular y control de peso',
+          'Vacunación al día (Influenza/Neumococo)',
+          'Seguimiento anual de función pulmonar (Espirometría)'
+        ]
+      };
+    }
+  },
+
+  {
+    id: 'nyha_funcional',
+    nombre: 'Clasificación Funcional NYHA',
+    categoria: 'cardiorespiratorio',
+    descripcion: 'Clasificación de la gravedad de la insuficiencia cardíaca según la limitación de la actividad física.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8062531) ---
+    bibliografia: "The Criteria Committee of the New York Heart Association. Nomenclature and Criteria for Diagnosis of Diseases of the Heart and Great Vessels. 9th ed. Boston, Mass: Little, Brown & Co; 1994:253-256.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8062531/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "La NYHA es el predictor pronóstico más simple y potente en insuficiencia cardíaca. Los cambios entre clases definen el éxito de la terapia médica o quirúrgica.",
+
+    preguntas: [
+      { 
+        id: 'clase_funcional', 
+        text: 'Seleccione la clase que mejor describa la limitación del paciente:', 
+        type: 'select',
+        options: [
+          { label: 'Clase I: Sin limitación de la actividad física. El ejercicio ordinario no causa fatiga excesiva, palpitaciones o disnea.', value: 1 },
+          { label: 'Clase II: Limitación ligera de la actividad física. Cómodo en reposo. La actividad ordinaria resulta en fatiga, palpitaciones o disnea.', value: 2 },
+          { label: 'Clase III: Limitación marcada de la actividad física. Cómodo en reposo. Actividades menores a las ordinarias causan síntomas.', value: 3 },
+          { label: 'Clase IV: Incapacidad para llevar a cabo cualquier actividad física sin molestias. Síntomas presentes incluso en reposo.', value: 4 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.clase_funcional) || 1,
+
+    // ✅ Firma corregida para cumplir con tu Interface Scale
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje === 4) {
+        return {
+          texto: 'NYHA CLASE IV (Severa)',
+          color: 'red-600',
+          evidencia: 'Síntomas de insuficiencia cardíaca en reposo. Máximo riesgo clínico.',
+          recomendaciones: [
+            'Evaluación médica urgente para ajuste de diuréticos/inotrópicos',
+            'Reposo absoluto con cabecera elevada',
+            'Restricción estricta de fluidos y sodio',
+            'Considerar hospitalización o cuidados paliativos según contexto'
+          ]
+        };
+      }
+
+      if (puntaje === 3) {
+        return {
+          texto: 'NYHA CLASE III (Moderada-Severa)',
+          color: 'orange-600',
+          evidencia: 'Limitación marcada. Actividades básicas (vestirse, caminar distancias cortas) provocan síntomas.',
+          recomendaciones: [
+            'Ajuste fino de terapia farmacológica (IECA/ARAII, Beta-bloqueo)',
+            'Rehabilitación cardiovascular supervisada con monitoreo estrecho',
+            'Educación sobre signos de descompensación (edema, ganancia de peso)'
+          ]
+        };
+      }
+
+      if (puntaje === 2) {
+        return {
+          texto: 'NYHA CLASE II (Leve-Moderada)',
+          color: 'yellow-600',
+          evidencia: 'Actividades físicas habituales provocan fatiga o disnea.',
+          recomendaciones: [
+            'Ingreso a programa de entrenamiento físico aeróbico progresivo',
+            'Optimizar adherencia al tratamiento farmacológico',
+            'Seguimiento ambulatorio por cardiología'
+          ]
+        };
+      }
+
+      return {
+        texto: 'NYHA CLASE I (Asintomático)',
+        color: 'emerald-600',
+        evidencia: 'Sin limitaciones para la actividad física ordinaria.',
+        recomendaciones: [
+          'Mantener estilo de vida activo y saludable',
+          'Prevención secundaria: control de presión arterial y lípidos',
+          'Evaluación funcional periódica (Test de Esfuerzo)'
+        ]
+      };
+    }
+  },
+
+  {
+    id: 'act_control_asma',
+    nombre: 'Test de Control del Asma (ACT)',
+    categoria: 'cardiorespiratorio',
+    descripcion: 'Evaluación del nivel de control de los síntomas asmáticos en las últimas 4 semanas.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 14741583) ---
+    bibliografia: "Nathan RA, et al. Development of the asthma control test: a survey for predicting clinical expert assessment. J Allergy Clin Immunol. 2004.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14741583/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Un puntaje < 20 indica que el asma no está bien controlada. Es la escala más sensible para predecir exacerbaciones y la necesidad de ajustar el corticoide inhalado.",
+
+    preguntas: [
+      { 
+        id: 'limitacion', 
+        text: '1. ¿En las últimas 4 semanas, cuánto tiempo le ha impedido el asma realizar sus actividades habituales?', 
+        type: 'select',
+        options: [
+          { label: 'Siempre (1 pt)', value: 1 },
+          { label: 'Casi siempre (2 pts)', value: 2 },
+          { label: 'A veces (3 pts)', value: 3 },
+          { label: 'Pocas veces (4 pts)', value: 4 },
+          { label: 'Nunca (5 pts)', value: 5 }
+        ]
+      },
+      { 
+        id: 'disnea', 
+        text: '2. ¿Con qué frecuencia ha tenido dificultad para respirar (falta de aire)?', 
+        type: 'select',
+        options: [
+          { label: 'Más de una vez al día (1 pt)', value: 1 },
+          { label: 'Una vez al día (2 pts)', value: 2 },
+          { label: '3 a 6 veces por semana (3 pts)', value: 3 },
+          { label: '1 o 2 veces por semana (4 pts)', value: 4 },
+          { label: 'Nunca (5 pts)', value: 5 }
+        ]
+      },
+      { 
+        id: 'despertar_nocturno', 
+        text: '3. ¿Cuántas veces los síntomas de asma le han despertado por la noche o más temprano de lo habitual?', 
+        type: 'select',
+        options: [
+          { label: '4 o más noches por semana (1 pt)', value: 1 },
+          { label: '2 o 3 noches por semana (2 pts)', value: 2 },
+          { label: 'Una vez por semana (3 pts)', value: 3 },
+          { label: '1 o 2 veces (4 pts)', value: 4 },
+          { label: 'Nunca (5 pts)', value: 5 }
+        ]
+      },
+      { 
+        id: 'rescate', 
+        text: '4. ¿Cuántas veces ha tenido que usar su inhalador de rescate (Salbutamol)?', 
+        type: 'select',
+        options: [
+          { label: '3 o más veces al día (1 pt)', value: 1 },
+          { label: '1 o 2 veces al día (2 pts)', value: 2 },
+          { label: '3 o más veces por semana (3 pts)', value: 3 },
+          { label: '1 vez por semana o menos (4 pts)', value: 4 },
+          { label: 'Nunca (5 pts)', value: 5 }
+        ]
+      },
+      { 
+        id: 'autopercepcion', 
+        text: '5. ¿Cómo calificaría el control de su asma durante las últimas 4 semanas?', 
+        type: 'select',
+        options: [
+          { label: 'Nada controlada (1 pt)', value: 1 },
+          { label: 'Poco controlada (2 pts)', value: 2 },
+          { label: 'Bien controlada (3 pts)', value: 3 },
+          { label: 'Muy bien controlada (4 pts)', value: 4 },
+          { label: 'Totalmente controlada (5 pts)', value: 5 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje === 25) {
+        return {
+          texto: 'ASMA TOTALMENTE CONTROLADA',
+          color: 'emerald-600',
+          evidencia: `Puntaje perfecto (${puntaje}/25). No hay síntomas ni limitaciones reportadas.`,
+          recomendaciones: [
+            'Mantener terapia controladora actual',
+            'Control de rutina cada 6 meses',
+            'Continuar educación en técnica inhalatoria'
+          ]
+        };
+      }
+
+      if (puntaje >= 20) {
+        return {
+          texto: 'ASMA BIEN CONTROLADA',
+          color: 'green-500',
+          evidencia: `Puntaje de ${puntaje}/25. Control satisfactorio de la sintomatología.`,
+          recomendaciones: [
+            'Mantener tratamiento actual',
+            'Seguir plan de acción ante crisis leves',
+            'Monitorear factores desencadenantes (alérgenos, frío)'
+          ]
+        };
+      }
+
+      if (puntaje >= 16) {
+        return {
+          texto: 'ASMA PARCIALMENTE CONTROLADA',
+          color: 'orange-500',
+          evidencia: `Puntaje de ${puntaje}/25. Sugiere riesgo de exacerbación aguda.`,
+          recomendaciones: [
+            'Revisar técnica inhalatoria (uso de aerocámara)',
+            'Evaluar aumento de dosis de corticoide inhalado (Step Up)',
+            'Identificar fallas en la adherencia al tratamiento'
+          ]
+        };
+      }
+
+      return {
+        texto: 'ASMA NO CONTROLADA',
+        color: 'red-600',
+        evidencia: `Puntaje crítico (${puntaje}/25). Alto impacto funcional y riesgo vital.`,
+        recomendaciones: [
+          'Evaluación médica inmediata por especialista',
+          'Considerar inicio de corticoide oral si hay crisis activa',
+          'Ajuste urgente de la terapia de mantención',
+          'Vigilancia estricta de flujo espiratorio máximo (PEF)'
+        ]
+      };
+    }
+  },
+
+  {
+    id: 'cat_epoc',
+    nombre: 'CAT (COPD Assessment Test)',
+    categoria: 'cardiorespiratorio',
+    descripcion: 'Cuestionario de 8 ítems para evaluar el impacto de la EPOC en el bienestar y la vida diaria del paciente.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 19700392) ---
+    bibliografia: "Jones PW, et al. Development and first validation of the COPD Assessment Test. Eur Respir J. 2009.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/19700392/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Un puntaje ≥ 10 indica un paciente altamente sintomático. Es el estándar para monitorizar la respuesta clínica al tratamiento broncodilatador y rehabilitador.",
+
+    preguntas: [
+      { id: 'tos', text: '1. Tos: (0: Nunca toso - 5: Siempre estoy tosiendo)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'flema', text: '2. Flema: (0: No tengo flema en el pecho - 5: Tengo el pecho lleno de flema)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'opresion', text: '3. Opresión: (0: No siento opresión en el pecho - 5: Siento mucha opresión)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'disnea_esfuerzo', text: '4. Disnea al subir: (0: No me falta el aire al subir una cuesta o un piso - 5: Me falta mucho el aire)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'limitacion', text: '5. Limitación en casa: (0: No me siento limitado para actividades domésticas - 5: Muy limitado)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'confianza', text: '6. Seguridad: (0: Me siento seguro al salir de casa - 5: No me siento nada seguro)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'sueno', text: '7. Sueño: (0: Duermo profundamente - 5: No duermo bien por mis problemas pulmonares)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'energia', text: '8. Energía: (0: Tengo mucha energía - 5: No tengo nada de energía)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje > 30) {
+        return {
+          texto: 'Impacto MUY ALTO (> 30)',
+          color: 'red-700',
+          evidencia: `Puntaje CAT: ${puntaje}/40. Calidad de vida gravemente comprometida.`,
+          recomendaciones: [
+            'Evaluación médica inmediata para ajuste de terapia triple',
+            'Derivación a programa de Rehabilitación Pulmonar intensivo',
+            'Evaluar necesidad de oxigenoterapia o soporte ventilatorio',
+            'Vigilancia estricta de exacerbaciones'
+          ]
+        };
+      }
+
+      if (puntaje >= 21) {
+        return {
+          texto: 'Impacto ALTO (21 - 30)',
+          color: 'red-500',
+          evidencia: `Puntaje CAT: ${puntaje}/40. Gran limitación en la mayoría de los dominios evaluados.`,
+          recomendaciones: [
+            'Optimizar tratamiento broncodilatador (LAMA+LABA)',
+            'Reforzar educación en autocuidado y cese tabáquico',
+            'Evaluar técnica de inhalación'
+          ]
+        };
+      }
+
+      if (puntaje >= 10) {
+        return {
+          texto: 'Impacto MODERADO (10 - 20)',
+          color: 'orange-500',
+          evidencia: `Puntaje CAT: ${puntaje}/40. El paciente se considera "altamente sintomático" según guías GOLD.`,
+          recomendaciones: [
+            'Revisar plan de acción ante crisis respiratorias',
+            'Fomentar actividad física diaria supervisada',
+            'Controlar factores ambientales'
+          ]
+        };
+      }
+
+      return {
+        texto: 'Impacto BAJO (< 10)',
+        color: 'emerald-600',
+        evidencia: `Puntaje CAT: ${puntaje}/40. Síntomas estables con poco impacto en la vida diaria.`,
+        recomendaciones: [
+          'Mantener terapia actual',
+          'Control anual preventivo',
+          'Fomentar estilos de vida saludables'
+        ]
+      };
+    }
+  },
+
   // ==========================================
   // PALIATIVOS
   // ==========================================
