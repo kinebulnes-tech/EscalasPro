@@ -3913,23 +3913,96 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'campbell',
+    id: 'campbell_pain_scale',
     nombre: 'Escala de Campbell',
     categoria: 'enfermeria',
-    descripcion: 'Evaluación del dolor en pacientes no comunicativos o ventilados.',
+    descripcion: 'Evaluación del dolor en pacientes con incapacidad para comunicarse (críticos, ventilados o con deterioro cognitivo).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO ---
+    bibliografia: "Campbell WI. A prospective evaluation of the pain chart in the intensive care unit. Intensive Care Med. 1989;15(4):241-3.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/2753956/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es una herramienta validada para la monitorización continua del dolor en UCI. Permite ajustar la sedoanalgesia basándose en signos objetivos de distrés.",
+
     preguntas: [
-      { id: 'facial', text: 'Musculatura facial', type: 'select', options: [{ label: 'Relajada', value: 0 }, { label: 'Tensa', value: 1 }, { label: 'Muecas', value: 2 }] },
-      { id: 'tranquilidad', text: 'Tranquilidad', type: 'select', options: [{ label: 'Tranquilo', value: 0 }, { label: 'Mov. ocasionales', value: 1 }, { label: 'Agitación', value: 2 }] },
-      { id: 'tono', text: 'Tono muscular', type: 'select', options: [{ label: 'Normal', value: 0 }, { label: 'Aumentado', value: 1 }, { label: 'Rígido', value: 2 }] },
-      { id: 'ventilacion', text: 'Ventilación / Respuesta', type: 'select', options: [{ label: 'Tolerancia normal', value: 0 }, { label: 'Tose / Se queja', value: 1 }, { label: 'Lucha con ventilador', value: 2 }] },
-      { id: 'consuelo', text: 'Consolabilidad', type: 'select', options: [{ label: 'No necesita', value: 0 }, { label: 'Se consuela', value: 1 }, { label: 'Difícil de consolar', value: 2 }] }
+      { id: 'facial', text: '1. Musculatura Facial:', type: 'select', options: [
+        { label: '0: Relajada (Expresión neutra)', value: 0 }, 
+        { label: '1: Tensa (Ceño fruncido, mueca leve o retraído)', value: 1 }, 
+        { label: '2: Muecas frecuentes (Mandíbula apretada, ojos cerrados)', value: 2 }
+      ]},
+      { id: 'tranquilidad', text: '2. Tranquilidad / Reposo:', type: 'select', options: [
+        { label: '0: Tranquilo (Movimientos normales o en reposo)', value: 0 }, 
+        { label: '1: Movimientos ocasionales (Inquieto, cambia de posición)', value: 1 }, 
+        { label: '2: Agitación (Movimientos frecuentes, intenta retirarse tubos)', value: 2 }
+      ]},
+      { id: 'tono', text: '3. Tono Muscular:', type: 'select', options: [
+        { label: '0: Normal (Pasivo, relajado al tacto)', value: 0 }, 
+        { label: '1: Aumentado (Tensión al mover extremidades)', value: 1 }, 
+        { label: '2: Rígido (Flexión/Extensión extrema, resiste movimiento)', value: 2 }
+      ]},
+      { id: 'ventilacion', text: '4. Respuesta a la Ventilación / Vocalización:', type: 'select', options: [
+        { label: '0: Tolerancia normal (Sincronía con ventilador / Respiración rítmica)', value: 0 }, 
+        { label: '1: Tose / Se queja / Gemidos ocasionales', value: 1 }, 
+        { label: '2: Lucha con el ventilador (Asincronía severa / Taquipnea extrema)', value: 2 }
+      ]},
+      { id: 'consuelo', text: '5. Consolabilidad:', type: 'select', options: [
+        { label: '0: No necesita (El paciente está confortable)', value: 0 }, 
+        { label: '1: Se consuela con el tacto o al hablarle', value: 1 }, 
+        { label: '2: Difícil de consolar o confortar', value: 2 }
+      ]}
     ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p === 0) return { texto: 'Sin dolor', recomendaciones: ['Mantener esquema de analgesia basal'] };
-      if (p <= 3) return { texto: 'Dolor Leve a Moderado', recomendaciones: ['Analgesia no opioide', 'Asegurar posicionamiento confortable'] };
-      if (p <= 6) return { texto: 'Dolor Moderado a Severo', recomendaciones: ['Evaluar uso de opioides menores', 'Revisar parámetros del ventilador'] };
-      return { texto: 'Dolor Muy Severo', recomendaciones: ['Aumentar infusión analgésica URGENTE', 'Evaluación médica inmediata'] };
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
+    interpretar: (puntaje) => {
+      if (puntaje === 0) {
+        return { 
+          texto: 'Sin Signos de Dolor', 
+          color: 'emerald-600', 
+          evidencia: `Puntaje de ${puntaje}: Paciente confortable y adaptado.`, 
+          recomendaciones: [
+            'Mantener esquema de analgesia basal prescrito', 
+            'Continuar monitorización rutinaria', 
+            'Cuidados de confort ambiental (luz, ruido)'
+          ] 
+        };
+      }
+      if (puntaje <= 3) {
+        return { 
+          texto: 'Dolor Leve / Incomodidad', 
+          color: 'green-500', 
+          evidencia: `Puntaje de ${puntaje}: Primeras señales de distrés fisiológico.`, 
+          recomendaciones: [
+            'Optimizar posicionamiento y alineación corporal', 
+            'Asegurar permeabilidad de sondas y drenajes', 
+            'Considerar dosis de rescate de analgésicos no opioides'
+          ] 
+        };
+      }
+      if (puntaje <= 6) {
+        return { 
+          texto: 'Dolor Moderado a Severo', 
+          color: 'orange-600', 
+          evidencia: `Puntaje de ${puntaje}: Signos claros de dolor que afectan la ventilación.`, 
+          recomendaciones: [
+            'Administrar rescate analgésico según indicación médica', 
+            'Revisar parámetros ventilatorios (descartar neumotórax o tubo acodado)', 
+            'Evaluar incremento de infusión de opioides si persiste'
+          ] 
+        };
+      }
+      return { 
+        texto: 'Dolor Muy Severo', 
+        color: 'red-600', 
+        evidencia: `Puntaje de ${puntaje}: Sufrimiento agudo con riesgo de autolesión o asincronía crítica.`, 
+        recomendaciones: [
+          'Aumentar infusión analgésica de forma URGENTE', 
+          'Notificación médica inmediata para evaluación de sedoanalgesia', 
+          'Asegurar protección de dispositivos invasivos (sujeción si es necesario)', 
+          'Evaluación de causa base (ej. isquemia, abdomen agudo)'
+        ] 
+      };
     }
   },
   {
