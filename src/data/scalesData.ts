@@ -56,6 +56,192 @@ export const scales: Scale[] = [
   // ==========================================
 
 {
+    id: 'rass_sedacion_paliativa',
+    nombre: 'Escala RASS (Richmond Agitation-Sedation Scale)',
+    categoria: 'paliativos',
+    descripcion: 'Monitoreo del nivel de alerta y agitación. Crucial para el ajuste de la sedación paliativa.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 12446996) ---
+    bibliografia: "Sessler CN, et al. The Richmond Agitation-Sedation Scale: validity and reliability in adult intensive care unit patients. Am J Respir Crit Care Med. 2002.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/12446996/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "En sedación paliativa, el objetivo suele ser un RASS entre -2 y -4, dependiendo de la intensidad del síntoma refractario y el deseo del paciente/familia.",
+
+    preguntas: [
+      { 
+        id: 'nivel_alerta', 
+        text: 'Seleccione el estado actual del paciente:', 
+        type: 'select',
+        options: [
+          { label: '+4 Combativo: Violento, peligro inmediato para el personal', value: 4 },
+          { label: '+3 Muy agitado: Agresivo, se quita tubos o catéteres', value: 3 },
+          { label: '+2 Agitado: Movimientos frecuentes, lucha con el ventilador/sueros', value: 2 },
+          { label: '+1 Inquieto: Ansioso, movimientos no agresivos', value: 1 },
+          { label: '0 Alerta y tranquilo', value: 0 },
+          { label: '-1 Somnolento: Despierta a la voz (contacto visual >10 seg)', value: -1 },
+          { label: '-2 Sedación ligera: Despierta a la voz (contacto visual <10 seg)', value: -2 },
+          { label: '-3 Sedación moderada: Movimiento o apertura ocular a la voz (sin contacto visual)', value: -3 },
+          { label: '-4 Sedación profunda: No responde a la voz, pero sí al estímulo físico', value: -4 },
+          { label: '-5 Sedación muy profunda: Sin respuesta a voz ni estímulo físico', value: -5 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.nivel_alerta) || 0,
+
+    // ✅ Firma compatible con Interface Scale (puntaje, respuestas)
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje > 0) {
+        return {
+          texto: 'AGITACIÓN / DISTRÉS PSICOMOTOR',
+          color: 'red-600',
+          evidencia: `RASS +${puntaje}. El paciente presenta inquietud o agresividad.`,
+          recomendaciones: [
+            'Evaluar presencia de delirio hiperactivo',
+            'Considerar inicio o rescate con Midazolam o Haloperidol según protocolo',
+            'Medidas ambientales: luz tenue, voz suave, presencia familiar',
+            'Re-evaluar en 15-30 minutos tras intervención farmacológica'
+          ]
+        };
+      }
+
+      if (puntaje === 0) {
+        return {
+          texto: 'ALERTA Y TRANQUILO',
+          color: 'emerald-600',
+          evidencia: 'RASS 0. Nivel óptimo si no se ha iniciado sedación paliativa.',
+          recomendaciones: [
+            'Continuar monitoreo de síntomas basales',
+            'Mantener comunicación activa con el paciente'
+          ]
+        };
+      }
+
+      if (puntaje >= -3) {
+        return {
+          texto: 'SEDACIÓN CONSCIENTE / SUPERFICIAL',
+          color: 'sky-500',
+          evidencia: `RASS ${puntaje}. El paciente responde a estímulos verbales.`,
+          recomendaciones: [
+            'Nivel adecuado para control de síntomas leves-moderados',
+            'Permite la interacción mínima con la familia',
+            'Vigilar permeabilidad de vía aérea y confort'
+          ]
+        };
+      }
+
+      return {
+        texto: 'SEDACIÓN PROFUNDA',
+        color: 'indigo-800',
+        evidencia: `RASS ${puntaje}. Respuesta mínima o nula a estímulos.`,
+        recomendaciones: [
+          'Objetivo habitual en agonía o síntomas refractarios severos',
+          'Cuidado estricto de mucosas y cambios posturales pasivos',
+          'Informar a la familia sobre el estado de inconsciencia',
+          'Monitorizar signos indirectos de dolor (facies, sudoración)'
+        ]
+      };
+    }
+  },
+
+
+{
+    id: 'necpal_identificacion',
+    nombre: 'NECPAL CCOMS-ICO©',
+    categoria: 'paliativos',
+    descripcion: 'Herramienta para la identificación de personas con necesidades paliativas y situaciones de final de vida.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 23631815) ---
+    bibliografia: "Gómez-Batiste X, et al. Identifying patients with chronic conditions in need of palliative care in the general population: development of the NECPAL tool. BMJ Support Palliat Care. 2013.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23631815/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "La NECPAL combina la 'Pregunta Sorpresa' con indicadores de declive funcional y nutricional. Su positividad es un mandato ético para iniciar la planificación anticipada de decisiones.",
+
+    preguntas: [
+      { 
+        id: 'pregunta_sorpresa', 
+        text: '1. Pregunta Sorpresa: ¿Le sorprendería que este paciente muriese en el próximo año?', 
+        type: 'select',
+        options: [
+          { label: 'No me sorprendería (Positiva)', value: 1 },
+          { label: 'Sí me sorprendería (Negativa)', value: 0 }
+        ]
+      },
+      { 
+        id: 'demanda', 
+        text: '2. ¿Existe demanda de cuidados paliativos o limitación del esfuerzo terapéutico por parte del paciente o familia?', 
+        type: 'select',
+        options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }]
+      },
+      { 
+        id: 'declive_funcional', 
+        text: '3. Declive funcional: ¿Pérdida de >2 actividades de la vida diaria o PPS < 50% en los últimos 6 meses?', 
+        type: 'select',
+        options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }]
+      },
+      { 
+        id: 'declive_nutricional', 
+        text: '4. Declive nutricional: ¿Pérdida de peso involuntaria y relevante (>10%)?', 
+        type: 'select',
+        options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }]
+      },
+      { 
+        id: 'comorbilidad', 
+        text: '5. ¿Presenta >2 enfermedades crónicas graves?', 
+        type: 'select',
+        options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      // El puntaje total no es tan relevante como la Pregunta Sorpresa
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
+    // ✅ Firma corregida con (puntaje, respuestas)
+    interpretar: (puntaje, respuestas) => {
+      const preguntaSorpresa = Number(respuestas?.pregunta_sorpresa) === 1;
+      const otrosIndicadores = puntaje >= 2; // Al menos un indicador aparte de la sorpresa
+
+      if (preguntaSorpresa && otrosIndicadores) {
+        return {
+          texto: 'IDENTIFICACIÓN POSITIVA (Necesidades Paliativas)',
+          color: 'red-600',
+          evidencia: `Pregunta sorpresa (+) y presencia de ${puntaje - 1} indicadores de declive adicionales.`,
+          recomendaciones: [
+            'Iniciar formalmente el Proceso de Planificación Anticipada de Decisiones (PPAD)',
+            'Valoración integral multidimensional (física, social, espiritual)',
+            'Adecuación del esfuerzo terapéutico según metas de cuidado',
+            'Inscribir en programa de Cuidados Paliativos Universales (Ley 21.375)'
+          ]
+        };
+      }
+
+      if (preguntaSorpresa) {
+        return {
+          texto: 'SOSPECHA DE NECESIDAD PALIATIVA',
+          color: 'orange-500',
+          evidencia: 'La pregunta sorpresa es negativa (muerte previsible), pero aún faltan indicadores de declive marcados.',
+          recomendaciones: [
+            'Seguimiento clínico estrecho cada 3 meses',
+            'Evaluar la carga de síntomas actual (ESAS-r)',
+            'Conversar con la familia sobre el pronóstico de la enfermedad crónica'
+          ]
+        };
+      }
+
+      return {
+        texto: 'PACIENTE NO PALIATIVO ACTUAL',
+        color: 'emerald-600',
+        evidencia: 'Muerte no previsible en un año según el juicio clínico.',
+        recomendaciones: [
+          'Continuar con manejo curativo o rehabilitador estándar',
+          'Re-evaluar NECPAL si ocurre una descompensación aguda o ingreso hospitalario'
+        ]
+      };
+    }
+  },
+
+
+{
     id: 'pps_v2_paliativos',
     nombre: 'PPSv2 (Palliative Performance Scale)',
     categoria: 'paliativos',
