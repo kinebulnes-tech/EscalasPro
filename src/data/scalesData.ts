@@ -6073,12 +6073,15 @@ interpretar: (p) => {
 if (p <= 4) return { texto: 'Calidad de vida percibida baja', recomendaciones: ['Evaluar factores determinantes (físicos, sociales)', 'Intervención integral'] };
 
 return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar factores protectores'] };
-
 }
-
 }
-
 ];
+
+// ==========================================
+  // CUIDADOS PALIATIVOS
+  // ==========================================
+
+
 
 // Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
 
