@@ -55,7 +55,85 @@ export const scales: Scale[] = [
   // PALIATIVOS
   // ==========================================
 
+{
+    id: 'pps_v2_paliativos',
+    nombre: 'PPSv2 (Palliative Performance Scale)',
+    categoria: 'paliativos',
+    descripcion: 'Evaluación del estado funcional y predictor de supervivencia en pacientes paliativos basado en 5 dominios.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8710779) ---
+    bibliografia: "Anderson F, et al. Palliative Performance Scale (PPS): a new tool. J Palliat Care. 1996;12(1):5-11.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8710779/", 
+    evidenciaClinica: "La PPSv2 es una herramienta de comunicación vital entre equipos. Puntajes de 10% a 20% predicen una supervivencia media de pocos días, mientras que puntajes > 50% sugieren meses de estabilidad.",
 
+    preguntas: [
+      { 
+        id: 'nivel_funcional', 
+        text: 'Seleccione el nivel que mejor describa la situación actual del paciente:', 
+        type: 'select', 
+        options: [
+          { label: '100%: Deambulación total. Actividad y trabajo normal. Sin enfermedad.', value: 100 },
+          { label: '90%: Deambulación total. Actividad normal. Alguna evidencia enfermedad.', value: 90 },
+          { label: '80%: Deambulación total. Actividad normal con esfuerzo.', value: 80 },
+          { label: '70%: Deambulación reducida. Incapaz de realizar actividad normal.', value: 70 },
+          { label: '60%: Deambulación reducida. Incapaz de realizar tareas domésticas.', value: 60 },
+          { label: '50%: Principalmente sentado/acostado. Incapaz de realizar trabajo.', value: 50 },
+          { label: '40%: Principalmente en cama. Incapaz de realizar la mayoría de las actividades.', value: 40 },
+          { label: '30%: Totalmente en cama. Incapaz de realizar cualquier actividad.', value: 30 },
+          { label: '20%: Totalmente en cama. Ingesta mínima.', value: 20 },
+          { label: '10%: Totalmente en cama. Solo sorbos de agua / NPO.', value: 10 },
+          { label: '0%: Fallecido', value: 0 }
+        ] 
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.nivel_funcional) || 0,
+
+    // ✅ SOLUCIÓN AL ERROR: Se añade el argumento 'respuestas' para cumplir con la interfaz Scale
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 70) return { 
+        texto: 'Fase Estable / Independencia', 
+        color: 'emerald-600', 
+        evidencia: `PPS del ${puntaje}%. El paciente mantiene deambulación y capacidad de autocuidado.`,
+        recomendaciones: [
+          'Mantener actividades de la vida diaria según tolerancia',
+          'Enfoque en rehabilitación paliativa preventiva',
+          'Planificar deseos y voluntades anticipadas'
+        ] 
+      };
+
+      if (puntaje >= 40) return { 
+        texto: 'Fase de Transición / Dependencia Moderada', 
+        color: 'orange-500', 
+        evidencia: `PPS del ${puntaje}%. Indica progresión de la enfermedad con mayor tiempo en cama/reposo.`,
+        recomendaciones: [
+          'Adaptación del hogar y ayudas técnicas (silla de ruedas, barras)',
+          'Entrenamiento a cuidadores en transferencias',
+          'Evaluación de sobrecarga del cuidador (Zarit)',
+          'Optimizar control de síntomas para preservar funcionalidad restante'
+        ] 
+      };
+
+      if (puntaje >= 10) return { 
+        texto: 'Fase de Final de Vida / Dependencia Total', 
+        color: 'red-600', 
+        evidencia: `PPS del ${puntaje}%. Alta probabilidad de fallecimiento en días o pocas semanas.`,
+        recomendaciones: [
+          'Priorizar confort absoluto y control de síntomas agudos',
+          'Evaluar ingreso a hospitalización domiciliaria o hospice',
+          'Apoyo espiritual y psicosocial intensivo a la familia',
+          'Prevención de complicaciones de inmovilidad (UPP) según metas de cuidado'
+        ] 
+      };
+
+      return { 
+        texto: 'Éxitus (Fallecido)', 
+        color: 'slate-900', 
+        evidencia: 'PPS 0%.',
+        recomendaciones: ['Apoyo al duelo para la familia'] 
+      };
+    }
+  },
 
   
 {
