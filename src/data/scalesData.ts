@@ -6508,71 +6508,68 @@ export const scales: Scale[] = [
 },
   
  {
-  id: 'imc_cintura',
-  nombre: 'IMC y Perímetro de Cintura',
-  categoria: 'nutricion',
-  descripcion: 'Clasificación del estado nutricional y evaluación del riesgo cardiometabólico.',
-  
-  // --- JUSTIFICACIÓN ACADÉMICA ---
-  bibliografia: "World Health Organization (WHO). Waist circumference and waist-hip ratio: report of a WHO expert consultation. 2008.",
-  referenciaUrl: "https://www.who.int/publications/i/item/9789241501491",
-  evidenciaClinica: "El IMC categoriza el peso, mientras que el perímetro de cintura identifica la obesidad abdominal, predictor de riesgo para Diabetes e Hipertensión.",
+    id: 'imc_cintura',
+    nombre: 'IMC y Perímetro de Cintura',
+    categoria: 'nutricion',
+    descripcion: 'Clasificación del estado nutricional y evaluación del riesgo cardiometabólico integral.',
+    
+    bibliografia: "World Health Organization (WHO). Waist circumference and waist-hip ratio: report of a WHO expert consultation. 2008.",
+    referenciaUrl: "https://www.who.int/publications/i/item/9789241501491",
+    evidenciaClinica: "El IMC categoriza el peso, mientras que el perímetro de cintura identifica la obesidad abdominal, predictor independiente de riesgo para Diabetes e Hipertensión.",
 
-  preguntas: [
-    { 
-      id: 'imc_val', 
-      text: '1. Ingrese el IMC calculado (kg/m²):', 
-      type: 'number' 
-    },
-    { 
-      id: 'cintura_val', 
-      text: '2. Perímetro de cintura (cm):', 
-      type: 'number' 
-    },
-    { 
-      id: 'sexo', 
-      text: '3. Sexo biológico:', 
-      type: 'select', 
-      options: [
-        { label: 'Hombre', value: 1 }, // Cambiado de 'h' a 1
-        { label: 'Mujer', value: 2 }   // Cambiado de 'm' a 2
-      ] 
+    preguntas: [
+      { id: 'imc_val', text: '1. Ingrese el IMC calculado (kg/m²):', type: 'number' },
+      { id: 'cintura_val', text: '2. Perímetro de cintura (cm):', type: 'number' },
+      { 
+        id: 'sexo', 
+        text: '3. Sexo biológico:', 
+        type: 'select', 
+        options: [
+          { label: 'Hombre', value: 1 },
+          { label: 'Mujer', value: 2 }
+        ] 
+      }
+    ],
+
+    calcularPuntaje: (r) => Number(r.imc_val) || 0,
+
+    interpretar: (p, respuestas) => {
+      const imc = p;
+      const cintura = Number(respuestas?.cintura_val) || 0;
+      const sexo = Number(respuestas?.sexo) || 1;
+
+      // 1. Lógica de IMC
+      let catImc = '';
+      let color = 'emerald-600';
+      if (imc < 18.5) { catImc = 'Bajo Peso'; color = 'blue-500'; }
+      else if (imc < 25) { catImc = 'Normopeso'; color = 'emerald-600'; }
+      else if (imc < 30) { catImc = 'Sobrepeso'; color = 'orange-500'; }
+      else { catImc = 'Obesidad'; color = 'red-600'; }
+
+      // 2. Lógica de Riesgo por Cintura (Puntos de corte WHO/Chile)
+      // Hombre: > 94cm Riesgo, > 102cm Riesgo Muy Alto
+      // Mujer: > 80cm Riesgo, > 88cm Riesgo Muy Alto
+      let riesgoCintura = 'Bajo';
+      if (sexo === 1) { // Hombre
+        if (cintura > 102) riesgoCintura = 'Muy Alto';
+        else if (cintura > 94) riesgoCintura = 'Aumentado';
+      } else { // Mujer
+        if (cintura > 88) riesgoCintura = 'Muy Alto';
+        else if (cintura > 80) riesgoCintura = 'Aumentado';
+      }
+
+      return {
+        texto: `Resultado: ${catImc}`,
+        color: color,
+        evidencia: `IMC: ${imc} kg/m² | Cintura: ${cintura} cm (Riesgo: ${riesgoCintura})`,
+        recomendaciones: [
+          `Riesgo Metabólico: ${riesgoCintura}.`,
+          riesgoCintura !== 'Bajo' ? 'Priorizar pérdida de grasa visceral y ejercicio aeróbico.' : 'Mantener composición corporal actual.',
+          'Evaluar perfil lipídico y glicemia en ayunas si el riesgo es Aumentado o Muy Alto.'
+        ]
+      };
     }
-  ],
-
-  calcularPuntaje: (r: any) => Number(r.imc_val) || 0,
-
-  interpretar: (p: number) => {
-    let cat = '';
-    let color = '';
-
-    if (p < 18.5) { 
-      cat = 'Bajo Peso'; 
-      color = 'blue-500'; 
-    } else if (p < 25) { 
-      cat = 'Normopeso (Rango saludable)'; 
-      color = 'emerald-600'; 
-    } else if (p < 30) { 
-      cat = 'Sobrepeso (Pre-obesidad)'; 
-      color = 'orange-500'; 
-    } else { 
-      cat = 'Obesidad'; 
-      color = 'red-600'; 
-    }
-
-    return { 
-      texto: 'Estado: ' + cat, 
-      color: color,
-      evidencia: `Resultado basado en un IMC de ${p} kg/m².`,
-      // Nota: Si tu sistema pide 'recommendations' en inglés, cámbialo aquí abajo
-      recomendaciones: [
-        'Evaluar riesgo cardiovascular según el perímetro de cintura', 
-        'Ajustar plan alimentario según objetivo ponderal',
-        'Considerar evaluación de composición muscular'
-      ] 
-    };
-  }
-},
+  },
   {
   id: 'bristol',
   nombre: 'Escala de Bristol',
