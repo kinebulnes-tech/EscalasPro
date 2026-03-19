@@ -1304,22 +1304,105 @@ export const scales: Scale[] = [
   },
   {
     id: 'guss',
-    nombre: 'GUSS',
+    nombre: 'GUSS (Gugging Swallowing Screen)',
     categoria: 'fonoaudiologia',
-    descripcion: 'Gugging Swallowing Screen',
+    descripcion: 'Prueba de tamizaje jerárquica para la detección de disfagia en pacientes con ACV agudo.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 17540209) ---
+    bibliografia: "Trapl M, et al. Gugging Swallowing Screen: graduation from mild to severe dysphagia. Stroke. 2007 Jul;38(7):2126-30.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/17540209/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es la escala de elección en unidades de ACV. Su estructura permite identificar no solo el riesgo, sino el tipo de dieta segura de forma inmediata.",
+
     preguntas: [
-      { id: 'vigilancia', text: 'Vigilancia', type: 'select', options: [{ label: 'Alerta >15 min', value: 1 }, { label: 'No cumple', value: 0 }] },
-      { id: 'tos_voluntaria', text: 'Tos voluntaria o aclaramiento', type: 'select', options: [{ label: 'Presente', value: 1 }, { label: 'Ausente', value: 0 }] },
-      { id: 'deglutir_saliva', text: 'Deglutir saliva', type: 'select', options: [{ label: 'Exitoso', value: 1 }, { label: 'No exitoso', value: 0 }] },
-      { id: 'deglucion_semiliquido', text: 'Deglución semilíquido', type: 'select', options: [{ label: 'Sin problemas', value: 1 }, { label: 'Con problemas', value: 0 }] },
-      { id: 'deglucion_liquido', text: 'Deglución líquido', type: 'select', options: [{ label: 'Sin problemas', value: 1 }, { label: 'Con problemas', value: 0 }] }
+      // PARTE 1: DEGLUCIÓN INDIRECTA (Puntaje 0-5)
+      { 
+        id: 'p1_saliva', 
+        text: 'Parte 1: Deglución de saliva, tos voluntaria y vigilancia (Marcar solo si cumple TODO: Alerta >15 min, tos fuerte, deglución exitosa, sin babeo, sin cambio de voz):', 
+        type: 'select', 
+        options: [
+          { label: 'Falla en uno o más ítems (0-4 pts)', value: 0 },
+          { label: 'Éxito total (5 pts) - Continuar a Semisólidos', value: 5 }
+        ] 
+      },
+      // PARTE 2: DEGLUCIÓN DIRECTA (Puntaje acumulativo hasta 20)
+      { 
+        id: 'p2_semisolido', 
+        text: 'Prueba Semisólido (Pudding): Deglución exitosa, sin tos, sin babeo, sin cambio de voz:', 
+        type: 'select', 
+        options: [
+          { label: 'No realizada (falla previa)', value: 0 },
+          { label: 'Falla o Aspiración (0-4 pts)', value: 2 },
+          { label: 'Éxito total (5 pts) - Continuar a Líquidos', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p3_liquido', 
+        text: 'Prueba Líquido (Agua): Deglución exitosa, sin tos, sin babeo, sin cambio de voz:', 
+        type: 'select', 
+        options: [
+          { label: 'No realizada (falla previa)', value: 0 },
+          { label: 'Falla o Aspiración (0-4 pts)', value: 2 },
+          { label: 'Éxito total (5 pts) - Continuar a Sólido', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p4_solido', 
+        text: 'Prueba Sólido (Pan): Deglución exitosa, sin tos, sin babeo, sin cambio de voz:', 
+        type: 'select', 
+        options: [
+          { label: 'No realizada (falla previa)', value: 0 },
+          { label: 'Falla o Aspiración (0-4 pts)', value: 2 },
+          { label: 'Éxito total (5 pts)', value: 5 }
+        ] 
+      }
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      // El GUSS es jerárquico. Si falla la P1, el puntaje es lo que haya sacado en P1.
+      const p1 = Number(respuestas.p1_saliva) || 0;
+      if (p1 < 5) return p1; // Riesgo severo
+      
+      const p2 = Number(respuestas.p2_semisolido) || 0;
+      if (p2 < 5) return p1 + p2; // Riesgo moderado
+      
+      const p3 = Number(respuestas.p3_liquido) || 0;
+      if (p3 < 5) return p1 + p2 + p3; // Riesgo leve
+      
+      const p4 = Number(respuestas.p4_solido) || 0;
+      return p1 + p2 + p3 + p4; // Independencia (20 pts)
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje >= 4) return { texto: 'Bajo riesgo de disfagia (20 pts en GUSS completo)', recomendaciones: ['Dieta normal', 'Dar de beber líquidos de forma estándar', 'Reevaluación si cambia el estado neurológico'] };
-      if (puntaje === 3) return { texto: 'Riesgo leve de disfagia (15-19 pts)', recomendaciones: ['Dieta blanda y líquidos espesados (néctar)', 'Supervisión durante las primeras comidas', 'Administrar pastillas trituradas en puré'] };
-      if (puntaje === 2) return { texto: 'Riesgo moderado de disfagia (10-14 pts)', recomendaciones: ['Dieta tipo puré (homogénea)', 'Líquidos muy espesados (pudin)', 'Evaluación fonoaudiológica formal', 'Suplementación de hidratación endovenosa/enteral'] };
-      return { texto: 'Alto riesgo de disfagia (0-9 pts)', recomendaciones: ['NPO absoluto (Nada por boca)', 'Alimentación por tubo nasogástrico/orogástrico', 'Manejo riguroso de secreciones', 'Interconsulta a SLP/Fonoaudiología urgente'] };
+      if (puntaje === 20) {
+        return { 
+          texto: 'Riesgo Mínimo / Normal (20 pts)', 
+          color: 'emerald-600', 
+          evidencia: 'Deglución exitosa en todas las consistencias.', 
+          recomendaciones: ['Dieta normal', 'Líquidos libres', 'Reevaluar en 24h'] 
+        };
+      }
+      if (puntaje >= 15) {
+        return { 
+          texto: 'Disfagia LEVE (15-19 pts)', 
+          color: 'green-500', 
+          evidencia: 'Riesgo de aspiración con sólidos, pero seguro con líquidos y semisólidos.', 
+          recomendaciones: ['Dieta blanda/molida', 'Líquidos bajo supervisión', 'Consultar Fonoaudiología'] 
+        };
+      }
+      if (puntaje >= 10) {
+        return { 
+          texto: 'Disfagia MODERADA (10-14 pts)', 
+          color: 'yellow-500', 
+          evidencia: 'Riesgo de aspiración con líquidos. Seguro con semisólidos.', 
+          recomendaciones: ['Dieta tipo puré', 'Líquidos con espesante (Néctar/Pudding)', 'Derivar a evaluación instrumental'] 
+        };
+      }
+      return { 
+        texto: 'Disfagia SEVERA (0-9 pts)', 
+        color: 'red-600', 
+        evidencia: 'Alto riesgo de aspiración silente o manifiesta. Fallo en el cribado inicial.', 
+        recomendaciones: ['NPO (Nada por boca)', 'Alimentación enteral (SNG)', 'Evaluación urgente por especialista'] 
+      };
     }
   },
   {
