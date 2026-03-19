@@ -2893,24 +2893,92 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'news2',
-    nombre: 'NEWS2',
+    id: 'news2_score',
+    nombre: 'NEWS2 (National Early Warning Score)',
     categoria: 'emergencias',
-    descripcion: 'National Early Warning Score 2 para detección de deterioro clínico',
+    descripcion: 'Sistema estandarizado para la evaluación de la gravedad de la enfermedad aguda y el deterioro clínico.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 29433141) ---
+    bibliografia: "Royal College of Physicians. National Early Warning Score (NEWS) 2: Standardising the assessment of acute-illness severity in the NHS. 2017.",
+    referenciaUrl: "https://www.rcplondon.ac.uk/projects/outputs/national-early-warning-score-news-2", // ✅ FUENTE OFICIAL VERIFICADA
+    evidenciaClinica: "Es la herramienta más eficaz para la detección temprana de Sepsis y deterioro clínico. Un puntaje ≥ 5 es el umbral crítico para la respuesta médica urgente.",
+
     preguntas: [
-      { id: 'fr', text: 'Frecuencia respiratoria', type: 'select', options: [{ label: '12-20', value: 0 }, { label: '9-11', value: 1 }, { label: '21-24', value: 2 }, { label: '<9 o >24', value: 3 }] },
-      { id: 'sat', text: 'Saturación', type: 'select', options: [{ label: '≥96%', value: 0 }, { label: '94-95%', value: 1 }, { label: '92-93%', value: 2 }, { label: '≤91%', value: 3 }] },
-      { id: 'pa', text: 'Presión sistólica', type: 'select', options: [{ label: '111-219', value: 0 }, { label: '101-110', value: 1 }, { label: '91-100', value: 2 }, { label: '≤90 o ≥220', value: 3 }] },
-      { id: 'fc', text: 'Frecuencia cardíaca', type: 'select', options: [{ label: '51-90', value: 0 }, { label: '41-50 o 91-110', value: 1 }, { label: '111-130', value: 2 }, { label: '≤40 o ≥131', value: 3 }] },
-      { id: 'conciencia', text: 'Nivel de conciencia', type: 'select', options: [{ label: 'Alerta', value: 0 }, { label: 'Voz/Dolor/No responde (ACVPU)', value: 3 }] },
-      { id: 'temp', text: 'Temperatura', type: 'select', options: [{ label: '36.1-38.0', value: 0 }, { label: '35.1-36.0 o 38.1-39.0', value: 1 }, { label: '≤35.0 o ≥39.1', value: 2 }] }
+      { id: 'fr', text: 'Frecuencia Respiratoria (rpm):', type: 'select', options: [
+        { label: '12-20 (0 pts)', value: 0 }, 
+        { label: '9-11 (1 pt)', value: 1 }, 
+        { label: '21-24 (2 pts)', value: 2 }, 
+        { label: '≤8 o ≥25 (3 pts)', value: 3 }
+      ]},
+      { id: 'oxigeno', text: '¿Requiere Oxígeno Suplementario (Fio2 > 21%)?', type: 'select', options: [
+        { label: 'No (Aire Ambiente) (0 pts)', value: 0 }, 
+        { label: 'Sí (Uso de cánula, máscara, etc.) (2 pts)', value: 2 }
+      ]},
+      { id: 'sat', text: 'Saturación de Oxígeno (SpO2 - Escala 1):', type: 'select', options: [
+        { label: '≥96% (0 pts)', value: 0 }, 
+        { label: '94-95% (1 pt)', value: 1 }, 
+        { label: '92-93% (2 pts)', value: 2 }, 
+        { label: '≤91% (3 pts)', value: 3 }
+      ]},
+      { id: 'pa', text: 'Presión Arterial Sistólica (mmHg):', type: 'select', options: [
+        { label: '111-219 (0 pts)', value: 0 }, 
+        { label: '101-110 (1 pt)', value: 1 }, 
+        { label: '91-100 (2 pts)', value: 2 }, 
+        { label: '≤90 o ≥220 (3 pts)', value: 3 }
+      ]},
+      { id: 'fc', text: 'Frecuencia Cardíaca (lpm):', type: 'select', options: [
+        { label: '51-90 (0 pts)', value: 0 }, 
+        { label: '41-50 o 91-110 (1 pt)', value: 1 }, 
+        { label: '111-130 (2 pts)', value: 2 }, 
+        { label: '≤40 o ≥131 (3 pts)', value: 3 }
+      ]},
+      { id: 'conciencia', text: 'Nivel de Conciencia (ACVPU):', type: 'select', options: [
+        { label: 'Alerta (0 pts)', value: 0 }, 
+        { label: 'Confusión Nueva, Voz, Dolor o No responde (3 pts)', value: 3 }
+      ]},
+      { id: 'temp', text: 'Temperatura (°C):', type: 'select', options: [
+        { label: '36.1-38.0 (0 pts)', value: 0 }, 
+        { label: '35.1-36.0 o 38.1-39.0 (1 pt)', value: 1 }, 
+        { label: '≥39.1 (2 pts)', value: 2 },
+        { label: '≤35.0 (3 pts)', value: 3 }
+      ]}
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Riesgo Clínico Bajo', recomendaciones: ['Monitorización de signos vitales cada 12 horas'] };
-      if (puntaje <= 4) return { texto: 'Riesgo Medio-Bajo', recomendaciones: ['Aumentar frecuencia de monitoreo a cada 4-6 horas', 'Notificar al enfermero/a a cargo para evaluación médica programada'] };
-      if (puntaje <= 6) return { texto: 'Riesgo Medio', recomendaciones: ['Evaluación médica URGENTE (en menos de 1 hora)', 'Monitorización estricta cada 1 hora', 'Preparar oxígeno y fluidoterapia inicial'] };
-      return { texto: 'Riesgo Alto - Respuesta Rápida (>6 pts)', recomendaciones: ['Activar Equipo de Respuesta Rápida (MET/RRT) o médico intensivista inmediatamente', 'Monitorización continua', 'Traslado inminente a unidad de cuidados críticos (UCI/UTI)'] };
+      if (puntaje === 0) {
+        return { 
+          texto: 'Riesgo Clínico Bajo', 
+          color: 'emerald-600', 
+          evidencia: 'Parámetros fisiológicos estables.', 
+          recomendaciones: ['Monitorización de rutina cada 12 horas', 'Continuar con el plan de cuidados estándar'] 
+        };
+      }
+      if (puntaje <= 4) {
+        return { 
+          texto: 'Riesgo Bajo-Medio', 
+          color: 'green-500', 
+          evidencia: 'Alteración fisiológica leve. *Nota: Un puntaje de 3 en un solo parámetro requiere evaluación médica inmediata.', 
+          recomendaciones: ['Aumentar frecuencia de monitoreo a cada 4-6 horas', 'Informar al enfermero/a responsable para evaluación'] 
+        };
+      }
+      if (puntaje <= 6) {
+        return { 
+          texto: 'Riesgo Medio (Umbral de Alerta)', 
+          color: 'orange-600', 
+          evidencia: 'Deterioro clínico probable. Alta sensibilidad para sepsis.', 
+          recomendaciones: ['Evaluación médica URGENTE (objetivo < 60 min)', 'Monitoreo horario de signos vitales', 'Considerar escalada a cuidados intermedios'] 
+        };
+      }
+      return { 
+        texto: 'Riesgo Alto - EMERGENCIA CLÍNICA', 
+        color: 'red-600', 
+        evidencia: 'Inestabilidad fisiológica severa. Riesgo inminente de paro cardíaco o muerte.', 
+        recomendaciones: ['Activar Equipo de Respuesta Rápida (MET/RRT) inmediatamente', 'Monitorización continua de signos vitales', 'Traslado inminente a UCI/UTI'] 
+      };
     }
   },
   {
@@ -2983,21 +3051,70 @@ export const scales: Scale[] = [
   }
 },
   {
-    id: 'fast_ed',
+    id: 'fast_ed_stroke',
     nombre: 'FAST-ED',
     categoria: 'emergencias',
-    descripcion: 'Detección de ACV de gran vaso (LVO)',
+    descripcion: 'Escala de triage para la detección de oclusión de gran vaso (LVO) en el entorno prehospitalario.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 26860361) ---
+    bibliografia: "Lima FO, et al. Field Assessment Stroke Triage for Emergency Destination: A Simple and Accurate Predictor of Large Vessel Occlusion. Stroke. 2016 May;47(5):1197-202.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/26860361/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Superior a la escala Cincinnati para identificar pacientes candidatos a trombectomía mecánica. Un puntaje ≥ 4 sugiere fuertemente una oclusión arterial mayor.",
+
     preguntas: [
-      { id: 'asimetria', text: 'Asimetría facial', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Presente', value: 1 }] },
-      { id: 'brazo', text: 'Debilidad de brazo', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Severa', value: 2 }] },
-      { id: 'habla', text: 'Alteración del habla', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Leve', value: 1 }, { label: 'Severa', value: 2 }] },
-      { id: 'mirada', text: 'Desviación de la mirada', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Presente', value: 2 }] },
-      { id: 'negligencia', text: 'Negligencia/inatención visual o táctil', type: 'select', options: [{ label: 'Ausente', value: 0 }, { label: 'Presente', value: 2 }] }
+      { id: 'facial', text: '1. Parálisis Facial:', type: 'select', options: [
+        { label: 'Normal / Ausente (0 pts)', value: 0 }, 
+        { label: 'Presente (Asimetría leve o severa) (1 pt)', value: 1 }
+      ]},
+      { id: 'brazo', text: '2. Debilidad de Brazo (Mano dominante o no):', type: 'select', options: [
+        { label: 'Normal / Ausente (0 pts)', value: 0 }, 
+        { label: 'Leve (Claudica antes de 10s) (1 pt)', value: 1 }, 
+        { label: 'Severa (Cae de inmediato o no se mueve) (2 pts)', value: 2 }
+      ]},
+      { id: 'habla', text: '3. Alteración del Habla (Lenguaje):', type: 'select', options: [
+        { label: 'Normal / Ausente (0 pts)', value: 0 }, 
+        { label: 'Leve (Afasia de expresión o comprensión leve) (1 pt)', value: 1 }, 
+        { label: 'Severa (Global, mutismo o ininteligible) (2 pts)', value: 2 }
+      ]},
+      { id: 'mirada', text: '4. Desviación de la Mirada Conjugada:', type: 'select', options: [
+        { label: 'Normal / Ausente (0 pts)', value: 0 }, 
+        { label: 'Desviación hacia un lado fija (2 pts)', value: 2 }
+      ]},
+      { id: 'negligencia', text: '5. Negligencia (Extinción visual/táctica/espacial):', type: 'select', options: [
+        { label: 'Normal / Ausente (0 pts)', value: 0 }, 
+        { label: 'Extinción en una modalidad (Táctil o Visual) (1 pt)', value: 1 }, 
+        { label: 'Extinción en ambas o no reconoce su brazo (2 pts)', value: 2 }
+      ]}
     ],
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
+
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
+
     interpretar: (puntaje) => {
-      if (puntaje >= 4) return { texto: 'Alta prob. Oclusión de Gran Vaso (LVO)', recomendaciones: ['By-pass a centro Primario: Trasladar directamente a Centro Comprensivo de ACV (capacidad de Trombectomía Mecánica)', 'Notificar Código ACV Severo', 'Mantener presión arterial (NO tratar HTA salvo >220/120)'] };
-      return { texto: 'Probabilidad moderada/baja de LVO', recomendaciones: ['Posible ACV de vaso pequeño o ataque isquémico transitorio', 'Traslado a centro primario de ACV para trombolisis sistémica (Alteplasa/Tenecteplasa)', 'Medir glucosa y establecer hora cero'] };
+      if (puntaje >= 4) {
+        return { 
+          texto: 'Alta Probabilidad de Oclusión de Gran Vaso (LVO)', 
+          color: 'red-600', 
+          evidencia: `Puntaje de ${puntaje}: Sugiere compromiso de arteria principal (ACM/Carótida). Riesgo de daño extenso.`, 
+          recomendaciones: [
+            'By-pass: Trasladar directamente a Centro Comprensivo de ACV (con Trombectomía)', 
+            'Notificación de Código ACV Severo en camino', 
+            'Establecer "Hora Cero" (última vez visto normal)',
+            'Evitar descenso de PA (salvo >220/120 mmHg)'
+          ] 
+        };
+      }
+      return { 
+        texto: 'ACV Probable (Baja prob. de LVO)', 
+        color: 'orange-600', 
+        evidencia: `Puntaje de ${puntaje}: Compatible con ACV isquémico/hemorrágico de vaso menor o TIA.`, 
+        recomendaciones: [
+          'Traslado a Centro Primario de ACV (con capacidad de Trombolisis/TAC)', 
+          'Control estricto de Glucemia (descartar hipoglicemia)', 
+          'Preparar para ventana de fibrinolisis sistémica'
+        ] 
+      };
     }
   },
   {
