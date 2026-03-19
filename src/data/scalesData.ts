@@ -5119,40 +5119,133 @@ export const scales: Scale[] = [
     };
   }
 },
+ {
+  id: 'scoff_test',
+  nombre: 'Cuestionario SCOFF',
+  categoria: 'nutricion',
+  descripcion: 'Screening rápido de trastornos de la conducta alimentaria (TCA).',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA ---
+  bibliografia: "Morgan JF, et al. The SCOFF questionnaire: assessment of a new screening tool for eating disorders. BMJ. 1999;319(7223):1467-8.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10582927/",
+  evidenciaClinica: "Un puntaje ≥ 2 tiene una sensibilidad del 100% para anorexia y bulimia. Es la herramienta de cribado de elección en atención primaria.",
+
+  preguntas: [
+    { id: 's', text: '1. ¿Se siente enfermo porque se siente lleno?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'c', text: '2. ¿Le preocupa haber perdido el control sobre cuánto come?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'o', text: '3. ¿Ha perdido recientemente más de 6 kg en 3 meses?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'f', text: '4. ¿Cree que está gordo a pesar de que otros dicen que está flaco?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+    { id: 'f2', text: '5. ¿Diría que la comida domina su vida?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
+  ],
+
+  calcularPuntaje: (r: any) => Object.values(r).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p: number) => {
+    if (p >= 2) return { 
+      texto: 'Probable Trastorno de Conducta Alimentaria', 
+      color: 'red-600',
+      evidencia: 'Puntaje de ' + p + '/5: Supera el umbral de cribado clínico.',
+      recomendaciones: [
+        'Derivación urgente a Salud Mental (Psicología/Psiquiatría)', 
+        'Evaluación médica para descartar complicaciones metabólicas', 
+        'Evitar dietas restrictivas sin supervisión profesional'
+      ] 
+    };
+
+    return { 
+      texto: 'Baja probabilidad de TCA', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + '/5: No se alcanzan criterios de riesgo.',
+      recomendaciones: [
+        'Mantener educación en alimentación saludable',
+        'Reevaluar si aparecen cambios conductuales bruscos'
+      ] 
+    };
+  }
+},
   {
-    id: 'scoff_test',
-    nombre: 'Cuestionario SCOFF',
-    categoria: 'nutricion',
-    descripcion: 'Screening rápido de trastornos de la conducta alimentaria (TCA).',
-    preguntas: [
-      { id: 's', text: '¿Se siente enfermo porque se siente lleno?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'c', text: '¿Le preocupa haber perdido el control sobre cuánto come?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'o', text: '¿Ha perdido recientemente más de 6 kg en 3 meses?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'f', text: '¿Cree que está gordo a pesar de que otros dicen que está flaco?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
-      { id: 'f2', text: '¿Diría que la comida domina su vida?', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 2) return { texto: 'Probable Trastorno de Conducta Alimentaria', recomendaciones: ['Derivación urgente a Salud Mental (Psicología/Psiquiatría)', 'Evaluación médica para descartar complicaciones', 'Evitar dietas restrictivas sin supervisión'] };
-      return { texto: 'Baja probabilidad de TCA', recomendaciones: ['Mantener educación en alimentación saludable'] };
+  id: 'nutric_score_uci',
+  nombre: 'NUTRIC Score',
+  categoria: 'nutricion',
+  descripcion: 'Identifica el riesgo de desnutrición en pacientes críticos y su beneficio potencial del soporte nutricional.',
+  
+  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
+  bibliografia: "Heyland DK, et al. Identifying critically ill patients who benefit the most from nutrition therapy: the NUTRIC score. Crit Care. 2011;15(6):R268.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/22085763/", // ✅ FUENTE VERIFICADA
+  evidenciaClinica: "Es la primera herramienta validada para UCI. Un puntaje alto se asocia con mayor mortalidad y días de ventilación mecánica, pero estos pacientes son los que más se benefician de una meta calórica-proteica temprana.",
+
+  preguntas: [
+    { 
+      id: 'apache', 
+      text: '1. Score APACHE II (Gravedad al ingreso):', 
+      type: 'select', 
+      options: [
+        { label: '< 15 (0 pts)', value: 0 }, 
+        { label: '15-19 (1 pt)', value: 1 }, 
+        { label: '20-27 (2 pts)', value: 2 }, 
+        { label: '≥ 28 (3 pts)', value: 3 }
+      ] 
+    },
+    { 
+      id: 'sofa', 
+      text: '2. Score SOFA (Falla orgánica acumulada):', 
+      type: 'select', 
+      options: [
+        { label: '< 6 (0 pts)', value: 0 }, 
+        { label: '6-9 (1 pt)', value: 1 }, 
+        { label: '≥ 10 (2 pts)', value: 2 }
+      ] 
+    },
+    { 
+      id: 'comorb', 
+      text: '3. Número de comorbilidades (Patologías previas):', 
+      type: 'select', 
+      options: [
+        { label: '0-1 comorbilidad (0 pts)', value: 0 }, 
+        { label: '≥ 2 comorbilidades (1 pt)', value: 1 }
+      ] 
+    },
+    { 
+      id: 'dias_pre', 
+      text: '4. Días desde el ingreso hospitalario hasta la UCI:', 
+      type: 'select', 
+      options: [
+        { label: '0 a < 1 día (0 pts)', value: 0 }, 
+        { label: '≥ 1 día (1 pt)', value: 1 }
+      ] 
     }
-  },
-  {
-    id: 'nutric_score',
-    nombre: 'NUTRIC Score',
-    categoria: 'nutricion',
-    descripcion: 'Riesgo nutricional para pacientes críticos en UCI.',
-    preguntas: [
-      { id: 'apache', text: 'APACHE II:', type: 'select', options: [{ label: '< 15', value: 0 }, { label: '15-19', value: 1 }, { label: '20-27', value: 2 }, { label: '≥ 28', value: 3 }] },
-      { id: 'sofa', text: 'SOFA:', type: 'select', options: [{ label: '< 6', value: 0 }, { label: '6-9', value: 1 }, { label: '≥ 10', value: 2 }] },
-      { id: 'comorb', text: 'Número de comorbilidades:', type: 'select', options: [{ label: '0-1', value: 0 }, { label: '≥ 2', value: 1 }] }
-    ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p >= 5) return { texto: 'Alto Riesgo Nutricional en UCI', recomendaciones: ['Inicio temprano de Nutrición Enteral', 'Ajustar aporte proteico al alza', 'Monitoreo de tolerancia gastrointestinal'] };
-      return { texto: 'Bajo Riesgo Nutricional en UCI', recomendaciones: ['Monitorización rutinaria', 'Aporte nutricional estándar'] };
+  ],
+
+  // Suma segura de valores
+  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+  interpretar: (p) => {
+    if (p >= 5) {
+      return { 
+        texto: 'ALTO RIESGO NUTRICIONAL EN UCI', 
+        color: 'red-600',
+        evidencia: 'Puntaje de ' + p + '/7: Alta probabilidad de desenlaces adversos si no se cumple la meta nutricional.',
+        recomendaciones: [
+          'Inicio precoz de Nutrición Enteral (24-48h si hay estabilidad hemodinámica)', 
+          'Ajustar aporte proteico agresivo (1.2 - 2.0 g/kg/día)', 
+          'Monitoreo clínico de tolerancia gastrointestinal y riesgo de aspiración',
+          'Evitar sobrealimentación en fase aguda (20-25 kcal/kg/día)'
+        ] 
+      };
     }
-  },
+
+    return { 
+      texto: 'Bajo Riesgo Nutricional en UCI', 
+      color: 'emerald-600',
+      evidencia: 'Puntaje de ' + p + '/7: Riesgo basal para paciente crítico.',
+      recomendaciones: [
+        'Aporte nutricional estándar según guías ESPEN/ASPEN', 
+        'Monitorización rutinaria de la ingesta y función orgánica',
+        'Reevaluar si el SOFA del paciente aumenta significativamente'
+      ] 
+    };
+  }
+},
   // ==========================================
   // PSICOLOGÍA
   // ==========================================
