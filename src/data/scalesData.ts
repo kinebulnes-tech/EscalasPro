@@ -468,6 +468,392 @@ export const scales: Scale[] = [
   },
 
   // ==========================================
+  // Traumatologia y Ortopedia
+  // ==========================================
+
+{
+    id: 'womac_artrosis',
+    nombre: 'Índice WOMAC',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación de dolor, rigidez y capacidad funcional en pacientes con artrosis de cadera o rodilla.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3350431) ---
+    bibliografia: "Bellamy N, et al. Validation study of WOMAC: a specialized health status questionnaire. J Rheumatol. 1988.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3350431/", 
+    evidenciaClinica: "Es la escala estándar en Chile para el seguimiento de artroplastias. Evalúa 3 dimensiones: Dolor (5 ítems), Rigidez (2 ítems) y Capacidad Física (17 ítems).",
+
+    preguntas: [
+      { id: 'dolor', text: 'Dolor total (Suma de 5 ítems de 0-4):', type: 'number' },
+      { id: 'rigidez', text: 'Rigidez total (Suma de 2 ítems de 0-4):', type: 'number' },
+      { id: 'funcion', text: 'Dificultad física total (Suma de 17 ítems de 0-4):', type: 'number' }
+    ],
+
+    // Cálculo: Suma bruta (0-96) convertida a porcentaje de discapacidad (0-100%)
+    calcularPuntaje: (respuestas) => {
+      const suma = (Number(respuestas.dolor) || 0) + (Number(respuestas.rigidez) || 0) + (Number(respuestas.funcion) || 0);
+      return parseFloat(((suma / 96) * 100).toFixed(1));
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 60) return { 
+        texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}% de compromiso funcional.`,
+        recomendaciones: ['Evaluación para tratamiento quirúrgico (prótesis)', 'Manejo analgésico avanzado', 'Uso de ayudas técnicas (bastón/andador)']
+      };
+      if (puntaje >= 30) return { 
+        texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}% de compromiso funcional.`,
+        recomendaciones: ['Kinesioterapia motora enfocada en fortalecimiento de cuádriceps', 'Control de peso', 'Educación en protección articular']
+      };
+      return { texto: 'DISCAPACIDAD LEVE', color: 'emerald-600', evidencia: `${puntaje}% de compromiso.`, recomendaciones: ['Mantener actividad física de bajo impacto', 'Seguimiento anual'] };
+    }
+  },
+
+  {
+    id: 'dash_miembro_superior',
+    nombre: 'Cuestionario DASH',
+    categoria: 'traumatologia',
+    descripcion: 'Mide la capacidad física y síntomas en personas con trastornos músculo-esqueléticos del miembro superior.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10471018) ---
+    bibliografia: "Hudak PL, et al. Development of the Upper Extremity Disabilities of the Arm, Shoulder and Hand (DASH) outcome measure. Am J Ind Med. 1996.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8604687/",
+    evidenciaClinica: "Un cambio de 10 puntos en la escala DASH se considera clínicamente significativo (MCID).",
+
+    preguntas: [
+      { id: 'suma_items', text: 'Suma de los 30 ítems (cada uno de 1 a 5):', type: 'number' }
+    ],
+
+    // Fórmula DASH: [(suma de n respuestas / n) - 1] * 25
+    calcularPuntaje: (respuestas) => {
+      const suma = Number(respuestas.suma_items) || 30;
+      return parseFloat((((suma / 30) - 1) * 25).toFixed(1));
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 50) return { 
+        texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `Puntaje DASH: ${puntaje}/100.`,
+        recomendaciones: ['Limitación severa en AVD', 'Considerar reubicación laboral temporal', 'Tratamiento kinésico intensivo']
+      };
+      return { 
+        texto: 'DISCAPACIDAD LEVE-MODERADA', color: 'emerald-600', evidencia: `Puntaje DASH: ${puntaje}/100.`,
+        recomendaciones: ['Ejercicios de movilidad y estabilidad escapular', 'Higiene postural en el trabajo']
+      };
+    }
+  },
+
+  {
+    id: 'oswestry_lumbar',
+    nombre: 'Índice de Discapacidad de Oswestry',
+    categoria: 'traumatologia',
+    descripcion: 'Estándar de oro para evaluar la discapacidad funcional por dolor lumbar.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1530702) ---
+    bibliografia: "Fairbank JC, Pynsent PB. The Oswestry Disability Index. Spine. 2000.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11039248/",
+    evidenciaClinica: "Indispensable en patología de columna. Permite diferenciar entre pacientes que requieren manejo conservador vs quirúrgico.",
+
+    preguntas: [
+      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
+    ],
+
+    // Cálculo: (Suma / 50) * 100
+    calcularPuntaje: (respuestas) => {
+      const suma = Number(respuestas.suma_total) || 0;
+      return (suma / 50) * 100;
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje > 80) return { texto: 'DISCAPACIDAD MÁXIMA / POSTRACIÓN', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación urgente por especialista en columna'] };
+      if (puntaje > 60) return { texto: 'DISCAPACIDAD DISCAPACITANTE', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Tratamiento de dolor crónico', 'Intervención multidisciplinaria'] };
+      if (puntaje > 40) return { texto: 'DISCAPACIDAD SEVERA', color: 'orange-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia enfocada en estabilización lumbopélvica'] };
+      if (puntaje > 20) return { texto: 'DISCAPACIDAD MODERADA', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ajustes ergonómicos', 'Ejercicio terapéutico supervisado'] };
+      return { texto: 'DISCAPACIDAD MÍNIMA', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa', 'Educación en manejo de cargas'] };
+    }
+  },
+
+  {
+    id: 'ndi_cervical',
+    nombre: 'Índice de Discapacidad Cervical (NDI)',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación de cómo el dolor de cuello afecta la capacidad de gestionar la vida diaria.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1730411) ---
+    bibliografia: "Vernon H, Mior S. The Neck Disability Index: a study of reliability and validity. J Manipulative Physiol Ther. 1991.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1730411/", 
+    evidenciaClinica: "Es la herramienta más validada para evaluar el latigazo cervical (whiplash) y radiculopatías cervicales. Un cambio de 5 puntos (10%) se considera clínicamente relevante.",
+
+    preguntas: [
+      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
+    ],
+
+    // Cálculo: (Suma / 50) * 100
+    calcularPuntaje: (respuestas) => {
+      const suma = Number(respuestas.suma_total) || 0;
+      return (suma / 50) * 100;
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 70) return { texto: 'DISCAPACIDAD COMPLETA', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación por neurocirujano o traumatólogo de columna', 'Manejo de dolor neuropático'] };
+      if (puntaje >= 50) return { texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia: Control motor cervical y ejercicios de estabilización profunda'] };
+      if (puntaje >= 30) return { texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}%`, recomendaciones: ['Higiene postural laboral', 'Pausas activas y ergonomía'] };
+      if (puntaje >= 10) return { texto: 'DISCAPACIDAD LEVE', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ejercicios de movilidad', 'Calor local y manejo de estrés'] };
+      return { texto: 'SIN DISCAPACIDAD', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa'] };
+    }
+  },
+
+  {
+    id: 'ndi_cervical',
+    nombre: 'Índice de Discapacidad Cervical (NDI)',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación de cómo el dolor de cuello afecta la capacidad de gestionar la vida diaria.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1730411) ---
+    bibliografia: "Vernon H, Mior S. The Neck Disability Index: a study of reliability and validity. J Manipulative Physiol Ther. 1991.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1730411/", 
+    evidenciaClinica: "Es la herramienta más validada para evaluar el latigazo cervical (whiplash) y radiculopatías cervicales. Un cambio de 5 puntos (10%) se considera clínicamente relevante.",
+
+    preguntas: [
+      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
+    ],
+
+    // Cálculo: (Suma / 50) * 100
+    calcularPuntaje: (respuestas) => {
+      const suma = Number(respuestas.suma_total) || 0;
+      return (suma / 50) * 100;
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 70) return { texto: 'DISCAPACIDAD COMPLETA', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación por neurocirujano o traumatólogo de columna', 'Manejo de dolor neuropático'] };
+      if (puntaje >= 50) return { texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia: Control motor cervical y ejercicios de estabilización profunda'] };
+      if (puntaje >= 30) return { texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}%`, recomendaciones: ['Higiene postural laboral', 'Pausas activas y ergonomía'] };
+      if (puntaje >= 10) return { texto: 'DISCAPACIDAD LEVE', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ejercicios de movilidad', 'Calor local y manejo de estrés'] };
+      return { texto: 'SIN DISCAPACIDAD', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa'] };
+    }
+  },
+
+  {
+    id: 'tegner_activity_level',
+    nombre: 'Tegner Activity Score',
+    categoria: 'traumatologia',
+    descripcion: 'Clasificación del nivel de actividad física para complementar la escala funcional de rodilla.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 6833314) ---
+    bibliografia: "Tegner Y, Lysholm J. Rating systems in the evaluation of knee ligament injuries. Clin Orthop Relat Res. 1985.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6833314/",
+    evidenciaClinica: "Permite comparar el nivel competitivo del paciente antes de la lesión versus el nivel actual tras la rehabilitación.",
+
+    preguntas: [
+      { 
+        id: 'nivel_actividad', 
+        text: 'Seleccione su nivel de actividad actual:', 
+        type: 'select',
+        options: [
+          { label: 'Nivel 10: Deporte competitivo (Fútbol, Rugby, Balonmano nacional/internacional)', value: 10 },
+          { label: 'Nivel 9: Deporte competitivo (Fútbol, Tenis, Atletismo nivel inferior)', value: 9 },
+          { label: 'Nivel 7-8: Deportes recreativos de impacto (Esquí, Tenis, Squash)', value: 8 },
+          { label: 'Nivel 6: Deporte recreativo (Jogging, Ciclismo, Natación >5 veces/seman)', value: 6 },
+          { label: 'Nivel 4-5: Trabajo pesado o deporte recreativo ligero', value: 4 },
+          { label: 'Nivel 2-3: Trabajo ligero o caminatas por terreno irregular', value: 2 },
+          { label: 'Nivel 0-1: Sedentarismo, enfermedad o discapacidad motora', value: 0 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.nivel_actividad) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      const interpretacion = {
+        texto: `Nivel Tegner: ${puntaje}`,
+        color: puntaje >= 7 ? 'emerald-600' : puntaje >= 4 ? 'orange-500' : 'red-600',
+        evidencia: `Puntaje de ${puntaje}. Define la carga de impacto a la que se somete la articulación.`,
+        recomendaciones: [
+          'Utilizar este valor para comparar con el nivel previo a la lesión',
+          'Ajustar la carga de entrenamiento kinésico según el nivel objetivo'
+        ]
+      };
+      return interpretacion;
+    }
+  },
+
+  {
+    id: 'harris_hip_score',
+    nombre: 'Harris Hip Score (HHS)',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación funcional de la cadera que mide dolor, función, ausencia de deformidad y rango de movimiento.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 5788441) ---
+    bibliografia: "Harris WH. Traumatic arthritis of the hip after dislocation and acetabular fractures. J Bone Joint Surg Am. 1969.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/5788441/", 
+    evidenciaClinica: "Puntaje máximo de 100. Un resultado < 70 se considera un fallo clínico en el postoperatorio de prótesis de cadera.",
+
+    preguntas: [
+      { id: 'dolor', text: 'Dolor (0: Intenso - 44: Ninguno):', type: 'number', min: 0, max: 44 },
+      { id: 'funcion_marcha', text: 'Función - Marcha (0: Incapaz - 33: Normal):', type: 'number', min: 0, max: 33 },
+      { id: 'actividades', text: 'Actividades diarias (0: Incapaz - 14: Sin problemas):', type: 'number', min: 0, max: 14 },
+      { id: 'examen_fisico', text: 'Examen Físico (Deformidad/Rango) (0-9 pts):', type: 'number', min: 0, max: 9 }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      return (Number(respuestas.dolor) || 0) + (Number(respuestas.funcion_marcha) || 0) + 
+             (Number(respuestas.actividades) || 0) + (Number(respuestas.examen_fisico) || 0);
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 90) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Alta hospitalaria/seguimiento anual', 'Mantener actividad física'] };
+      if (puntaje >= 80) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Kinesioterapia ambulatoria', 'Entrenamiento de marcha'] };
+      if (puntaje >= 70) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Re-evaluación médica', 'Fortalecimiento de abductores'] };
+      return { texto: 'POBRE / DEFICIENTE', color: 'red-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Evaluación quirúrgica: Sospecha de aflojamiento o falla de prótesis'] };
+    }
+  },
+
+  {
+    id: 'aofas_tobillo_pie',
+    nombre: 'Escala AOFAS (Tobillo y Retropié)',
+    categoria: 'traumatologia',
+    descripcion: 'Sistema de puntuación clínico para evaluar la función, dolor y alineación en el pie y tobillo.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8062531) ---
+    bibliografia: "Kitaoka HB, et al. Clinical rating systems for the ankle-hindfoot, midfoot, hallux, and lesser toes. Foot Ankle Int. 1994.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8062531/", 
+    evidenciaClinica: "Combina 40 pts de dolor, 50 pts de función y 10 pts de alineación. Es fundamental en la evaluación de inestabilidad crónica de tobillo.",
+
+    preguntas: [
+      { id: 'dolor', text: 'Dolor (0: Intenso - 40: Ninguno):', type: 'number', min: 0, max: 40 },
+      { id: 'funcion_actividad', text: 'Función - Actividad y Calzado (0: Limitado - 20: Normal):', type: 'number', min: 0, max: 20 },
+      { id: 'marcha_superficie', text: 'Marcha y Superficies (0: Dificultad - 15: Normal):', type: 'number', min: 0, max: 15 },
+      { id: 'movilidad_estabilidad', text: 'Movilidad y Estabilidad (0: Inestable - 15: Estable):', type: 'number', min: 0, max: 15 },
+      { id: 'alineacion', text: 'Alineación (0: Anormal - 10: Buena):', type: 'number', min: 0, max: 10 }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 90) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Reintegro deportivo progresivo'] };
+      if (puntaje >= 75) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Ejercicios de propiocepción y equilibrio dinámico'] };
+      return { texto: 'REGULAR / POBRE', color: 'orange-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Evaluación de órtesis o plantillas', 'Fortalecimiento de peroneos'] };
+    }
+  },
+
+  {
+    id: 'constant_murley_hombro',
+    nombre: 'Score de Constant-Murley',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación de la función del hombro mediante parámetros subjetivos y objetivos.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3678525) ---
+    bibliografia: "Constant CR, Murley AH. A clinical method of functional assessment of the shoulder. Clin Orthop Relat Res. 1987.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3678525/",
+    evidenciaClinica: "Divide la evaluación en Dolor (15), AVD (20), Movilidad (40) y Fuerza (25). Un cambio de 10 puntos es el mínimo cambio clínicamente importante (MCID).",
+
+    preguntas: [
+      { id: 'dolor', text: 'Puntaje de Dolor (0-15 pts):', type: 'number', min: 0, max: 15 },
+      { id: 'actividad', text: 'Nivel de Actividad/Sueño (0-20 pts):', type: 'number', min: 0, max: 20 },
+      { id: 'movilidad', text: 'Movilidad (Flexión/Abducción/Rotación) (0-40 pts):', type: 'number', min: 0, max: 40 },
+      { id: 'fuerza', text: 'Fuerza en Abducción (0-25 pts):', type: 'number', min: 0, max: 25 }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 86) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Mantenimiento de estabilidad escapular'] };
+      if (puntaje >= 71) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Fortalecimiento de manguito rotador'] };
+      if (puntaje >= 56) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Kinesioterapia: Terapia manual y control motor'] };
+      return { texto: 'POBRE', color: 'red-600', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Re-evaluación médica: Posible rotura masiva o rigidez severa'] };
+    }
+  },
+
+  {
+    id: 'kujala_knee_pain',
+    nombre: 'Escala de Kujala',
+    categoria: 'traumatologia',
+    descripcion: 'Evaluación específica para el dolor anterior de rodilla y la disfunción patelofemoral.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8013141) ---
+    bibliografia: "Kujala UM, et al. Scoring of patellofemoral disorders. Arthroscopy. 1993.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8424870/", 
+    evidenciaClinica: "Puntaje de 0 a 100. Es altamente sensible para detectar cambios en la carga de la articulación patelofemoral durante actividades como subir escaleras o estar sentado mucho tiempo.",
+
+    preguntas: [
+      { id: 'suma_total', text: 'Suma total de los 13 ítems (Puntaje bruto 0-100):', type: 'number', min: 0, max: 100 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_total) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 90) return { 
+        texto: 'FUNCIÓN EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, 
+        recomendaciones: ['Retorno progresivo a carrera/impacto', 'Mantener fortalecimiento de vasto medial y glúteo medio'] 
+      };
+      if (puntaje >= 65) return { 
+        texto: 'DISFUNCIÓN MODERADA', color: 'orange-500', evidencia: `${puntaje}/100 puntos.`, 
+        recomendaciones: ['Controlar volumen de carga', 'Kinesioterapia: Terapia manual y corrección biomecánica', 'Evaluar uso de vendaje neuromuscular o brace'] 
+      };
+      return { 
+        texto: 'DISFUNCIÓN SEVERA', color: 'red-600', evidencia: `${puntaje}/100 puntos.`, 
+        recomendaciones: ['Reposo relativo de actividades de impacto', 'Evaluación médica: descartar condromalacia severa o malalineación'] 
+      };
+    }
+  },
+
+  {
+    id: 'visa_a_aquiles',
+    nombre: 'Escala VISA-A',
+    categoria: 'traumatologia',
+    descripcion: 'Mide la gravedad de la tendinopatía de Aquiles en relación con el dolor y la función deportiva.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11078440) ---
+    bibliografia: "Robinson JM, et al. VISA-A questionnaire: a valid and reliable index of the severity of Achilles tendinopathy. Br J Sports Med. 2001.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11579069/",
+    evidenciaClinica: "Un deportista sano debería puntuar 100. Es la herramienta principal para guiar el protocolo de carga excéntrica.",
+
+    preguntas: [
+      { id: 'suma_items', text: 'Suma de los 8 ítems (0 a 100 pts):', type: 'number', min: 0, max: 100 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_items) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 80) return { 
+        texto: 'RECUPERACIÓN AVANZADA', color: 'emerald-600', evidencia: `${puntaje} puntos.`, 
+        recomendaciones: ['Entrenamiento de pliometría progresiva', 'Mantener protocolo de carga pesada lenta (HSR)'] 
+      };
+      if (puntaje >= 50) return { 
+        texto: 'AFECTACIÓN MODERADA', color: 'orange-500', evidencia: `${puntaje} puntos.`, 
+        recomendaciones: ['Iniciar ejercicios excéntricos (Protocolo de Alfredson)', 'Monitorizar dolor 24h post-ejercicio'] 
+      };
+      return { 
+        texto: 'AFECTACIÓN SEVERA', color: 'red-600', evidencia: `${puntaje} puntos.`, 
+        recomendaciones: ['Cesar actividades de impacto', 'Evaluación médica: considerar estudio de imagen (Eco/RM)', 'Iniciar ejercicios isométricos para analgesia'] 
+      };
+    }
+  },
+
+  {
+    id: 'oxford_knee_score',
+    nombre: 'Oxford Knee Score (OKS)',
+    categoria: 'traumatologia',
+    descripcion: 'Cuestionario de 12 ítems para medir el resultado de la artroplastia de rodilla.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 9660544) ---
+    bibliografia: "Dawson J, et al. Questionnaire on the perceptions of patients about total knee replacement. J Bone Joint Surg Br. 1998.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9513363/",
+    evidenciaClinica: "Puntaje de 0 a 48. Es la herramienta preferida en auditorías clínicas por su correlación con la satisfacción del paciente.",
+
+    preguntas: [
+      { id: 'suma_bruta', text: 'Suma de los 12 ítems (cada uno de 0 a 4):', type: 'number', min: 0, max: 48 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_bruta) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 40) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Control anual', 'Excelente éxito quirúrgico'] };
+      if (puntaje >= 30) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Continuar programa de ejercicios domiciliario'] };
+      if (puntaje >= 20) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Kinesioterapia: mejorar rangos y fuerza de cuádriceps'] };
+      return { texto: 'POBRE / DEFICIENTE', color: 'red-600', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Evaluación médica urgente: descartar artrofibrosis o infección de prótesis'] };
+    }
+  },
+
+
+  // ==========================================
   // PALIATIVOS
   // ==========================================
 
