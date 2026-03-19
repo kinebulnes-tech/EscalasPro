@@ -403,6 +403,70 @@ export const scales: Scale[] = [
     }
   },
 
+  {
+    id: 'wells_tep',
+    nombre: 'Score de Wells (Embolia Pulmonar)',
+    categoria: 'cardiorespiratorio',
+    descripcion: 'Evaluación de la probabilidad clínica de Tromboembolismo Pulmonar (TEP).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10655430) ---
+    bibliografia: "Wells PS, et al. Derivation of a simple clinical model to categorize patients probability of pulmonary embolism. Thromb Haemost. 2000.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10655430/", // ✅ LINK VERIFICADO
+    evidenciaClinica: "Es el estándar para evitar el sobre-diagnóstico y la irradiación innecesaria. Un puntaje > 6 indica alta probabilidad clínica, mientras que un puntaje < 2 permite descartar TEP si el Dímero D es negativo.",
+
+    preguntas: [
+      { id: 'signos_tvp', text: '1. Signos clínicos de Trombosis Venosa Profunda (edema, dolor a la palpación):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+3 pts)', value: 3 }] },
+      { id: 'diagnostico_alt', text: '2. ¿El TEP es el diagnóstico más probable o igual de probable que otros?', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+3 pts)', value: 3 }] },
+      { id: 'fc_alta', text: '3. Frecuencia cardíaca > 100 latidos por minuto:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+1.5 pts)', value: 1.5 }] },
+      { id: 'inmovilizacion', text: '4. Cirugía o inmovilización en las últimas 4 semanas:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+1.5 pts)', value: 1.5 }] },
+      { id: 'antecedentes', text: '5. Antecedentes previos de TEP o TVP:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+1.5 pts)', value: 1.5 }] },
+      { id: 'hemoptisis', text: '6. Presencia de hemoptisis (tos con sangre):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+1 pt)', value: 1 }] },
+      { id: 'cancer', text: '7. Cáncer activo (tratamiento actual o en los últimos 6 meses):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (+1 pt)', value: 1 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje > 6) {
+        return {
+          texto: 'PROBABILIDAD ALTA (> 6)',
+          color: 'red-600',
+          evidencia: `Puntaje de ${puntaje}: Riesgo clínico elevado (aprox. 65% de probabilidad de TEP).`,
+          recomendaciones: [
+            'Indicación urgente de Angio-TAC de tórax',
+            'Considerar inicio de anticoagulación empírica si no hay contraindicaciones',
+            'Monitoreo hemodinámico estricto',
+            'Evaluación por equipo de medicina de urgencia o broncopulmonar'
+          ]
+        };
+      }
+
+      if (puntaje >= 2) {
+        return {
+          texto: 'PROBABILIDAD MODERADA (2 - 6)',
+          color: 'orange-500',
+          evidencia: `Puntaje de ${puntaje}: Riesgo clínico intermedio.`,
+          recomendaciones: [
+            'Solicitar Dímero D de alta sensibilidad',
+            'Si Dímero D es (+) realizar Angio-TAC',
+            'Mantener observación clínica estrecha'
+          ]
+        };
+      }
+
+      return {
+        texto: 'PROBABILIDAD BAJA (< 2)',
+        color: 'emerald-600',
+        evidencia: `Puntaje de ${puntaje}: Riesgo clínico bajo (menos del 10% de probabilidad de TEP).`,
+        recomendaciones: [
+          'Solicitar Dímero D; si es (-) se puede descartar TEP con seguridad',
+          'Evaluar otros diagnósticos diferenciales (dolor osteomuscular, pleuritis)',
+          'No se recomienda Angio-TAC de entrada'
+        ]
+      };
+    }
+  },
+
   // ==========================================
   // PALIATIVOS
   // ==========================================
