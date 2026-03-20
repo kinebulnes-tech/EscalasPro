@@ -423,6 +423,128 @@ export const scales: Scale[] = [
     }
   },
 
+  {
+    id: 'tiss_28_uci',
+    nombre: 'TISS-28',
+    categoria: 'uci',
+    descripcion: 'Evaluación de la carga asistencial y gravedad basada en intervenciones terapéuticas.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8635643) ---
+    bibliografia: "Miranda DR, et al. TISS-28: A reduced version of the TISS. Intensive Care Med. 1996.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8635643/", 
+
+    preguntas: [
+      { id: 'monitoreo', text: 'Puntos por Monitoreo (Básico, Hemodinámico, etc):', type: 'number', min: 0, max: 12 },
+      { id: 'soporte_vital', text: 'Puntos por Soporte (Ventilación, Drogas Vasoactivas, Diálisis):', type: 'number', min: 0, max: 15 },
+      { id: 'intervenciones', text: 'Puntos por Intervenciones específicas (Cirugías, Curaciones):', type: 'number', min: 0, max: 10 }
+    ],
+
+    calcularPuntaje: (respuestas) => (Number(respuestas.monitoreo) || 0) + (Number(respuestas.soporte_vital) || 0) + (Number(respuestas.intervenciones) || 0),
+
+    interpretar: (puntaje) => {
+      return { 
+        texto: `Carga TISS-28: ${puntaje} puntos`, 
+        color: puntaje > 20 ? 'orange-600' : 'blue-500', 
+        evidencia: `Equivale a aprox. ${(puntaje * 10.6 / 60).toFixed(1)} horas de atención directa por turno.`,
+        recomendaciones: [
+          'Ajustar dotación de personal según carga medida',
+          'Priorizar intervenciones en pacientes con puntaje elevado',
+          'Vigilar riesgo de eventos adversos por alta complejidad'
+        ] 
+      };
+    }
+  },
+
+  {
+    id: 'bps_dolor_conductual',
+    nombre: 'Escala BPS',
+    categoria: 'uci',
+    descripcion: 'Evaluación conductual del dolor en pacientes bajo ventilación mecánica.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11733912) ---
+    bibliografia: "Payen JF, et al. Assessing pain in critically ill sedated patients by using a behavioral pain scale. Crit Care Med. 2001.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11733912/",
+
+    preguntas: [
+      { id: 'facial', text: 'Expresión Facial:', type: 'select', options: [{ label: 'Relajada (1)', value: 1 }, { label: 'Parcialmente tensa (2)', value: 2 }, { label: 'Totalmente tensa (3)', value: 3 }, { label: 'Mueca (4)', value: 4 }] },
+      { id: 'miembros', text: 'Movimientos Miembros Superiores:', type: 'select', options: [{ label: 'Sin movimiento (1)', value: 1 }, { label: 'Flexión parcial (2)', value: 2 }, { label: 'Flexión total con defensa (3)', value: 3 }, { label: 'Contracción permanente (4)', value: 4 }] },
+      { id: 'ventilacion', text: 'Adaptación a la Ventilación:', type: 'select', options: [{ label: 'Tolerancia (1)', value: 1 }, { label: 'Tos pero tolera (2)', value: 2 }, { label: 'Lucha con el ventilador (3)', value: 3 }, { label: 'Incapaz de ventilar (4)', value: 4 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 6) return { 
+        texto: 'DOLOR INACEPTABLE', color: 'red-600', evidencia: `Puntaje BPS: ${puntaje}/12.`,
+        recomendaciones: ['Ajustar sedoanalgesia inmediatamente', 'Evaluar causas mecánicas de disconfort', 'Reevaluar tras intervención']
+      };
+      return { texto: 'Dolor controlado o ausente', color: 'emerald-600', evidencia: `Puntaje BPS: ${puntaje}/12.`, recomendaciones: ['Mantener plan actual'] };
+    }
+  },
+
+  {
+    id: 'haefeli_tos_eficacia',
+    nombre: 'Escala de Haefeli',
+    categoria: 'uci',
+    descripcion: 'Evaluación clínica de la fuerza y eficacia de la tos en pacientes con vía aérea artificial.',
+    
+    bibliografia: "Haefeli W, et al. Effectiveness of cough in critically ill patients. Intensive Care Medicine.",
+
+    preguntas: [
+      { id: 'nivel_tos', text: 'Respuesta de la tos al estímulo o comando:', type: 'select', options: [
+        { label: '0: Ausencia de tos (Incapaz)', value: 0 },
+        { label: '1: Tos débil (Solo moviliza aire, no secreciones)', value: 1 },
+        { label: '2: Tos moderada (Moviliza secreciones a tráquea distal)', value: 2 },
+        { label: '3: Tos fuerte/Efectiva (Expulsa secreciones por el tubo)', value: 3 }
+      ]}
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.nivel_tos) || 0,
+
+    interpretar: (puntaje) => {
+      if (puntaje <= 1) return { 
+        texto: 'TOS INEFECTIVA', color: 'red-600', evidencia: 'Alto riesgo de retención de secreciones y neumonía.',
+        recomendaciones: ['Kinesioterapia respiratoria intensiva', 'Asistente de tos (Cough Assist) si aplica', 'No proceder a extubación']
+      };
+      return { 
+        texto: 'TOS FUNCIONAL', color: 'emerald-600', evidencia: 'Capacidad preservada para manejo de vía aérea.',
+        recomendaciones: ['Progresar en protocolo de destete', 'Vigilar fatiga muscular'] 
+      };
+    }
+  },
+
+  {
+    id: 'nutric_score_uci',
+    nombre: 'mNUTRIC Score',
+    categoria: 'uci',
+    descripcion: 'Herramienta de riesgo nutricional para pacientes críticos (sin IL-6).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 21731882) ---
+    bibliografia: "Heyland DK, et al. Identifying critically ill patients who benefit the most from nutrition therapy: the NUTRIC score. Crit Care. 2011.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/21731882/",
+
+    preguntas: [
+      { id: 'apache', text: 'Puntaje APACHE II:', type: 'select', options: [{ label: '<15 (0)', value: 0 }, { label: '15-19 (1)', value: 1 }, { label: '20-27 (2)', value: 2 }, { label: '≥28 (3)', value: 3 }] },
+      { id: 'sofa', text: 'Puntaje SOFA:', type: 'select', options: [{ label: '<6 (0)', value: 0 }, { label: '6-9 (1)', value: 1 }, { label: '≥10 (2)', value: 2 }] },
+      { id: 'comorbilidades', text: 'Número de Comorbilidades:', type: 'select', options: [{ label: '0-1 (0)', value: 0 }, { label: '≥2 (1)', value: 1 }] },
+      { id: 'dias_hosp', text: 'Días en Hospital antes de UCI:', type: 'select', options: [{ label: '0 a <1 (0)', value: 0 }, { label: '≥1 día (1)', value: 1 }] },
+      { id: 'edad', text: 'Edad:', type: 'select', options: [{ label: '<50 (0)', value: 0 }, { label: '50-74 (1)', value: 1 }, { label: '≥75 (2)', value: 2 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 5) return { 
+        texto: 'ALTO RIESGO NUTRICIONAL', color: 'red-600', evidencia: `Puntaje: ${puntaje}/9.`,
+        recomendaciones: ['Iniciar Nutrición Enteral precoz (<24-48h)', 'Meta proteica agresiva (1.2 - 2.0 g/kg/día)', 'Evaluar Nutrición Parenteral complementaria']
+      };
+      return { 
+        texto: 'BAJO RIESGO NUTRICIONAL', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/9.`, 
+        recomendaciones: ['Soporte nutricional estándar', 'Reevaluar semanalmente'] 
+      };
+    }
+  },
+
   
 
   // ==========================================
