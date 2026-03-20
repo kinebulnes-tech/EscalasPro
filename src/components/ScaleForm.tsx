@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
 // ✅ Importamos la nueva función del Paso 1
-import { calcularEscala, validarRespuestas, obtenerPreguntasFaltantes } from '../utils/scaleEngine';
+import { calcularEscala, validarRespuestas, obtenerPreguntasFaltantes } from '../core/scaleEngine';
 import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
