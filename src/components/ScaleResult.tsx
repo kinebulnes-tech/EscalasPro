@@ -4,7 +4,7 @@ import {
   BookOpen, ExternalLink, Activity, FileText 
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import { formatearPuntaje } from '../utils/scaleEngine';
+import { formatearPuntaje } from '../core/scaleEngine';
 
 interface ScaleResultProps {
   scale: Scale;
