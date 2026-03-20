@@ -46,33 +46,53 @@ export default function App() {
   const [showAbout, setShowAbout] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // --- PERSISTENCIA CIFRADA (MEJORA FASE 1) ---
+  // --- PERSISTENCIA CIFRADA CON BLINDAJE ANTI-CRASH (MEJORA FASE 1) ---
   const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(() => {
-    const saved = localStorage.getItem('escalapro_paciente');
-    // Desciframos al cargar si existe el dato
-    return saved ? Security.decrypt(saved) : null;
+    try {
+      const saved = localStorage.getItem('escalapro_paciente');
+      // Si no hay datos o el descifrado falla, devolvemos null de forma segura
+      return saved ? Security.decrypt(saved) : null;
+    } catch (error) {
+      console.error("Error al recuperar paciente:", error);
+      return null;
+    }
   });
 
   const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(() => {
-    const saved = localStorage.getItem('escalapro_resultados');
-    // Desciframos la lista de resultados al iniciar
-    return saved ? Security.decrypt(saved) : [];
+    try {
+      const saved = localStorage.getItem('escalapro_resultados');
+      if (!saved) return [];
+      
+      const decrypted = Security.decrypt(saved);
+      // ✅ CRÍTICO: Validamos que sea un Array. Si no lo es (ej: dato viejo), devolvemos []
+      // Esto evita el error "Cannot read properties of null (reading 'length')"
+      return Array.isArray(decrypted) ? decrypted : [];
+    } catch (error) {
+      console.error("Error al recuperar resultados:", error);
+      return [];
+    }
   });
 
   const [favorites, setFavorites] = useState<string[]>(() => {
-    const saved = localStorage.getItem('escalapro_favs');
-    return saved ? JSON.parse(saved) : []; // Los favoritos no suelen requerir cifrado, pero mantenemos consistencia
+    try {
+      const saved = localStorage.getItem('escalapro_favs');
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   });
 
   useEffect(() => {
-    // ✅ MEJORA FASE 1: Guardado con cifrado AES-256
+    // ✅ Guardado seguro: Solo ciframos si hay datos reales
     if (pacienteActivo) {
       localStorage.setItem('escalapro_paciente', Security.encrypt(pacienteActivo));
     } else {
       localStorage.removeItem('escalapro_paciente');
     }
 
-    if (listaResultados.length > 0) {
+    if (listaResultados && listaResultados.length > 0) {
       localStorage.setItem('escalapro_resultados', Security.encrypt(listaResultados));
     } else {
       localStorage.removeItem('escalapro_resultados');
@@ -87,7 +107,6 @@ export default function App() {
   };
 
   const finalizaSesionTotal = () => {
-    // Usamos un modal de sistema para velocidad, en Fase 2 lo cambiaremos por uno custom
     if(confirm("¿Finalizar evaluación? Se borrarán todos los datos del paciente de forma segura.")) {
       setPacienteActivo(null);
       setListaResultados([]);
@@ -179,12 +198,15 @@ export default function App() {
                       <div>
                         <p className="text-[9px] lg:text-[10px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
                         <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">{listaResultados.length} escalas vinculadas</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
+                          {/* ✅ Acceso seguro a .length */}
+                          {(listaResultados?.length || 0)} escalas vinculadas
+                        </p>
                       </div>
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-                      {listaResultados.length > 0 && (
+                      {(listaResultados?.length || 0) > 0 && (
                         <button 
                           onClick={() => setViewingReport(true)} 
                           className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-900/40"
