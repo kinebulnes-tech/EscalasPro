@@ -53,6 +53,540 @@ export const scales: Scale[] = [
 
 
   // ==========================================
+  //  PEDIATRIA
+  // ==========================================
+
+
+  {
+    id: 'eedp_chile',
+    nombre: 'EEDP (0-24 meses)',
+    categoria: 'pediatria',
+    descripcion: 'Escala de Evaluación del Desarrollo Psicomotor. Estándar chileno para detectar rezago en lactantes.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
+    bibliografia: "Rodriguez S, Arancibia V, Undurraga C. Escala de Evaluación del Desarrollo Psicomotor. Chile: Galdoc; 1978.",
+    referenciaUrl: "https://www.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf", 
+    evidenciaClinica: "Permite obtener un Coeficiente de Desarrollo (CD). Un CD < 0.85 indica riesgo o retraso, requiriendo intervención temprana en sala de estimulación.",
+
+    preguntas: [
+      { id: 'mes_base', text: 'Mes Base (último mes aprobado con los 5 ítems):', type: 'select', options: [
+        { label: '0 meses', value: 0 }, { label: '1 mes', value: 1 }, { label: '2 meses', value: 2 }, { label: '3 meses', value: 3 },
+        { label: '4 meses', value: 4 }, { label: '5 meses', value: 5 }, { label: '6 meses', value: 6 }, { label: '7 meses', value: 7 },
+        { label: '8 meses', value: 8 }, { label: '9 meses', value: 9 }, { label: '10 meses', value: 10 }, { label: '12 meses', value: 12 },
+        { label: '15 meses', value: 15 }, { label: '18 meses', value: 18 }, { label: '21 meses', value: 21 }, { label: '24 meses', value: 24 }
+      ]},
+      { id: 'puntos_adicionales', text: 'Suma de puntos adicionales logrados en meses superiores:', type: 'number' },
+      { id: 'edad_cronologica', text: 'Edad cronológica en días (o meses * 30):', type: 'number' }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      const mesBase = Number(respuestas.mes_base) || 0;
+      const adicionales = Number(respuestas.puntos_adicionales) || 0;
+      const edadMental = (mesBase * 30) + adicionales;
+      const edadCronologica = Number(respuestas.edad_cronologica) || 1;
+      // El puntaje que devolvemos es el Coeficiente de Desarrollo (CD)
+      return parseFloat((edadMental / edadCronologica).toFixed(2));
+    },
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 0.85) return { 
+        texto: 'DESARROLLO NORMAL', color: 'emerald-600', evidencia: `CD: ${puntaje}.`,
+        recomendaciones: ['Mantener controles sanos al día', 'Fomentar pautas de crianza respetuosa', 'Reforzar hitos del próximo mes']
+      };
+      if (puntaje >= 0.71) return { 
+        texto: 'RIESGO DE REZAGO', color: 'orange-500', evidencia: `CD: ${puntaje}.`,
+        recomendaciones: ['Derivar a Sala de Estimulación (Chile Crece Contigo)', 'Plan de ejercicios en casa por 1 mes', 'Reevaluar en 30 días']
+      };
+      return { 
+        texto: 'RETRASO PSICOMOTOR', color: 'red-600', evidencia: `CD: ${puntaje}.`, 
+        recomendaciones: ['Derivación inmediata a Pediatra y Neurólogo Infantil', 'Evaluación por equipo multidisciplinario', 'Ingreso prioritario a rehabilitación'] 
+      };
+    }
+  },
+
+  {
+    id: 'tepsi_chile',
+    nombre: 'TEPSI',
+    categoria: 'pediatria',
+    descripcion: 'Test de Desarrollo Psicomotor que evalúa Coordinación, Lenguaje y Motricidad en preescolares.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
+    bibliografia: "Haeussler IM, Marchant T. TEPSI: Test de desarrollo psicomotor. Ediciones UC.",
+    referenciaUrl: "https://crececontigo.gob.cl/columna/test-de-desarrollo-psicomotor-tepsi/", 
+    evidenciaClinica: "Clasifica el desarrollo en base a un Puntaje T (promedio 50, DS 10). Es fundamental para el ingreso a programas de apoyo escolar.",
+
+    preguntas: [
+      { id: 'puntaje_bruto', text: 'Puntaje Bruto Total (Suma de los 52 ítems):', type: 'number', min: 0, max: 52 },
+      { id: 'puntaje_t', text: 'Puntaje T (según tabla de normas por edad):', type: 'number' }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.puntaje_t) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 40) return { 
+        texto: 'NORMALIDAD', color: 'emerald-600', evidencia: `Puntaje T: ${puntaje}.`,
+        recomendaciones: ['Continuar seguimiento en control de niño sano', 'Fomentar actividad física y lectura']
+      };
+      if (puntaje >= 30) return { 
+        texto: 'RIESGO', color: 'orange-500', evidencia: `Puntaje T: ${puntaje}.`,
+        recomendaciones: ['Reforzar áreas deficitarias (Coordinación/Lenguaje/Motricidad)', 'Ingreso a programa de estimulación', 'Re-evaluar en 6 meses']
+      };
+      return { 
+        texto: 'RETRASO', color: 'red-600', evidencia: `Puntaje T: ${puntaje}.`, 
+        recomendaciones: ['Derivación a especialista (Fonoaudiólogo/Kinesiólogo)', 'Evaluación neurológica infantil', 'Apoyo psicopedagógico'] 
+      };
+    }
+  },
+
+  {
+    id: 'mchat_autismo',
+    nombre: 'M-CHAT-R/F',
+    categoria: 'pediatria',
+    descripcion: 'Cuestionario revisado de detección de autismo en niños pequeños.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 24366990) ---
+    bibliografia: "Robins DL, et al. Validation of the Modified Checklist for Autism in Toddlers, Revised with Follow-up (M-CHAT-R/F). Pediatrics. 2014.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/24366990/",
+    evidenciaClinica: "Herramienta de detección, no diagnóstica. Un puntaje ≥ 3 requiere seguimiento o derivación según el nivel de riesgo.",
+
+    preguntas: [
+      { id: 'suma_riesgo', text: 'Número total de respuestas de RIESGO (0 a 20):', type: 'number', min: 0, max: 20 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_riesgo) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 8) return { 
+        texto: 'RIESGO ALTO', color: 'red-600', evidencia: `Puntaje: ${puntaje}/20.`,
+        recomendaciones: [
+          'Derivación INMEDIATA para evaluación diagnóstica TEA',
+          'Evaluación de audición (Audiometría/BERA)',
+          'Entrevista con especialista en neurodesarrollo',
+          'No esperar para iniciar intervención temprana'
+        ]
+      };
+      if (puntaje >= 3) return { 
+        texto: 'RIESGO MEDIO', color: 'orange-500', evidencia: `Puntaje: ${puntaje}/20.`,
+        recomendaciones: [
+          'Aplicar la Entrevista de Seguimiento (Follow-Up)',
+          'Si el seguimiento arroja puntaje ≥ 2, derivar a especialista',
+          'Observación estrecha de hitos de comunicación social'
+        ]
+      };
+      return { 
+        texto: 'RIESGO BAJO', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/20.`,
+        recomendaciones: [
+          'No se requiere acción inmediata si el desarrollo es normal',
+          'Si el niño tiene < 24 meses, repetir tamizaje a los 2 años',
+          'Mantener vigilancia de hitos sociales habituales'
+        ] 
+      };
+    }
+  },
+
+  {
+    id: 'score_tal_pediatria',
+    nombre: 'Score de Tal (SBO)',
+    categoria: 'pediatria',
+    descripcion: 'Evaluación de la gravedad de la obstrucción bronquial en menores de 2 años.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
+    bibliografia: "Ministerio de Salud de Chile. Guía Clínica Infección Respiratoria Aguda Baja de manejo ambulatorio en menores de 5 años.",
+    referenciaUrl: "https://www.minsal.cl/portal/url/item/72213ed52c3e23d1e04001011f011398.pdf",
+    evidenciaClinica: "Un puntaje ≥ 9 indica obstrucción severa y requiere hospitalización o manejo inmediato en sala de observación.",
+
+    preguntas: [
+      { id: 'fr', text: '1. Frecuencia Respiratoria (ajustada por edad):', type: 'select', options: [
+        { label: 'Normal (<6m: <40 | >6m: <30) (0 pts)', value: 0 },
+        { label: 'Aumentada leve (1 pt)', value: 1 },
+        { label: 'Aumentada moderada (2 pts)', value: 2 },
+        { label: 'Muy aumentada (3 pts)', value: 3 }
+      ]},
+      { id: 'sibilancias', text: '2. Sibilancias:', type: 'select', options: [
+        { label: 'Ausentes (0 pts)', value: 0 },
+        { label: 'Fin de espiración (1 pt)', value: 1 },
+        { label: 'Toda la espiración (2 pts)', value: 2 },
+        { label: 'Inspiración y espiración (o silencio) (3 pts)', value: 3 }
+      ]},
+      { id: 'cianosis', text: '3. Cianosis:', type: 'select', options: [
+        { label: 'Ausente (0 pts)', value: 0 },
+        { label: 'Periorificial al llorar (1 pt)', value: 1 },
+        { label: 'Periorificial en reposo (2 pts)', value: 2 },
+        { label: 'Generalizada en reposo (3 pts)', value: 3 }
+      ]},
+      { id: 'retraccion', text: '4. Retracción (Uso musculatura accesoria):', type: 'select', options: [
+        { label: 'Ausente (0 pts)', value: 0 },
+        { label: 'Intercostal leve (1 pt)', value: 1 },
+        { label: 'Intercostal y subcostal (2 pts)', value: 2 },
+        { label: 'Supraclavicular / Aleteo nasal (3 pts)', value: 3 }
+      ]}
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      if (puntaje >= 9) return { 
+        texto: 'SBO SEVERO', color: 'red-600', evidencia: `Score de Tal: ${puntaje}/12.`,
+        recomendaciones: ['Oxigenoterapia inmediata', 'B2 agonistas (Salbutamol) cada 10 min x 5 veces', 'Corticoide sistémico oral/EV', 'Traslado a Hospitalización/UCI']
+      };
+      if (puntaje >= 6) return { 
+        texto: 'SBO MODERADO', color: 'orange-500', evidencia: `Score de Tal: ${puntaje}/12.`,
+        recomendaciones: ['Salbutamol 2 puff cada 10 min x 1 hora (Protocolo de rescate)', 'Reevaluar tras la hora de tratamiento', 'Considerar corticoide oral']
+      };
+      return { 
+        texto: 'SBO LEVE', color: 'emerald-600', evidencia: `Score de Tal: ${puntaje}/12.`, 
+        recomendaciones: ['Manejo ambulatorio', 'Salbutamol cada 4-6 horas según síntomas', 'Educación en signos de alarma a padres'] 
+      };
+    }
+  },
+
+  {
+    id: 'wood_downes_pediatria',
+    nombre: 'Escala Wood-Downes (Ferrés)',
+    categoria: 'pediatria',
+    descripcion: 'Evaluación de la gravedad de la crisis asmática y bronquiolitis.',
+    
+    bibliografia: "Ferrés J, et al. Escala de Wood-Downes modificada. Protocolos de Neumología Pediátrica.",
+    referenciaUrl: "https://www.aeped.es/sites/default/files/documentos/03_bronquiolitis_aguda.pdf", 
+    evidenciaClinica: "Evalúa sibilancias, tiraje, frecuencia respiratoria, frecuencia cardíaca, ventilación y cianosis.",
+
+    preguntas: [
+      { id: 'suma_bruta', text: 'Suma de puntos (6 ítems de 0-3 pts):', type: 'number', min: 0, max: 14 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_bruta) || 0,
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 8) return { 
+        texto: 'CRISIS MUY GRAVE', color: 'red-700', evidencia: `Puntaje: ${puntaje}. Riesgo de insuficiencia respiratoria.`,
+        recomendaciones: ['Hospitalización inmediata', 'Soporte ventilatorio / Oxígeno alto flujo', 'Manejo multidisciplinario']
+      };
+      if (puntaje >= 4) return { 
+        texto: 'CRISIS MODERADA', color: 'orange-500', evidencia: `Puntaje: ${puntaje}.`,
+        recomendaciones: ['Rescate farmacológico en centro asistencial', 'Monitoreo de saturación constante']
+      };
+      return { 
+        texto: 'CRISIS LEVE', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}.`, 
+        recomendaciones: ['Tratamiento inhalatorio de rescate', 'Control por su equipo de cabecera'] 
+      };
+    }
+  },
+
+  {
+    id: 'westley_crup_pediatria',
+    nombre: 'Escala de Westley (Crup)',
+    categoria: 'pediatria',
+    descripcion: 'Clasificación de la gravedad de la laringitis aguda (Crup).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 351980) ---
+    bibliografia: "Westley CR, et al. Nebulized racemic epinephrine by IPPB for the treatment of croup. Am J Dis Child. 1978.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/351980/",
+
+    preguntas: [
+      { id: 'estridor', text: '1. Estridor:', type: 'select', options: [
+        { label: 'Ausente (0 pts)', value: 0 }, { label: 'Con agitación (1 pt)', value: 1 }, { label: 'En reposo (2 pts)', value: 2 }
+      ]},
+      { id: 'tiraje', text: '2. Tiraje:', type: 'select', options: [
+        { label: 'Ausente (0 pts)', value: 0 }, { label: 'Leve (1 pt)', value: 1 }, { label: 'Moderado (2 pts)', value: 2 }, { label: 'Severo (3 pts)', value: 3 }
+      ]},
+      { id: 'ventilacion', text: '3. Ventilación (Entrada de aire):', type: 'select', options: [
+        { label: 'Normal (0 pts)', value: 0 }, { label: 'Disminuida (1 pt)', value: 1 }, { label: 'Muy disminuida (2 pts)', value: 2 }
+      ]},
+      { id: 'conciencia', text: '4. Nivel de conciencia:', type: 'select', options: [
+        { label: 'Normal (0 pts)', value: 0 }, { label: 'Alterado / Desorientado (5 pts)', value: 5 }
+      ]},
+      { id: 'cianosis', text: '5. Cianosis:', type: 'select', options: [
+        { label: 'Ausente (0 pts)', value: 0 }, { label: 'Con agitación (4 pts)', value: 4 }, { label: 'En reposo (5 pts)', value: 5 }
+      ]}
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 8) return { 
+        texto: 'LARINGITIS GRAVE', color: 'red-600', evidencia: `Puntaje: ${puntaje}. Riesgo de obstrucción total.`,
+        recomendaciones: ['Adrenalina Racémica nebulizada', 'Dexametasona EV/IM', 'Hospitalización inmediata en sala crítica']
+      };
+      if (puntaje >= 3) return { 
+        texto: 'LARINGITIS MODERADA', color: 'orange-500', evidencia: `Puntaje: ${puntaje}.`,
+        recomendaciones: ['Dexametasona oral/IM', 'Observación clínica por 2-4 horas', 'Considerar Adrenalina si hay estridor de reposo marcado']
+      };
+      return { 
+        texto: 'LARINGITIS LEVE', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}.`, 
+        recomendaciones: ['Corticoides orales (Dexametasona dosis única)', 'Manejo en domicilio (Ambiente húmedo/frío)', 'Educación sobre signos de alarma'] 
+      };
+    }
+  },
+
+  {
+    id: 'wong_baker_caras',
+    nombre: 'Escala de Caras de Wong-Baker',
+    categoria: 'pediatria',
+    descripcion: 'Evaluación visual del dolor para niños capaces de señalar su estado emocional/físico.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (Wong-Baker Foundation) ---
+    bibliografia: "Hockenberry MJ, Wilson D. Wong's Essentials of Pediatric Nursing. 8th ed. St. Louis: Mosby; 2009.",
+    referenciaUrl: "https://wongbakerfaces.org/", 
+    evidenciaClinica: "Validada para niños > 3 años. Se asocia bien con la Escala Visual Análoga (EVA) pero es más intuitiva en etapas preescolares.",
+
+    preguntas: [
+      { 
+        id: 'cara_seleccionada', 
+        text: 'Pida al niño que señale la cara que mejor describe su dolor:', 
+        type: 'select',
+        options: [
+          { label: '0: Sin dolor (Muy feliz)', value: 0 },
+          { label: '2: Duele un poco', value: 2 },
+          { label: '4: Duele un poco más', value: 4 },
+          { label: '6: Duele aún más', value: 6 },
+          { label: '8: Duele mucho', value: 8 },
+          { label: '10: El peor dolor imaginable (Llorando)', value: 10 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.cara_seleccionada) || 0,
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 7) return { 
+        texto: 'DOLOR SEVERO', color: 'red-600', evidencia: `Puntaje ${puntaje}/10.`,
+        recomendaciones: ['Analgesia inmediata (considerar opioides según protocolo)', 'Evaluación médica urgente', 'Re-evaluar en 30 minutos']
+      };
+      if (puntaje >= 4) return { 
+        texto: 'DOLOR MODERADO', color: 'orange-500', evidencia: `Puntaje ${puntaje}/10.`,
+        recomendaciones: ['Manejo farmacológico analgésico', 'Medidas de confort/distracción', 'Seguimiento de la causa del dolor']
+      };
+      return { 
+        texto: 'DOLOR LEVE / AUSENTE', color: 'emerald-600', evidencia: `Puntaje ${puntaje}/10.`, 
+        recomendaciones: ['Observación', 'Medidas físicas o analgésicos menores si persiste'] 
+      };
+    }
+  },
+
+  {
+    id: 'eva_pediatrica_color',
+    nombre: 'EVA Pediátrica (Visual Análoga)',
+    categoria: 'pediatria',
+    descripcion: 'Escala numérica y visual para escolares que pueden cuantificar su dolor.',
+    
+    bibliografia: "McGrath PA, et al. A new analogue scale for assessing children's pain: an initial validation study. Pain. 1996.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8814578/",
+
+    preguntas: [
+      { id: 'valor_numerico', text: 'Intensidad reportada por el niño (0 a 10):', type: 'number', min: 0, max: 10 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.valor_numerico) || 0,
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 8) return { texto: 'DOLOR INTENSO', color: 'red-700', evidencia: `${puntaje}/10.`, recomendaciones: ['Intervención analgésica rápida', 'Monitoreo de signos vitales'] };
+      if (puntaje >= 4) return { texto: 'DOLOR MODERADO', color: 'orange-600', evidencia: `${puntaje}/10.`, recomendaciones: ['Ajuste de dosis analgésica', 'Búsqueda de foco inflamatorio/infeccioso'] };
+      return { texto: 'DOLOR LEVE', color: 'emerald-600', evidencia: `${puntaje}/10.`, recomendaciones: ['Seguimiento estándar'] };
+    }
+  },
+
+  {
+    id: 'glasgow_pediatrico_lactante',
+    nombre: 'Escala de Glasgow Pediátrica',
+    categoria: 'pediatria',
+    descripcion: 'Evaluación del nivel de conciencia ajustada para lactantes y niños pre-verbales.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3108605) ---
+    bibliografia: "James HE. Neurologic Evaluation and Support in the Child with an Acute Brain Insult. Pediatr Ann. 1986.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3108605/",
+    evidenciaClinica: "Fundamental en Trauma Craneoencefálico (TEC) pediátrico. Un puntaje ≤ 8 indica necesidad de protección de vía aérea (intubación).",
+
+    preguntas: [
+      { 
+        id: 'ocular', 
+        text: 'Respuesta Ocular (E):', 
+        type: 'select', 
+        options: [
+          { label: '4: Espontánea', value: 4 },
+          { label: '3: Al grito / voz', value: 3 },
+          { label: '2: Al dolor', value: 2 },
+          { label: '1: Sin respuesta', value: 1 }
+        ]
+      },
+      { 
+        id: 'verbal', 
+        text: 'Respuesta Verbal (V) - Ajustada:', 
+        type: 'select', 
+        options: [
+          { label: '5: Sonríe, arrulla, balbucea, sigue objetos', value: 5 },
+          { label: '4: Llanto consolable, interacción inapropiada', value: 4 },
+          { label: '3: Llora al dolor, gime', value: 3 },
+          { label: '2: Inconsolable, inquieto', value: 2 },
+          { label: '1: Sin respuesta', value: 1 }
+        ]
+      },
+      { 
+        id: 'motora', 
+        text: 'Respuesta Motora (M) - Ajustada:', 
+        type: 'select', 
+        options: [
+          { label: '6: Movimientos espontáneos normales', value: 6 },
+          { label: '5: Localiza el dolor / Retira al tocar', value: 5 },
+          { label: '4: Retira al dolor', value: 4 },
+          { label: '3: Flexión anormal (Decorticación)', value: 3 },
+          { label: '2: Extensión anormal (Descerebración)', value: 2 },
+          { label: '1: Sin respuesta', value: 1 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => (Number(respuestas.ocular) || 0) + (Number(respuestas.verbal) || 0) + (Number(respuestas.motora) || 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 13) return { 
+        texto: 'TEC LEVE', color: 'emerald-600', evidencia: `Glasgow: ${puntaje}/15.`,
+        recomendaciones: ['Observación clínica', 'Educar sobre signos de alerta neurológica a los padres']
+      };
+      if (puntaje >= 9) return { 
+        texto: 'TEC MODERADO', color: 'orange-500', evidencia: `Glasgow: ${puntaje}/15.`,
+        recomendaciones: ['TAC de cerebro según criterios PECARN', 'Hospitalización para monitoreo', 'Vigilancia de pupila']
+      };
+      return { 
+        texto: 'TEC SEVERO / COMA', color: 'red-600', evidencia: `Glasgow: ${puntaje}/15.`, 
+        recomendaciones: ['Protección de vía aérea (Intubación)', 'Neurocirugía inmediata', 'Traslado a centro de alta complejidad'] 
+      };
+    }
+  },
+
+  {
+    id: 'nutricion_oms_pediatrica',
+    nombre: 'Evaluación Nutricional OMS (Z-Score)',
+    categoria: 'pediatria',
+    descripcion: 'Clasificación del estado nutricional basada en desviaciones estándar (Puntaje Z).',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (OMS / MINSAL Chile) ---
+    bibliografia: "WHO Child Growth Standards. World Health Organization; 2006. Norma Técnica MINSAL 2018.",
+    referenciaUrl: "https://www.minsal.cl/wp-content/uploads/2018/03/NORMA-TECNICA-CRECIMIENTO-Y-DESARROLLO-2018.pdf", 
+    evidenciaClinica: "El estándar para niños y adolescentes. Utiliza Peso/Talla (<5 años) e IMC/Edad (>5 años) para determinar obesidad o desnutrición.",
+
+    preguntas: [
+      { 
+        id: 'desviacion_z', 
+        text: 'Seleccione el rango de desviación estándar (DE) observado en la curva:', 
+        type: 'select',
+        options: [
+          { label: '> +3 DE (Obeso Severo)', value: 4 },
+          { label: '+2 a +3 DE (Obesidad)', value: 3 },
+          { label: '+1 a +2 DE (Sobrepeso)', value: 2 },
+          { label: '-1 a +1 DE (Normal)', value: 1 },
+          { label: '-1 a -2 DE (Riesgo Desnutrir)', value: 0 },
+          { label: '< -2 DE (Desnutrición)', value: -1 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.desviacion_z) || 1,
+
+    interpretar: (puntaje) => {
+      if (puntaje >= 3) return { 
+        texto: 'MALNUTRICIÓN POR EXCESO (Obesidad)', color: 'red-600', evidencia: `Z-score > +2.`,
+        recomendaciones: ['Derivación a nutricionista pediátrica', 'Evaluar riesgo metabólico (HOMA, perfil lipídico)', 'Fomentar actividad física diaria', 'Revisar pautas de alimentación familiar']
+      };
+      if (puntaje === 0) return { 
+        texto: 'RIESGO DE DESNUTRICIÓN', color: 'orange-500', evidencia: `Z-score entre -1 y -2.`,
+        recomendaciones: ['Refuerzo de alimentación láctea', 'Control de peso quincenal', 'Evaluar técnica de lactancia o preparación de fórmulas']
+      };
+      if (puntaje === -1) return { 
+        texto: 'DESNUTRICIÓN', color: 'red-700', evidencia: `Z-score < -2.`,
+        recomendaciones: ['Evaluación médica urgente para descartar patología base', 'Suplementación calórica', 'Seguimiento estrecho']
+      };
+      return { 
+        texto: 'ESTADO NUTRICIONAL NORMAL', color: 'emerald-600', evidencia: `Rango -1 a +1 DE.`, 
+        recomendaciones: ['Mantener alimentación saludable', 'Siguiente control según calendario de niño sano'] 
+      };
+    }
+  },
+
+  {
+    id: 'tanner_desarrollo',
+    nombre: 'Escala de Tanner',
+    categoria: 'pediatria',
+    descripcion: 'Evaluación del grado de maduración sexual basado en el desarrollo de caracteres primarios y secundarios.',
+    
+    bibliografia: "Marshall WA, Tanner JM. Variations in pattern of pubertal changes in girls/boys. Arch Dis Child. 1969/1970.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/5810505/",
+
+    preguntas: [
+      { 
+        id: 'estadio', 
+        text: 'Seleccione el estadio observado (Vello púbico/Glándula mamaria/Genitales):', 
+        type: 'select',
+        options: [
+          { label: 'Tanner I: Pre-puberal (Sin cambios)', value: 1 },
+          { label: 'Tanner II: Inicio puberal (Botón mamario / Aumento testicular)', value: 2 },
+          { label: 'Tanner III: Cambios moderados (Elevación areola / Alargamiento pene)', value: 3 },
+          { label: 'Tanner IV: Desarrollo avanzado (Areola secundaria / Engrosamiento)', value: 4 },
+          { label: 'Tanner V: Madurez total (Adulto)', value: 5 }
+        ]
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.estadio) || 1,
+
+    interpretar: (puntaje) => {
+      const recomendacionesMap = {
+        1: 'Seguimiento normal en prepúberes.',
+        2: 'Vigilar si ocurre antes de los 8 años en niñas o 9 en niños (sospecha de pubertad precoz).',
+        3: 'Desarrollo esperado en pubertad media.',
+        4: 'Cierre epifisario cercano. Vigilar velocidad de crecimiento.',
+        5: 'Maduración completa alcanzada.'
+      };
+
+      return { 
+        texto: `Estadio Tanner ${puntaje}`, 
+        color: 'sky-600', 
+        evidencia: `Nivel ${puntaje} de maduración sexual.`,
+        recomendaciones: [recomendacionesMap[puntaje as keyof typeof recomendacionesMap]]
+      };
+    }
+  },
+
+  {
+    id: 'braden_q_pediatrica',
+    nombre: 'Escala Braden Q',
+    categoria: 'pediatria',
+    descripcion: 'Valoración del riesgo de úlceras por presión en pacientes pediátricos.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 12544358) ---
+    bibliografia: "Quigley SM, Curley MA. Skin integrity in the pediatric population: preventing and managing pressure ulcers. J Soc Pediatr Nurs. 1996.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/12544358/", 
+    evidenciaClinica: "Evalúa 7 dominios: Movilidad, Actividad, Percepción, Humedad, Fricción, Nutrición y Perfusión Tisular. Un puntaje ≤ 16 indica riesgo.",
+
+    preguntas: [
+      { id: 'suma_bruta', text: 'Suma de los 7 ítems (cada uno de 1 a 4):', type: 'number', min: 7, max: 28 }
+    ],
+
+    calcularPuntaje: (respuestas) => Number(respuestas.suma_bruta) || 28,
+
+    interpretar: (puntaje) => {
+      if (puntaje <= 16) return { 
+        texto: 'ALTO RIESGO DE UPP', color: 'red-600', evidencia: `Puntaje ${puntaje}/28.`,
+        recomendaciones: [
+          'Cambios posturales cada 2 horas con reloj de rotación',
+          'Uso de superficies de alivio de presión pediátricas',
+          'Protección de prominencias óseas con hidrocoloide',
+          'Optimizar perfusión y oxigenación tisular'
+        ]
+      };
+      if (puntaje <= 21) return { 
+        texto: 'RIESGO MODERADO', color: 'orange-500', evidencia: `Puntaje ${puntaje}/28.`,
+        recomendaciones: ['Vigilar zonas de apoyo en cada turno', 'Control estricto de humedad (pañal)', 'Lubricación de la piel']
+      };
+      return { 
+        texto: 'RIESGO BAJO / SIN RIESGO', color: 'emerald-600', evidencia: `Puntaje ${puntaje}/28.`, 
+        recomendaciones: ['Mantener cuidados generales de enfermería', 'Reevaluar si cambia la condición de movilidad'] 
+      };
+    }
+  },
+
+  
+
+  // ==========================================
   // CARDIO RESPIRATORIO 
   // ==========================================
 
