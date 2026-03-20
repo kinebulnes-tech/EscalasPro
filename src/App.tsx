@@ -10,13 +10,14 @@ import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
 import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
+import TrendChart from './components/TrendChart'; // ✅ Nuevo Componente
 
 // ✅ Integración de DB y Seguridad
 import { db } from './utils/db';
 import { Security } from './utils/security';
 
 import { 
-  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck, FileText, Star
+  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck, FileText, Star, TrendingUp
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -93,9 +94,7 @@ export default function App() {
     setPacienteActivo(data);
     setShowPatientModal(false);
     try {
-      // ✅ Guardar en IndexedDB
       await db.upsertPaciente(data);
-      // ✅ Recuperar historial si existe
       const historial = await db.getHistorial(data.rut);
       if (historial && historial.length > 0) {
         setListaResultados(historial as any);
@@ -130,6 +129,22 @@ export default function App() {
       otherScales: filtered.filter(s => !favorites.includes(s.id))
     };
   }, [selectedCategory, query, favorites]);
+
+  // ✅ LÓGICA DE GRÁFICAS: Agrupamos resultados históricos por tipo de escala
+  const groupedTrends = useMemo(() => {
+    if (!listaResultados || listaResultados.length === 0) return [];
+    
+    const groups: Record<string, any[]> = {};
+    listaResultados.forEach(res => {
+      if (!groups[res.nombreEscala]) groups[res.nombreEscala] = [];
+      groups[res.nombreEscala].push(res);
+    });
+
+    // Solo devolvemos grupos que tengan 2 o más registros para graficar
+    return Object.entries(groups)
+      .filter(([_, items]) => items.length >= 2)
+      .map(([nombre, items]) => ({ nombre, items }));
+  }, [listaResultados]);
 
   const selectedScale = scales.find(s => s.id === activeScale);
   const currentCategory = categories.find(c => c.id === selectedCategory);
@@ -199,30 +214,42 @@ export default function App() {
               <div className="animate-in fade-in duration-700 flex-grow">
                 
                 {pacienteActivo ? (
-                  <div className="bg-slate-900 text-white p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] mb-6 lg:mb-12 flex flex-col md:flex-row justify-between items-center shadow-2xl border border-white/5">
-                    <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left">
-                      <div className="hidden sm:flex w-16 h-16 bg-teal-500/10 rounded-[2rem] items-center justify-center border border-teal-500/20 shadow-inner">
-                        <Activity size={30} className="text-teal-400 animate-pulse" />
+                  <div className="space-y-6 mb-12">
+                    {/* Tarjeta de Paciente */}
+                    <div className="bg-slate-900 text-white p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center shadow-2xl border border-white/5">
+                      <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left">
+                        <div className="hidden sm:flex w-16 h-16 bg-teal-500/10 rounded-[2rem] items-center justify-center border border-teal-500/20 shadow-inner">
+                          <Activity size={30} className="text-teal-400 animate-pulse" />
+                        </div>
+                        <div>
+                          <p className="text-[9px] lg:text-[10px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
+                          <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
+                            {listaResultados.length} escalas en historial
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[9px] lg:text-[10px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
-                        <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
-                          {listaResultados.length} escalas en historial
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-                      {listaResultados.length > 0 && (
-                        <button onClick={() => setViewingReport(true)} className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-900/40">
-                          <FileText size={16} /> Generar Informe
+                      
+                      <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+                        {listaResultados.length > 0 && (
+                          <button onClick={() => setViewingReport(true)} className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-900/40">
+                            <FileText size={16} /> Generar Informe
+                          </button>
+                        )}
+                        <button onClick={finalizaSesionTotal} className="bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-white/60 px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10 active:scale-95">
+                          Finalizar
                         </button>
-                      )}
-                      <button onClick={finalizaSesionTotal} className="bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-white/60 px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10 active:scale-95">
-                        Finalizar
-                      </button>
+                      </div>
                     </div>
+
+                    {/* ✅ SECCIÓN DE TENDENCIAS (Solo aparece si hay datos para graficar) */}
+                    {groupedTrends.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                        {groupedTrends.map((trend, idx) => (
+                          <TrendChart key={idx} data={trend.items} titulo={trend.nombre} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="mb-6 lg:mb-12">
