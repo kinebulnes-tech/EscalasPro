@@ -20,12 +20,16 @@ import {
   ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck, FileText, Star, TrendingUp
 } from 'lucide-react';
 
-// --- INTERFACES ---
+// --- INTERFACES ACTUALIZADAS ---
 interface Paciente {
   nombre: string;
-  rut: string;
+  id: string;      // ✅ Cambiado de rut a id (Universal)
+  country: string; // ✅ Añadido para soporte internacional
   edad: string;
   diagnostico: string;
+  peso?: string;
+  talla?: string;
+  imc?: string;
 }
 
 interface ResultadoSesion {
@@ -90,27 +94,26 @@ export default function App() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
   };
 
-  // ✅ MEJORA PASO 3: Reconocimiento inteligente de pacientes por RUT
+  // ✅ MEJORA: Reconocimiento inteligente INTERNACIONAL (Usa ID en vez de RUT)
   const handlePacienteIdentificado = async (data: Paciente) => {
     try {
-      // 1. Buscamos si el RUT ya tiene historial en la DB
-      const historialExistente = await db.getHistorial(data.rut);
+      // 1. Buscamos si el ID (RUT/DNI/CURP) ya tiene historial
+      const historialExistente = await db.getHistorial(data.id);
       
       if (historialExistente && historialExistente.length > 0) {
-        // CASO A: Paciente ya existe. Cargamos sus datos y su evolución previa.
         setPacienteActivo(data);
         setListaResultados(historialExistente as any);
         setShowPatientModal(false);
         return;
       }
 
-      // CASO B: Paciente nuevo. Lo registramos e iniciamos sesión limpia.
+      // 2. Paciente nuevo
       await db.upsertPaciente(data);
       setPacienteActivo(data);
       setListaResultados([]);
       setShowPatientModal(false);
     } catch (e) { 
-      console.error("Error crítico de integridad de datos:", e); 
+      console.error("Error crítico de integridad:", e); 
       alert("Error al acceder a la base de datos local.");
     }
   };
@@ -141,7 +144,7 @@ export default function App() {
     };
   }, [selectedCategory, query, favorites]);
 
-  // ✅ LÓGICA DE GRÁFICAS
+  // --- LÓGICA DE GRÁFICAS ---
   const groupedTrends = useMemo(() => {
     if (!listaResultados || listaResultados.length === 0) return [];
     const groups: Record<string, any[]> = {};
@@ -212,7 +215,8 @@ export default function App() {
                     const res = { ...n, fecha: new Date().toISOString() };
                     setListaResultados(p => [...p, res]); 
                     setActiveScale(null); 
-                    if(pacienteActivo) await db.guardarEvaluacion(pacienteActivo.rut, selectedScale.id, res);
+                    // ✅ Cambiado .rut por .id para la base de datos
+                    if(pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
                   }} 
                   pacienteNombre={pacienteActivo?.nombre} 
                 />
@@ -271,6 +275,7 @@ export default function App() {
                   </div>
                 )}
 
+                {/* Resto del JSX se mantiene igual... */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 lg:gap-8 mb-4">
                   <h3 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter italic uppercase">
                     {selectedCategory ? currentCategory?.nombre : query ? 'Búsqueda' : 'Catálogo'}
