@@ -6,12 +6,22 @@ import {
   User, 
   TrendingUp, 
   Activity, 
-  ShieldCheck 
+  ShieldCheck,
+  Scale // Importamos icono de báscula para el IMC
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 interface ReportSummaryProps {
-  paciente: { nombre: string; rut: string; edad: string; diagnostico: string };
+  // ✅ Actualizamos la interfaz para recibir los nuevos datos biométricos
+  paciente: { 
+    nombre: string; 
+    rut: string; 
+    edad: string; 
+    diagnostico: string;
+    peso?: string;
+    talla?: string;
+    imc?: string;
+  };
   resultados: any[];
   onBack: () => void;
   onRemoveScale: (index: number) => void;
@@ -28,7 +38,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     // 1. Encabezado Institucional Profesional
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    doc.setTextColor(0, 128, 128); // Color Teal Institucional
+    doc.setTextColor(0, 128, 128); // Teal
     doc.text("INFORME CLÍNICO CONSOLIDADO", 20, y);
     
     y += 10;
@@ -38,7 +48,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     
     // 2. Datos Maestros del Paciente
     y += 15;
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text("DATOS DEL PACIENTE", 20, y);
     
@@ -57,6 +67,20 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     y += 7;
     doc.text(`Diagnóstico Base: ${paciente.diagnostico}`, 20, y);
 
+    // ✅ NUEVA SECCIÓN: ANTROPOMETRÍA EN EL PDF
+    if (paciente.peso && paciente.talla) {
+      y += 12;
+      doc.setFillColor(248, 250, 252); // Fondo muy suave
+      doc.rect(18, y - 5, 175, 12, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(0, 128, 128);
+      doc.text(`ANTROPOMETRÍA:`, 22, y + 2);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(50, 50, 50);
+      doc.text(`Peso: ${paciente.peso} kg   |   Talla: ${paciente.talla} cm   |   IMC: ${paciente.imc || 'N/A'}`, 60, y + 2);
+    }
+
     // --- LÓGICA DE TENDENCIA PARA EL PDF ---
     const conteo: Record<string, any[]> = {};
     resultados.forEach(r => {
@@ -67,8 +91,8 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     const escalasConHistorial = Object.entries(conteo).filter(([_, items]) => items.length >= 2);
 
     if (escalasConHistorial.length > 0) {
-      y += 15;
-      doc.setFillColor(241, 245, 249); // Fondo gris suave para destacar
+      y += 18;
+      doc.setFillColor(241, 245, 249); 
       doc.rect(15, y, 180, 8, 'F');
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
@@ -77,7 +101,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       y += 15;
 
       escalasConHistorial.forEach(([nombre, items]) => {
-        // Ordenar cronológicamente (antiguo a nuevo)
         const ordenados = [...items].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
         const inicial = ordenados[0];
         const actual = ordenados[ordenados.length - 1];
@@ -94,15 +117,14 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         doc.text(`Estado Actual: ${actual.puntaje} pts (${new Date(actual.fecha).toLocaleDateString()})`, 100, y);
         
         doc.setFont("helvetica", "bold");
-        // Lógica de color según variación
         if (variacion > 0) {
-          doc.setTextColor(13, 148, 136); // Teal (Mejora/Aumento)
+          doc.setTextColor(13, 148, 136); 
           doc.text(`VARIACIÓN: +${variacion} pts`, 160, y);
         } else if (variacion < 0) {
-          doc.setTextColor(220, 38, 38); // Rojo (Descenso)
+          doc.setTextColor(220, 38, 38); 
           doc.text(`VARIACIÓN: ${variacion} pts`, 160, y);
         } else {
-          doc.setTextColor(100, 100, 100); // Gris (Estable)
+          doc.setTextColor(100, 100, 100); 
           doc.text(`VARIACIÓN: 0 pts`, 160, y);
         }
         
@@ -125,30 +147,22 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     doc.setLineWidth(0.5);
     doc.line(20, y, 105, y);
 
-    // 4. Mapeo de Escalas
     resultados.forEach((res, index) => {
-      if (y > 250) {
-        doc.addPage();
-        y = 20;
-      }
-      
+      if (y > 250) { doc.addPage(); y = 20; }
       y += 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
       doc.text(`${index + 1}. ${res.nombreEscala}`, 20, y);
-      
       y += 6;
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.text(`Puntaje: ${res.puntaje} pts`, 25, y);
       doc.text(`Fecha: ${new Date(res.fecha).toLocaleDateString()}`, 130, y);
-      
       y += 5;
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 128, 128);
       doc.text(`Interpretación: ${res.interpretacion}`, 25, y);
-      
       if (res.recomendaciones && res.recomendaciones.length > 0) {
         y += 6;
         doc.setFont("helvetica", "normal");
@@ -161,11 +175,9 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       y += 2;
     });
 
-    // 5. Pie de Página y Validación
     const pageHeight = doc.internal.pageSize.height;
     doc.setDrawColor(200, 200, 200);
     doc.line(20, pageHeight - 30, 90, pageHeight - 30);
-    
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
     doc.text("Firma y Timbre del Profesional", 20, pageHeight - 25);
@@ -182,7 +194,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
 
       <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100">
         <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-          {/* Decoración decorativa del encabezado */}
           <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12">
             <Activity size={120} />
           </div>
@@ -197,10 +208,26 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-white/10 relative z-10">
-            <div><p className="text-[10px] font-black uppercase opacity-40 tracking-widest">Identificación</p><p className="font-bold text-sm">{paciente.rut}</p></div>
-            <div><p className="text-[10px] font-black uppercase opacity-40 tracking-widest">Edad Clíncia</p><p className="font-bold text-sm">{paciente.edad} años</p></div>
-            <div><p className="text-[10px] font-black uppercase opacity-40 tracking-widest">Diagnóstico Base</p><p className="font-bold text-sm line-clamp-1">{paciente.diagnostico}</p></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-white/10 relative z-10">
+            <div><p className="text-[9px] font-black uppercase opacity-40 tracking-widest mb-1">Identificación</p><p className="font-bold text-xs">{paciente.rut}</p></div>
+            <div><p className="text-[9px] font-black uppercase opacity-40 tracking-widest mb-1">Edad</p><p className="font-bold text-xs">{paciente.edad} años</p></div>
+            
+            {/* ✅ MEJORA VISUAL: IMC Y PESO EN LA CABECERA */}
+            <div className="bg-white/5 p-2 rounded-xl border border-white/10">
+              <p className="text-[9px] font-black uppercase text-teal-400 tracking-widest mb-1">Antropometría</p>
+              <p className="font-bold text-[11px]">
+                {paciente.peso}kg / {paciente.talla}cm
+              </p>
+            </div>
+            <div className="bg-teal-500/10 p-2 rounded-xl border border-teal-500/20">
+              <p className="text-[9px] font-black uppercase text-teal-400 tracking-widest mb-1 italic">IMC Calculado</p>
+              <p className="font-black text-sm text-teal-400">{paciente.imc || 'N/A'}</p>
+            </div>
+
+            <div className="col-span-2 md:col-span-4 mt-2">
+              <p className="text-[9px] font-black uppercase opacity-40 tracking-widest mb-1">Diagnóstico Base</p>
+              <p className="font-bold text-xs italic opacity-80">{paciente.diagnostico}</p>
+            </div>
           </div>
         </div>
 
@@ -251,7 +278,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
           </div>
         </div>
 
-        {/* Info de seguridad cifrada */}
         <div className="bg-slate-50 p-6 flex justify-center items-center gap-3">
           <ShieldCheck className="text-teal-600 w-4 h-4" />
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protección de datos mediante cifrado AES-256 local</p>
