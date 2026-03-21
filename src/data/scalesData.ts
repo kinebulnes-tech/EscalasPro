@@ -476,37 +476,7 @@ export const scales: Scale[] = [
     }
   },
 
-  {
-    id: 'nutric_score_uci',
-    nombre: 'mNUTRIC Score',
-    categoria: 'uci',
-    descripcion: 'Herramienta de riesgo nutricional para pacientes críticos (sin IL-6).',
-    
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 21731882) ---
-    bibliografia: "Heyland DK, et al. Identifying critically ill patients who benefit the most from nutrition therapy: the NUTRIC score. Crit Care. 2011.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/21731882/",
-
-    preguntas: [
-      { id: 'apache', text: 'Puntaje APACHE II:', type: 'select', options: [{ label: '<15 (0)', value: 0 }, { label: '15-19 (1)', value: 1 }, { label: '20-27 (2)', value: 2 }, { label: '≥28 (3)', value: 3 }] },
-      { id: 'sofa', text: 'Puntaje SOFA:', type: 'select', options: [{ label: '<6 (0)', value: 0 }, { label: '6-9 (1)', value: 1 }, { label: '≥10 (2)', value: 2 }] },
-      { id: 'comorbilidades', text: 'Número de Comorbilidades:', type: 'select', options: [{ label: '0-1 (0)', value: 0 }, { label: '≥2 (1)', value: 1 }] },
-      { id: 'dias_hosp', text: 'Días en Hospital antes de UCI:', type: 'select', options: [{ label: '0 a <1 (0)', value: 0 }, { label: '≥1 día (1)', value: 1 }] },
-      { id: 'edad', text: 'Edad:', type: 'select', options: [{ label: '<50 (0)', value: 0 }, { label: '50-74 (1)', value: 1 }, { label: '≥75 (2)', value: 2 }] }
-    ],
-
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
-
-    interpretar: (puntaje) => {
-      if (puntaje >= 5) return { 
-        texto: 'ALTO RIESGO NUTRICIONAL', color: 'red-600', evidencia: `Puntaje: ${puntaje}/9.`,
-        recomendaciones: ['Iniciar Nutrición Enteral precoz (<24-48h)', 'Meta proteica agresiva (1.2 - 2.0 g/kg/día)', 'Evaluar Nutrición Parenteral complementaria']
-      };
-      return { 
-        texto: 'BAJO RIESGO NUTRICIONAL', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/9.`, 
-        recomendaciones: ['Soporte nutricional estándar', 'Reevaluar semanalmente'] 
-      };
-    }
-  },
+  
 
   
 
