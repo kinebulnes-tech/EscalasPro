@@ -56,44 +56,7 @@ export const scales: Scale[] = [
   //  UCI
   // ==========================================
 
-  {
-    id: 'sofa_score_uci',
-    nombre: 'Score SOFA',
-    categoria: 'uci',
-    descripcion: 'Evaluación diaria de la falla orgánica en 6 sistemas: Respiratorio, Coagulación, Hepático, Cardiovascular, SNC y Renal.',
-    
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 26903338) ---
-    bibliografia: "Singer M, et al. The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). JAMA. 2016.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/26903338/", 
-    evidenciaClinica: "Un puntaje SOFA ≥ 2 refleja un riesgo de mortalidad hospitalaria del 10%. Es la herramienta principal para el seguimiento de la falla multiorgánica.",
-
-    preguntas: [
-      { id: 'respiratorio', text: 'Respiratorio (PaO2/FiO2 mmHg):', type: 'select', options: [{ label: '>400 (0)', value: 0 }, { label: '<400 (1)', value: 1 }, { label: '<300 (2)', value: 2 }, { label: '<200 + VM (3)', value: 3 }, { label: '<100 + VM (4)', value: 4 }] },
-      { id: 'nervioso', text: 'SNC (Escala de Glasgow):', type: 'select', options: [{ label: '15 (0)', value: 0 }, { label: '13-14 (1)', value: 1 }, { label: '10-12 (2)', value: 2 }, { label: '6-9 (3)', value: 3 }, { label: '<6 (4)', value: 4 }] },
-      { id: 'cardio', text: 'Cardiovascular (PAM / Vasopresores):', type: 'select', options: [{ label: 'PAM ≥ 70 mmHg (0)', value: 0 }, { label: 'PAM < 70 mmHg (1)', value: 1 }, { label: 'Dopamina <5 o Dobutamina (2)', value: 2 }, { label: 'Dopa 5-15 o Noradre ≤0.1 (3)', value: 3 }, { label: 'Dopa >15 o Noradre >0.1 (4)', value: 4 }] },
-      { id: 'hepatico', text: 'Hepático (Bilirrubina mg/dL):', type: 'select', options: [{ label: '<1.2 (0)', value: 0 }, { label: '1.2-1.9 (1)', value: 1 }, { label: '2.0-5.9 (2)', value: 2 }, { label: '6.0-11.9 (3)', value: 3 }, { label: '>12.0 (4)', value: 4 }] },
-      { id: 'coagulacion', text: 'Coagulación (Plaquetas x10³/mm³):', type: 'select', options: [{ label: '≥150 (0)', value: 0 }, { label: '<150 (1)', value: 1 }, { label: '<100 (2)', value: 2 }, { label: '<50 (3)', value: 3 }, { label: '<20 (4)', value: 4 }] },
-      { id: 'renal', text: 'Renal (Creatinina mg/dL o Diuresis):', type: 'select', options: [{ label: '<1.2 (0)', value: 0 }, { label: '1.2-1.9 (1)', value: 1 }, { label: '2.0-3.4 (2)', value: 2 }, { label: '3.5-4.9 o <500ml/d (3)', value: 3 }, { label: '>5.0 o <200ml/d (4)', value: 4 }] }
-    ],
-
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
-
-    interpretar: (puntaje) => {
-      if (puntaje >= 12) return { 
-        texto: 'FALLA MULTIORGÁNICA SEVERA', color: 'red-700', evidencia: `Score SOFA: ${puntaje}. Mortalidad estimada > 50-80%.`,
-        recomendaciones: ['Soporte vital avanzado máximo', 'Revisión de metas de cuidado', 'Evaluación multidisciplinaria horaria']
-      };
-      if (puntaje >= 2) return { 
-        texto: 'DISFUNCIÓN ORGÁNICA (Sepsis)', color: 'orange-600', evidencia: `Score SOFA: ${puntaje}. Cumple criterios de Sepsis-3 si hay sospecha de infección.`,
-        recomendaciones: ['Activar protocolo de Sepsis', 'Búsqueda de foco infeccioso', 'Monitoreo hemodinámico invasivo']
-      };
-      return { 
-        texto: 'ESTADO ESTABLE / BAJO RIESGO', color: 'emerald-600', evidencia: `Score SOFA: ${puntaje}.`, 
-        recomendaciones: ['Mantener vigilancia diaria', 'Progresar hacia el destete si aplica'] 
-      };
-    }
-  },
-
+  
   {
     id: 'sofa_score_uci',
     nombre: 'Score SOFA',
