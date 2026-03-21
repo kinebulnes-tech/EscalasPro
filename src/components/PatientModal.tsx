@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { UserPlus, X, AlertCircle, Activity } from 'lucide-react';
-// ✅ Importamos validadores y el motor de biometría
-import { validateRUT, formatRUT } from '../utils/validators';
+import { UserPlus, X, Activity, Globe } from 'lucide-react';
+// ✅ Importamos la nueva lógica internacional
+import { validateIdentification, formatIdentification } from '../utils/validators';
+import { identityConfigs, DEFAULT_COUNTRY } from '../utils/patientIdentity';
 import { calcularIMC, clasificarIMC } from '../utils/biometrics.ts';
 
 interface PatientModalProps {
   onConfirm: (paciente: { 
     nombre: string; 
-    rut: string; 
+    id: string; // Cambiado de rut a id
+    country: string;
     edad: string; 
     diagnostico: string;
     peso: string;
@@ -18,35 +20,38 @@ interface PatientModalProps {
 }
 
 export default function PatientModal({ onConfirm, onClose }: PatientModalProps) {
+  const [country, setCountry] = useState(DEFAULT_COUNTRY);
   const [formData, setFormData] = useState({
     nombre: '',
-    rut: '',
+    id: '', // Cambiado de rut a id
     edad: '',
     diagnostico: '',
     peso: '',
     talla: ''
   });
 
-  const [errorRUT, setErrorRUT] = useState(false);
+  const [errorID, setErrorID] = useState(false);
 
-  // ✅ Cálculo de IMC reactivo basado en los inputs de peso y talla
+  // Configuración del país seleccionado
+  const config = identityConfigs[country];
+
   const imcValue = calcularIMC(Number(formData.peso), Number(formData.talla));
   const infoIMC = imcValue ? clasificarIMC(imcValue) : null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validamos el RUT con el algoritmo de Módulo 11
-    if (!validateRUT(formData.rut)) {
-      setErrorRUT(true);
+    // 1. Validamos según el país seleccionado
+    if (!validateIdentification(formData.id, country)) {
+      setErrorID(true);
       return; 
     }
 
-    // 2. Enviamos datos, incluyendo el IMC calculado para la base de datos
-    setErrorRUT(false);
+    setErrorID(false);
     onConfirm({
       ...formData,
-      rut: formatRUT(formData.rut),
+      id: formatIdentification(formData.id, country),
+      country: country,
       imc: imcValue ? imcValue.toString() : 'N/A'
     });
   };
@@ -69,7 +74,27 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-4">
-          {/* Nombre y Edad */}
+          
+          {/* Selector de País */}
+          <div>
+            <label className="block text-[9px] font-black uppercase text-gray-400 mb-1 ml-1 tracking-widest leading-none">País de Origen</label>
+            <div className="relative">
+              <select 
+                value={country}
+                onChange={(e) => {
+                  setCountry(e.target.value);
+                  setErrorID(false);
+                }}
+                className="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-sm appearance-none transition-all"
+              >
+                {Object.entries(identityConfigs).map(([code, cfg]) => (
+                  <option key={code} value={code}>{cfg.country}</option>
+                ))}
+              </select>
+              <Globe className="absolute right-4 top-3.5 text-gray-300 w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <label className="block text-[9px] font-black uppercase text-gray-400 mb-1 ml-1 tracking-widest leading-none">Nombre Completo</label>
@@ -85,16 +110,18 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={`block text-[9px] font-black uppercase mb-1 ml-1 tracking-widest ${errorRUT ? 'text-red-500' : 'text-gray-400'}`}>RUT</label>
+                <label className={`block text-[9px] font-black uppercase mb-1 ml-1 tracking-widest ${errorID ? 'text-red-500' : 'text-gray-400'}`}>
+                  {config.documentName}
+                </label>
                 <input 
                   required
                   type="text" 
-                  className={`w-full bg-gray-50 border-2 p-3 rounded-xl outline-none font-bold text-sm transition-all ${errorRUT ? 'border-red-500 bg-red-50 text-red-900' : 'border-gray-100 focus:border-teal-500'}`}
-                  placeholder="12.345.678-9"
-                  value={formData.rut}
+                  className={`w-full bg-gray-50 border-2 p-3 rounded-xl outline-none font-bold text-sm transition-all ${errorID ? 'border-red-500 bg-red-50 text-red-900' : 'border-gray-100 focus:border-teal-500'}`}
+                  placeholder={config.placeholder}
+                  value={formData.id}
                   onChange={(e) => {
-                    setFormData({...formData, rut: e.target.value});
-                    if(errorRUT) setErrorRUT(false);
+                    setFormData({...formData, id: e.target.value});
+                    if(errorID) setErrorID(false);
                   }}
                 />
               </div>
@@ -112,34 +139,26 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
             </div>
           </div>
 
-          {/* ✅ SECCIÓN DE ANTROPOMETRÍA (Calculadora IMC) */}
+          {/* SECCIÓN DE ANTROPOMETRÍA */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
             <p className="text-[9px] font-black uppercase text-teal-600 tracking-widest flex items-center gap-2 leading-none mb-2">
               <Activity size={12} /> Biometría Automática
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <input 
-                  type="number" 
-                  step="0.1"
-                  placeholder="Peso (kg)"
-                  className="w-full bg-white border-2 border-slate-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs shadow-sm"
-                  value={formData.peso}
-                  onChange={(e) => setFormData({...formData, peso: e.target.value})}
-                />
-              </div>
-              <div>
-                <input 
-                  type="number" 
-                  placeholder="Talla (cm)"
-                  className="w-full bg-white border-2 border-slate-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs shadow-sm"
-                  value={formData.talla}
-                  onChange={(e) => setFormData({...formData, talla: e.target.value})}
-                />
-              </div>
+              <input 
+                type="number" step="0.1" placeholder="Peso (kg)"
+                className="w-full bg-white border-2 border-slate-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs shadow-sm"
+                value={formData.peso}
+                onChange={(e) => setFormData({...formData, peso: e.target.value})}
+              />
+              <input 
+                type="number" placeholder="Talla (cm)"
+                className="w-full bg-white border-2 border-slate-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs shadow-sm"
+                value={formData.talla}
+                onChange={(e) => setFormData({...formData, talla: e.target.value})}
+              />
             </div>
 
-            {/* Visualización del Resultado IMC */}
             {imcValue && (
               <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-teal-100 animate-in fade-in slide-in-from-top-1 shadow-inner">
                 <span className="text-[10px] font-black text-slate-400 uppercase">IMC: <span className="text-slate-900">{imcValue}</span></span>
@@ -150,12 +169,10 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
             )}
           </div>
 
-          {/* Diagnóstico */}
           <div>
             <label className="block text-[9px] font-black uppercase text-gray-400 mb-1 ml-1 tracking-widest">Diagnóstico Médico</label>
             <textarea 
-              required
-              rows={2}
+              required rows={2}
               className="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs transition-all resize-none"
               placeholder="Ej: Secuela ACV..."
               value={formData.diagnostico}
@@ -165,10 +182,10 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
 
           <button 
             type="submit"
-            disabled={errorRUT}
-            className={`w-full py-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-lg ${errorRUT ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-100'}`}
+            disabled={errorID}
+            className={`w-full py-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-lg ${errorID ? 'bg-gray-300 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-100'}`}
           >
-            {errorRUT ? 'RUT Inválido' : 'Comenzar Protocolo'}
+            {errorID ? `${config.documentName} Inválido` : 'Comenzar Protocolo'}
           </button>
         </form>
       </div>
