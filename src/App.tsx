@@ -10,7 +10,7 @@ import PatientModal from './components/PatientModal';
 import ReportSummary from './components/ReportSummary';
 import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
-import TrendChart from './components/TrendChart'; // ✅ Nuevo Componente
+import TrendChart from './components/TrendChart';
 
 // ✅ Integración de DB y Seguridad
 import { db } from './utils/db';
@@ -90,18 +90,29 @@ export default function App() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
   };
 
+  // ✅ MEJORA PASO 3: Reconocimiento inteligente de pacientes por RUT
   const handlePacienteIdentificado = async (data: Paciente) => {
-    setPacienteActivo(data);
-    setShowPatientModal(false);
     try {
-      await db.upsertPaciente(data);
-      const historial = await db.getHistorial(data.rut);
-      if (historial && historial.length > 0) {
-        setListaResultados(historial as any);
-      } else {
-        setListaResultados([]);
+      // 1. Buscamos si el RUT ya tiene historial en la DB
+      const historialExistente = await db.getHistorial(data.rut);
+      
+      if (historialExistente && historialExistente.length > 0) {
+        // CASO A: Paciente ya existe. Cargamos sus datos y su evolución previa.
+        setPacienteActivo(data);
+        setListaResultados(historialExistente as any);
+        setShowPatientModal(false);
+        return;
       }
-    } catch (e) { console.error("DB Error:", e); }
+
+      // CASO B: Paciente nuevo. Lo registramos e iniciamos sesión limpia.
+      await db.upsertPaciente(data);
+      setPacienteActivo(data);
+      setListaResultados([]);
+      setShowPatientModal(false);
+    } catch (e) { 
+      console.error("Error crítico de integridad de datos:", e); 
+      alert("Error al acceder a la base de datos local.");
+    }
   };
 
   const finalizaSesionTotal = () => {
@@ -130,17 +141,14 @@ export default function App() {
     };
   }, [selectedCategory, query, favorites]);
 
-  // ✅ LÓGICA DE GRÁFICAS: Agrupamos resultados históricos por tipo de escala
+  // ✅ LÓGICA DE GRÁFICAS
   const groupedTrends = useMemo(() => {
     if (!listaResultados || listaResultados.length === 0) return [];
-    
     const groups: Record<string, any[]> = {};
     listaResultados.forEach(res => {
       if (!groups[res.nombreEscala]) groups[res.nombreEscala] = [];
       groups[res.nombreEscala].push(res);
     });
-
-    // Solo devolvemos grupos que tengan 2 o más registros para graficar
     return Object.entries(groups)
       .filter(([_, items]) => items.length >= 2)
       .map(([nombre, items]) => ({ nombre, items }));
@@ -215,7 +223,6 @@ export default function App() {
                 
                 {pacienteActivo ? (
                   <div className="space-y-6 mb-12">
-                    {/* Tarjeta de Paciente */}
                     <div className="bg-slate-900 text-white p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center shadow-2xl border border-white/5">
                       <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left">
                         <div className="hidden sm:flex w-16 h-16 bg-teal-500/10 rounded-[2rem] items-center justify-center border border-teal-500/20 shadow-inner">
@@ -242,7 +249,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* ✅ SECCIÓN DE TENDENCIAS (Solo aparece si hay datos para graficar) */}
                     {groupedTrends.length > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
                         {groupedTrends.map((trend, idx) => (
@@ -277,7 +283,6 @@ export default function App() {
                 <CategoryPills selectedCategory={selectedCategory} onSelectCategory={(id) => { setSelectedCategory(id); setQuery(''); setActiveScale(null); }} />
 
                 <div className="space-y-12 pb-24">
-                  {/* SECCIÓN 1: FAVORITOS FILTRADOS */}
                   {favoriteScales.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-6 text-amber-500">
@@ -292,7 +297,6 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* SECCIÓN 2: OTRAS ESCALAS */}
                   {otherScales.length > 0 ? (
                     <div>
                        {(selectedCategory || query) && favoriteScales.length > 0 && (
