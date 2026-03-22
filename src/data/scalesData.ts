@@ -8048,135 +8048,69 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-  id: 'bdi_ii_beck',
-  nombre: 'Inventario de Depresión de Beck (BDI-II)',
-  categoria: 'psicologia',
-  descripcion: 'Evaluación clínica de la gravedad de la sintomatología depresiva (Cuestionario de 21 ítems).',
-  
-  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
-  bibliografia: "Beck AT, Steer RA, Brown GK. Manual for the Beck Depression Inventory-II. San Antonio, TX: Psychological Corporation; 1996.",
-  referenciaUrl: "https://www.psychologytoday.com/intl/tests/personality/depression-test", // ✅ REFERENCIA ESTÁNDAR
-  evidenciaClinica: "El BDI-II es uno de los instrumentos más validados psicométricamente. Permite diferenciar entre depresión leve, moderada y grave, siendo crucial para el monitoreo de la respuesta al tratamiento.",
+{
+    id: 'bdi_ii_beck',
+    nombre: 'Inventario de Depresión de Beck (BDI-II)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación clínica de la gravedad de la sintomatología depresiva mediante 21 ítems de autoinforme.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8884931) ---
+    bibliografia: "Beck AT, Steer RA, Brown GK. Manual for the Beck Depression Inventory-II. San Antonio, TX: Psychological Corporation; 1996.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8884931/",
+    evidenciaClinica: "Es el estándar de oro psicométrico. Un puntaje ≥ 14 indica el inicio de sintomatología clínica. El ítem 9 es un marcador crítico de riesgo vital.",
 
-  preguntas: [
-    { 
-      id: 'tristeza', 
-      text: '1. Tristeza:', 
-      type: 'select', 
-      options: [
-        { label: '0 - No me siento triste', value: 0 }, 
-        { label: '1 - Me siento triste gran parte del tiempo', value: 1 }, 
-        { label: '2 - Estoy triste todo el tiempo', value: 2 }, 
-        { label: '3 - Estoy tan triste que no puedo soportarlo', value: 3 }
-      ] 
-    },
-    { 
-      id: 'pesimismo', 
-      text: '2. Pesimismo:', 
-      type: 'select', 
-      options: [
-        { label: '0 - No estoy desalentado respecto al futuro', value: 0 }, 
-        { label: '1 - Me siento más desalentado que lo habitual', value: 1 }, 
-        { label: '2 - No espero que las cosas mejoren', value: 2 }, 
-        { label: '3 - Siento que el futuro es desesperanzador', value: 3 }
-      ] 
-    },
-    { 
-      id: 'fracaso', 
-      text: '3. Fracaso:', 
-      type: 'select', 
-      options: [
-        { label: '0 - No me siento un fracasado', value: 0 }, 
-        { label: '1 - Siento que he fracasado más que el promedio', value: 1 }, 
-        { label: '2 - Al mirar atrás, veo muchos fracasos', value: 2 }, 
-        { label: '3 - Me siento un fracasado total como persona', value: 3 }
-      ] 
-    },
-    { 
-      id: 'placer', 
-      text: '4. Pérdida de Placer (Anhedonia):', 
-      type: 'select', 
-      options: [
-        { label: '0 - Obtengo tanto placer como siempre', value: 0 }, 
-        { label: '1 - No disfruto las cosas tanto como antes', value: 1 }, 
-        { label: '2 - Obtengo muy poco placer de las cosas que solía disfrutar', value: 2 }, 
-        { label: '3 - No puedo obtener ningún placer de nada', value: 3 }
-      ] 
-    },
-    { 
-      id: 'culpa', 
-      text: '5. Sentimientos de Culpa:', 
-      type: 'select', 
-      options: [
-        { label: '0 - No me siento particularmente culpable', value: 0 }, 
-        { label: '1 - Me siento culpable por muchas cosas que he hecho', value: 1 }, 
-        { label: '2 - Me siento bastante culpable la mayor parte del tiempo', value: 2 }, 
-        { label: '3 - Me siento culpable todo el tiempo', value: 3 }
-      ] 
-    },
-    { 
-      id: 'suicidio_beck', 
-      text: '9. Pensamientos o Deseos Suicidas (ÍTEM CRÍTICO):', 
-      type: 'select', 
-      options: [
-        { label: '0 - No tengo ningún pensamiento de matarme', value: 0 }, 
-        { label: '1 - Tengo pensamientos de matarme, pero no lo haría', value: 1 }, 
-        { label: '2 - Me gustaría matarme', value: 2 }, 
-        { label: '3 - Me mataría si tuviera la oportunidad', value: 3 }
-      ] 
+    preguntas: [
+      { id: 'p1', text: '1. Tristeza', type: 'select', options: [{ label: '0: No me siento triste', value: 0 }, { label: '1: Me siento triste gran parte del tiempo', value: 1 }, { label: '2: Estoy triste todo el tiempo', value: 2 }, { label: '3: Estoy tan triste que no puedo soportarlo', value: 3 }] },
+      { id: 'p2', text: '2. Pesimismo', type: 'select', options: [{ label: '0: No estoy desalentado respecto al futuro', value: 0 }, { label: '1: Me siento más desalentado que lo habitual', value: 1 }, { label: '2: No espero que las cosas mejoren', value: 2 }, { label: '3: Siento que el futuro es desesperanzador', value: 3 }] },
+      { id: 'p3', text: '3. Fracaso', type: 'select', options: [{ label: '0: No me siento un fracasado', value: 0 }, { label: '1: He fracasado más de lo que debería', value: 1 }, { label: '2: Al mirar atrás, veo muchos fracasos', value: 2 }, { label: '3: Me siento un fracasado total', value: 3 }] },
+      { id: 'p4', text: '4. Pérdida de Placer', type: 'select', options: [{ label: '0: Obtengo tanto placer como siempre', value: 0 }, { label: '1: No disfruto las cosas tanto como antes', value: 1 }, { label: '2: Obtengo muy poco placer de las cosas que solía disfrutar', value: 2 }, { label: '3: No puedo obtener ningún placer de nada', value: 3 }] },
+      { id: 'p5', text: '5. Sentimiento de Culpa', type: 'select', options: [{ label: '0: No me siento particularmente culpable', value: 0 }, { label: '1: Me siento culpable por muchas cosas que he hecho', value: 1 }, { label: '2: Me siento bastante culpable la mayor parte del tiempo', value: 2 }, { label: '3: Me siento culpable todo el tiempo', value: 3 }] },
+      { id: 'p6', text: '6. Sentimiento de Castigo', type: 'select', options: [{ label: '0: No siento que esté siendo castigado', value: 0 }, { label: '1: Siento que puedo ser castigado', value: 1 }, { label: '2: Espero ser castigado', value: 2 }, { label: '3: Siento que estoy siendo castigado', value: 3 }] },
+      { id: 'p7', text: '7. Disconformidad con uno mismo', type: 'select', options: [{ label: '0: Siento lo mismo que siempre sobre mí', value: 0 }, { label: '1: He perdido la confianza en mí mismo', value: 1 }, { label: '2: Estoy decepcionado de mí mismo', value: 2 }, { label: '3: Me odio', value: 3 }] },
+      { id: 'p8', text: '8. Autocrítica', type: 'select', options: [{ label: '0: No me critico más de lo habitual', value: 0 }, { label: '1: Soy más crítico conmigo de lo que solía ser', value: 1 }, { label: '2: Me critico por todos mis errores', value: 2 }, { label: '3: Me culpo por todo lo malo que sucede', value: 3 }] },
+      { id: 'p9', text: '9. Pensamientos Suicidas', type: 'select', options: [{ label: '0: No tengo ningún pensamiento de matarme', value: 0 }, { label: '1: He pensado en matarme, pero no lo haría', value: 1 }, { label: '2: Me gustaría matarme', value: 2 }, { label: '3: Me mataría si tuviera la oportunidad', value: 3 }] },
+      { id: 'p10', text: '10. Llanto', type: 'select', options: [{ label: '0: No lloro más de lo habitual', value: 0 }, { label: '1: Lloro más de lo que solía', value: 1 }, { label: '2: Lloro por cualquier pequeñez', value: 2 }, { label: '3: Siento ganas de llorar pero no puedo', value: 3 }] },
+      { id: 'p11', text: '11. Agitación', type: 'select', options: [{ label: '0: No estoy más inquieto de lo habitual', value: 0 }, { label: '1: Me siento algo más inquieto de lo habitual', value: 1 }, { label: '2: Estoy tan inquieto que me es difícil quedarme quieto', value: 2 }, { label: '3: Estoy tan agitado que tengo que estar moviéndome', value: 3 }] },
+      { id: 'p12', text: '12. Pérdida de Interés', type: 'select', options: [{ label: '0: No he perdido el interés en los demás', value: 0 }, { label: '1: Estoy menos interesado que antes en los demás', value: 1 }, { label: '2: He perdido casi todo el interés en los demás', value: 2 }, { label: '3: Me es difícil interesarme por algo', value: 3 }] },
+      { id: 'p13', text: '13. Indecisión', type: 'select', options: [{ label: '0: Tomo decisiones tan bien como siempre', value: 0 }, { label: '1: Me cuesta más que lo habitual tomar decisiones', value: 1 }, { label: '2: Tengo mucha más dificultad que antes para decidir', value: 2 }, { label: '3: Tengo problemas para tomar cualquier decisión', value: 3 }] },
+      { id: 'p14', text: '14. Desvalorización', type: 'select', options: [{ label: '0: No siento que yo no valga nada', value: 0 }, { label: '1: No me considero tan valioso como solía', value: 1 }, { label: '2: Me siento menos valioso que los demás', value: 2 }, { label: '3: Siento que no valgo nada', value: 3 }] },
+      { id: 'p15', text: '15. Pérdida de Energía', type: 'select', options: [{ label: '0: Tengo tanta energía como siempre', value: 0 }, { label: '1: Tengo menos energía que la que solía tener', value: 1 }, { label: '2: No tengo suficiente energía para hacer mucho', value: 2 }, { label: '3: No tengo energía para hacer nada', value: 3 }] },
+      { id: 'p16', text: '16. Cambios en el Sueño', type: 'select', options: [{ label: '0: No he notado cambios en el sueño', value: 0 }, { label: '1: Duermo algo más/menos que lo habitual', value: 1 }, { label: '2: Duermo mucho más/menos que lo habitual', value: 2 }, { label: '3: Duermo casi todo el día / Despierto muy temprano', value: 3 }] },
+      { id: 'p17', text: '17. Irritabilidad', type: 'select', options: [{ label: '0: No estoy más irritable de lo habitual', value: 0 }, { label: '1: Estoy más irritable de lo habitual', value: 1 }, { label: '2: Estoy mucho más irritable de lo habitual', value: 2 }, { label: '3: Estoy irritable todo el tiempo', value: 3 }] },
+      { id: 'p18', text: '18. Cambios en el Apetito', type: 'select', options: [{ label: '0: No he notado cambios en el apetito', value: 0 }, { label: '1: Mi apetito es algo menor/mayor', value: 1 }, { label: '2: Mi apetito es mucho menor/mayor', value: 2 }, { label: '3: No tengo nada de apetito / Como todo el tiempo', value: 3 }] },
+      { id: 'p19', text: '19. Dificultad de Concentración', type: 'select', options: [{ label: '0: Puedo concentrarme tan bien como siempre', value: 0 }, { label: '1: No puedo concentrarme tan bien como habitualmente', value: 1 }, { label: '2: Me es difícil mantener la mente en algo', value: 2 }, { label: '3: Encuentro que no puedo concentrarme en nada', value: 3 }] },
+      { id: 'p20', text: '20. Cansancio o Fatiga', type: 'select', options: [{ label: '0: No estoy más cansado de lo habitual', value: 0 }, { label: '1: Me canso más fácilmente de lo habitual', value: 1 }, { label: '2: Estoy demasiado cansado para hacer muchas cosas', value: 2 }, { label: '3: Estoy demasiado cansado para hacer cualquier cosa', value: 3 }] },
+      { id: 'p21', text: '21. Interés en el Sexo', type: 'select', options: [{ label: '0: No he notado cambios en mi interés sexual', value: 0 }, { label: '1: Estoy menos interesado en el sexo', value: 1 }, { label: '2: Estoy mucho menos interesado en el sexo ahora', value: 2 }, { label: '3: He perdido completamente el interés en el sexo', value: 3 }] }
+    ],
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje, respuestas) => {
+      const riesgoSuicida = Number(respuestas?.p9) >= 1;
+      
+      let nivel = { texto: 'Depresión Mínima', color: 'emerald-600' };
+      if (puntaje >= 29) nivel = { texto: 'DEPRESIÓN GRAVE', color: 'red-700' };
+      else if (puntaje >= 20) nivel = { texto: 'Depresión Moderada', color: 'orange-600' };
+      else if (puntaje >= 14) nivel = { texto: 'Depresión Leve', color: 'yellow-600' };
+
+      const recomendaciones = [
+        'Confirmar diagnóstico mediante entrevista clínica.',
+        'Evaluar la necesidad de derivación a Psiquiatría.',
+        'Considerar comorbilidad con ansiedad (GAD-7).'
+      ];
+
+      if (riesgoSuicida) {
+        recomendaciones.unshift('⚠️ ALERTA: Ideación suicida detectada. Iniciar protocolo de resguardo vital inmediatamente.');
+      }
+
+      return { 
+        texto: nivel.texto, 
+        color: riesgoSuicida ? 'red-900' : nivel.color, 
+        evidencia: `Puntaje total: ${puntaje}/63. ${riesgoSuicida ? 'Riesgo suicida presente.' : ''}`,
+        recomendaciones: recomendaciones
+      };
     }
-  ],
-
-  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
-
-  interpretar: (p) => {
-    // Clasificación según manual original BDI-II
-    if (p <= 13) return { 
-      texto: 'Depresión Mínima', 
-      color: 'emerald-600',
-      evidencia: 'Puntaje de ' + p + ': Síntomas dentro del rango de normalidad clínica.',
-      recomendaciones: [
-        'Mantener seguimiento en controles habituales',
-        'Fomentar hábitos de higiene del sueño y actividad física'
-      ] 
-    };
-
-    if (p <= 19) return { 
-      texto: 'Depresión Leve', 
-      color: 'yellow-500',
-      evidencia: 'Puntaje de ' + p + ': Presencia de síntomas que afectan la calidad de vida.',
-      recomendaciones: [
-        'Evaluación por Psicología (Psicoterapia Cognitivo-Conductual)',
-        'Monitoreo de cambios en el apetito o sueño',
-        'Fomentar red de apoyo social'
-      ] 
-    };
-
-    if (p <= 28) return { 
-      texto: 'Depresión Moderada', 
-      color: 'orange-600',
-      evidencia: 'Puntaje de ' + p + ': Afectación significativa de la funcionalidad diaria.',
-      recomendaciones: [
-        'Derivación a Psiquiatría para evaluación de tratamiento farmacológico',
-        'Continuar psicoterapia intensiva',
-        'Evaluar impacto en la adherencia al tratamiento kinésico'
-      ] 
-    };
-
-    return { 
-      texto: 'DEPRESIÓN GRAVE', 
-      color: 'red-600',
-      evidencia: 'Puntaje de ' + p + ': Alto riesgo clínico y funcional.',
-      recomendaciones: [
-        'INTERVENCIÓN INMEDIATA por equipo de salud mental',
-        'Activación de protocolo de prevención de suicidio (si el ítem 9 es > 0)',
-        'Considerar hospitalización si existe riesgo de autoagresión',
-        'Acompañamiento permanente por familiares o cuidadores'
-      ] 
-    };
-  }
-},
+  },
   {
   id: 'audit_test_alcohol',
   nombre: 'Test AUDIT (Cribado de Alcohol)',
