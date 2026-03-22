@@ -1,13 +1,13 @@
 // src/components/TrendChart.tsx
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer 
+  ResponsiveContainer 
 } from 'recharts';
 
 interface TrendChartProps {
   data: any[];
   titulo: string;
-  forPDF?: boolean; // Nueva opción para saber si se dibuja para el informe
+  forPDF?: boolean; 
 }
 
 export default function TrendChart({ data, titulo, forPDF = false }: TrendChartProps) {
@@ -24,7 +24,7 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
   const chartId = forPDF ? `pdf-chart-${cleanId}` : `chart-${cleanId}`;
 
   return (
-    <div className={`${forPDF ? 'bg-white p-2' : 'bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl'} space-y-4`}>
+    <div className={`${forPDF ? 'bg-white p-0' : 'bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl'} space-y-4`}>
       {!forPDF && (
         <div className="flex items-center justify-between px-2">
           <h4 className="font-black text-slate-900 uppercase tracking-tighter text-sm">Evolución: {titulo}</h4>
@@ -32,13 +32,14 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
         </div>
       )}
 
-      <div id={chartId} className="w-full bg-white" style={{ height: forPDF ? '200px' : '250px' }}>
+      {/* Ajustamos la altura para que en el PDF sea más compacto */}
+      <div id={chartId} className="w-full bg-white" style={{ height: forPDF ? '150px' : '250px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey="fecha" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}} />
             <YAxis hide domain={['auto', 'auto']} />
-            <Line type="monotone" dataKey="puntaje" stroke="#0d9488" strokeWidth={4} dot={{ r: 6, fill: '#0d9488', stroke: '#fff' }} isAnimationActive={false} />
+            <Line type="monotone" dataKey="puntaje" stroke="#0d9488" strokeWidth={4} dot={{ r: 5, fill: '#0d9488', stroke: '#fff' }} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
