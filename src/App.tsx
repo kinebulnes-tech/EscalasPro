@@ -12,6 +12,9 @@ import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 import TrendChart from './components/TrendChart';
 
+// ✅ IMPORTACIÓN DEL CEREBRO DE INTELIGENCIA
+import { getSuggestedScales } from './data/clinicalIntelligence';
+
 // ✅ NUEVO COMPONENTE
 import RecentPatients from './components/RecentPatients';
 
@@ -20,7 +23,7 @@ import { db } from './utils/db';
 import { Security } from './utils/security';
 
 import { 
-  ArrowLeft, Menu, Search, UserPlus, Activity, ShieldCheck, FileText, Star
+  ArrowLeft, Menu, Search, UserPlus, Activity, ShieldCheck, FileText, Star, Lightbulb
 } from 'lucide-react';
 
 // --- INTERFACES ---
@@ -82,7 +85,7 @@ export default function App() {
       setRecientes(data);
     };
     cargarRecientes();
-  }, [pacienteActivo]); // Se recarga cuando cambia el paciente activo
+  }, [pacienteActivo]); 
 
   // --- PERSISTENCIA ---
   useEffect(() => {
@@ -131,17 +134,24 @@ export default function App() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
   };
 
-  // --- FILTRADO ---
-  const { favoriteScales, otherScales } = useMemo(() => {
+  // --- FILTRADO INTELIGENTE (IA LOCAL) ---
+  const { favoriteScales, suggestedScales, otherScales } = useMemo(() => {
+    // 1. Identificamos IDs sugeridos por diagnóstico (si la búsqueda tiene > 2 letras)
+    const suggestedIds = query.length > 2 ? getSuggestedScales(query) : [];
+
     const filtered = scales.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
       const matchesSearch = scale.nombre.toLowerCase().includes(query.toLowerCase()) || 
                            scale.descripcion.toLowerCase().includes(query.toLowerCase());
       return matchesCategory && matchesSearch;
     });
+
     return {
       favoriteScales: filtered.filter(s => favorites.includes(s.id)),
-      otherScales: filtered.filter(s => !favorites.includes(s.id))
+      // Escalas sugeridas por IA que coincidan con la búsqueda y NO sean favoritos
+      suggestedScales: filtered.filter(s => suggestedIds.includes(s.id) && !favorites.includes(s.id)),
+      // El resto de escalas que no son ni favoritos ni sugerencias directas
+      otherScales: filtered.filter(s => !favorites.includes(s.id) && !suggestedIds.includes(s.id))
     };
   }, [selectedCategory, query, favorites]);
 
@@ -253,7 +263,6 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="mb-6 lg:mb-12 space-y-6">
-                    {/* BOTÓN NUEVO PACIENTE */}
                     <button onClick={() => setShowPatientModal(true)} className="group flex items-center gap-4 lg:gap-6 bg-white border-2 border-dashed border-slate-200 p-4 lg:p-6 rounded-[2rem] lg:rounded-[2.5rem] w-full hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left shadow-sm">
                       <div className="w-12 h-12 lg:w-14 lg:h-14 bg-slate-50 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:bg-teal-500 transition-all">
                         <UserPlus size={20} className="text-slate-400 group-hover:text-white" />
@@ -264,7 +273,6 @@ export default function App() {
                       </div>
                     </button>
 
-                    {/* ✅ SECCIÓN DE PACIENTES RECIENTES */}
                     {!query && (
                       <RecentPatients 
                         patients={recientes} 
@@ -286,11 +294,12 @@ export default function App() {
                 <CategoryPills selectedCategory={selectedCategory} onSelectCategory={(id) => { setSelectedCategory(id); setQuery(''); setActiveScale(null); }} />
 
                 <div className="space-y-12 pb-24">
+                  {/* --- SECCIÓN 1: FAVORITOS --- */}
                   {favoriteScales.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-6 text-amber-500">
                         <Star size={20} fill="currentColor" />
-                        <h4 className="font-black uppercase tracking-widest text-xs">Escalas Frecuentes</h4>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">Mis Escalas Frecuentes</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {favoriteScales.map(s => (
@@ -300,10 +309,28 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* --- SECCIÓN 2: SUGERENCIAS IA (INTELIGENCIA CLÍNICA) --- */}
+                  {suggestedScales.length > 0 && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                      <div className="flex items-center gap-2 mb-6 text-teal-600">
+                        <div className="bg-teal-50 p-2 rounded-lg">
+                           <Lightbulb size={18} fill="currentColor" />
+                        </div>
+                        <h4 className="font-black uppercase tracking-widest text-[10px]">Sugerencias según Diagnóstico</h4>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {suggestedScales.map(s => (
+                          <ScaleCard key={s.id} scale={s} isFavorite={favorites.includes(s.id)} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* --- SECCIÓN 3: OTROS RESULTADOS --- */}
                   {otherScales.length > 0 ? (
                     <div>
-                       {(selectedCategory || query) && favoriteScales.length > 0 && (
-                         <h4 className="font-black uppercase tracking-widest text-xs text-slate-400 mb-6">Otros Resultados</h4>
+                       {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
+                         <h4 className="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Todos los resultados</h4>
                        )}
                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {otherScales.map(s => (
@@ -311,10 +338,10 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-                  ) : favoriteScales.length === 0 && (
+                  ) : (favoriteScales.length === 0 && suggestedScales.length === 0) && (
                     <div className="py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
                       <Search size={48} className="mx-auto text-slate-200 mb-4" />
-                      <p className="text-slate-400 font-black uppercase text-sm">Sin coincidencias</p>
+                      <p className="text-slate-400 font-black uppercase text-sm">Sin coincidencias clínicas</p>
                     </div>
                   )}
                 </div>
