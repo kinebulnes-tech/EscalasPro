@@ -10,14 +10,13 @@ interface TrendChartProps {
 }
 
 export default function TrendChart({ data, titulo }: TrendChartProps) {
-  // 1. Limpiamos y ordenamos los datos cronológicamente
   const chartData = data
     .map(item => ({
       fecha: new Date(item.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' }),
       puntaje: item.puntaje,
       fullDate: new Date(item.fecha).toLocaleString()
     }))
-    .reverse(); // Del más antiguo al más nuevo para la gráfica
+    .reverse();
 
   if (chartData.length < 2) {
     return (
@@ -29,8 +28,9 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
     );
   }
 
-  // Generamos una ID única basada en el título para que el capturador de imagen no se confunda
-  const chartId = `chart-${titulo.replace(/\s+/g, '-').toLowerCase()}`;
+  // Limpiamos el ID eliminando tildes y caracteres raros para que el PDF lo encuentre siempre
+  const cleanId = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').toLowerCase();
+  const chartId = `chart-${cleanId}`;
 
   return (
     <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-4">
@@ -43,7 +43,6 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
         </span>
       </div>
 
-      {/* Añadimos la ID única al contenedor para poder capturarlo luego */}
       <div id={chartId} className="h-[250px] w-full pt-4 bg-white">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -55,10 +54,7 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
               tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}}
               dy={10}
             />
-            <YAxis 
-              hide 
-              domain={['auto', 'auto']} 
-            />
+            <YAxis hide domain={['auto', 'auto']} />
             <Tooltip 
               contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
               itemStyle={{ fontWeight: 'bold', color: '#0d9488' }}
@@ -70,7 +66,7 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
               strokeWidth={4} 
               dot={{ r: 6, fill: '#0d9488', strokeWidth: 2, stroke: '#fff' }}
               activeDot={{ r: 8, strokeWidth: 0 }}
-              isAnimationActive={false} // Desactivamos animación para que la captura sea instantánea y fiel
+              isAnimationActive={false} 
             />
           </LineChart>
         </ResponsiveContainer>
