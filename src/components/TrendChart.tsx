@@ -7,69 +7,38 @@ import {
 interface TrendChartProps {
   data: any[];
   titulo: string;
+  forPDF?: boolean; // Nueva opción para saber si se dibuja para el informe
 }
 
-export default function TrendChart({ data, titulo }: TrendChartProps) {
+export default function TrendChart({ data, titulo, forPDF = false }: TrendChartProps) {
   const chartData = data
     .map(item => ({
       fecha: new Date(item.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' }),
       puntaje: item.puntaje,
-      fullDate: new Date(item.fecha).toLocaleString()
     }))
     .reverse();
 
-  if (chartData.length < 2) {
-    return (
-      <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-8 text-center">
-        <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">
-          Se requieren al menos 2 evaluaciones de "{titulo}" para generar tendencia.
-        </p>
-      </div>
-    );
-  }
+  if (chartData.length < 2) return null;
 
-  // ID ultra limpia para evitar errores de búsqueda
   const cleanId = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
-  const chartId = `chart-${cleanId}`;
+  const chartId = forPDF ? `pdf-chart-${cleanId}` : `chart-${cleanId}`;
 
   return (
-    <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-4">
-      <div className="flex items-center justify-between px-2">
-        <h4 className="font-black text-slate-900 uppercase tracking-tighter text-sm">
-          Evolución: {titulo}
-        </h4>
-        <span className="bg-teal-100 text-teal-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">
-          {chartData.length} Registros
-        </span>
-      </div>
+    <div className={`${forPDF ? 'bg-white p-2' : 'bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl'} space-y-4`}>
+      {!forPDF && (
+        <div className="flex items-center justify-between px-2">
+          <h4 className="font-black text-slate-900 uppercase tracking-tighter text-sm">Evolución: {titulo}</h4>
+          <span className="bg-teal-100 text-teal-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">{chartData.length} Registros</span>
+        </div>
+      )}
 
-      {/* Importante: Mantenemos el fondo blanco y añadimos inline-block */}
-      <div 
-        id={chartId} 
-        className="h-[250px] w-full pt-4 bg-white" 
-        style={{ display: 'block', backgroundColor: 'white' }}
-      >
+      <div id={chartId} className="w-full bg-white" style={{ height: forPDF ? '200px' : '250px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-            <XAxis 
-              dataKey="fecha" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}}
-            />
+            <XAxis dataKey="fecha" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}} />
             <YAxis hide domain={['auto', 'auto']} />
-            <Tooltip 
-              contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="puntaje" 
-              stroke="#0d9488" 
-              strokeWidth={4} 
-              dot={{ r: 6, fill: '#0d9488', strokeWidth: 2, stroke: '#fff' }}
-              isAnimationActive={false} 
-            />
+            <Line type="monotone" dataKey="puntaje" stroke="#0d9488" strokeWidth={4} dot={{ r: 6, fill: '#0d9488', stroke: '#fff' }} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
