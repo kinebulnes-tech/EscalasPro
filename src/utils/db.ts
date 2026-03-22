@@ -1,10 +1,10 @@
 // src/utils/db.ts
 import { openDB, IDBPDatabase } from 'idb';
 import { Security } from './security';
-import { normalizeID } from './patientIdentity'; // Importamos el normalizador internacional
+import { normalizeID } from './patientIdentity'; 
 
 const DB_NAME = 'EscalaPro_DB';
-const DB_VERSION = 2; // Subimos versión por cambio de estructura (rut -> id)
+const DB_VERSION = 2; 
 
 class ClinicalDB {
   private dbPromise: Promise<IDBPDatabase>;
@@ -12,14 +12,12 @@ class ClinicalDB {
   constructor() {
     this.dbPromise = openDB(DB_NAME, DB_VERSION, {
       upgrade(db, oldVersion) {
-        // Tabla de Pacientes: Ahora usamos 'id' como llave universal
         if (!db.objectStoreNames.contains('pacientes')) {
-          db.createObjectStore('pacientes', { keyPath: 'id' });
-        } else if (oldVersion < 2) {
-          // Si ya existía, podrías manejar migraciones aquí si fuera necesario
+          const store = db.createObjectStore('pacientes', { keyPath: 'id' });
+          // Creamos un índice por fecha para poder buscar los más recientes rápido
+          store.createIndex('by-date', 'updatedAt');
         }
 
-        // Tabla de Evaluaciones: Vinculada al 'patientId' internacional
         if (!db.objectStoreNames.contains('evaluaciones')) {
           const store = db.createObjectStore('evaluaciones', { 
             keyPath: 'id', 
@@ -31,26 +29,54 @@ class ClinicalDB {
     });
   }
 
-  // Método para guardar un paciente (cifrado y normalizado)
   async upsertPaciente(paciente: any) {
     const db = await this.dbPromise;
-    // Limpiamos el ID (RUT, DNI, etc) antes de que sea la llave primaria
     const cleanId = normalizeID(paciente.id || paciente.rut); 
 
     return db.put('pacientes', {
       id: cleanId, 
-      country: paciente.country || 'CL', // Guardamos el país para la máscara de UI
+      country: paciente.country || 'CL',
       dataEncrypted: Security.encrypt(paciente),
-      updatedAt: Date.now()
+      updatedAt: Date.now() // Esta fecha es la que usaremos para el orden
     });
   }
 
-  // Método para guardar una evaluación (cifrada)
+  // ✅ NUEVA FUNCIÓN: Obtiene los últimos 5 pacientes registrados
+  async getPacientesRecientes() {
+    const db = await this.dbPromise;
+    const tx = db.transaction('pacientes', 'readonly');
+    const store = tx.objectStore('pacientes');
+    
+    // Obtenemos todos y los ordenamos por fecha de forma manual para asegurar compatibilidad
+    const todos = await store.getAll();
+    
+    return todos
+      .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)) // De más nuevo a más viejo
+      .slice(0, 5) // Solo los primeros 5
+      .map(p => ({
+        ...Security.decrypt(p.dataEncrypted),
+        id: p.id,
+        country: p.country,
+        updatedAt: p.updatedAt
+      }));
+  }
+
   async guardarEvaluacion(patientId: string, escalaId: string, resultado: any) {
     const db = await this.dbPromise;
     const cleanId = normalizeID(patientId);
 
-    return db.add('evaluaciones', {
+    // Actualizamos la fecha del paciente para que suba en la lista de recientes
+    const tx = db.transaction(['pacientes', 'evaluaciones'], 'readwrite');
+    const pStore = tx.objectStore('pacientes');
+    const eStore = tx.objectStore('evaluaciones');
+
+    const pData = await pStore.get(cleanId);
+    if (pData) {
+      pData.updatedAt = Date.now();
+      await pStore.put(pData);
+    }
+
+    return eStore.add({
       patientId: cleanId,
       escalaId,
       dataEncrypted: Security.encrypt(resultado),
@@ -58,12 +84,10 @@ class ClinicalDB {
     });
   }
 
-  // Método para recuperar el historial por ID internacional normalizado
   async getHistorial(patientId: string) {
     const db = await this.dbPromise;
     const cleanId = normalizeID(patientId);
     
-    // Accedemos mediante el nuevo índice universal
     const transaction = db.transaction('evaluaciones', 'readonly');
     const index = transaction.store.index('by-patientId');
     const registros = await index.getAll(cleanId);
