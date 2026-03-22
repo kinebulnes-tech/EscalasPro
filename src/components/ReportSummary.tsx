@@ -1,5 +1,5 @@
+// src/components/ReportSummary.tsx
 import { 
-  ClipboardList, 
   Trash2, 
   FileText, 
   ArrowLeft, 
@@ -8,13 +8,14 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { toPng } from 'html-to-image'; // Herramienta de captura
 import { identityConfigs } from '../utils/patientIdentity';
 
 interface ReportSummaryProps {
   paciente: { 
     nombre: string; 
-    id: string;      // ✅ Actualizado: id universal
-    country: string; // ✅ Actualizado: código de país
+    id: string;
+    country: string;
     edad: string; 
     diagnostico: string;
     peso?: string;
@@ -29,10 +30,10 @@ interface ReportSummaryProps {
 
 export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize }: ReportSummaryProps) {
   
-  // Obtenemos la etiqueta del documento según el país (RUT, DNI, CURP, etc.)
   const docLabel = identityConfigs[paciente.country]?.documentName || "Identificación";
 
-  const generateMasterPDF = () => {
+  // Función Maestra para generar PDF con Gráficos
+  const generateMasterPDF = async () => {
     const doc = new jsPDF();
     const date = new Date().toLocaleDateString('es-CL');
     let y = 20;
@@ -59,7 +60,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "bold");
     doc.text(`Nombre: ${paciente.nombre.toUpperCase()}`, 20, y);
-    doc.text(`${docLabel}: ${paciente.id}`, 130, y); // ✅ Etiqueta dinámica en PDF
+    doc.text(`${docLabel}: ${paciente.id}`, 130, y);
     
     y += 7;
     doc.setFont("helvetica", "normal");
@@ -69,7 +70,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     y += 7;
     doc.text(`Diagnóstico Base: ${paciente.diagnostico}`, 20, y);
 
-    // Antropometría en PDF
     if (paciente.peso && paciente.talla) {
       y += 12;
       doc.setFillColor(248, 250, 252);
@@ -83,7 +83,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.text(`Peso: ${paciente.peso} kg   |   Talla: ${paciente.talla} cm   |   IMC: ${paciente.imc || 'N/A'}`, 60, y + 2);
     }
 
-    // --- LÓGICA DE TENDENCIAS ---
+    // --- LÓGICA DE TENDENCIAS Y CAPTURA DE IMÁGENES ---
     const conteo: Record<string, any[]> = {};
     resultados.forEach(r => {
       if (!conteo[r.nombreEscala]) conteo[r.nombreEscala] = [];
@@ -99,57 +99,74 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.setTextColor(51, 65, 85);
-      doc.text("ANÁLISIS DE EVOLUCIÓN CLÍNICA (TENDENCIAS)", 20, y + 6);
+      doc.text("ANÁLISIS DE EVOLUCIÓN CLÍNICA Y GRÁFICAS", 20, y + 6);
       y += 15;
 
-      escalasConHistorial.forEach(([nombre, items]) => {
+      // Iteramos sobre las escalas que tienen gráficos
+      for (const [nombre, items] of escalasConHistorial) {
         const ordenados = [...items].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
         const inicial = ordenados[0];
         const actual = ordenados[ordenados.length - 1];
         const variacion = actual.puntaje - inicial.puntaje;
 
+        // Escribir datos de texto de la tendencia
         doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
         doc.text(`ESCALA: ${nombre.toUpperCase()}`, 20, y);
         y += 6;
         doc.setFontSize(8);
         doc.setFont("helvetica", "normal");
         doc.text(`Inicial: ${inicial.puntaje} (${new Date(inicial.fecha).toLocaleDateString()})`, 25, y);
-        doc.text(`Actual: ${actual.puntaje} (${new Date(actual.fecha).toLocaleDateString()})`, 100, y);
+        doc.text(`Actual: ${actual.puntaje} (${new Date(actual.fecha).toLocaleDateString()})`, 80, y);
         
         doc.setFont("helvetica", "bold");
         if (variacion > 0) doc.setTextColor(13, 148, 136); 
         else if (variacion < 0) doc.setTextColor(220, 38, 38);
         else doc.setTextColor(100, 100, 100);
+        doc.text(`VAR: ${variacion > 0 ? '+' : ''}${variacion} pts`, 140, y);
         
-        doc.text(`VAR: ${variacion > 0 ? '+' : ''}${variacion} pts`, 160, y);
-        y += 8;
         doc.setTextColor(0, 0, 0);
-        doc.line(20, y, 190, y);
-        y += 8;
-      });
+        y += 10;
+
+        // 📸 CAPTURA DEL GRÁFICO
+        const chartElement = document.getElementById(`chart-${nombre.replace(/\s+/g, '-').toLowerCase()}`);
+        if (chartElement) {
+          try {
+            const dataUrl = await toPng(chartElement, { backgroundColor: '#ffffff', quality: 1 });
+            // Insertar imagen en el PDF (x, y, ancho, alto)
+            doc.addImage(dataUrl, 'PNG', 20, y, 170, 60);
+            y += 70; // Espacio para el gráfico capturado
+          } catch (err) {
+            console.error("No se pudo capturar el gráfico para:", nombre);
+            y += 5;
+          }
+        }
+
+        // Si se nos acaba la página con los gráficos, saltamos
+        if (y > 230) {
+          doc.addPage();
+          y = 20;
+        }
+      }
     }
 
-    // Detalle evaluaciones...
+    // 3. Detalle de evaluaciones individuales
     y += 10;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(0, 128, 128);
-    doc.text("RESUMEN DE EVALUACIONES EN SESIÓN", 20, y);
+    doc.text("DETALLE DE RESULTADOS EN SESIÓN", 20, y);
     
     resultados.forEach((res, index) => {
-      if (y > 250) { doc.addPage(); y = 20; }
-      y += 15;
-      doc.setFontSize(11);
+      if (y > 260) { doc.addPage(); y = 20; }
+      y += 12;
+      doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
       doc.text(`${index + 1}. ${res.nombreEscala}`, 20, y);
-      y += 6;
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Puntaje: ${res.puntaje} | Fecha: ${new Date(res.fecha).toLocaleDateString()}`, 25, y);
       y += 5;
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(0, 128, 128);
-      doc.text(`Interpretación: ${res.interpretacion}`, 25, y);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Puntaje: ${res.puntaje} | Interpretación: ${res.interpretacion}`, 25, y);
     });
 
     doc.save(`Informe_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
@@ -186,7 +203,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
               <p className="text-[9px] font-black uppercase opacity-40 tracking-widest mb-1">Edad</p>
               <p className="font-bold text-xs">{paciente.edad} años</p>
             </div>
-            
             <div className="bg-white/5 p-2 rounded-xl border border-white/10">
               <p className="text-[9px] font-black uppercase text-teal-400 tracking-widest mb-1">Antropometría</p>
               <p className="font-bold text-[11px]">{paciente.peso}kg / {paciente.talla}cm</p>
@@ -199,7 +215,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         </div>
 
         <div className="p-10">
-          {/* Listado de escalas... */}
           <div className="space-y-4 mb-12">
             {resultados.map((res, index) => (
               <div key={index} className="group flex items-center gap-4 p-6 bg-gray-50 rounded-[2rem] border-2 border-transparent hover:border-teal-500/20 hover:bg-white hover:shadow-xl transition-all duration-300">
@@ -221,10 +236,16 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
           </div>
 
           <div className="no-print grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button onClick={generateMasterPDF} className="group flex items-center justify-center gap-3 bg-teal-600 text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-teal-200 hover:bg-teal-700 transition-all active:scale-95">
+            <button 
+              onClick={generateMasterPDF} 
+              className="group flex items-center justify-center gap-3 bg-teal-600 text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-teal-200 hover:bg-teal-700 transition-all active:scale-95"
+            >
               <FileText className="w-6 h-6" /> Descargar Reporte Final
             </button>
-            <button onClick={() => { if(confirm("¿Finalizar protocolo?")) onFinalize(); }} className="group flex items-center justify-center gap-2 border-2 border-slate-100 text-slate-400 py-6 rounded-[2rem] font-black text-lg hover:bg-red-50 hover:text-red-500 transition-all">
+            <button 
+              onClick={() => { if(confirm("¿Finalizar protocolo?")) onFinalize(); }} 
+              className="group flex items-center justify-center gap-2 border-2 border-slate-100 text-slate-400 py-6 rounded-[2rem] font-black text-lg hover:bg-red-50 hover:text-red-500 transition-all"
+            >
               Finalizar Sesión
             </button>
           </div>
