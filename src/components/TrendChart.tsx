@@ -28,8 +28,8 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
     );
   }
 
-  // Limpiamos el ID eliminando tildes y caracteres raros para que el PDF lo encuentre siempre
-  const cleanId = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').toLowerCase();
+  // ID ultra limpia para evitar errores de búsqueda
+  const cleanId = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
   const chartId = `chart-${cleanId}`;
 
   return (
@@ -43,21 +43,24 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
         </span>
       </div>
 
-      <div id={chartId} className="h-[250px] w-full pt-4 bg-white">
+      {/* Importante: Mantenemos el fondo blanco y añadimos inline-block */}
+      <div 
+        id={chartId} 
+        className="h-[250px] w-full pt-4 bg-white" 
+        style={{ display: 'block', backgroundColor: 'white' }}
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis 
               dataKey="fecha" 
               axisLine={false} 
               tickLine={false} 
               tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}}
-              dy={10}
             />
             <YAxis hide domain={['auto', 'auto']} />
             <Tooltip 
               contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-              itemStyle={{ fontWeight: 'bold', color: '#0d9488' }}
             />
             <Line 
               type="monotone" 
@@ -65,7 +68,6 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
               stroke="#0d9488" 
               strokeWidth={4} 
               dot={{ r: 6, fill: '#0d9488', strokeWidth: 2, stroke: '#fff' }}
-              activeDot={{ r: 8, strokeWidth: 0 }}
               isAnimationActive={false} 
             />
           </LineChart>
