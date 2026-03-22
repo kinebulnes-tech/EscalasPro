@@ -6,7 +6,7 @@ import {
   User, 
   Activity, 
   ShieldCheck
-} from 'lucide-react';
+} from 'lucide-react'; // ✅ Corregido aquí
 import { jsPDF } from 'jspdf';
 import { toPng } from 'html-to-image'; 
 import { identityConfigs } from '../utils/patientIdentity';
@@ -119,19 +119,24 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         doc.setTextColor(0, 0, 0);
         y += 10;
 
-        // Limpieza de ID para coincidir con TrendChart
-        const cleanId = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').toLowerCase();
+        // ID limpia coincidente con TrendChart
+        const cleanId = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
         const chartElement = document.getElementById(`chart-${cleanId}`);
         
         if (chartElement) {
           try {
-            // Pequeña espera de 500ms para asegurar renderizado
-            await new Promise(resolve => setTimeout(resolve, 500));
-            const dataUrl = await toPng(chartElement, { cacheBust: true, backgroundColor: '#ffffff' });
+            // Esperamos un poco para asegurar que el gráfico esté listo
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            const dataUrl = await toPng(chartElement, { 
+              backgroundColor: '#ffffff',
+              pixelRatio: 2, // Mejora la calidad de la imagen
+            });
+            
             doc.addImage(dataUrl, 'PNG', 20, y, 170, 60);
-            y += 70;
+            y += 75;
           } catch (err) {
-            console.error("Error capturando:", nombre, err);
+            console.error("Fallo captura:", err);
           }
         }
 
@@ -164,15 +169,11 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
   return (
     <div className="max-w-4xl mx-auto p-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
       <button onClick={onBack} className="no-print flex items-center gap-2 text-teal-600 font-black mb-8 hover:-translate-x-1 transition-all uppercase text-[10px] tracking-widest">
-        <ArrowLeft className="w-5 h-5" /> Volver al catálogo
+        <ArrowLeft size={18} /> Volver al catálogo
       </button>
 
       <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100">
         <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12">
-            <Activity size={120} />
-          </div>
-
           <div className="flex items-center gap-4 mb-6 relative z-10">
             <div className="bg-teal-500 p-3 rounded-2xl shadow-lg shadow-teal-500/20">
               <User className="w-8 h-8 text-white" />
