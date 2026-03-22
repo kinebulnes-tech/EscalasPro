@@ -1,7 +1,7 @@
 // src/components/TrendChart.tsx
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, Dot 
+  Tooltip, ResponsiveContainer 
 } from 'recharts';
 
 interface TrendChartProps {
@@ -29,6 +29,9 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
     );
   }
 
+  // Generamos una ID única basada en el título para que el capturador de imagen no se confunda
+  const chartId = `chart-${titulo.replace(/\s+/g, '-').toLowerCase()}`;
+
   return (
     <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl space-y-4">
       <div className="flex items-center justify-between px-2">
@@ -40,9 +43,10 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
         </span>
       </div>
 
-      <div className="h-[250px] w-full pt-4">
+      {/* Añadimos la ID única al contenedor para poder capturarlo luego */}
+      <div id={chartId} className="h-[250px] w-full pt-4 bg-white">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis 
               dataKey="fecha" 
@@ -66,6 +70,7 @@ export default function TrendChart({ data, titulo }: TrendChartProps) {
               strokeWidth={4} 
               dot={{ r: 6, fill: '#0d9488', strokeWidth: 2, stroke: '#fff' }}
               activeDot={{ r: 8, strokeWidth: 0 }}
+              isAnimationActive={false} // Desactivamos animación para que la captura sea instantánea y fiel
             />
           </LineChart>
         </ResponsiveContainer>
