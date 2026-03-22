@@ -7262,27 +7262,68 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
-    id: 'epworth_sleep',
-    nombre: 'Escala de Epworth',
+{
+    id: 'epworth_sleepiness_scale',
+    nombre: 'Escala de Somnolencia de Epworth',
     categoria: 'neurologia',
-    descripcion: 'Nivel de somnolencia diurna.',
+    descripcion: 'Evaluación del nivel de somnolencia diurna en ocho situaciones cotidianas.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1798284) ---
+    bibliografia: "John MW. A new method for measuring daytime sleepiness: the Epworth sleepiness scale. Sleep. 1991.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1798284/",
+    evidenciaClinica: "Puntaje > 10 define somnolencia diurna excesiva. Es fundamental para el cribado de SAHOS (Apnea), Narcolepsia e Hipersomnia Idiopática.",
+
     preguntas: [
-      { id: '1', text: 'Sentado leyendo', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '2', text: 'Viendo TV', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '3', text: 'Sentado en lugar público', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '4', text: 'Copiloto en auto 1 hora', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '5', text: 'Echado en la tarde', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '6', text: 'Sentado charlando', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '7', text: 'Sentado tras almuerzo', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] },
-      { id: '8', text: 'En auto parado en tráfico', type: 'select', options: [{ label: 'Nunca', value: 0 }, { label: 'Elevada prob.', value: 3 }] }
+      { id: 'p1', text: '1. Sentado y leyendo:', type: 'select', options: [{ label: '0: Nunca se ha dormido', value: 0 }, { label: '1: Escasa posibilidad de dormirse', value: 1 }, { label: '2: Moderada posibilidad de dormirse', value: 2 }, { label: '3: Elevada posibilidad de dormirse', value: 3 }] },
+      { id: 'p2', text: '2. Viendo la televisión:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p3', text: '3. Sentado, quieto, en un lugar público (ej: cine o reunión):', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p4', text: '4. Como pasajero en un coche o transporte público una hora seguida:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p5', text: '5. Echado para descansar por la tarde cuando las circunstancias lo permiten:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p6', text: '6. Sentado y hablando con alguien:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p7', text: '7. Sentado tranquilamente después de una comida (sin alcohol):', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] },
+      { id: 'p8', text: '8. En un coche, cuando se detiene unos minutos en el tráfico:', type: 'select', options: [{ label: '0: Nunca', value: 0 }, { label: '1: Escasa', value: 1 }, { label: '2: Moderada', value: 2 }, { label: '3: Elevada', value: 3 }] }
     ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-    interpretar: (p) => {
-      if (p <= 10) return { texto: 'Normal', color: 'green', recomendaciones: ['Higiene de sueño adecuada'] };
-      if (p <= 14) return { texto: 'Somnolencia leve', color: 'yellow', recomendaciones: ['Revisar hábitos nocturnos'] };
-      if (p <= 17) return { texto: 'Somnolencia moderada', color: 'orange', recomendaciones: ['Evaluar especialista en sueño'] };
-      return { texto: 'Somnolencia grave', color: 'red', recomendaciones: ['Alta probabilidad de Apnea del Sueño', 'No conducir'] };
+
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje <= 10) {
+        return { 
+          texto: 'Normalidad (Bajo Riesgo)', 
+          color: 'emerald-600', 
+          evidencia: `Puntaje: ${puntaje}/24. No se observa somnolencia diurna excesiva.`,
+          recomendaciones: [
+            'Mantener pautas de higiene del sueño.',
+            'Si existen ronquidos intensos, consultar pese al resultado.',
+            'Seguimiento anual preventivo.'
+          ] 
+        };
+      }
+      
+      if (puntaje <= 15) {
+        return { 
+          texto: 'Somnolencia Moderada', 
+          color: 'orange-500', 
+          evidencia: `Puntaje: ${puntaje}/24. Nivel de alerta disminuido durante el día.`,
+          recomendaciones: [
+            'Realizar consulta con especialista en Medicina del Sueño o Broncopulmonar.',
+            'Evaluar higiene del sueño y horas reales de descanso.',
+            'Precaución al conducir vehículos o maquinaria.'
+          ] 
+        };
+      }
+
+      return { 
+        texto: 'SOMNOLENCIA GRAVE', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/24. Déficit severo de alerta diurna. Sugiere patología del sueño subyacente.`, 
+        recomendaciones: [
+          'Derivación urgente para Polisomnografía de noche completa.',
+          'ALERTA: Se recomienda NO CONDUCIR hasta evaluación médica.',
+          'Descartar Apnea Obstructiva del Sueño o Narcolepsia.',
+          'Acompañamiento en actividades de riesgo.'
+        ] 
+      };
     }
   },
   {
