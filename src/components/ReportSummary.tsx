@@ -3,7 +3,7 @@ import { Trash2, FileText, ArrowLeft, User, Activity, ShieldCheck } from 'lucide
 import { jsPDF } from 'jspdf';
 import { toPng } from 'html-to-image'; 
 import { identityConfigs } from '../utils/patientIdentity';
-import TrendChart from './TrendChart'; // ✅ Importamos el gráfico
+import TrendChart from './TrendChart';
 
 interface ReportSummaryProps {
   paciente: { nombre: string; id: string; country: string; edad: string; diagnostico: string; peso?: string; talla?: string; imc?: string; };
@@ -16,7 +16,6 @@ interface ReportSummaryProps {
 export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize }: ReportSummaryProps) {
   const docLabel = identityConfigs[paciente.country]?.documentName || "Identificación";
 
-  // Lógica para agrupar datos de las gráficas
   const conteo: Record<string, any[]> = {};
   resultados.forEach(r => {
     if (!conteo[r.nombreEscala]) conteo[r.nombreEscala] = [];
@@ -28,56 +27,57 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     const doc = new jsPDF();
     let y = 20;
 
-    // 1. Encabezado e info paciente (Igual que antes)
+    // 1. Encabezado
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(20); doc.setTextColor(0, 128, 128);
+    doc.setFontSize(18); doc.setTextColor(0, 128, 128);
     doc.text("INFORME CLÍNICO CONSOLIDADO", 20, y);
-    y += 10; doc.setDrawColor(0, 128, 128); doc.setLineWidth(1); doc.line(20, y, 190, y); 
+    y += 10; doc.setDrawColor(0, 128, 128); doc.setLineWidth(0.5); doc.line(20, y, 190, y); 
     
-    y += 15; doc.setFontSize(11); doc.setTextColor(0, 0, 0);
-    doc.text(`Nombre: ${paciente.nombre.toUpperCase()}`, 20, y);
+    y += 15; doc.setFontSize(10); doc.setTextColor(0, 0, 0);
+    doc.text(`PACIENTE: ${paciente.nombre.toUpperCase()}`, 20, y);
     doc.text(`${docLabel}: ${paciente.id}`, 130, y);
     y += 7; doc.setFont("helvetica", "normal");
-    doc.text(`Edad: ${paciente.edad} años`, 20, y);
-    doc.text(`Diagnóstico Base: ${paciente.diagnostico}`, 20, y + 7);
-    y += 20;
+    doc.text(`Edad: ${paciente.edad} años | Diagnóstico: ${paciente.diagnostico}`, 20, y);
+    y += 15;
 
-    // 2. Gráficos de Evolución
+    // 2. Gráficos de Evolución (Compactos)
     if (escalasConHistorial.length > 0) {
-      doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(0, 128, 128);
-      doc.text("ANÁLISIS DE EVOLUCIÓN Y TENDENCIAS", 20, y);
-      y += 10;
+      doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
+      doc.text("ANÁLISIS DE TENDENCIAS", 20, y);
+      y += 8;
 
       for (const [nombre, items] of escalasConHistorial) {
-        if (y > 200) { doc.addPage(); y = 20; }
+        if (y > 220) { doc.addPage(); y = 20; }
         
-        doc.setFontSize(9); doc.setTextColor(50, 50, 50);
-        doc.text(`ESCALA: ${nombre.toUpperCase()}`, 20, y);
+        doc.setFontSize(9); doc.setTextColor(80, 80, 80);
+        doc.text(`Evolución de: ${nombre.toUpperCase()}`, 20, y);
         y += 5;
 
-        // Captura el gráfico que ahora SÍ está en el reporte
         const cleanId = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
         const chartElement = document.getElementById(`pdf-chart-${cleanId}`);
         
         if (chartElement) {
           try {
             const dataUrl = await toPng(chartElement, { backgroundColor: '#ffffff', pixelRatio: 2 });
-            doc.addImage(dataUrl, 'PNG', 20, y, 170, 60);
-            y += 65;
+            // Reducimos el tamaño: Ancho 130, Alto 45. Centrado horizontalmente.
+            doc.addImage(dataUrl, 'PNG', 40, y, 130, 45);
+            y += 55; // Bajamos el cursor para el siguiente elemento
           } catch (err) { console.error(err); }
         }
-        y += 10;
       }
     }
 
     // 3. Resultados individuales
-    doc.addPage(); y = 20;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.text("DETALLE DE EVALUACIONES", 20, y);
+    if (y > 240) { doc.addPage(); y = 20; } else { y += 5; }
+    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
+    doc.text("DETALLE DE EVALUACIONES EN SESIÓN", 20, y);
+    
     resultados.forEach((res, index) => {
-      y += 15; doc.setFontSize(10);
-      doc.text(`${index + 1}. ${res.nombreEscala}`, 20, y);
-      y += 5; doc.setFont("helvetica", "normal");
-      doc.text(`Puntaje: ${res.puntaje} | Interpretación: ${res.interpretacion}`, 25, y);
+      if (y > 270) { doc.addPage(); y = 20; }
+      y += 10; doc.setFontSize(9); doc.setTextColor(0, 0, 0);
+      doc.text(`${index + 1}. ${res.nombreEscala} — Puntaje: ${res.puntaje}`, 25, y);
+      y += 4; doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+      doc.text(`Interpretación: ${res.interpretacion}`, 30, y);
     });
 
     doc.save(`Informe_${paciente.nombre}.pdf`);
@@ -96,14 +96,13 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         </div>
 
         <div className="p-10">
-          {/* ✅ AQUÍ ESTÁ EL TRUCO: Dibujamos los gráficos de forma invisible para el ojo pero visibles para el sistema */}
+          {/* Previsualización en pantalla para captura */}
           {escalasConHistorial.length > 0 && (
-            <div className="mb-12 space-y-8 bg-slate-50 p-6 rounded-[2rem]">
-              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">Previsualización de Gráficos para el Informe</h4>
-              <div className="grid grid-cols-1 gap-10">
+            <div className="mb-12 space-y-4 bg-slate-50 p-6 rounded-[2rem]">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Gráficos para el Informe</h4>
+              <div className="grid grid-cols-1 gap-4">
                 {escalasConHistorial.map(([nombre, items], idx) => (
-                  <div key={idx} className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
-                     <p className="text-[10px] font-black text-teal-600 mb-2 uppercase">{nombre}</p>
+                  <div key={idx} className="bg-white p-4 rounded-3xl border border-slate-100">
                      <TrendChart data={items} titulo={nombre} forPDF={true} />
                   </div>
                 ))}
@@ -112,20 +111,20 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
           )}
 
           <div className="space-y-4 mb-12">
-            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Lista de Evaluaciones</h4>
+            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest px-2">Historial de la sesión</h4>
             {resultados.map((res, index) => (
-              <div key={index} className="flex items-center gap-4 p-6 bg-gray-50 rounded-[2rem]">
+              <div key={index} className="flex items-center gap-4 p-5 bg-gray-50 rounded-[1.5rem]">
                 <div className="flex-1">
-                  <h4 className="font-black text-gray-900 uppercase text-xs">{res.nombreEscala}</h4>
-                  <p className="text-sm font-bold text-teal-600">{res.puntaje} pts • {res.interpretacion}</p>
+                  <h4 className="font-bold text-gray-900 text-sm">{res.nombreEscala}</h4>
+                  <p className="text-xs font-bold text-teal-600">{res.puntaje} pts • {res.interpretacion}</p>
                 </div>
-                <button onClick={() => onRemoveScale(index)} className="no-print p-2 text-gray-300 hover:text-red-500"><Trash2 size={20}/></button>
+                <button onClick={() => onRemoveScale(index)} className="no-print p-2 text-gray-300 hover:text-red-500"><Trash2 size={18}/></button>
               </div>
             ))}
           </div>
 
           <button onClick={generateMasterPDF} className="w-full bg-teal-600 text-white py-6 rounded-[2rem] font-black text-lg shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
-            <FileText size={24} /> Generar Reporte con Gráficos
+            <FileText size={24} /> Descargar Reporte Profesional
           </button>
         </div>
       </div>
