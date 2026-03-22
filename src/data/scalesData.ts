@@ -729,79 +729,86 @@ export const scales: Scale[] = [
       };
     }
   },
-  {
-    id: 'tepsi_chile',
-    nombre: 'TEPSI (2 a 5 años)',
+{
+    id: 'tepsi_chile_pro',
+    nombre: 'TEPSI (Estandarizado Chile)',
     categoria: 'pediatria',
-    descripcion: 'Test de Desarrollo Psicomotor. Evalúa el desarrollo psíquico infantil en tres áreas: Coordinación, Lenguaje y Motricidad.',
+    descripcion: 'Test de Desarrollo Psicomotor para niños de 2 a 5 años. Evalúa el desarrollo psíquico en Coordinación, Lenguaje y Motricidad.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
-    bibliografia: "Haeussler IM, Marchant T. TEPSI: Test de desarrollo psicomotor. Ediciones UC.",
+    bibliografia: "Haeussler IM, Marchant T. TEPSI. Ediciones UC, 2002. Norma Técnica MINSAL.",
     referenciaUrl: "https://crececontigo.gob.cl/columna/test-de-desarrollo-psicomotor-tepsi/", 
-    evidenciaClinica: "Norma técnica estandarizada en Chile. Utiliza Puntaje T (Promedio 50, DS 10). Los cortes son: Normalidad (≥40), Riesgo (30-39) y Retraso (≤29).",
+    evidenciaClinica: "Herramienta obligatoria en Chile para detectar rezago psicomotor. Utiliza Puntaje T (Media 50, DS 10). Un Puntaje T < 40 en el total o subtests indica necesidad de intervención.",
 
     preguntas: [
-      { id: 'puntaje_t', text: 'Puntaje T Total (Obtenido de tablas según edad):', type: 'number', min: 20, max: 80 },
-      { id: 'area_deficit', text: 'Área con menor puntaje (Subtest crítico):', type: 'select', options: [
-        { label: 'Ninguna / Desarrollo armónico', value: 0 },
-        { label: 'Coordinación (16 ítems)', value: 1 },
-        { label: 'Lenguaje (24 ítems)', value: 2 },
-        { label: 'Motricidad (12 ítems)', value: 3 }
-      ]}
+      { id: 'bruto_coordinacion', text: 'Puntaje Bruto Coordinación (0-16 ítems):', type: 'number', min: 0, max: 16 },
+      { id: 'bruto_lenguaje', text: 'Puntaje Bruto Lenguaje (0-24 ítems):', type: 'number', min: 0, max: 24 },
+      { id: 'bruto_motricidad', text: 'Puntaje Bruto Motricidad (0-12 ítems):', type: 'number', min: 0, max: 12 },
+      { id: 'puntaje_t_total', text: 'Puntaje T Final (Obtenido de tabla por edad):', type: 'number', min: 20, max: 80 }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.puntaje_t) || 0,
+    calcularPuntaje: (respuestas) => {
+      // El puntaje principal para la interpretación es el Puntaje T total
+      return Number(respuestas.puntaje_t_total) || 0;
+    },
 
     interpretar: (puntaje, respuestas) => {
-      const areasMap: Record<number, string> = { 
-        0: 'ARMÓNICO', 
-        1: 'COORDINACIÓN', 
-        2: 'LENGUAJE', 
-        3: 'MOTRICIDAD' 
-      };
-      const subtestCritico = areasMap[Number(respuestas?.area_deficit) || 0];
+      // 1. Análisis de subtests para recomendaciones específicas
+      const bCoord = Number(respuestas?.bruto_coordinacion) || 0;
+      const bLeng = Number(respuestas?.bruto_lenguaje) || 0;
+      const bMot = Number(respuestas?.bruto_motricidad) || 0;
 
+      // 2. Lógica de alertas por área (Basado en rendimientos bajos históricos)
+      const alertas = [];
+      if (bCoord < 8) alertas.push('Coordinación Visomotriz');
+      if (bLeng < 12) alertas.push('Lenguaje y Comunicación');
+      if (bMot < 6) alertas.push('Motricidad Gruesa');
+
+      // 3. Clasificación Clínica
       if (puntaje >= 40) {
         return { 
-          texto: 'NORMALIDAD', 
+          texto: 'DESARROLLO NORMAL', 
           color: 'emerald-600', 
-          evidencia: `Puntaje T: ${puntaje}. Desarrollo dentro de los rangos esperados.`,
+          evidencia: `Puntaje T: ${puntaje}. El menor se encuentra dentro de los rangos esperados para su edad cronológica.`,
           recomendaciones: [
-            'Mantener seguimiento en control de niño sano habitual.',
-            'Fomentar lectura compartida y juego simbólico.',
-            'Reforzar autonomía en actividades de la vida diaria (vestirse, comer solo).'
+            'Felicitar a los cuidadores y reforzar pautas de crianza positiva.',
+            'Mantener asistencia a jardín infantil o actividades de socialización.',
+            'Fomentar autonomía en vestuario y alimentación.',
+            'Próxima evaluación según calendario de control de niño sano.'
           ]
         };
       }
       
       if (puntaje >= 30) {
         return { 
-          texto: 'RIESGO', 
+          texto: 'RIESGO DE REZAGO', 
           color: 'orange-500', 
-          evidencia: `Puntaje T: ${puntaje}. Desempeño entre 1 y 2 desviaciones estándar bajo el promedio.`,
+          evidencia: `Puntaje T: ${puntaje}. Desempeño entre 1 y 2 desviaciones estándar bajo el promedio poblacional.`,
           recomendaciones: [
-            `Reforzar área de: ${subtestCritico}.`,
-            'Ingreso a programas de estimulación (Sala de Estimulación / Chile Crece Contigo).',
-            'Sugerir pautas de estimulación focalizada para padres.',
-            'Re-evaluar con TEPSI completo en 6 meses.'
+            'Derivación obligatoria a Sala de Estimulación (Chile Crece Contigo).',
+            alertas.length > 0 ? `Reforzar actividades específicas de: ${alertas.join(', ')}.` : 'Reforzar desarrollo armónico mediante el juego.',
+            'Entregar set de materiales para estimulación en el hogar.',
+            'Re-evaluación con TEPSI completo en un plazo máximo de 6 meses.'
           ]
         };
       }
 
       return { 
-        texto: 'RETRASO', 
+        texto: 'RETRASO PSICOMOTOR', 
         color: 'red-600', 
-        evidencia: `Puntaje T: ${puntaje}. Desempeño a más de 2 desviaciones estándar bajo la norma.`, 
+        evidencia: `Puntaje T: ${puntaje}. Desempeño crítico (> 2 DS bajo la norma).`, 
         recomendaciones: [
-          `Déficit severo en: ${subtestCritico}.`,
-          'Derivación inmediata a Especialistas (Neurólogo Infantil, Fonoaudiólogo o Kinesiólogo).',
-          'Evaluación por equipo de Educación Especial o Psicopedagogía.',
-          'Solicitar exámenes complementarios (Audición/Visión) para descartar causas sensoriales.'
+          'Derivación inmediata a Médico Pediatra y Neurólogo Infantil.',
+          'Evaluación por equipo multidisciplinario (Kinesiólogo, Fonoaudiólogo y Terapeuta Ocupacional).',
+          `Déficit marcado con mayor impacto en: ${alertas.length > 0 ? alertas.join(' y ') : 'todas las áreas'}.`,
+          'Solicitar exámenes complementarios (Audición/Visión) para descartar causas sensoriales.',
+          'Ingreso prioritario a programas de rehabilitación.'
         ] 
       };
     }
   },
-  {
+
+   {
     id: 'mchat_autismo',
     nombre: 'M-CHAT-R/F',
     categoria: 'pediatria',
