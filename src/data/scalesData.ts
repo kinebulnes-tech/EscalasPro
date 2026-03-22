@@ -99,44 +99,67 @@ export const scales: Scale[] = [
     id: 'tobin_index_weaning',
     nombre: 'Índice de Tobin (RSBI)',
     categoria: 'uci',
-    descripcion: 'Predictor de éxito en la extubación (Frecuencia Respiratoria / Volumen Corriente).',
+    descripcion: 'Rapid Shallow Breathing Index. Predictor de éxito en la desconexión de la ventilación mecánica.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 2044810) ---
     bibliografia: "Yang KL, Tobin MJ. A predictive index for the outcome of weaning from mechanical ventilation. N Engl J Med. 1991.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/2044810/",
+    evidenciaClinica: "Un RSBI < 105 medido durante la ventilación espontánea es el predictor más utilizado de éxito en la extubación. Valores > 105 indican una respiración rápida y superficial ineficiente.",
 
     preguntas: [
-      { id: 'fr', text: 'Frecuencia Respiratoria (resp/min) medida en Tubo T o soporte mínimo:', type: 'number' },
-      { id: 'vc', text: 'Volumen Corriente (Litros - Ej: 0.45):', type: 'number' }
+      { id: 'fr', text: 'Frecuencia Respiratoria (rpm):', type: 'number', min: 0, max: 60 },
+      { id: 'vc', text: 'Volumen Corriente (Litros - Ej: 0.45):', type: 'number', min: 0.05, max: 2.0 },
+      { id: 'sat', text: 'Saturación de O2 actual (%):', type: 'number', min: 50, max: 100 }
     ],
 
     calcularPuntaje: (respuestas) => {
-      const fr = Number(respuestas.fr) || 0;
-      const vc = Number(respuestas.vc) || 1; // Evitar división por cero
+      const fr = Number(respuestas.fr);
+      const vc = Number(respuestas.vc);
+      
+      // Validación CEO: Si los datos son inconsistentes, retornamos un valor que fuerce la precaución
+      if (!fr || !vc || vc <= 0) return 999; 
+      
       return Math.round(fr / vc);
     },
 
-    interpretar: (puntaje) => {
-      if (puntaje < 105) return { 
-        texto: 'ÉXITO PROBABLE DE EXTUBACIÓN', color: 'emerald-600', evidencia: `RSBI: ${puntaje}. Valores < 105 predicen éxito en el retiro de la ventilación.`,
-        recomendaciones: [
-          'Considerar extubación si el resto de criterios clínicos se cumplen',
-          'Preparar equipo de oxigenoterapia post-extubación',
-          'Evaluar fuerza de tos y manejo de secreciones'
-        ]
+    interpretar: (puntaje, respuestas) => {
+      const sat = Number(respuestas?.sat) || 0;
+      const vcBajo = (Number(respuestas?.vc) || 0) < 0.3;
+
+      // Caso de error en entrada de datos
+      if (puntaje === 999) return {
+        texto: 'DATOS INCOMPLETOS',
+        color: 'gray-500',
+        evidencia: 'Faltan valores críticos (FR o VC).',
+        recomendaciones: ['Ingrese todos los parámetros para calcular el RSBI.']
       };
+
+      if (puntaje < 105) {
+        return { 
+          texto: 'ÉXITO PROBABLE (RSBI < 105)', 
+          color: 'emerald-600', 
+          evidencia: `RSBI: ${puntaje}. El paciente tolera la ventilación espontánea adecuadamente.`,
+          recomendaciones: [
+            'Evaluar criterios de extubación (Estado mental, tos, secreciones).',
+            sat < 92 ? 'Precaución: El RSBI es bueno pero la saturación es limítrofe.' : 'Preparar kit de extubación.',
+            'Realizar prueba de fuga de manguito (Cuff Leak Test) antes de proceder.'
+          ]
+        };
+      }
+
       return { 
-        texto: 'ALTO RIESGO DE FALLA (Tobin > 105)', color: 'red-600', evidencia: `RSBI: ${puntaje}. El paciente presenta una respiración rápida y superficial.`, 
+        texto: 'RIESGO DE FALLA (RSBI > 105)', 
+        color: 'red-600', 
+        evidencia: `RSBI: ${puntaje}. Patrón respiratorio ineficiente.`, 
         recomendaciones: [
-          'Retornar a parámetros de soporte ventilatorio previo',
-          'Identificar causas de falla (Debilidad muscular, sobrecarga hídrica, broncoespasmo)',
-          'Entrenamiento muscular inspiratorio (PIMet)',
-          'Reintentar prueba de ventilación espontánea (PVE) en 24 horas'
+          'Abortar prueba de ventilación espontánea (PVE).',
+          vcBajo ? 'Alerta: Volumen corriente muy bajo (< 300ml). Evaluar debilidad muscular.' : 'Identificar causas de taquipnea.',
+          'Optimizar sedoanalgesia y balance hídrico.',
+          'Considerar entrenamiento de musculatura inspiratoria (PIMet) antes de nueva prueba.'
         ] 
       };
     }
   },
-
   {
     id: 'cpot_dolor_uci',
     nombre: 'Escala CPOT',
