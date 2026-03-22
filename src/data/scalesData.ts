@@ -617,54 +617,95 @@ export const scales: Scale[] = [
   //  PEDIATRIA
   // ==========================================
 
-
-  {
+{
     id: 'eedp_chile',
     nombre: 'EEDP (0-24 meses)',
     categoria: 'pediatria',
-    descripcion: 'Escala de Evaluación del Desarrollo Psicomotor. Estándar chileno para detectar rezago en lactantes.',
+    descripcion: 'Escala de Evaluación del Desarrollo Psicomotor. Instrumento estandarizado en Chile para medir rendimiento psicomotor en lactantes.',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
+    // --- RIGOR CIENTÍFICO VERIFICADO (Norma Técnica MINSAL) ---
     bibliografia: "Rodriguez S, Arancibia V, Undurraga C. Escala de Evaluación del Desarrollo Psicomotor. Chile: Galdoc; 1978.",
-    referenciaUrl: "https://www.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf", 
-    evidenciaClinica: "Permite obtener un Coeficiente de Desarrollo (CD). Un CD < 0.85 indica riesgo o retraso, requiriendo intervención temprana en sala de estimulación.",
+    referenciaUrl: "https://web.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf", 
+    evidenciaClinica: "Es la herramienta obligatoria del Programa Infantil en Chile. Evalúa Motora, Lenguaje, Social y Coordinación. Un CD < 0.85 es criterio de derivación a Sala de Estimulación.",
 
     preguntas: [
-      { id: 'mes_base', text: 'Mes Base (último mes aprobado con los 5 ítems):', type: 'select', options: [
-        { label: '0 meses', value: 0 }, { label: '1 mes', value: 1 }, { label: '2 meses', value: 2 }, { label: '3 meses', value: 3 },
-        { label: '4 meses', value: 4 }, { label: '5 meses', value: 5 }, { label: '6 meses', value: 6 }, { label: '7 meses', value: 7 },
-        { label: '8 meses', value: 8 }, { label: '9 meses', value: 9 }, { label: '10 meses', value: 10 }, { label: '12 meses', value: 12 },
-        { label: '15 meses', value: 15 }, { label: '18 meses', value: 18 }, { label: '21 meses', value: 21 }, { label: '24 meses', value: 24 }
+      { id: 'edad_dias', text: 'Edad Cronológica Exacta (en días):', type: 'number', min: 1, max: 735 },
+      { id: 'mes_base', text: 'Mes Base (Mes más alto con los 5 ítems aprobados):', type: 'select', options: [
+        { label: '0 meses', value: 0 }, { label: '1 mes', value: 30 }, { label: '2 meses', value: 60 }, { label: '3 meses', value: 90 },
+        { label: '4 meses', value: 120 }, { label: '5 meses', value: 150 }, { label: '6 meses', value: 180 }, { label: '7 meses', value: 210 },
+        { label: '8 meses', value: 240 }, { label: '9 meses', value: 270 }, { label: '10 meses', value: 300 }, { label: '12 meses', value: 360 },
+        { label: '15 meses', value: 450 }, { label: '18 meses', value: 540 }, { label: '21 meses', value: 630 }, { label: '24 meses', value: 720 }
       ]},
-      { id: 'puntos_adicionales', text: 'Suma de puntos adicionales logrados en meses superiores:', type: 'number' },
-      { id: 'edad_cronologica', text: 'Edad cronológica en días (o meses * 30):', type: 'number' }
+      { id: 'puntos_adicionales', text: 'Suma de puntos de ítems aprobados sobre el mes base:', type: 'number', min: 0 },
+      { id: 'area_critica', text: 'Área con mayor déficit observado:', type: 'select', options: [
+        { label: 'Desarrollo armónico', value: 0 },
+        { label: 'Motora', value: 1 },
+        { label: 'Lenguaje', value: 2 },
+        { label: 'Social', value: 3 },
+        { label: 'Coordinación', value: 4 }
+      ]}
     ],
 
     calcularPuntaje: (respuestas) => {
-      const mesBase = Number(respuestas.mes_base) || 0;
-      const adicionales = Number(respuestas.puntos_adicionales) || 0;
-      const edadMental = (mesBase * 30) + adicionales;
-      const edadCronologica = Number(respuestas.edad_cronologica) || 1;
-      // El puntaje que devolvemos es el Coeficiente de Desarrollo (CD)
-      return parseFloat((edadMental / edadCronologica).toFixed(2));
+      const edadMentalDias = (Number(respuestas.mes_base) || 0) + (Number(respuestas.puntos_adicionales) || 0);
+      const edadCronologicaDias = Number(respuestas.edad_dias) || 1;
+      // Cálculo del Coeficiente de Desarrollo (CD)
+      return parseFloat((edadMentalDias / edadCronologicaDias).toFixed(2));
     },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 0.85) return { 
-        texto: 'DESARROLLO NORMAL', color: 'emerald-600', evidencia: `CD: ${puntaje}.`,
-        recomendaciones: ['Mantener controles sanos al día', 'Fomentar pautas de crianza respetuosa', 'Reforzar hitos del próximo mes']
+    interpretar: (cd, respuestas) => {
+      // Mapeo interno para transformar el value numérico en texto clínico
+      const areasMap: Record<number, string> = { 
+        0: 'ARMÓNICO', 
+        1: 'MOTORA', 
+        2: 'LENGUAJE', 
+        3: 'SOCIAL', 
+        4: 'COORDINACIÓN' 
       };
-      if (puntaje >= 0.71) return { 
-        texto: 'RIESGO DE REZAGO', color: 'orange-500', evidencia: `CD: ${puntaje}.`,
-        recomendaciones: ['Derivar a Sala de Estimulación (Chile Crece Contigo)', 'Plan de ejercicios en casa por 1 mes', 'Reevaluar en 30 días']
-      };
+      
+      const areaSeleccionada = areasMap[Number(respuestas?.area_critica) || 0];
+      const edadMentalMeses = ((Number(respuestas?.mes_base || 0) + Number(respuestas?.puntos_adicionales || 0)) / 30).toFixed(1);
+
+      if (cd >= 0.85) {
+        return { 
+          texto: 'DESARROLLO NORMAL', 
+          color: 'emerald-600',
+          evidencia: `CD: ${cd}. Edad Mental Estimada: ${edadMentalMeses} meses.`,
+          recomendaciones: [
+            'Felicitar al cuidador y reforzar pautas de estimulación habituales.',
+            'Mantener controles sanos al día según calendario MINSAL.',
+            'Si hay dudas en un área específica, realizar seguimiento en 30 días.'
+          ]
+        };
+      } 
+      
+      if (cd >= 0.71) {
+        return { 
+          texto: 'RIESGO DE REZAGO', 
+          color: 'orange-500',
+          evidencia: `CD: ${cd}. Edad Mental Estimada: ${edadMentalMeses} meses.`,
+          recomendaciones: [
+            'Derivar a Sala de Estimulación (Chile Crece Contigo).',
+            'Entrega de cartillas de ejercicios específicos para el hogar.',
+            'Reevaluación obligatoria con EEDP en 30-60 días.',
+            `Énfasis preventivo en el área: ${areaSeleccionada}.`
+          ]
+        };
+      }
+
       return { 
-        texto: 'RETRASO PSICOMOTOR', color: 'red-600', evidencia: `CD: ${puntaje}.`, 
-        recomendaciones: ['Derivación inmediata a Pediatra y Neurólogo Infantil', 'Evaluación por equipo multidisciplinario', 'Ingreso prioritario a rehabilitación'] 
+        texto: 'RETRASO PSICOMOTOR', 
+        color: 'red-600',
+        evidencia: `CD: ${cd}. Edad Mental Estimada: ${edadMentalMeses} meses.`, 
+        recomendaciones: [
+          'Derivación inmediata a Pediatra y Neurólogo Infantil.',
+          'Evaluación por equipo multidisciplinario (Kinesiólogo/Fonoaudiólogo).',
+          'Ingreso prioritario a programa de rehabilitación.',
+          `Déficit marcado detectado en área: ${areaSeleccionada}.`
+        ] 
       };
     }
   },
-
   {
     id: 'tepsi_chile',
     nombre: 'TEPSI',
