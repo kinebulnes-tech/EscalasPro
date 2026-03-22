@@ -459,31 +459,93 @@ export const scales: Scale[] = [
 
   {
     id: 'tiss_28_uci',
-    nombre: 'TISS-28',
+    nombre: 'TISS-28 (Carga de Enfermería)',
     categoria: 'uci',
-    descripcion: 'Evaluación de la carga asistencial y gravedad basada en intervenciones terapéuticas.',
+    descripcion: 'Therapeutic Intervention Scoring System. Mide la carga de trabajo de enfermería basada en la intensidad de las actividades terapéuticas en UCI.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8635643) ---
     bibliografia: "Miranda DR, et al. TISS-28: A reduced version of the TISS. Intensive Care Med. 1996.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8635643/", 
 
     preguntas: [
-      { id: 'monitoreo', text: 'Puntos por Monitoreo (Básico, Hemodinámico, etc):', type: 'number', min: 0, max: 12 },
-      { id: 'soporte_vital', text: 'Puntos por Soporte (Ventilación, Drogas Vasoactivas, Diálisis):', type: 'number', min: 0, max: 15 },
-      { id: 'intervenciones', text: 'Puntos por Intervenciones específicas (Cirugías, Curaciones):', type: 'number', min: 0, max: 10 }
+      // 1. ACTIVIDADES BÁSICAS
+      { id: 't1', text: 'Monitoreo estándar (Signos vitales, balance hídrico):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (5 pts)', value: 5 }] },
+      { id: 't2', text: 'Laboratorio: Investigaciones bioquímicas/microbiológicas extra:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (1 pt)', value: 1 }] },
+      { id: 't3', text: 'Medicación intravenosa (Bolo o infusión única):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (2 pts)', value: 2 }] },
+      { id: 't4', text: 'Cambios de apósitos frecuentes (o cuidados de herida extensos):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (1 pt)', value: 1 }] },
+      { id: 't5', text: 'Cuidado de drenajes (Excepto SNG):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (3 pts)', value: 3 }] },
+
+      // 2. SOPORTE VENTILATORIO
+      { id: 't6', text: 'Ventilación mecánica (Cualquier modo con/sin PEEP):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (5 pts)', value: 5 }] },
+      { id: 't7', text: 'Soporte respiratorio espontáneo (Mascarilla, Venturi, Tubo T):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (2 pts)', value: 2 }] },
+      { id: 't8', text: 'Cuidado de vía aérea artificial (TET o Traqueostomía):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (1 pt)', value: 1 }] },
+
+      // 3. SOPORTE CARDIOVASCULAR
+      { id: 't9', text: 'Vasoactivos (Infusión única de cualquier droga):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (3 pts)', value: 3 }] },
+      { id: 't10', text: 'Vasoactivos múltiples (>1 droga vasoactiva):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (4 pts)', value: 4 }] },
+      { id: 't11', text: 'Reposición de fluidos masiva (>5 L/día):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (4 pts)', value: 4 }] },
+      { id: 't12', text: 'Monitoreo de presión arterial periférica (Línea arterial):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (5 pts)', value: 5 }] },
+      { id: 't13', text: 'Monitoreo de PVC o catéter venoso central:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (2 pts)', value: 2 }] },
+      { id: 't14', text: 'Catéter de Swan-Ganz (Monitoreo GC):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (8 pts)', value: 8 }] },
+
+      // 4. SOPORTE RENAL
+      { id: 't15', text: 'Técnicas de hemofiltración / Diálisis:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (3 pts)', value: 3 }] },
+      { id: 't16', text: 'Medición de diuresis horaria (Sonda Foley):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (2 pts)', value: 2 }] },
+
+      // 5. SOPORTE NEUROLÓGICO
+      { id: 't17', text: 'Monitoreo de Presión Intracraneana (PIC):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (4 pts)', value: 4 }] },
+
+      // 6. SOPORTE METABÓLICO
+      { id: 't18', text: 'Tratamiento de acidosis/alcalosis metabólica severa:', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (4 pts)', value: 4 }] },
+      { id: 't19', text: 'Nutrición Parenteral Total (NPT):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (3 pts)', value: 3 }] },
+      { id: 't20', text: 'Nutrición Enteral (SNG u otra vía):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (2 pts)', value: 2 }] },
+
+      // 7. INTERVENCIONES ESPECÍFICAS
+      { id: 't21', text: 'Intervención única en UCI (Intubación, Cardioversión):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (3 pts)', value: 3 }] },
+      { id: 't22', text: 'Intervenciones múltiples en UCI (>1 de las anteriores):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (5 pts)', value: 5 }] },
+      { id: 't23', text: 'Traslado fuera de la UCI (TAC, Quirófano, etc):', type: 'select', options: [{ label: 'No', value: 0 }, { label: 'Sí (5 pts)', value: 5 }] }
     ],
 
-    calcularPuntaje: (respuestas) => (Number(respuestas.monitoreo) || 0) + (Number(respuestas.soporte_vital) || 0) + (Number(respuestas.intervenciones) || 0),
+    calcularPuntaje: (respuestas) => {
+      // Suma de los puntos ponderados de cada intervención marcada
+      return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    },
 
     interpretar: (puntaje) => {
+      // Un enfermero en turno de 12 horas puede manejar aprox 46-50 puntos TISS.
+      // La fórmula estándar: 1 punto TISS = 10.6 minutos de trabajo de enfermería.
+      const minutosTrabajo = (puntaje * 10.6).toFixed(0);
+      const horasTrabajo = (Number(minutosTrabajo) / 60).toFixed(1);
+      
+      let categoria = "Clase I (Cuidado básico)";
+      let color = "emerald-600";
+      let ratio = "1 enfermero : 4 pacientes";
+
+      if (puntaje >= 40) { 
+        categoria = "Clase IV (Inestabilidad extrema)"; 
+        color = "red-700"; 
+        ratio = "1 enfermero : 1 paciente (o 1:0.5)"; 
+      }
+      else if (puntaje >= 30) { 
+        categoria = "Clase III (Grave)"; 
+        color = "red-600"; 
+        ratio = "1 enfermero : 1 paciente"; 
+      }
+      else if (puntaje >= 20) { 
+        categoria = "Clase II (Moderado)"; 
+        color = "orange-500"; 
+        ratio = "1 enfermero : 2 pacientes"; 
+      }
+
       return { 
-        texto: `Carga TISS-28: ${puntaje} puntos`, 
-        color: puntaje > 20 ? 'orange-600' : 'blue-500', 
-        evidencia: `Equivale a aprox. ${(puntaje * 10.6 / 60).toFixed(1)} horas de atención directa por turno.`,
+        texto: `${categoria}`, 
+        color: color, 
+        evidencia: `Puntaje TISS-28: ${puntaje}. Requiere aproximadamente ${horasTrabajo} horas de enfermería directa por turno.`,
         recomendaciones: [
-          'Ajustar dotación de personal según carga medida',
-          'Priorizar intervenciones en pacientes con puntaje elevado',
-          'Vigilar riesgo de eventos adversos por alta complejidad'
+          `Dotación recomendada: ${ratio}.`,
+          'Evaluar riesgo de eventos adversos (caídas, errores de medicación) por sobrecarga.',
+          'Considerar apoyo técnico si el puntaje supera los 40 puntos persistentes.',
+          'Documentar intervenciones para justificación de costos y personal.'
         ] 
       };
     }
