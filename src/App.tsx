@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { categories, scales, Scale } from './data/scalesData';
+import { categories, scales } from './data/scalesData';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
@@ -12,19 +12,22 @@ import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 import TrendChart from './components/TrendChart';
 
+// ✅ NUEVO COMPONENTE
+import RecentPatients from './components/RecentPatients';
+
 // ✅ Integración de DB y Seguridad
 import { db } from './utils/db';
 import { Security } from './utils/security';
 
 import { 
-  ArrowLeft, ClipboardList, Menu, ChevronRight, Search, UserPlus, Activity, ShieldCheck, FileText, Star, TrendingUp
+  ArrowLeft, Menu, Search, UserPlus, Activity, ShieldCheck, FileText, Star
 } from 'lucide-react';
 
-// --- INTERFACES ACTUALIZADAS ---
+// --- INTERFACES ---
 interface Paciente {
   nombre: string;
-  id: string;      // ✅ Cambiado de rut a id (Universal)
-  country: string; // ✅ Añadido para soporte internacional
+  id: string;      
+  country: string; 
   edad: string;
   diagnostico: string;
   peso?: string;
@@ -51,8 +54,10 @@ export default function App() {
   const [viewingReport, setViewingReport] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // ✅ ESTADO PARA PACIENTES RECIENTES
+  const [recientes, setRecientes] = useState<any[]>([]);
 
-  // --- PERSISTENCIA CIFRADA ---
   const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(() => {
     const saved = localStorage.getItem('escalapro_paciente');
     return saved ? Security.decrypt(saved) : null;
@@ -67,55 +72,48 @@ export default function App() {
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
-    try {
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+    try { return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
 
-  // --- EFECTOS DE PERSISTENCIA ---
+  // --- EFECTO INICIAL: CARGAR RECIENTES ---
+  useEffect(() => {
+    const cargarRecientes = async () => {
+      const data = await db.getPacientesRecientes();
+      setRecientes(data);
+    };
+    cargarRecientes();
+  }, [pacienteActivo]); // Se recarga cuando cambia el paciente activo
+
+  // --- PERSISTENCIA ---
   useEffect(() => {
     if (pacienteActivo) {
       localStorage.setItem('escalapro_paciente', Security.encrypt(pacienteActivo));
     } else {
       localStorage.removeItem('escalapro_paciente');
     }
-
     if (listaResultados.length > 0) {
       localStorage.setItem('escalapro_resultados', Security.encrypt(listaResultados));
     } else {
       localStorage.removeItem('escalapro_resultados');
     }
-    
     localStorage.setItem('escalapro_favs', JSON.stringify(favorites));
   }, [pacienteActivo, listaResultados, favorites]);
 
   // --- LÓGICA DE NEGOCIO ---
-  const toggleFavorite = (id: string) => {
-    setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
-  };
-
-  // ✅ MEJORA: Reconocimiento inteligente INTERNACIONAL (Usa ID en vez de RUT)
   const handlePacienteIdentificado = async (data: Paciente) => {
     try {
-      // 1. Buscamos si el ID (RUT/DNI/CURP) ya tiene historial
       const historialExistente = await db.getHistorial(data.id);
-      
       if (historialExistente && historialExistente.length > 0) {
         setPacienteActivo(data);
         setListaResultados(historialExistente as any);
         setShowPatientModal(false);
         return;
       }
-
-      // 2. Paciente nuevo
       await db.upsertPaciente(data);
       setPacienteActivo(data);
       setListaResultados([]);
       setShowPatientModal(false);
-    } catch (e) { 
-      console.error("Error crítico de integridad:", e); 
-      alert("Error al acceder a la base de datos local.");
-    }
+    } catch (e) { alert("Error al acceder a la base de datos."); }
   };
 
   const finalizaSesionTotal = () => {
@@ -129,7 +127,11 @@ export default function App() {
     }
   };
 
-  // --- FILTRADO Y FAVORITOS ---
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  };
+
+  // --- FILTRADO ---
   const { favoriteScales, otherScales } = useMemo(() => {
     const filtered = scales.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
@@ -137,14 +139,12 @@ export default function App() {
                            scale.descripcion.toLowerCase().includes(query.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-
     return {
       favoriteScales: filtered.filter(s => favorites.includes(s.id)),
       otherScales: filtered.filter(s => !favorites.includes(s.id))
     };
   }, [selectedCategory, query, favorites]);
 
-  // --- LÓGICA DE GRÁFICAS ---
   const groupedTrends = useMemo(() => {
     if (!listaResultados || listaResultados.length === 0) return [];
     const groups: Record<string, any[]> = {};
@@ -152,9 +152,7 @@ export default function App() {
       if (!groups[res.nombreEscala]) groups[res.nombreEscala] = [];
       groups[res.nombreEscala].push(res);
     });
-    return Object.entries(groups)
-      .filter(([_, items]) => items.length >= 2)
-      .map(([nombre, items]) => ({ nombre, items }));
+    return Object.entries(groups).filter(([_, items]) => items.length >= 2).map(([nombre, items]) => ({ nombre, items }));
   }, [listaResultados]);
 
   const selectedScale = scales.find(s => s.id === activeScale);
@@ -168,13 +166,7 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar 
           selectedCategory={selectedCategory}
-          onSelectCategory={(id) => { 
-            setSelectedCategory(id); 
-            setShowAbout(false); 
-            setViewingReport(false); 
-            setActiveScale(null); 
-            setQuery('');
-          }}
+          onSelectCategory={(id) => { setSelectedCategory(id); setShowAbout(false); setViewingReport(false); setActiveScale(null); setQuery(''); }}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
@@ -215,7 +207,6 @@ export default function App() {
                     const res = { ...n, fecha: new Date().toISOString() };
                     setListaResultados(p => [...p, res]); 
                     setActiveScale(null); 
-                    // ✅ Cambiado .rut por .id para la base de datos
                     if(pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
                   }} 
                   pacienteNombre={pacienteActivo?.nombre} 
@@ -227,27 +218,26 @@ export default function App() {
                 
                 {pacienteActivo ? (
                   <div className="space-y-6 mb-12">
-                    <div className="bg-slate-900 text-white p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center shadow-2xl border border-white/5">
+                    <div className="bg-slate-900 text-white p-6 lg:p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-center shadow-2xl border border-white/5">
                       <div className="flex items-center gap-4 lg:gap-6 text-center md:text-left">
                         <div className="hidden sm:flex w-16 h-16 bg-teal-500/10 rounded-[2rem] items-center justify-center border border-teal-500/20 shadow-inner">
                           <Activity size={30} className="text-teal-400 animate-pulse" />
                         </div>
                         <div>
-                          <p className="text-[9px] lg:text-[10px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
+                          <p className="text-[9px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
                           <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
                           <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
-                            {listaResultados.length} escalas en historial
+                            {listaResultados.length} escalas registradas
                           </p>
                         </div>
                       </div>
-                      
                       <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
                         {listaResultados.length > 0 && (
-                          <button onClick={() => setViewingReport(true)} className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-teal-900/40">
+                          <button onClick={() => setViewingReport(true)} className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-teal-900/40">
                             <FileText size={16} /> Generar Informe
                           </button>
                         )}
-                        <button onClick={finalizaSesionTotal} className="bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-white/60 px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10 active:scale-95">
+                        <button onClick={finalizaSesionTotal} className="bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-white/60 px-6 py-3 lg:px-8 lg:py-4 rounded-xl lg:rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest border border-white/10">
                           Finalizar
                         </button>
                       </div>
@@ -262,20 +252,28 @@ export default function App() {
                     )}
                   </div>
                 ) : (
-                  <div className="mb-6 lg:mb-12">
+                  <div className="mb-6 lg:mb-12 space-y-6">
+                    {/* BOTÓN NUEVO PACIENTE */}
                     <button onClick={() => setShowPatientModal(true)} className="group flex items-center gap-4 lg:gap-6 bg-white border-2 border-dashed border-slate-200 p-4 lg:p-6 rounded-[2rem] lg:rounded-[2.5rem] w-full hover:border-teal-500 hover:bg-teal-50/30 transition-all text-left shadow-sm">
-                      <div className="w-12 h-12 lg:w-14 lg:h-14 bg-slate-50 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:bg-teal-500 group-hover:shadow-lg group-hover:shadow-teal-200 transition-all">
+                      <div className="w-12 h-12 lg:w-14 lg:h-14 bg-slate-50 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:bg-teal-500 transition-all">
                         <UserPlus size={20} className="text-slate-400 group-hover:text-white" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-black text-slate-900 text-base lg:text-lg">Nueva Evaluación Clínica</h4>
-                        <p className="text-slate-500 text-[11px] lg:text-sm font-medium leading-tight">Identifica al paciente para ver su evolución.</p>
+                        <p className="text-slate-500 text-[11px] lg:text-sm font-medium leading-tight">Inicia un protocolo desde cero.</p>
                       </div>
                     </button>
+
+                    {/* ✅ SECCIÓN DE PACIENTES RECIENTES */}
+                    {!query && (
+                      <RecentPatients 
+                        patients={recientes} 
+                        onSelect={(p) => handlePacienteIdentificado(p)} 
+                      />
+                    )}
                   </div>
                 )}
 
-                {/* Resto del JSX se mantiene igual... */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 lg:gap-8 mb-4">
                   <h3 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter italic uppercase">
                     {selectedCategory ? currentCategory?.nombre : query ? 'Búsqueda' : 'Catálogo'}
