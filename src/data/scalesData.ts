@@ -313,45 +313,116 @@ export const scales: Scale[] = [
 
   {
     id: 'apache_ii_uci',
-    nombre: 'APACHE II (Cribado)',
+    nombre: 'APACHE II (Completo)',
     categoria: 'uci',
-    descripcion: 'Sistema de clasificación de salud crónica y fisiología aguda para predecir mortalidad hospitalaria.',
+    descripcion: 'Acute Physiology and Chronic Health Evaluation II. Herramienta de predicción de mortalidad hospitalaria basada en 12 variables fisiológicas, edad y salud previa.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 6385357) ---
     bibliografia: "Knaus WA, et al. APACHE II: a severity of disease classification system. Crit Care Med. 1985.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6385357/",
+    evidenciaClinica: "Es el estándar para comparar la gravedad de la enfermedad y los resultados entre unidades de cuidados intensivos. Se calcula con los peores valores en las primeras 24h de ingreso.",
 
     preguntas: [
-      { id: 'puntos_fisiologicos', text: 'Suma de puntos fisiológicos (Temp, PAM, FC, FR, Oxigenación, pH, Na, K, Cre, Hto, Leucos):', type: 'number', min: 0, max: 60 },
-      { id: 'edad', text: 'Puntaje por Edad (≤44: 0, 45-54: 2, 55-64: 3, 65-74: 5, ≥75: 6):', type: 'select', options: [
-        { label: '≤ 44 años (0)', value: 0 }, { label: '45-54 años (2)', value: 2 }, { label: '55-64 años (3)', value: 3 }, { label: '65-74 años (5)', value: 5 }, { label: '≥ 75 años (6)', value: 6 }
+      // --- SECCIÓN 1: FISIOLOGÍA AGUDA (0-4 pts por ítem) ---
+      { id: 'temp', text: '1. Temperatura Rectal (°C):', type: 'select', options: [
+        { label: '36 - 38.4 (0)', value: 0 }, { label: '38.5 - 38.9 (1)', value: 1 }, { label: '34 - 35.9 (1)', value: 1 }, 
+        { label: '32 - 33.9 (2)', value: 2 }, { label: '39 - 40.9 (3)', value: 3 }, { label: '30 - 31.9 (3)', value: 3 },
+        { label: '≥ 41 (4)', value: 4 }, { label: '≤ 29.9 (4)', value: 4 }
       ]},
-      { id: 'cronico', text: 'Salud Crónica (Falla de órgano preexistente o inmunocomprometido):', type: 'select', options: [
-        { label: 'No (0 pts)', value: 0 }, { label: 'Sí - Postquirúrgico urgente/No quirúrgico (5 pts)', value: 5 }, { label: 'Sí - Postquirúrgico electivo (2 pts)', value: 2 }
+      { id: 'pam', text: '2. Presión Arterial Media (mmHg):', type: 'select', options: [
+        { label: '70 - 109 (0)', value: 0 }, { label: '110 - 129 (2)', value: 2 }, { label: '50 - 69 (2)', value: 2 },
+        { label: '130 - 159 (3)', value: 3 }, { label: '≥ 160 (4)', value: 4 }, { label: '≤ 49 (4)', value: 4 }
+      ]},
+      { id: 'fc', text: '3. Frecuencia Cardíaca (lpm):', type: 'select', options: [
+        { label: '70 - 109 (0)', value: 0 }, { label: '110 - 139 (2)', value: 2 }, { label: '55 - 69 (2)', value: 2 },
+        { label: '140 - 179 (3)', value: 3 }, { label: '40 - 54 (3)', value: 3 }, { label: '≥ 180 (4)', value: 4 }, { label: '≤ 39 (4)', value: 4 }
+      ]},
+      { id: 'fr', text: '4. Frecuencia Respiratoria (rpm):', type: 'select', options: [
+        { label: '12 - 24 (0)', value: 0 }, { label: '25 - 34 (1)', value: 1 }, { label: '10 - 11 (1)', value: 1 },
+        { label: '35 - 49 (3)', value: 3 }, { label: '6 - 9 (3)', value: 3 }, { label: '≥ 50 (4)', value: 4 }, { label: '≤ 5 (4)', value: 4 }
+      ]},
+      { id: 'fio2', text: '5. Oxigenación (Si FiO2 <0.5 usar PaO2 / Si >0.5 usar Gradiente A-a):', type: 'select', options: [
+        { label: 'PaO2 > 70 o A-a < 200 (0)', value: 0 }, { label: 'PaO2 61-70 o A-a 200-349 (2)', value: 2 },
+        { label: 'PaO2 55-60 o A-a 350-499 (3)', value: 3 }, { label: 'PaO2 < 55 o A-a ≥ 500 (4)', value: 4 }
+      ]},
+      { id: 'ph', text: '6. pH Arterial:', type: 'select', options: [
+        { label: '7.33 - 7.49 (0)', value: 0 }, { label: '7.50 - 7.59 (1)', value: 1 }, { label: '7.25 - 7.32 (2)', value: 2 },
+        { label: '7.60 - 7.69 (3)', value: 3 }, { label: '7.15 - 7.24 (3)', value: 3 }, { label: '≥ 7.70 (4)', value: 4 }, { label: '≤ 7.15 (4)', value: 4 }
+      ]},
+      { id: 'na', text: '7. Sodio Plasmático (mEq/L):', type: 'select', options: [
+        { label: '130 - 149 (0)', value: 0 }, { label: '150 - 154 (1)', value: 1 }, { label: '155 - 159 (2)', value: 2 }, { label: '120 - 129 (2)', value: 2 },
+        { label: '160 - 179 (3)', value: 3 }, { label: '111 - 119 (3)', value: 3 }, { label: '≥ 180 (4)', value: 4 }, { label: '≤ 110 (4)', value: 4 }
+      ]},
+      { id: 'k', text: '8. Potasio Plasmático (mEq/L):', type: 'select', options: [
+        { label: '3.5 - 5.4 (0)', value: 0 }, { label: '5.5 - 5.9 (1)', value: 1 }, { label: '3.0 - 3.4 (1)', value: 1 },
+        { label: '2.5 - 2.9 (2)', value: 2 }, { label: '6.0 - 6.9 (3)', value: 3 }, { label: '≥ 7.0 (4)', value: 4 }, { label: '≤ 2.5 (4)', value: 4 }
+      ]},
+      { id: 'crea', text: '9. Creatinina (mg/dL) - Duplicar si hay Falla Renal Aguda:', type: 'select', options: [
+        { label: '0.6 - 1.4 (0)', value: 0 }, { label: '< 0.6 (2)', value: 2 }, { label: '1.5 - 1.9 (2)', value: 2 },
+        { label: '2.0 - 3.4 (3)', value: 3 }, { label: '≥ 3.5 (4)', value: 4 }
+      ]},
+      { id: 'hto', text: '10. Hematocrito (%):', type: 'select', options: [
+        { label: '30 - 45.9 (0)', value: 0 }, { label: '46 - 49.9 (1)', value: 1 }, { label: '50 - 59.9 (2)', value: 2 }, { label: '20 - 29.9 (2)', value: 2 },
+        { label: '≥ 60 (4)', value: 4 }, { label: '< 20 (4)', value: 4 }
+      ]},
+      { id: 'leucos', text: '11. Leucocitos (x1000/mm³):', type: 'select', options: [
+        { label: '3 - 14.9 (0)', value: 0 }, { label: '15 - 19.9 (1)', value: 1 }, { label: '20 - 39.9 (2)', value: 2 }, { label: '1 - 2.9 (2)', value: 2 },
+        { label: '≥ 40 (4)', value: 4 }, { label: '< 1 (4)', value: 4 }
+      ]},
+      { id: 'gcs', text: '12. Escala de Glasgow (Puntaje Real):', type: 'number', min: 3, max: 15 },
+
+      // --- SECCIÓN 2: EDAD Y SALUD CRÓNICA ---
+      { id: 'edad', text: 'Puntaje por Edad:', type: 'select', options: [
+        { label: '≤ 44 años (0)', value: 0 }, { label: '45-54 años (2)', value: 2 }, 
+        { label: '55-64 años (3)', value: 3 }, { label: '65-74 años (5)', value: 5 }, { label: '≥ 75 años (6)', value: 6 }
+      ]},
+      { id: 'cronico', text: 'Salud Crónica (Falla de órgano o inmunocompromiso):', type: 'select', options: [
+        { label: 'No (0 pts)', value: 0 }, 
+        { label: 'Sí - Postquirúrgico urgente/No quirúrgico (5 pts)', value: 5 }, 
+        { label: 'Sí - Postquirúrgico electivo (2 pts)', value: 2 }
       ]}
     ],
 
-    calcularPuntaje: (respuestas) => (Number(respuestas.puntos_fisiologicos) || 0) + (Number(respuestas.edad) || 0) + (Number(respuestas.cronico) || 0),
+    calcularPuntaje: (respuestas) => {
+      const fisiologiaSuma = 
+        (Number(respuestas.temp) || 0) + (Number(respuestas.pam) || 0) + 
+        (Number(respuestas.fc) || 0) + (Number(respuestas.fr) || 0) + 
+        (Number(respuestas.fio2) || 0) + (Number(respuestas.ph) || 0) + 
+        (Number(respuestas.na) || 0) + (Number(respuestas.k) || 0) + 
+        (Number(respuestas.crea) || 0) + (Number(respuestas.hto) || 0) + 
+        (Number(respuestas.leucos) || 0);
+      
+      // Cálculo Glasgow: APACHE usa (15 - GCS real)
+      const puntosGlasgow = 15 - (Number(respuestas.gcs) || 15);
+      
+      return fisiologiaSuma + puntosGlasgow + (Number(respuestas.edad) || 0) + (Number(respuestas.cronico) || 0);
+    },
 
     interpretar: (puntaje) => {
-      let mortalidad = "Baja (< 10%)";
-      if (puntaje >= 30) mortalidad = "Muy Alta (> 70%)";
-      else if (puntaje >= 20) mortalidad = "Alta (~40%)";
-      else if (puntaje >= 10) mortalidad = "Moderada (~15%)";
+      let riesgo = "";
+      let color = "";
+      if (puntaje >= 35) { riesgo = "> 85%"; color = "red-900"; }
+      else if (puntaje >= 30) { riesgo = "70 - 75%"; color = "red-700"; }
+      else if (puntaje >= 25) { riesgo = "50 - 55%"; color = "red-600"; }
+      else if (puntaje >= 20) { riesgo = "40%"; color = "orange-600"; }
+      else if (puntaje >= 15) { riesgo = "25%"; color = "orange-500"; }
+      else if (puntaje >= 10) { riesgo = "15%"; color = "yellow-600"; }
+      else if (puntaje >= 5) { riesgo = "8%"; color = "emerald-500"; }
+      else { riesgo = "< 4%"; color = "emerald-600"; }
 
       return { 
-        texto: `Mortalidad Estimada: ${mortalidad}`, 
-        color: puntaje >= 25 ? 'red-700' : 'orange-500', 
-        evidencia: `Score APACHE II: ${puntaje} puntos.`,
+        texto: `Mortalidad Estimada: ${riesgo}`, 
+        color: color, 
+        evidencia: `Score APACHE II: ${puntaje} puntos. Predicción basada en el estado de salud inicial y reserva fisiológica.`,
         recomendaciones: [
-          'Utilizar para decisiones de intensidad terapéutica',
-          'Vigilar parámetros fisiológicos con mayor frecuencia',
-          'Evaluar pronóstico con la familia'
+          'Monitorización hemodinámica invasiva',
+          'Evaluación diaria de la escala SOFA para ver progresión',
+          'Considerar adecuación de esfuerzo terapéutico en puntajes > 30 persistentes',
+          'Vigilancia estricta de balance hídrico y electrolitos'
         ] 
       };
     }
   },
-
   {
     id: 'cpax_funcionalidad_uci',
     nombre: 'Escala CPAx',
