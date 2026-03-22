@@ -1,61 +1,84 @@
 // src/data/clinicalIntelligence.ts
 
 export const clinicalMapping: Record<string, string[]> = {
-  // NEUROLOGÍA
-  "acv": ["barthel", "rankin", "nihss", "berg", "tug"],
-  "strok": ["barthel", "rankin", "nihss", "berg", "tug"],
+  // --- NEUROLOGÍA ADULTO ---
+  "acv": ["barthel", "rankin", "nihss", "berg", "tug", "fugel_meyer"],
+  "stroke": ["barthel", "rankin", "nihss", "berg", "tug"],
   "cerebrovascular": ["barthel", "rankin", "nihss", "berg", "tug"],
   "parkinson": ["hoehn_yahr", "updrs", "berg", "tug", "tinetti"],
-  "parquinson": ["hoehn_yahr", "updrs", "berg", "tug", "tinetti"],
-  "temblor": ["updrs", "hoehn_yahr"],
-  
-  // ADULTO MAYOR / GERIATRÍA
-  "adulto mayor": ["tinetti", "berg", "tug", "sarcf", "minimental"],
+  "esclerosis": ["edss", "ms qol"],
+  "lesion medular": ["asia", "scim", "ashworth"],
+  "espasticidad": ["ashworth", "tardieu"],
+
+  // --- GERIATRÍA / ADULTO MAYOR ---
+  "adulto mayor": ["tinetti", "berg", "tug", "sarcf", "minimental", "pfeiffer"],
   "anciano": ["tinetti", "berg", "tug", "sarcf", "minimental"],
-  "caida": ["tinetti", "berg", "tug", "downton"],
-  "sarcopenia": ["dinamometria", "sarcf", "mrc"],
+  "caida": ["tinetti", "berg", "tug", "downton", "fof"],
+  "sarcopenia": ["dinamometria", "sarcf", "mrc_sumscore", "sp PB"],
   "fragilidad": ["frail", "sarcf", "dinamometria"],
-  "fragil": ["frail", "sarcf", "dinamometria"],
-  
-  // MÚSCULO-ESQUELÉTICO
+  "dependencia": ["barthel", "lawton_brody"],
+
+  // --- TRAUMATOLOGÍA Y DOLOR ---
   "fuerza": ["dinamometria", "mrc", "mrc_sumscore"],
-  "debilidad": ["mrc", "mrc_sumscore", "dinamometria"],
   "cadera": ["harris_hip", "oxford_hip", "tug"],
-  "rodilla": ["womac", "lysholm", "tegner"],
-  "hombro": ["dash", "constant_murley"],
-  "dolor": ["eva", "lanss", "dn4"],
-  
-  // RESPIRATORIO
-  "respiratorio": ["mrc_disnea", "borg", "p6m", "cat_epoc"],
+  "rodilla": ["womac", "lysholm", "tegner", "koos"],
+  "hombro": ["dash", "constant_murley", "spadi"],
+  "tobillo": ["aofas", "fadi"],
+  "columna": ["oswestry", "roland_morris"],
+  "dolor": ["eva", "lanss", "dn4", "tampa"],
+
+  // --- RESPIRATORIO ---
   "epoc": ["mrc_disnea", "borg", "p6m", "cat_epoc"],
+  "asma": ["act", "acq"],
   "disnea": ["mrc_disnea", "borg"],
-  "pulmon": ["mrc_disnea", "borg", "p6m"],
-  "covid": ["p6m", "borg", "mrc_disnea"],
-  
-  // COGNITIVO / SALUD MENTAL
-  "cognitivo": ["minimental", "pfeiffer", "moca"],
-  "demencia": ["minimental", "pfeiffer", "moca", "yesavage"],
-  "memoria": ["minimental", "moca"],
-  "depresion": ["yesavage", "phq9"],
-  "animo": ["yesavage", "phq9"]
+  "fibrosis": ["p6m", "cpt"],
+  "ventilacion": ["weaning_index", "tobin"],
+
+  // --- PACIENTE CRÍTICO (UCI) ---
+  "uci": ["rass", "cam_icu", "mrc_sumscore", "fss_icu", "cpot"],
+  "critico": ["rass", "cam_icu", "mrc_sumscore", "fss_icu"],
+  "sedacion": ["rass", "sas"],
+  "delirium": ["cam_icu", "icdsc"],
+  "movilidad uci": ["fss_icu", "ims", "pfas"],
+
+  // --- PISO PÉLVICO ---
+  "piso pelvico": ["iciq_sf", "i iq 7", "pelvic_organ_prolapse"],
+  "incontinencia": ["iciq_sf", "bladdery_diary"],
+  "prolapso": ["pop_q"],
+
+  // --- PEDIATRÍA ---
+  "pediatria": ["apgar", "gmfcs", "alberta", "wee_fim"],
+  "desarrollo": ["alberta", "tepsi", "eddp"],
+  "motor": ["gmfm", "peabody"],
+
+  // --- SALUD OCUPACIONAL / DERMATO ---
+  "ergonomia": ["reba", "rula", "rosas"],
+  "quemados": ["vancouver", "lund_browder"],
+  "cicatriz": ["vancouver", "posas"]
 };
 
 /**
- * Función mejorada que busca coincidencias parciales e ignora mayúsculas/minúsculas
+ * Motor de Búsqueda Semántica con Normalización
  */
 export const getSuggestedScales = (query: string): string[] => {
-  const q = query.toLowerCase().trim()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quita tildes
+  if (!query || query.length < 3) return [];
 
-  const suggestedIds: string[] = [];
+  // Normalización: minúsculas, sin tildes, sin espacios extra
+  const q = query.toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
-  Object.keys(clinicalMapping).forEach(keyword => {
-    // Si la búsqueda contiene la palabra clave O la palabra clave contiene la búsqueda
-    if (q.includes(keyword) || keyword.includes(q)) {
-      suggestedIds.push(...clinicalMapping[keyword]);
+  const suggestedIds = new Set<string>();
+
+  Object.entries(clinicalMapping).forEach(([keyword, ids]) => {
+    const normalizedKeyword = keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
+    // Coincidencia bidireccional
+    if (q.includes(normalizedKeyword) || normalizedKeyword.includes(q)) {
+      ids.forEach(id => suggestedIds.add(id));
     }
   });
 
-  // Eliminamos duplicados
-  return [...new Set(suggestedIds)];
+  return Array.from(suggestedIds);
 };
