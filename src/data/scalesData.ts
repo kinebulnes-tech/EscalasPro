@@ -10193,74 +10193,46 @@ export const scales: Scale[] = [
     }
   },
   {
-  id: 'pss_10_stress',
-  nombre: 'Escala de Estrés Percibido (PSS-10)',
-  categoria: 'psicologia',
-  descripcion: 'Mide el grado en que las situaciones de la vida son valoradas como estresantes e incontrolables.',
-  
-  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
-  bibliografia: "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385-96.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6668417/", // ✅ FUENTE ORIGINAL VERIFICADA
-  evidenciaClinica: "La PSS-10 evalúa la carga alostática percibida. Puntuaciones altas están asociadas con mayores niveles de cortisol, peor calidad de sueño y una respuesta inmune disminuida, factores críticos en la rehabilitación física.",
+    id: 'pss_10_stress_completa',
+    nombre: 'Escala de Estrés Percibido (PSS-10)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación del nivel de estrés percibido en el último mes.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 6668417) ---
+    bibliografia: "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385-96.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6668417/",
 
-  preguntas: [
-    { 
-      id: 'p1', 
-      text: '1. En el último mes, ¿con qué frecuencia se ha sentido incapaz de controlar las cosas importantes en su vida?', 
-      type: 'select', 
-      options: [
-        { label: 'Nunca (0 pts)', value: 0 }, 
-        { label: 'Casi nunca (1 pt)', value: 1 }, 
-        { label: 'De vez en cuando (2 pts)', value: 2 }, 
-        { label: 'A menudo (3 pts)', value: 3 }, 
-        { label: 'Muy a menudo (4 pts)', value: 4 }
-      ] 
-    },
-    { 
-      id: 'p2', 
-      text: '2. En el último mes, ¿con qué frecuencia se ha sentido nervioso o estresado?', 
-      type: 'select', 
-      options: [
-        { label: 'Nunca (0 pts)', value: 0 }, 
-        { label: 'Casi nunca (1 pt)', value: 1 }, 
-        { label: 'De vez en cuando (2 pts)', value: 2 }, 
-        { label: 'A menudo (3 pts)', value: 3 }, 
-        { label: 'Muy a menudo (4 pts)', value: 4 }
-      ] 
-    }
-  ],
+    preguntas: [
+      { id: 'p1', text: '1. ¿Con qué frecuencia se ha sentido afectado por algo que ocurrió inesperadamente?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p2', text: '2. ¿Con qué frecuencia se ha sentido incapaz de controlar las cosas importantes en su vida?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p3', text: '3. ¿Con qué frecuencia se ha sentido nervioso o estresado?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p4', text: '4. ¿Con qué frecuencia ha manejado con éxito los problemas irritantes de la vida? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
+      { id: 'p5', text: '5. ¿Con qué frecuencia ha sentido que ha lidiado con éxito con los cambios en su vida? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
+      { id: 'p6', text: '6. ¿Con qué frecuencia se ha sentido seguro de su capacidad para manejar sus problemas personales?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p7', text: '7. ¿Con qué frecuencia ha sentido que las cosas le van bien? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
+      { id: 'p8', text: '8. ¿Con qué frecuencia ha sentido que no podía afrontar todas las cosas que tenía que hacer? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
+      { id: 'p9', text: '9. ¿Con qué frecuencia ha podido controlar las irritaciones en su vida?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p10', text: '10. ¿Con qué frecuencia ha sentido que los problemas se acumulaban tanto que no podía superarlos?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] }
+    ],
 
-  // Cálculo compatible con TypeScript
-  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-  interpretar: (p) => {
-    // Para un screening de 2 ítems (rango 0-8):
-    if (p >= 5) {
-      return { 
+    interpretar: (puntaje) => {
+      if (puntaje >= 27) return { 
         texto: 'ESTRÉS PERCIBIDO ALTO', 
-        color: 'red-600',
-        evidencia: 'Puntaje de ' + p + ': Los mecanismos de afrontamiento están siendo superados por las demandas del entorno.',
-        recomendaciones: [
-          'Instruir en técnicas de relajación diafragmática y control motor', 
-          'Higiene del sueño: mantener horarios regulares y evitar pantallas', 
-          'Técnicas de priorización de tareas para reducir la sobrecarga cognitiva',
-          'Considerar derivación a Psicología si el estrés interfiere con la vida diaria'
-        ] 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/40. Nivel crítico de sobrecarga psicológica.`, 
+        recomendaciones: ['Derivación a Psicología', 'Entrenamiento en técnicas de relajación', 'Evaluar riesgo de agotamiento profesional (Burnout)'] 
       };
+      if (puntaje >= 14) return { 
+        texto: 'ESTRÉS MODERADO', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/40. Carga de estrés significativa.`, 
+        recomendaciones: ['Higiene del sueño', 'Actividad física aeróbica regular', 'Identificar estresores principales'] 
+      };
+      return { texto: 'Estrés Bajo', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/40.`, recomendaciones: ['Continuar con hábitos saludables'] };
     }
-
-    return { 
-      texto: 'Estrés Percibido Bajo/Moderado', 
-      color: 'emerald-600',
-      evidencia: 'Puntaje de ' + p + ': Nivel de estrés dentro de los rangos de adaptación normal.',
-      recomendaciones: [
-        'Fomentar estrategias de afrontamiento saludables (ejercicio, ocio)', 
-        'Mantener hábitos de vida equilibrados',
-        'Fomentar la conciencia sobre los disparadores de estrés ocasionales'
-      ] 
-    };
-  }
-},
+  },
   {
 
 id: 'whoqol_bref_short',
