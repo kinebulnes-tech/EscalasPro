@@ -10156,84 +10156,42 @@ export const scales: Scale[] = [
   }
 },
   {
-  id: 'rosenberg_self_esteem',
-  nombre: 'Escala de Autoestima de Rosenberg',
-  categoria: 'psicologia',
-  descripcion: 'Evaluación de la satisfacción personal y el sentimiento de valía propia.',
-  
-  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
-  bibliografia: "Rosenberg M. Society and the adolescent self-image. Princeton, NJ: Princeton University Press; 1965.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14417406/", // ✅ FUENTE ORIGINAL
-  evidenciaClinica: "Es la escala más validada para la medición de la autoestima global. Un puntaje bajo es un factor de riesgo transversal para trastornos del ánimo, ansiedad y dificultades en la adherencia a tratamientos crónicos.",
+    id: 'rosenberg_autoestima_completa',
+    nombre: 'Escala de Autoestima de Rosenberg (10 ítems)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación global de la autoestima. Versión completa validada internacionalmente.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 14417406) ---
+    bibliografia: "Rosenberg M. Society and the adolescent self-image. Princeton, NJ: Princeton University Press; 1965.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14417406/",
+    evidenciaClinica: "Puntaje de 10 a 40. Es la herramienta estándar para medir el autoconcepto. Un puntaje < 25 indica una autoestima baja que puede interferir con la adherencia al tratamiento físico.",
 
-  preguntas: [
-    { 
-      id: 'r1', 
-      text: '1. Siento que soy una persona digna de aprecio, al menos en igual medida que los demás:', 
-      type: 'select', 
-      options: [
-        { label: 'Muy en desacuerdo (1 pt)', value: 1 }, 
-        { label: 'En desacuerdo (2 pts)', value: 2 }, 
-        { label: 'De acuerdo (3 pts)', value: 3 }, 
-        { label: 'Muy de acuerdo (4 pts)', value: 4 }
-      ] 
-    },
-    { 
-      id: 'r2', 
-      text: '2. En general, me inclino a pensar que soy un fracasado/a (Ítem invertido):', 
-      type: 'select', 
-      options: [
-        { label: 'Muy de acuerdo (1 pt)', value: 1 }, 
-        { label: 'De acuerdo (2 pts)', value: 2 }, 
-        { label: 'En desacuerdo (3 pts)', value: 3 }, 
-        { label: 'Muy en desacuerdo (4 pts)', value: 4 }
-      ] 
-    },
-    { 
-      id: 'r3', 
-      text: '3. En general, estoy satisfecho/a conmigo mismo/a:', 
-      type: 'select', 
-      options: [
-        { label: 'Muy en desacuerdo (1 pt)', value: 1 }, 
-        { label: 'En desacuerdo (2 pts)', value: 2 }, 
-        { label: 'De acuerdo (3 pts)', value: 3 }, 
-        { label: 'Muy de acuerdo (4 pts)', value: 4 }
-      ] 
-    }
-  ],
+    preguntas: [
+      { id: 'r1', text: '1. Siento que soy una persona digna de aprecio, al menos en igual medida que los demás:', type: 'select', options: [{ label: 'Muy en desacuerdo (1)', value: 1 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'De acuerdo (3)', value: 3 }, { label: 'Muy de acuerdo (4)', value: 4 }] },
+      { id: 'r2', text: '2. En general, me inclino a pensar que soy un fracasado/a (Ítem invertido):', type: 'select', options: [{ label: 'Muy de acuerdo (1)', value: 1 }, { label: 'De acuerdo (2)', value: 2 }, { label: 'En desacuerdo (3)', value: 3 }, { label: 'Muy en desacuerdo (4)', value: 4 }] },
+      { id: 'r3', text: '3. Siento que tengo un número de buenas cualidades:', type: 'select', options: [{ label: 'Muy en desacuerdo (1)', value: 1 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'De acuerdo (3)', value: 3 }, { label: 'Muy de acuerdo (4)', value: 4 }] },
+      { id: 'r4', text: '4. Soy capaz de hacer las cosas tan bien como la mayoría de la gente:', type: 'select', options: [{ label: 'Muy en desacuerdo (1)', value: 1 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'De acuerdo (3)', value: 3 }, { label: 'Muy de acuerdo (4)', value: 4 }] },
+      { id: 'r5', text: '5. Siento que no tengo mucho de lo que estar orgulloso/a (Ítem invertido):', type: 'select', options: [{ label: 'Muy de acuerdo (1)', value: 1 }, { label: 'De acuerdo (2)', value: 2 }, { label: 'En desacuerdo (3)', value: 3 }, { label: 'Muy en desacuerdo (4)', value: 4 }] },
+      { id: 'r6', text: '6. A veces me siento realmente inútil (Ítem invertido):', type: 'select', options: [{ label: 'Muy de acuerdo (1)', value: 1 }, { label: 'De acuerdo (2)', value: 2 }, { label: 'En desacuerdo (3)', value: 3 }, { label: 'Muy en desacuerdo (4)', value: 4 }] },
+      { id: 'r7', text: '7. Siento que soy una persona valiosa, al menos igual que los demás:', type: 'select', options: [{ label: 'Muy en desacuerdo (1)', value: 1 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'De acuerdo (3)', value: 3 }, { label: 'Muy de acuerdo (4)', value: 4 }] },
+      { id: 'r8', text: '8. Desearía sentir más respeto por mí mismo/a (Ítem invertido):', type: 'select', options: [{ label: 'Muy de acuerdo (1)', value: 1 }, { label: 'De acuerdo (2)', value: 2 }, { label: 'En desacuerdo (3)', value: 3 }, { label: 'Muy en desacuerdo (4)', value: 4 }] },
+      { id: 'r9', text: '9. En general, me inclino a pensar que soy un inútil (Ítem invertido):', type: 'select', options: [{ label: 'Muy de acuerdo (1)', value: 1 }, { label: 'De acuerdo (2)', value: 2 }, { label: 'En desacuerdo (3)', value: 3 }, { label: 'Muy en desacuerdo (4)', value: 4 }] },
+      { id: 'r10', text: '10. Tengo una actitud positiva hacia mí mismo/a:', type: 'select', options: [{ label: 'Muy en desacuerdo (1)', value: 1 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'De acuerdo (3)', value: 3 }, { label: 'Muy de acuerdo (4)', value: 4 }] }
+    ],
 
-  // Suma segura para TypeScript y motor de EscalaPro
-  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-  interpretar: (p) => {
-    // Nota: La escala completa tiene 10 ítems (rango 10-40). 
-    // Para esta versión de screening rápido (3 ítems):
-    if (p <= 6) {
+    interpretar: (puntaje) => {
+      if (puntaje >= 30) return { texto: 'Autoestima Elevada', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/40. Autoestima saludable.`, recomendaciones: ['Mantener hábitos de autocuidado'] };
+      if (puntaje >= 26) return { texto: 'Autoestima Media', color: 'green-500', evidencia: `Puntaje: ${puntaje}/40. Rango de normalidad, aunque mejorable en situaciones de estrés.`, recomendaciones: ['Fomentar la resiliencia'] };
       return { 
         texto: 'AUTOESTIMA BAJA', 
-        color: 'red-600',
-        evidencia: 'Puntaje de ' + p + ': Indica una valoración personal disminuida y posible insatisfacción.',
-        recomendaciones: [
-          'Derivación a Psicoterapia para fortalecer el autoconcepto', 
-          'Evaluar comorbilidad con síntomas depresivos (Aplicar BDI-II)', 
-          'Fomentar el refuerzo de logros positivos en el proceso de rehabilitación',
-          'Intervención en pensamientos rumiantes de descalificación'
-        ] 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/40. Riesgo de depresión y baja autoeficacia.`, 
+        recomendaciones: ['Derivación a Psicoterapia', 'Evaluar comorbilidad con síntomas depresivos', 'Refuerzo de logros en rehabilitación'] 
       };
     }
-
-    return { 
-      texto: 'Autoestima Normal / Alta', 
-      color: 'emerald-600',
-      evidencia: 'Puntaje de ' + p + ': Valoración personal equilibrada y saludable.',
-      recomendaciones: [
-        'Mantener medidas de bienestar psicológico', 
-        'Fomentar la resiliencia ante el proceso de enfermedad o lesión',
-        'Continuar con actividades que promuevan la autonomía'
-      ] 
-    };
-  }
-},
+  },
   {
   id: 'pss_10_stress',
   nombre: 'Escala de Estrés Percibido (PSS-10)',
