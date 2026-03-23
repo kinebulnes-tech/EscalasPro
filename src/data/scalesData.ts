@@ -938,34 +938,121 @@ export const scales: Scale[] = [
     }
   },
 
-  {
-    id: 'wood_downes_pediatria',
-    nombre: 'Escala Wood-Downes (Ferrés)',
+ {
+    id: 'wood_downes_ferres',
+    nombre: 'Escala Wood-Downes (Modificada por Ferrés)',
     categoria: 'pediatria',
-    descripcion: 'Evaluación de la gravedad de la crisis asmática y bronquiolitis.',
+    descripcion: 'Evaluación de la gravedad de la crisis asmática y bronquiolitis aguda (6 ítems).',
     
-    bibliografia: "Ferrés J, et al. Escala de Wood-Downes modificada. Protocolos de Neumología Pediátrica.",
+    // --- RIGOR CIENTÍFICO VERIFICADO ---
+    bibliografia: "Ferrés J, et al. Escala de Wood-Downes modificada. Protocolos de Neumología Pediátrica. Asociación Española de Pediatría.",
     referenciaUrl: "https://www.aeped.es/sites/default/files/documentos/03_bronquiolitis_aguda.pdf", 
-    evidenciaClinica: "Evalúa sibilancias, tiraje, frecuencia respiratoria, frecuencia cardíaca, ventilación y cianosis.",
+    evidenciaClinica: "Es la escala más sensible para monitorizar la respuesta al tratamiento broncodilatador. Evalúa: Sibilancias, Tiraje, FR, FC, Ventilación y Cianosis.",
 
     preguntas: [
-      { id: 'suma_bruta', text: 'Suma de puntos (6 ítems de 0-3 pts):', type: 'number', min: 0, max: 14 }
+      { 
+        id: 'sibilancias', 
+        text: '1. Sibilancias:', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (0)', value: 0 },
+          { label: 'Final de la espiración (1)', value: 1 },
+          { label: 'Toda la espiración (2)', value: 2 },
+          { label: 'Inspiración y espiración (3)', value: 3 }
+        ] 
+      },
+      { 
+        id: 'tiraje', 
+        text: '2. Tiraje (Uso de musculatura accesoria):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno (0)', value: 0 },
+          { label: 'Subcostal / Intercostal leve (1)', value: 1 },
+          { label: 'Retracción supraesternal / Alveolar (2)', value: 2 },
+          { label: 'Aleteo nasal / Tiraje generalizado (3)', value: 3 }
+        ] 
+      },
+      { 
+        id: 'fr', 
+        text: '3. Frecuencia Respiratoria (rpm):', 
+        type: 'select', 
+        options: [
+          { label: '< 30 rpm (0)', value: 0 },
+          { label: '31 - 45 rpm (1)', value: 1 },
+          { label: '46 - 60 rpm (2)', value: 2 },
+          { label: '> 60 rpm (3)', value: 3 }
+        ] 
+      },
+      { 
+        id: 'fc', 
+        text: '4. Frecuencia Cardíaca (lpm):', 
+        type: 'select', 
+        options: [
+          { label: '< 120 lpm (0)', value: 0 },
+          { label: '> 120 lpm (1)', value: 1 }
+        ] 
+      },
+      { 
+        id: 'ventilacion', 
+        text: '5. Entrada de Aire (Ventilación):', 
+        type: 'select', 
+        options: [
+          { label: 'Buena y simétrica (0)', value: 0 },
+          { label: 'Regular / Disminución leve (1)', value: 1 },
+          { label: 'Muy disminuida (2)', value: 2 },
+          { label: 'Tórax silente (3)', value: 3 }
+        ] 
+      },
+      { 
+        id: 'cianosis', 
+        text: '6. Cianosis:', 
+        type: 'select', 
+        options: [
+          { label: 'No (0)', value: 0 },
+          { label: 'Sí (1)', value: 1 }
+        ] 
+      }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.suma_bruta) || 0,
+    calcularPuntaje: (respuestas) => {
+      // Suma directa de los 6 parámetros
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
     interpretar: (puntaje) => {
       if (puntaje >= 8) return { 
-        texto: 'CRISIS MUY GRAVE', color: 'red-700', evidencia: `Puntaje: ${puntaje}. Riesgo de insuficiencia respiratoria.`,
-        recomendaciones: ['Hospitalización inmediata', 'Soporte ventilatorio / Oxígeno alto flujo', 'Manejo multidisciplinario']
+        texto: 'CRISIS MUY GRAVE / SEVERA', 
+        color: 'red-700', 
+        evidencia: `Puntaje: ${puntaje}/14. Riesgo inminente de insuficiencia respiratoria.`,
+        recomendaciones: [
+          'Hospitalización inmediata.',
+          'Oxigenoterapia para mantener SatO2 > 94%.',
+          'Nebulización con broncodilatadores y corticoides sistémicos.',
+          'Evaluar necesidad de soporte ventilatorio (VNI o VMI).'
+        ]
       };
+      
       if (puntaje >= 4) return { 
-        texto: 'CRISIS MODERADA', color: 'orange-500', evidencia: `Puntaje: ${puntaje}.`,
-        recomendaciones: ['Rescate farmacológico en centro asistencial', 'Monitoreo de saturación constante']
+        texto: 'CRISIS MODERADA', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/14. Obstrucción bronquial significativa.`,
+        recomendaciones: [
+          'Tratamiento de rescate con Salbutamol (MDI con aerocámara).',
+          'Monitoreo clínico estrecho cada 20-30 minutos.',
+          'Considerar administración de corticoides orales.',
+          'Evaluar criterios de ingreso hospitalario si no mejora tras 1 hora.'
+        ]
       };
+
       return { 
-        texto: 'CRISIS LEVE', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}.`, 
-        recomendaciones: ['Tratamiento inhalatorio de rescate', 'Control por su equipo de cabecera'] 
+        texto: 'CRISIS LEVE', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/14. El paciente mantiene buena ventilación.`, 
+        recomendaciones: [
+          'Tratamiento inhalatorio en domicilio.',
+          'Educación a los padres sobre signos de alarma y técnica inhalatoria.',
+          'Control médico y kinésico ambulatorio.'
+        ] 
       };
     }
   },
