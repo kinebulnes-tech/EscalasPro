@@ -2431,37 +2431,201 @@ export const scales: Scale[] = [
 
   {
     id: 'kujala_knee_pain',
-    nombre: 'Escala de Kujala',
+    nombre: 'Escala de Kujala (Dolor Anterior de Rodilla)',
     categoria: 'traumatologia',
-    descripcion: 'Evaluación específica para el dolor anterior de rodilla y la disfunción patelofemoral.',
+    descripcion: 'Evaluación específica para el dolor anterior de rodilla y la disfunción patelofemoral (13 ítems).',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8013141) ---
-    bibliografia: "Kujala UM, et al. Scoring of patellofemoral disorders. Arthroscopy. 1993.",
+    bibliografia: "Kujala UM, et al. Scoring of patellofemoral disorders. Arthroscopy. 1993;9(2):159-63.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8424870/", 
     evidenciaClinica: "Puntaje de 0 a 100. Es altamente sensible para detectar cambios en la carga de la articulación patelofemoral durante actividades como subir escaleras o estar sentado mucho tiempo.",
 
     preguntas: [
-      { id: 'suma_total', text: 'Suma total de los 13 ítems (Puntaje bruto 0-100):', type: 'number', min: 0, max: 100 }
+      { 
+        id: 'p1', 
+        text: '1. Cojera (Marcha):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (5)', value: 5 },
+          { label: 'Leve o periódica (3)', value: 3 },
+          { label: 'Constante (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p2', 
+        text: '2. Soporte de peso (Carga):', 
+        type: 'select', 
+        options: [
+          { label: 'Normal (5)', value: 5 },
+          { label: 'Dificultad con el peso (3)', value: 3 },
+          { label: 'Imposible cargar peso (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p3', 
+        text: '3. Caminar:', 
+        type: 'select', 
+        options: [
+          { label: 'Ilimitado (5)', value: 5 },
+          { label: 'Más de 2 km (3)', value: 3 },
+          { label: 'Entre 1-2 km (2)', value: 2 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p4', 
+        text: '4. Subir escaleras:', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dificultad (10)', value: 10 },
+          { label: 'Dolor leve (8)', value: 8 },
+          { label: 'Dolor severo (5)', value: 5 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p5', 
+        text: '5. Agacharse (Sentadillas):', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dificultad (10)', value: 10 },
+          { label: 'Dolor tras varias repeticiones (8)', value: 8 },
+          { label: 'Dolor en la primera repetición (6)', value: 6 },
+          { label: 'Dificultad parcial (4)', value: 4 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p6', 
+        text: '6. Correr:', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dificultad (10)', value: 10 },
+          { label: 'Dolor tras correr una distancia (8)', value: 8 },
+          { label: 'Dolor leve al empezar (6)', value: 6 },
+          { label: 'Dolor severo (4)', value: 4 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p7', 
+        text: '7. Saltar:', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dificultad (10)', value: 10 },
+          { label: 'Dolor leve (7)', value: 7 },
+          { label: 'Dolor severo (2)', value: 2 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p8', 
+        text: '8. Estar sentado mucho tiempo (Rodilla flexionada):', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dolor (10)', value: 10 },
+          { label: 'Dolor tras mucho tiempo (7)', value: 7 },
+          { label: 'Dolor frecuente (2)', value: 2 },
+          { label: 'Imposible (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p9', 
+        text: '9. Dolor:', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno (10)', value: 10 },
+          { label: 'Leve al realizar actividad física (8)', value: 8 },
+          { label: 'Dolor que interfiere con el sueño (6)', value: 6 },
+          { label: 'Ocasional en reposo (4)', value: 4 },
+          { label: 'Constante y severo (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p10', 
+        text: '10. Hinchazón (Edema):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (10)', value: 10 },
+          { label: 'Tras esfuerzos intensos (8)', value: 8 },
+          { label: 'Tras esfuerzos habituales (6)', value: 6 },
+          { label: 'Ocasional en reposo (4)', value: 4 },
+          { label: 'Constante (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p11', 
+        text: '11. Movimientos anormales de la rótula (Subluxaciones):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno (10)', value: 10 },
+          { label: 'Ocasional en actividad (6)', value: 6 },
+          { label: 'Subluxación previa (4)', value: 4 },
+          { label: 'Frecuente / Inestable (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p12', 
+        text: '12. Atrofia de cuádriceps (Diferencia visual):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (5)', value: 5 },
+          { label: 'Leve (3)', value: 3 },
+          { label: 'Severa (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p13', 
+        text: '13. Flexión limitada (Rango de movimiento):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (5)', value: 5 },
+          { label: 'Leve (3)', value: 3 },
+          { label: 'Severa (0)', value: 0 }
+        ] 
+      }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.suma_total) || 0,
+    calcularPuntaje: (respuestas) => {
+      // Suma directa de los valores asignados a cada respuesta seleccionada
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje) => {
       if (puntaje >= 90) return { 
-        texto: 'FUNCIÓN EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, 
-        recomendaciones: ['Retorno progresivo a carrera/impacto', 'Mantener fortalecimiento de vasto medial y glúteo medio'] 
+        texto: 'FUNCIÓN EXCELENTE', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Articulación estable con mínima o nula sintomatología.`, 
+        recomendaciones: [
+          'Retorno progresivo a actividades de alto impacto.',
+          'Mantener fortalecimiento de vasto medial oblicuo (VMO) y glúteo medio.',
+          'Control preventivo semestral.'
+        ] 
       };
       if (puntaje >= 65) return { 
-        texto: 'DISFUNCIÓN MODERADA', color: 'orange-500', evidencia: `${puntaje}/100 puntos.`, 
-        recomendaciones: ['Controlar volumen de carga', 'Kinesioterapia: Terapia manual y corrección biomecánica', 'Evaluar uso de vendaje neuromuscular o brace'] 
+        texto: 'DISFUNCIÓN MODERADA', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Limitación funcional en actividades de carga o flexión mantenida.`, 
+        recomendaciones: [
+          'Controlar el volumen de carga semanal (evitar sobreuso).',
+          'Kinesioterapia: Terapia manual rotuliana y corrección biomecánica.',
+          'Evaluar el uso de vendaje neuromuscular (Kinesiotape) o rodillera de centraje rotuliano.',
+          'Fortalecimiento en rangos indoloros.'
+        ] 
       };
       return { 
-        texto: 'DISFUNCIÓN SEVERA', color: 'red-600', evidencia: `${puntaje}/100 puntos.`, 
-        recomendaciones: ['Reposo relativo de actividades de impacto', 'Evaluación médica: descartar condromalacia severa o malalineación'] 
+        texto: 'DISFUNCIÓN SEVERA', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Grave compromiso de la funcionalidad patelofemoral.`, 
+        recomendaciones: [
+          'Reposo relativo de actividades de impacto y saltos.',
+          'Evaluación médica para descartar condromalacia severa o malalineación ósea.',
+          'Iniciar ejercicios isométricos de cuádriceps para analgesia.',
+          'Manejo de la inflamación activa (agentes físicos).'
+        ] 
       };
     }
   },
-
   {
     id: 'visa_a_aquiles',
     nombre: 'Escala VISA-A',
