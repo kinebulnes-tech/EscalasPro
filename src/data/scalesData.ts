@@ -9762,102 +9762,101 @@ export const scales: Scale[] = [
     }
   },
   {
-  id: 'audit_test_alcohol',
-  nombre: 'Test AUDIT (Cribado de Alcohol)',
-  categoria: 'psicologia',
-  descripcion: 'Identificación de trastornos por consumo de alcohol y patrones de riesgo.',
-  
-  // --- JUSTIFICACIÓN ACADÉMICA (RIGOR CIENTÍFICO) ---
-  bibliografia: "Babor TF, et al. AUDIT: The Alcohol Use Disorders Identification Test: Guidelines for Use in Primary Health Care. World Health Organization; 2001.",
-  referenciaUrl: "https://www.who.int/publications/i/item/WHO-MSB-01.6a", // ✅ FUENTE OFICIAL OMS
-  evidenciaClinica: "El AUDIT es el instrumento de tamizaje más utilizado a nivel mundial para detectar consumo de riesgo, perjudicial y dependencia. Su aplicación temprana permite realizar intervenciones breves efectivas antes del desarrollo de patologías crónicas.",
+    id: 'audit_c_sexo_especifico',
+    nombre: 'Test AUDIT-C (Diferenciado por Sexo)',
+    categoria: 'psicologia',
+    descripcion: 'Versión corta de 3 ítems para tamizaje de consumo de alcohol con puntos de corte ajustados para hombres y mujeres.',
+    
+    // --- RIGOR CIENTÍFICO VERIFICADO (OMS / MINSAL Chile) ---
+    bibliografia: "Bush K, et al. The AUDIT alcohol consumption questions (AUDIT-C). Arch Intern Med. 1998;158(16):1789-95.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9738608/",
+    evidenciaClinica: "El AUDIT-C es altamente sensible. Los puntos de corte en Chile (MINSAL) son ≥ 4 para hombres y ≥ 3 para mujeres para definir consumo de riesgo.",
 
-  preguntas: [
-    { 
-      id: 'frecuencia', 
-      text: '1. ¿Con qué frecuencia consume bebidas alcohólicas?', 
-      type: 'select', 
-      options: [
-        { label: 'Nunca (0 pts)', value: 0 }, 
-        { label: '1 o menos veces al mes (1 pt)', value: 1 }, 
-        { label: '2 a 4 veces al mes (2 pts)', value: 2 }, 
-        { label: '2 a 3 veces a la semana (3 pts)', value: 3 }, 
-        { label: '4 o más veces a la semana (4 pts)', value: 4 }
-      ] 
+    preguntas: [
+      { 
+        id: 'sexo', 
+        text: 'Sexo del paciente:', 
+        type: 'select', 
+        options: [
+          { label: 'Hombre', value: 1 },
+          { label: 'Mujer', value: 2 }
+        ] 
+      },
+      { 
+        id: 'frecuencia', 
+        text: '1. ¿Con qué frecuencia consume bebidas alcohólicas?', 
+        type: 'select', 
+        options: [
+          { label: 'Nunca (0)', value: 0 }, 
+          { label: '1 o menos veces al mes (1)', value: 1 }, 
+          { label: '2 a 4 veces al mes (2)', value: 2 }, 
+          { label: '2 a 3 veces a la semana (3)', value: 3 }, 
+          { label: '4 o más veces a la semana (4)', value: 4 }
+        ] 
+      },
+      { 
+        id: 'cantidad', 
+        text: '2. ¿Cuántos tragos o copas suele tomar en un día de consumo normal?', 
+        type: 'select', 
+        options: [
+          { label: '1 o 2 (0)', value: 0 }, 
+          { label: '3 o 4 (1)', value: 1 }, 
+          { label: '5 o 6 (2)', value: 2 }, 
+          { label: '7 a 9 (3)', value: 3 }, 
+          { label: '10 o más (4)', value: 4 }
+        ] 
+      },
+      { 
+        id: 'intensivo', 
+        text: '3. ¿Con qué frecuencia toma 5 (mujer) / 6 (hombre) o más copas en una sola ocasión?', 
+        type: 'select', 
+        options: [
+          { label: 'Nunca (0)', value: 0 }, 
+          { label: 'Menos de una vez al mes (1)', value: 1 }, 
+          { label: 'Mensualmente (2)', value: 2 }, 
+          { label: 'Semanalmente (3)', value: 3 }, 
+          { label: 'A diario o casi a diario (4)', value: 4 }
+        ] 
+      }
+    ],
+
+    calcularPuntaje: (respuestas) => {
+      // Suma solo los ítems de consumo (frecuencia, cantidad, intensivo)
+      return (Number(respuestas.frecuencia) || 0) + 
+             (Number(respuestas.cantidad) || 0) + 
+             (Number(respuestas.intensivo) || 0);
     },
-    { 
-      id: 'cantidad', 
-      text: '2. ¿Cuántos tragos o copas suele tomar en un día de consumo normal?', 
-      type: 'select', 
-      options: [
-        { label: '1 o 2 (0 pts)', value: 0 }, 
-        { label: '3 o 4 (1 pt)', value: 1 }, 
-        { label: '5 o 6 (2 pts)', value: 2 }, 
-        { label: '7 a 9 (3 pts)', value: 3 }, 
-        { label: '10 o más (4 pts)', value: 4 }
-      ] 
-    },
-    { 
-      id: 'intensivo', 
-      text: '3. ¿Con qué frecuencia toma 6 o más copas en una sola ocasión?', 
-      type: 'select', 
-      options: [
-        { label: 'Nunca (0 pts)', value: 0 }, 
-        { label: 'Menos de una vez al mes (1 pt)', value: 1 }, 
-        { label: 'Mensualmente (2 pts)', value: 2 }, 
-        { label: 'Semanalmente (3 pts)', value: 3 }, 
-        { label: 'A diario o casi a diario (4 pts)', value: 4 }
-      ] 
+
+    interpretar: (puntaje, respuestas) => {
+      const sexo = Number(respuestas?.sexo) || 1;
+      // Definición de punto de corte: Hombre >= 4, Mujer >= 3
+      const esRiesgo = (sexo === 1 && puntaje >= 4) || (sexo === 2 && puntaje >= 3);
+
+      if (esRiesgo) {
+        return { 
+          texto: 'CONSUMO DE RIESGO DETECTADO', 
+          color: 'red-600',
+          evidencia: `Puntaje: ${puntaje}. Supera el umbral de seguridad para ${sexo === 1 ? 'Hombres (≥4)' : 'Mujeres (≥3)'}.`,
+          recomendaciones: [
+            'Realizar Intervención Breve (Consejería motivacional de 5 min).',
+            'Entregar material educativo sobre límites de consumo.',
+            'Evaluar impacto en la patología actual (ej: interacción con fármacos o sueño).',
+            'Si el puntaje es > 6, aplicar AUDIT completo (10 ítems) para evaluar dependencia.'
+          ] 
+        };
+      }
+
+      return { 
+        texto: 'Consumo de Bajo Riesgo', 
+        color: 'emerald-600',
+        evidencia: `Puntaje: ${puntaje}. Se encuentra dentro de los rangos de bajo impacto para su sexo.`,
+        recomendaciones: [
+          'Felicitar y reforzar el mantenimiento de este patrón.',
+          'Re-evaluar anualmente en el control preventivo.'
+        ] 
+      };
     }
-  ],
-
-  calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
-
-  interpretar: (p) => {
-    if (p <= 7) return { 
-      texto: 'Consumo de Bajo Riesgo', 
-      color: 'emerald-600',
-      evidencia: 'Puntaje de ' + p + ': Patrón de consumo dentro de límites de bajo impacto sistémico.',
-      recomendaciones: [
-        'Educación sobre límites de consumo seguro (Guías de la OMS)', 
-        'Mantener vigilancia en pacientes con medicación fotosensible o hepatotóxica'
-      ] 
-    };
-
-    if (p <= 15) return { 
-      texto: 'Consumo de Riesgo', 
-      color: 'yellow-500',
-      evidencia: 'Puntaje de ' + p + ': Nivel de consumo que aumenta la probabilidad de consecuencias adversas.',
-      recomendaciones: [
-        'Realizar Intervención Breve (Consejería de 5-10 minutos)', 
-        'Entrega de material educativo sobre riesgos a la salud física y mental',
-        'Establecer metas de reducción de consumo'
-      ] 
-    };
-
-    if (p <= 19) return { 
-      texto: 'Consumo Perjudicial', 
-      color: 'orange-600',
-      evidencia: 'Puntaje de ' + p + ': Patrón de consumo que ya está causando daño físico o psíquico.',
-      recomendaciones: [
-        'Derivación a programa especializado de alcohol y drogas', 
-        'Seguimiento médico estrecho para evaluar función hepática',
-        'Evaluación de comorbilidad psiquiátrica'
-      ] 
-    };
-
-    return { 
-      texto: 'PROBABLE DEPENDENCIA', 
-      color: 'red-600',
-      evidencia: 'Puntaje de ' + p + ': Alta probabilidad de síndrome de dependencia al alcohol.',
-      recomendaciones: [
-        'Derivación URGENTE a especialista (Psiquiatría / Centros de Tratamiento de Adicciones)', 
-        'Manejo y vigilancia de síndrome de abstinencia si aplica',
-        'Apoyo familiar y social intensivo'
-      ] 
-    };
-  }
-},
+  },
   {
   id: 'dast_10_drogas',
   nombre: 'Test DAST-10',
