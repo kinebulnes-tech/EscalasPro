@@ -809,51 +809,79 @@ export const scales: Scale[] = [
   },
 
    {
-    id: 'mchat_autismo',
-    nombre: 'M-CHAT-R/F',
+    id: 'mchat_autismo_completo',
+    nombre: 'M-CHAT-R/F (Cuestionario de Autismo)',
     categoria: 'pediatria',
-    descripcion: 'Cuestionario revisado de detección de autismo en niños pequeños.',
+    descripcion: 'Tamizaje para Trastorno del Espectro Autista en niños de 16 a 30 meses. Versión completa de 20 ítems.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 24366990) ---
-    bibliografia: "Robins DL, et al. Validation of the Modified Checklist for Autism in Toddlers, Revised with Follow-up (M-CHAT-R/F). Pediatrics. 2014.",
+    bibliografia: "Robins DL, Casagrande K, Barton M, Chen CM, Dumont-Mathieu T, Fein D. Validation of the Modified Checklist for Autism in Toddlers, Revised with Follow-up (M-CHAT-R/F). Pediatrics. 2014;133(1):37-45.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/24366990/",
-    evidenciaClinica: "Herramienta de detección, no diagnóstica. Un puntaje ≥ 3 requiere seguimiento o derivación según el nivel de riesgo.",
+    evidenciaClinica: "Herramienta de detección temprana. Un puntaje total de 0-2 es bajo riesgo, 3-7 riesgo medio y 8-20 riesgo alto. Las respuestas de riesgo varían según la pregunta.",
 
     preguntas: [
-      { id: 'suma_riesgo', text: 'Número total de respuestas de RIESGO (0 a 20):', type: 'number', min: 0, max: 20 }
+      // Lógica: value 1 representa RESPUESTA DE RIESGO, value 0 representa NORMALIDAD
+      { id: 'p1', text: '1. Si usted señala algo al otro lado de la habitación, ¿su hijo/a lo mira? (Ej: un juguete o un animal):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p2', text: '2. ¿Alguna vez se ha preguntado si su hijo/a es sordo/a?:', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'p3', text: '3. ¿Su hijo/a juega juegos de fantasía o imaginación? (Ej: beber de una taza vacía, hablar por teléfono):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p4', text: '4. ¿A su hijo/a le gusta subirse a las cosas? (Ej: muebles, juegos en el parque):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p5', text: '5. ¿Hace su hijo/a movimientos inusuales con los dedos cerca de sus ojos?:', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'p6', text: '6. ¿Su hijo/a señala con un dedo para pedir algo o para pedir ayuda? (Ej: señalar un juguete fuera de su alcance):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p7', text: '7. ¿Su hijo/a señala con un dedo para mostrarle algo interesante? (Ej: señalar un avión o un camión):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p8', text: '8. ¿Su hijo/a se interesa por otros niños? (Ej: los mira, les sonríe o se les acerca):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p9', text: '9. ¿Su hijo/a le muestra cosas trayéndolas hacia usted o sosteniéndolas para que usted las vea?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p10', text: '10. ¿Responde su hijo/a cuando usted lo/a llama por su nombre? (Ej: lo mira, habla o deja lo que está haciendo):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p11', text: '11. Cuando usted le sonríe a su hijo/a, ¿él/ella le devuelve la sonrisa?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p12', text: '12. ¿Le molestan a su hijo/a ruidos cotidianos? (Ej: la aspiradora o la música fuerte):', type: 'select', options: [{ label: 'Sí', value: 1 }, { label: 'No', value: 0 }] },
+      { id: 'p13', text: '13. ¿Su hijo/a camina?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p14', text: '14. ¿Su hijo/a le mira a los ojos cuando usted le habla, juega con él/ella o lo/a viste?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p15', text: '15. ¿Su hijo/a intenta imitar lo que usted hace? (Ej: decir adiós con la mano, aplaudir):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p16', text: '16. Si usted gira la cabeza para mirar algo, ¿su hijo/a gira la cabeza para ver qué está mirando usted?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p17', text: '17. ¿Su hijo/a intenta que usted lo/a mire? (Ej: lo busca para que lo felicite o dice "mira"):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p18', text: '18. ¿Entiende su hijo/a cuando usted le dice que haga algo? (Ej: "pon el libro en la mesa"):', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p19', text: '19. Si pasa algo inusual, ¿su hijo/a le mira la cara para ver cómo reacciona usted?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] },
+      { id: 'p20', text: '20. ¿A su hijo/a le gusta que lo/a balanceen o que lo/a hagan saltar sobre sus rodillas?:', type: 'select', options: [{ label: 'Sí', value: 0 }, { label: 'No', value: 1 }] }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.suma_riesgo) || 0,
+    calcularPuntaje: (respuestas) => {
+      // Suma de todas las respuestas de riesgo marcadas
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje) => {
       if (puntaje >= 8) return { 
-        texto: 'RIESGO ALTO', color: 'red-600', evidencia: `Puntaje: ${puntaje}/20.`,
+        texto: 'RIESGO ALTO', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/20. El resultado sugiere una alta probabilidad de TEA.`,
         recomendaciones: [
-          'Derivación INMEDIATA para evaluación diagnóstica TEA',
-          'Evaluación de audición (Audiometría/BERA)',
-          'Entrevista con especialista en neurodesarrollo',
-          'No esperar para iniciar intervención temprana'
+          'Derivación inmediata a neurólogo infantil y psiquiatra infantil.',
+          'Evaluación por fonoaudiología y terapia ocupacional.',
+          'Realizar pruebas de audición (Audiometría/BERA) para descartar hipoacusia.',
+          'No esperar a un diagnóstico definitivo para iniciar intervención temprana.'
         ]
       };
       if (puntaje >= 3) return { 
-        texto: 'RIESGO MEDIO', color: 'orange-500', evidencia: `Puntaje: ${puntaje}/20.`,
+        texto: 'RIESGO MEDIO', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/20. Riesgo moderado detectado.`,
         recomendaciones: [
-          'Aplicar la Entrevista de Seguimiento (Follow-Up)',
-          'Si el seguimiento arroja puntaje ≥ 2, derivar a especialista',
-          'Observación estrecha de hitos de comunicación social'
+          'Aplicar la Entrevista de Seguimiento (Follow-Up) para los ítems de riesgo.',
+          'Si el puntaje se mantiene ≥ 2 en el seguimiento, derivar a especialista.',
+          'Observación estrecha de hitos de comunicación social en 3 meses.'
         ]
       };
       return { 
-        texto: 'RIESGO BAJO', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/20.`,
+        texto: 'RIESGO BAJO', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/20. Desarrollo dentro de los parámetros esperados en este tamizaje.`,
         recomendaciones: [
-          'No se requiere acción inmediata si el desarrollo es normal',
-          'Si el niño tiene < 24 meses, repetir tamizaje a los 2 años',
-          'Mantener vigilancia de hitos sociales habituales'
+          'Mantener controles sanos habituales.',
+          'Si el niño/a es menor de 24 meses, repetir este tamizaje a los 2 años.',
+          'Educar a los padres sobre hitos del desarrollo normales.'
         ] 
       };
     }
   },
-
   {
     id: 'score_tal_pediatria',
     nombre: 'Score de Tal (SBO)',
