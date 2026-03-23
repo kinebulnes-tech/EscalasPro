@@ -2346,33 +2346,178 @@ export const scales: Scale[] = [
     id: 'harris_hip_score',
     nombre: 'Harris Hip Score (HHS)',
     categoria: 'traumatologia',
-    descripcion: 'Evaluación funcional de la cadera que mide dolor, función, ausencia de deformidad y rango de movimiento.',
+    descripcion: 'Evaluación clínica y funcional de la cadera. Incluye dolor, función, deformidad y rango de movimiento.',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 5788441) ---
-    bibliografia: "Harris WH. Traumatic arthritis of the hip after dislocation and acetabular fractures. J Bone Joint Surg Am. 1969.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/5788441/", 
-    evidenciaClinica: "Puntaje máximo de 100. Un resultado < 70 se considera un fallo clínico en el postoperatorio de prótesis de cadera.",
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 5783851) ---
+    bibliografia: "Harris WH. Traumatic arthritis of the hip after dislocation and acetabular fractures: treatment by mold arthroplasty. J Bone Joint Surg Am. 1969;51(4):737-55.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/5783851/",
+    evidenciaClinica: "Puntaje máximo de 100. Es la escala más utilizada para evaluar resultados post-quirúrgicos de cadera. Un resultado < 70 se considera pobre.",
 
     preguntas: [
-      { id: 'dolor', text: 'Dolor (0: Intenso - 44: Ninguno):', type: 'number', min: 0, max: 44 },
-      { id: 'funcion_marcha', text: 'Función - Marcha (0: Incapaz - 33: Normal):', type: 'number', min: 0, max: 33 },
-      { id: 'actividades', text: 'Actividades diarias (0: Incapaz - 14: Sin problemas):', type: 'number', min: 0, max: 14 },
-      { id: 'examen_fisico', text: 'Examen Físico (Deformidad/Rango) (0-9 pts):', type: 'number', min: 0, max: 9 }
+      // SECCIÓN I: DOLOR (44 Puntos máx)
+      { 
+        id: 'p1', 
+        text: '1. Dolor:', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno / Ignorable (44)', value: 44 },
+          { label: 'Leve, ocasional, no limita actividad (40)', value: 40 },
+          { label: 'Leve, no afecta AVD, analgésicos ocasionales (30)', value: 30 },
+          { label: 'Moderado, tolerable, limita algo la actividad (20)', value: 20 },
+          { label: 'Marcado, limitación severa de actividad (10)', value: 10 },
+          { label: 'Totalmente incapacitante (0)', value: 0 }
+        ] 
+      },
+      // SECCIÓN II: FUNCIÓN - Marcha (33 Puntos máx)
+      { 
+        id: 'p2', 
+        text: '2. Cojera:', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna (11)', value: 11 },
+          { label: 'Leve (8)', value: 8 },
+          { label: 'Moderada (5)', value: 5 },
+          { label: 'Severa / Constante (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p3', 
+        text: '3. Apoyo (Uso de bastón/muletas):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno (11)', value: 11 },
+          { label: 'Bastón para largas caminatas (7)', value: 7 },
+          { label: 'Bastón la mayor parte del tiempo (5)', value: 5 },
+          { label: 'Una muleta (3)', value: 3 },
+          { label: 'Dos bastones (2)', value: 2 },
+          { label: 'Dos muletas / No puede caminar (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p4', 
+        text: '4. Distancia caminada:', 
+        type: 'select', 
+        options: [
+          { label: 'Ilimitada (11)', value: 11 },
+          { label: '6 cuadras / 30 min (8)', value: 8 },
+          { label: '2 a 3 cuadras (5)', value: 5 },
+          { label: 'Solo en casa (2)', value: 2 },
+          { label: 'Cama / Silla (0)', value: 0 }
+        ] 
+      },
+      // ACTIVIDADES DIARIAS (14 Puntos máx)
+      { 
+        id: 'p5', 
+        text: '5. Escaleras:', 
+        type: 'select', 
+        options: [
+          { label: 'Normal sin pasamanos (4)', value: 4 },
+          { label: 'Normal usando pasamanos (2)', value: 2 },
+          { label: 'De cualquier manera (1)', value: 1 },
+          { label: 'Incapaz (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p6', 
+        text: '6. Calcetines y zapatos:', 
+        type: 'select', 
+        options: [
+          { label: 'Con facilidad (4)', value: 4 },
+          { label: 'Con dificultad (2)', value: 2 },
+          { label: 'Incapaz (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p7', 
+        text: '7. Sentarse:', 
+        type: 'select', 
+        options: [
+          { label: 'Cómodo en cualquier silla (5)', value: 5 },
+          { label: 'En silla alta por 30 min (3)', value: 3 },
+          { label: 'Incapaz de estar sentado cómodo (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p8', 
+        text: '8. Transporte público (Entrar/Salir):', 
+        type: 'select', 
+        options: [
+          { label: 'Capaz (1)', value: 1 },
+          { label: 'Incapaz (0)', value: 0 }
+        ] 
+      },
+      // EXAMEN FÍSICO (9 Puntos máx)
+      { 
+        id: 'p9', 
+        text: '9. Ausencia de deformidad (Flexión fija <30°, aducción <10°, rot. interna <10°, dismetría <3.2cm):', 
+        type: 'select', 
+        options: [
+          { label: 'Cumple todas las anteriores (4)', value: 4 },
+          { label: 'Presenta alguna deformidad (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p10', 
+        text: '10. Rango de movimiento (Suma de grados):', 
+        type: 'select', 
+        options: [
+          { label: 'Movilidad > 211° (5)', value: 5 },
+          { label: 'Movilidad 161° - 210° (4)', value: 4 },
+          { label: 'Movilidad 101° - 160° (3)', value: 3 },
+          { label: 'Movilidad 61° - 100° (2)', value: 2 },
+          { label: 'Movilidad 31° - 60° (1)', value: 1 },
+          { label: 'Movilidad < 30° (0)', value: 0 }
+        ] 
+      }
     ],
 
     calcularPuntaje: (respuestas) => {
-      return (Number(respuestas.dolor) || 0) + (Number(respuestas.funcion_marcha) || 0) + 
-             (Number(respuestas.actividades) || 0) + (Number(respuestas.examen_fisico) || 0);
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
     },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 90) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Alta hospitalaria/seguimiento anual', 'Mantener actividad física'] };
-      if (puntaje >= 80) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Kinesioterapia ambulatoria', 'Entrenamiento de marcha'] };
-      if (puntaje >= 70) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Re-evaluación médica', 'Fortalecimiento de abductores'] };
-      return { texto: 'POBRE / DEFICIENTE', color: 'red-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Evaluación quirúrgica: Sospecha de aflojamiento o falla de prótesis'] };
+    interpretar: (puntaje) => {
+      if (puntaje >= 90) return { 
+        texto: 'RESULTADO EXCELENTE', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Alta funcionalidad y ausencia de dolor significativo.`, 
+        recomendaciones: [
+          'Mantener actividad física de bajo impacto.',
+          'Ejercicios de fortalecimiento de glúteo medio.',
+          'Control radiográfico anual según indicación médica.'
+        ] 
+      };
+      if (puntaje >= 80) return { 
+        texto: 'RESULTADO BUENO', 
+        color: 'green-500', 
+        evidencia: `Puntaje: ${puntaje}/100. El paciente es funcional con mínimas restricciones.`, 
+        recomendaciones: [
+          'Kinesioterapia: Mejorar rangos finales de movimiento.',
+          'Pautas de higiene articular para evitar luxación (si hay prótesis).',
+          'Acondicionamiento físico general.'
+        ] 
+      };
+      if (puntaje >= 70) return { 
+        texto: 'RESULTADO REGULAR', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Existen limitaciones perceptibles en la marcha o AVD.`, 
+        recomendaciones: [
+          'Reforzar protocolo de rehabilitación motora.',
+          'Evaluar necesidad de analgésicos o antiinflamatorios.',
+          'Revisar longitud de extremidades y calzado.'
+        ] 
+      };
+      return { 
+        texto: 'RESULTADO POBRE', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Falla funcional o dolor severo.`, 
+        recomendaciones: [
+          'Evaluación traumatológica prioritaria.',
+          'Descartar aflojamiento, infección o impingement.',
+          'Uso estricto de ayudas técnicas para la marcha.'
+        ] 
+      };
     }
   },
-
   {
     id: 'aofas_tobillo_pie',
     nombre: 'Escala AOFAS (Tobillo y Retropié)',
