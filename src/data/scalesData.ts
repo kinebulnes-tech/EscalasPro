@@ -1764,33 +1764,100 @@ export const scales: Scale[] = [
 
   {
     id: 'dash_miembro_superior',
-    nombre: 'Cuestionario DASH',
+    nombre: 'Cuestionario DASH (Completo)',
     categoria: 'traumatologia',
-    descripcion: 'Mide la capacidad física y síntomas en personas con trastornos músculo-esqueléticos del miembro superior.',
+    descripcion: 'Disabilities of the Arm, Shoulder and Hand. Evaluación de síntomas y capacidad física en trastornos de extremidad superior (30 ítems).',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10471018) ---
-    bibliografia: "Hudak PL, et al. Development of the Upper Extremity Disabilities of the Arm, Shoulder and Hand (DASH) outcome measure. Am J Ind Med. 1996.",
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8604687) ---
+    bibliografia: "Hudak PL, Amadio PC, Bombardier C. Development of the Upper Extremity Disabilities of the Arm, Shoulder and Hand (DASH) outcome measure. Am J Ind Med. 1996.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8604687/",
-    evidenciaClinica: "Un cambio de 10 puntos en la escala DASH se considera clínicamente significativo (MCID).",
+    evidenciaClinica: "Es la herramienta más validada para miembro superior. Un cambio de 10 puntos se considera clínicamente significativo (MCID). El puntaje varía de 0 (sin discapacidad) a 100 (discapacidad máxima).",
 
     preguntas: [
-      { id: 'suma_items', text: 'Suma de los 30 ítems (cada uno de 1 a 5):', type: 'number' }
+      // SECCIÓN ACTIVIDADES (1-21)
+      { id: 'p1', text: '1. Abrir un frasco nuevo o muy apretado:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p2', text: '2. Escribir:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p3', text: '3. Girar una llave:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p4', text: '4. Preparar una comida:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p5', text: '5. Empujar y abrir una puerta pesada:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p6', text: '6. Colocar un objeto en un estante sobre su cabeza:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p7', text: '7. Hacer tareas domésticas pesadas (ej. fregar pisos):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p8', text: '8. Hacer trabajos de jardín o huerta:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p9', text: '9. Hacer la cama:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p10', text: '10. Cargar una bolsa de compras pesada o maletín:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p11', text: '11. Llevar un objeto pesado (más de 5 kg):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p12', text: '12. Cambiar una bombilla de luz sobre su cabeza:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p13', text: '13. Lavarse o secarse la espalda:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p14', text: '14. Ponerse una prenda de vestir que se introduce por la cabeza:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p15', text: '15. Lavar platos o cubiertos:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p16', text: '16. Actividades recreativas que requieren poco esfuerzo (ej. cartas):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p17', text: '17. Actividades que requieren impacto (ej. martillar, tenis):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p18', text: '18. Actividades donde mueve el brazo libremente (ej. nadar):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p19', text: '19. Transporte/Caminar (debido al brazo, hombro o mano):', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p20', text: '20. Actividad sexual:', type: 'select', options: [{ label: 'Sin dificultad (1)', value: 1 }, { label: 'Dificultad leve (2)', value: 2 }, { label: 'Dificultad moderada (3)', value: 3 }, { label: 'Dificultad severa (4)', value: 4 }, { label: 'Incapaz (5)', value: 5 }] },
+      { id: 'p21', text: '21. Capacidad social (compartir con familiares o amigos):', type: 'select', options: [{ label: 'Nada (1)', value: 1 }, { label: 'Un poco (2)', value: 2 }, { label: 'Moderadamente (3)', value: 3 }, { label: 'Mucho (4)', value: 4 }, { label: 'Extremadamente (5)', value: 5 }] },
+      
+      // SECCIÓN SÍNTOMAS E IMPACTO (22-30)
+      { id: 'p22', text: '22. ¿En qué medida el problema ha interferido con su trabajo u otras actividades diarias?', type: 'select', options: [{ label: 'Nada (1)', value: 1 }, { label: 'Un poco (2)', value: 2 }, { label: 'Moderadamente (3)', value: 3 }, { label: 'Mucho (4)', value: 4 }, { label: 'Extremadamente (5)', value: 5 }] },
+      { id: 'p23', text: '23. Dolor en el brazo, hombro o mano:', type: 'select', options: [{ label: 'Ninguno (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderado (3)', value: 3 }, { label: 'Severo (4)', value: 4 }, { label: 'Extremo (5)', value: 5 }] },
+      { id: 'p24', text: '24. Dolor al realizar una actividad específica:', type: 'select', options: [{ label: 'Ninguno (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderado (3)', value: 3 }, { label: 'Severo (4)', value: 4 }, { label: 'Extremo (5)', value: 5 }] },
+      { id: 'p25', text: '25. Hormigueo (pinchazos) en brazo, hombro o mano:', type: 'select', options: [{ label: 'Ninguno (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderado (3)', value: 3 }, { label: 'Severo (4)', value: 4 }, { label: 'Extremo (5)', value: 5 }] },
+      { id: 'p26', text: '26. Debilidad en el brazo, hombro o mano:', type: 'select', options: [{ label: 'Ninguna (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderada (3)', value: 3 }, { label: 'Severa (4)', value: 4 }, { label: 'Extrema (5)', value: 5 }] },
+      { id: 'p27', text: '27. Rigidez en el brazo, hombro o mano:', type: 'select', options: [{ label: 'Ninguna (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderada (3)', value: 3 }, { label: 'Severa (4)', value: 4 }, { label: 'Extrema (5)', value: 5 }] },
+      { id: 'p28', text: '28. Dificultad para dormir por el dolor:', type: 'select', options: [{ label: 'Ninguna (1)', value: 1 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderada (3)', value: 3 }, { label: 'Severa (4)', value: 4 }, { label: 'Extrema (5)', value: 5 }] },
+      { id: 'p29', text: '29. Autopercepción de confianza (sentirse menos capaz o útil):', type: 'select', options: [{ label: 'Muy de acuerdo (5)', value: 5 }, { label: 'De acuerdo (4)', value: 4 }, { label: 'Ni de acuerdo ni desacuerdo (3)', value: 3 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'Muy en desacuerdo (1)', value: 1 }] },
+      { id: 'p30', text: '30. Impacto psicológico (sentirse de mal humor o frustrado):', type: 'select', options: [{ label: 'Muy de acuerdo (5)', value: 5 }, { label: 'De acuerdo (4)', value: 4 }, { label: 'Ni de acuerdo ni desacuerdo (3)', value: 3 }, { label: 'En desacuerdo (2)', value: 2 }, { label: 'Muy en desacuerdo (1)', value: 1 }] }
     ],
 
-    // Fórmula DASH: [(suma de n respuestas / n) - 1] * 25
+    // Cálculo oficial DASH: [(suma de n respuestas / n) - 1] * 25
     calcularPuntaje: (respuestas) => {
-      const suma = Number(respuestas.suma_items) || 30;
-      return parseFloat((((suma / 30) - 1) * 25).toFixed(1));
+      const valores = Object.values(respuestas).filter(v => v !== undefined && v !== null);
+      if (valores.length < 27) return 0; // DASH requiere al menos 27 de 30 ítems respondidos
+      
+      const suma = valores.reduce((acc, curr) => acc + curr, 0);
+      const n = valores.length;
+      
+      // Fórmula estandarizada para obtener 0-100%
+      const dashScore = ((suma / n) - 1) * 25;
+      return parseFloat(dashScore.toFixed(1));
     },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje) => {
+      if (puntaje === 0) return { texto: 'DATOS INSUFICIENTES', color: 'slate-500', evidencia: 'Se requieren al menos 27 respuestas para un cálculo válido.', recomendaciones: ['Completar los ítems faltantes del cuestionario.'] };
+      
       if (puntaje >= 50) return { 
-        texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `Puntaje DASH: ${puntaje}/100.`,
-        recomendaciones: ['Limitación severa en AVD', 'Considerar reubicación laboral temporal', 'Tratamiento kinésico intensivo']
+        texto: 'DISCAPACIDAD SEVERA', 
+        color: 'red-600', 
+        evidencia: `Resultado: ${puntaje}/100. Alto impacto en la funcionalidad del miembro superior.`,
+        recomendaciones: [
+          'Evaluación médica para descartar patología quirúrgica.',
+          'Considerar reubicación laboral o reposo funcional temporal.',
+          'Programa de rehabilitación intensivo centrado en control de síntomas y AVD.',
+          'Uso de ayudas técnicas para disminuir carga mecánica.'
+        ]
       };
+      
+      if (puntaje >= 20) return { 
+        texto: 'DISCAPACIDAD MODERADA', 
+        color: 'orange-500', 
+        evidencia: `Resultado: ${puntaje}/100. Limitación perceptible en tareas que requieren fuerza o rangos extremos.`,
+        recomendaciones: [
+          'Kinesioterapia enfocada en ejercicios de estabilidad escapular y manguito rotador.',
+          'Higiene postural y ergonómica en el puesto de trabajo.',
+          'Pautas de ejercicios de movilidad activa y estiramientos.',
+          'Seguimiento mensual para evaluar el cambio mínimo significativo (10 pts).'
+        ]
+      };
+
       return { 
-        texto: 'DISCAPACIDAD LEVE-MODERADA', color: 'emerald-600', evidencia: `Puntaje DASH: ${puntaje}/100.`,
-        recomendaciones: ['Ejercicios de movilidad y estabilidad escapular', 'Higiene postural en el trabajo']
+        texto: 'DISCAPACIDAD LEVE / MÍNIMA', 
+        color: 'emerald-600', 
+        evidencia: `Resultado: ${puntaje}/100. El paciente conserva la mayor parte de su autonomía funcional.`,
+        recomendaciones: [
+          'Mantener acondicionamiento físico general del miembro superior.',
+          'Prevención de lesiones recurrentes mediante educación ergonómica.',
+          'Control preventivo si los síntomas aumentan tras cargas laborales.'
+        ]
       };
     }
   },
