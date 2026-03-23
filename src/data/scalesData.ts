@@ -1677,39 +1677,90 @@ export const scales: Scale[] = [
 
 {
     id: 'womac_artrosis',
-    nombre: 'Índice WOMAC',
+    nombre: 'Índice WOMAC (Completo)',
     categoria: 'traumatologia',
-    descripcion: 'Evaluación de dolor, rigidez y capacidad funcional en pacientes con artrosis de cadera o rodilla.',
+    descripcion: 'Cuestionario autoadministrado para evaluar dolor, rigidez y capacidad funcional en pacientes con artrosis de cadera o rodilla (24 ítems).',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3350431) ---
-    bibliografia: "Bellamy N, et al. Validation study of WOMAC: a specialized health status questionnaire. J Rheumatol. 1988.",
+    bibliografia: "Bellamy N, Buchanan WW, Goldsmith CH, Campbell J, Stitt LW. Validation study of WOMAC: a specialized health status questionnaire. J Rheumatol. 1988.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3350431/", 
-    evidenciaClinica: "Es la escala estándar en Chile para el seguimiento de artroplastias. Evalúa 3 dimensiones: Dolor (5 ítems), Rigidez (2 ítems) y Capacidad Física (17 ítems).",
+    evidenciaClinica: "Es la escala estándar de oro para el seguimiento de pacientes con artrosis. Evalúa el impacto real en las actividades de la vida diaria. Un puntaje total mayor indica mayor discapacidad.",
 
     preguntas: [
-      { id: 'dolor', text: 'Dolor total (Suma de 5 ítems de 0-4):', type: 'number' },
-      { id: 'rigidez', text: 'Rigidez total (Suma de 2 ítems de 0-4):', type: 'number' },
-      { id: 'funcion', text: 'Dificultad física total (Suma de 17 ítems de 0-4):', type: 'number' }
+      // === SECCIÓN DOLOR (5 ítems) ===
+      { id: 'd1', text: 'Dolor al caminar por terreno llano:', type: 'select', options: [{ label: 'Ninguno (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderado (2)', value: 2 }, { label: 'Severo (3)', value: 3 }, { label: 'Extremo (4)', value: 4 }] },
+      { id: 'd2', text: 'Dolor al subir o bajar escaleras:', type: 'select', options: [{ label: 'Ninguno (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderado (2)', value: 2 }, { label: 'Severo (3)', value: 3 }, { label: 'Extremo (4)', value: 4 }] },
+      { id: 'd3', text: 'Dolor nocturno (en la cama):', type: 'select', options: [{ label: 'Ninguno (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderado (2)', value: 2 }, { label: 'Severo (3)', value: 3 }, { label: 'Extremo (4)', value: 4 }] },
+      { id: 'd4', text: 'Dolor al estar sentado o acostado:', type: 'select', options: [{ label: 'Ninguno (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderado (2)', value: 2 }, { label: 'Severo (3)', value: 3 }, { label: 'Extremo (4)', value: 4 }] },
+      { id: 'd5', text: 'Dolor al estar de pie:', type: 'select', options: [{ label: 'Ninguno (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderado (2)', value: 2 }, { label: 'Severo (3)', value: 3 }, { label: 'Extremo (4)', value: 4 }] },
+
+      // === SECCIÓN RIGIDEZ (2 ítems) ===
+      { id: 'r1', text: 'Rigidez al despertarse por la mañana:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'r2', text: 'Rigidez al estar sentado, acostado o descansando:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+
+      // === SECCIÓN CAPACIDAD FÍSICA (17 ítems) ===
+      { id: 'f1', text: 'Dificultad al bajar escaleras:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f2', text: 'Dificultad al subir escaleras:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f3', text: 'Dificultad al levantarse de una silla:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f4', text: 'Dificultad al estar de pie:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f5', text: 'Dificultad al agacharse hacia el suelo:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f6', text: 'Dificultad al caminar por terreno llano:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f7', text: 'Dificultad al entrar o salir de un auto:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f8', text: 'Dificultad al ir de compras:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f9', text: 'Dificultad al ponerse los calcetines/medias:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f10', text: 'Dificultad al levantarse de la cama:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f11', text: 'Dificultad al quitarse los calcetines/medias:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f12', text: 'Dificultad al estar acostado en la cama:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f13', text: 'Dificultad al entrar o salir de la tina/bañera:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f14', text: 'Dificultad al estar sentado:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f15', text: 'Dificultad al sentarse o levantarse del inodoro:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f16', text: 'Dificultad al realizar tareas domésticas pesadas:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] },
+      { id: 'f17', text: 'Dificultad al realizar tareas domésticas ligeras:', type: 'select', options: [{ label: 'Ninguna (0)', value: 0 }, { label: 'Leve (1)', value: 1 }, { label: 'Moderada (2)', value: 2 }, { label: 'Severa (3)', value: 3 }, { label: 'Extrema (4)', value: 4 }] }
     ],
 
-    // Cálculo: Suma bruta (0-96) convertida a porcentaje de discapacidad (0-100%)
+    // Cálculo: Suma bruta de los 24 ítems (0-96) convertida a porcentaje de discapacidad (0-100%)
     calcularPuntaje: (respuestas) => {
-      const suma = (Number(respuestas.dolor) || 0) + (Number(respuestas.rigidez) || 0) + (Number(respuestas.funcion) || 0);
+      const suma = Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+      // El total máximo es 96 (24 preguntas x 4 puntos máximo cada una)
       return parseFloat(((suma / 96) * 100).toFixed(1));
     },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje) => {
       if (puntaje >= 60) return { 
-        texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}% de compromiso funcional.`,
-        recomendaciones: ['Evaluación para tratamiento quirúrgico (prótesis)', 'Manejo analgésico avanzado', 'Uso de ayudas técnicas (bastón/andador)']
+        texto: 'DISCAPACIDAD SEVERA', 
+        color: 'red-600', 
+        evidencia: `El paciente presenta un ${puntaje}% de discapacidad funcional global.`,
+        recomendaciones: [
+          'Priorizar manejo analgésico avanzado.',
+          'Evaluar necesidad de ayudas técnicas para la marcha (andador o bastones).',
+          'Interconsulta con traumatología para evaluar resolución quirúrgica.',
+          'Adaptación del entorno doméstico para reducir riesgo de caídas.'
+        ]
       };
       if (puntaje >= 30) return { 
-        texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}% de compromiso funcional.`,
-        recomendaciones: ['Kinesioterapia motora enfocada en fortalecimiento de cuádriceps', 'Control de peso', 'Educación en protección articular']
+        texto: 'DISCAPACIDAD MODERADA', 
+        color: 'orange-500', 
+        evidencia: `El paciente presenta un ${puntaje}% de discapacidad funcional global.`,
+        recomendaciones: [
+          'Programa de ejercicio terapéutico enfocado en fortalecimiento de cuádriceps y glúteos.',
+          'Educación en protección articular y control de peso.',
+          'Uso de agentes físicos para control de síntomas según fase clínica.',
+          'Seguimiento mensual de la progresión funcional.'
+        ]
       };
-      return { texto: 'DISCAPACIDAD LEVE', color: 'emerald-600', evidencia: `${puntaje}% de compromiso.`, recomendaciones: ['Mantener actividad física de bajo impacto', 'Seguimiento anual'] };
+      return { 
+        texto: 'DISCAPACIDAD LEVE', 
+        color: 'emerald-600', 
+        evidencia: `El paciente presenta un ${puntaje}% de compromiso funcional.`, 
+        recomendaciones: [
+          'Mantener actividad física de bajo impacto (caminata, natación o bicicleta).',
+          'Fomentar el autocuidado y pautas de higiene postural.',
+          'Re-evaluar con escala WOMAC cada 6 meses.'
+        ] 
+      };
     }
   },
+
 
   {
     id: 'dash_miembro_superior',
