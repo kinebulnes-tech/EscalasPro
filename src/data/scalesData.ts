@@ -4455,31 +4455,7 @@ export const scales: Scale[] = [
     evidenciaClinica: "La FIM cuantifica qué tanto esfuerzo realiza el paciente vs el asistente. Es el predictor más sólido de horas de cuidado necesarias en el hogar.",
 
     preguntas: [
-      // Definimos las opciones estandarizadas para evitar repetición y asegurar claridad
-      // Lógica FIM: 7 (Independiente) -> 1 (Dependiente total)
-      ...[
-        { id: 'p1', text: '1. Alimentación (Cubiertos, llevar comida a boca, deglución):' },
-        { id: 'p2', text: '2. Aseo Personal (Cara, manos, dientes, peinado, afeitarse):' },
-        { id: 'p3', text: '3. Baño (Lavado y secado de cuello para abajo):' },
-        { id: 'p4', text: '4. Vestido Mitad Superior (Incluye prótesis/órtesis):' },
-        { id: 'p5', text: '5. Vestido Mitad Inferior (Incluye calzado):' },
-        { id: 'p6', text: '6. Uso del Inodoro (Limpieza y manejo de ropa):' },
-        { id: 'p7', text: '7. Control de Vejiga (Continencia y uso de dispositivos):' },
-        { id: 'p8', text: '8. Control de Intestino (Continencia anal):' },
-        { id: 'p9', text: '9. Traslado Cama/Silla/Silla de Ruedas:' },
-        { id: 'p10', text: '10. Traslado en Inodoro (Sentarse/Levantarse):' },
-        { id: 'p11', text: '11. Traslado en Ducha o Bañera:' },
-        { id: 'p12', text: '12. Locomoción (Caminar o Silla de Ruedas):' },
-        { id: 'p13', text: '13. Escaleras (Subir/Bajar 12-14 peldaños):' },
-        { id: 'p14', text: '14. Comprensión (Auditiva o visual):' },
-        { id: 'p15', text: '15. Expresión (Verbal o no verbal):' },
-        { id: 'p16', text: '16. Interacción Social:' },
-        { id: 'p17', text: '17. Resolución de Problemas (Decisiones diarias):' },
-        { id: 'p18', text: '18. Memoria (Reconocimiento y tareas):' }
-      ].map(p => ({
-        ...p,
-        type: 'select',
-        options: [
+      { id: 'p1', text: '1. Alimentación (Cubiertos, llevar comida a boca, deglución):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4488,7 +4464,177 @@ export const scales: Scale[] = [
           { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
-      }))
+      },
+      { id: 'p2', text: '2. Aseo Personal (Cara, manos, dientes, peinado, afeitarse):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
+          { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
+          { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p3', text: '3. Baño (Lavado y secado de cuello para abajo):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
+          { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
+          { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p4', text: '4. Vestido Mitad Superior (Incluye prótesis/órtesis):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
+          { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
+          { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p5', text: '5. Vestido Mitad Inferior (Incluye calzado):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
+          { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
+          { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p6', text: '6. Uso del Inodoro (Limpieza y manejo de ropa):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
+          { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
+          { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p7', text: '7. Control de Vejiga (Continencia y uso de dispositivos):', type: 'select', options: [
+          { label: '7: Sin accidentes, independencia completa', value: 7 },
+          { label: '6: Uso de dispositivo/sonda de forma independiente', value: 6 },
+          { label: '5: Supervisión o preparación del dispositivo', value: 5 },
+          { label: '4: Asistencia mínima (Paciente limpia el 75% solo)', value: 4 },
+          { label: '3: Asistencia moderada (Paciente limpia entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Paciente limpia entre el 25% y 49%)', value: 2 },
+          { label: '1: Incontinencia total (Paciente hace menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p8', text: '8. Control de Intestino (Continencia anal):', type: 'select', options: [
+          { label: '7: Sin accidentes, independencia completa', value: 7 },
+          { label: '6: Uso independiente de enemas o medicación', value: 6 },
+          { label: '5: Supervisión o preparación de insumos', value: 5 },
+          { label: '4: Asistencia mínima (Paciente realiza el 75% del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Paciente realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Paciente realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Incontinencia total (Paciente realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p9', text: '9. Traslado Cama/Silla/Silla de Ruedas:', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
+          { label: '6: Independencia modificada (Ayuda técnica, más tiempo)', value: 6 },
+          { label: '5: Supervisión (Guía verbal, sin contacto físico)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p10', text: '10. Traslado en Inodoro (Sentarse/Levantarse):', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
+          { label: '6: Independencia modificada (Ayuda técnica, barras)', value: 6 },
+          { label: '5: Supervisión (Guía verbal)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p11', text: '11. Traslado en Ducha o Bañera:', type: 'select', options: [
+          { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
+          { label: '6: Independencia modificada (Silla de baño, barras)', value: 6 },
+          { label: '5: Supervisión (Guía verbal)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p12', text: '12. Locomoción (Caminar o Silla de Ruedas):', type: 'select', options: [
+          { label: '7: Camina 50m libre e independiente', value: 7 },
+          { label: '6: Usa ayuda técnica para 50m de forma autónoma', value: 6 },
+          { label: '5: Supervisión o camina solo 15m', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% del esfuerzo)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p13', text: '13. Escaleras (Subir/Bajar 12-14 peldaños):', type: 'select', options: [
+          { label: '7: Independencia completa', value: 7 },
+          { label: '6: Independencia modificada (Usa baranda)', value: 6 },
+          { label: '5: Supervisión (Por seguridad)', value: 5 },
+          { label: '4: Asistencia mínima (Sujeto realiza el 75% o más)', value: 4 },
+          { label: '3: Asistencia moderada (Sujeto realiza entre el 50% y 74%)', value: 3 },
+          { label: '2: Asistencia máxima (Sujeto realiza entre el 25% y 49%)', value: 2 },
+          { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
+        ]
+      },
+      { id: 'p14', text: '14. Comprensión (Auditiva o visual):', type: 'select', options: [
+          { label: '7: Sin dificultad (Entiende temas complejos)', value: 7 },
+          { label: '6: Alguna lentitud o dificultad leve', value: 6 },
+          { label: '5: Supervisión <10% del tiempo', value: 5 },
+          { label: '4: Entiende el 75-90% de las instrucciones', value: 4 },
+          { label: '3: Entiende el 50-74% de las instrucciones', value: 3 },
+          { label: '2: Entiende el 25-49% de las instrucciones', value: 2 },
+          { label: '1: Entiende menos del 25%', value: 1 }
+        ]
+      },
+      { id: 'p15', text: '15. Expresión (Verbal o no verbal):', type: 'select', options: [
+          { label: '7: Expresa pensamientos complejos claramente', value: 7 },
+          { label: '6: Dificultad leve o requiere más tiempo', value: 6 },
+          { label: '5: Supervisión <10% del tiempo', value: 5 },
+          { label: '4: Expresa el 75-90% de lo necesario', value: 4 },
+          { label: '3: Expresa el 50-74% de lo necesario', value: 3 },
+          { label: '2: Expresa el 25-49% de lo necesario', value: 2 },
+          { label: '1: Expresa menos del 25%', value: 1 }
+        ]
+      },
+      { id: 'p16', text: '16. Interacción Social:', type: 'select', options: [
+          { label: '7: Interactúa apropiadamente siempre', value: 7 },
+          { label: '6: Requiere medicación o esfuerzo para controlarse', value: 6 },
+          { label: '5: Necesita supervisión en situaciones de estrés', value: 5 },
+          { label: '4: Interactúa bien el 75-90% del tiempo', value: 4 },
+          { label: '3: Interactúa bien el 50-74% del tiempo', value: 3 },
+          { label: '2: Interactúa bien el 25-49% del tiempo', value: 2 },
+          { label: '1: Interactúa apropiadamente menos del 25%', value: 1 }
+        ]
+      },
+      { id: 'p17', text: '17. Resolución de Problemas (Decisiones de la vida diaria):', type: 'select', options: [
+          { label: '7: Resuelve problemas complejos independientemente', value: 7 },
+          { label: '6: Dificultad leve o mayor tiempo de decisión', value: 6 },
+          { label: '5: Necesita supervisión <10% del tiempo', value: 5 },
+          { label: '4: Resuelve el 75-90% de los problemas', value: 4 },
+          { label: '3: Resuelve el 50-74% de los problemas', value: 3 },
+          { label: '2: Resuelve el 25-49% de los problemas', value: 2 },
+          { label: '1: Resuelve menos del 25%', value: 1 }
+        ]
+      },
+      { id: 'p18', text: '18. Memoria (Reconocimiento de personas y tareas):', type: 'select', options: [
+          { label: '7: Recuerda todo sin dificultad', value: 7 },
+          { label: '6: Usa ayudas (agendas, recordatorios)', value: 6 },
+          { label: '5: Necesita supervisión <10% del tiempo', value: 5 },
+          { label: '4: Recuerda el 75-90% de la información', value: 4 },
+          { label: '3: Recuerda el 50-74% de la información', value: 3 },
+          { label: '2: Recuerda el 25-49% de la información', value: 2 },
+          { label: '1: Recuerda menos del 25%', value: 1 }
+        ]
+      }
     ],
 
     calcularPuntaje: (respuestas) => {
@@ -4496,50 +4642,32 @@ export const scales: Scale[] = [
     },
 
     interpretar: (puntaje) => {
-      // Subpuntajes teóricos (Motor 13-91, Cognitivo 5-35)
-      // Aquí el puntaje total es la clave
       if (puntaje >= 108) return { 
         texto: 'INDEPENDENCIA FUNCIONAL', 
         color: 'emerald-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado mínima o nula.`,
-        recomendaciones: [
-          'Mantener nivel de actividad física para prevenir desacondicionamiento.',
-          'Alta de programa de rehabilitación intensiva.',
-          'Control de seguimiento en 3 meses.'
-        ] 
+        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado mínima o nula. El paciente es apto para alta funcional de rehabilitación intensiva.`,
+        recomendaciones: ['Mantener actividad física regular', 'Control trimestral preventivo'] 
       };
 
       if (puntaje >= 72) return { 
         texto: 'DEPENDENCIA LEVE (Supervisión)', 
         color: 'yellow-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Requiere asistencia no física o mínima (Nivel 4-5).`,
-        recomendaciones: [
-          'Enfoque en seguridad del hogar para prevenir caídas.',
-          'Entrenamiento de tareas instrumentales (Lawton).',
-          'Terapia Ocupacional para optimizar el uso de ayudas técnicas.'
-        ] 
+        evidencia: `Puntaje: ${puntaje}/126. Requiere asistencia no física o mínima (Nivel 4-5). Carga de cuidado moderada-baja.`,
+        recomendaciones: ['Enfoque en seguridad del hogar', 'Entrenamiento de tareas instrumentales'] 
       };
 
       if (puntaje >= 36) return { 
         texto: 'DEPENDENCIA MODERADA (Asistencia física)', 
         color: 'orange-500', 
-        evidencia: `Puntaje: ${puntaje}/126. El paciente requiere que el asistente realice entre el 25% y 50% del esfuerzo.`,
-        recomendaciones: [
-          'Kinesioterapia motora intensiva para mejorar fuerza y control de tronco.',
-          'Capacitación al cuidador en ergonomía y transferencias asistidas.',
-          'Evaluar necesidad de modificaciones estructurales en el hogar.'
-        ] 
+        evidencia: `Puntaje: ${puntaje}/126. El paciente requiere asistencia física activa en la mitad de sus actividades básicas.`,
+        recomendaciones: ['Kinesioterapia motora intensiva', 'Capacitación a cuidadores en transferencias asistidas'] 
       };
 
       return { 
         texto: 'DEPENDENCIA SEVERA A TOTAL', 
         color: 'red-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado máxima (>75% del esfuerzo por el asistente).`,
-        recomendaciones: [
-          'Prevención de úlceras por presión (UPP) y complicaciones respiratorias.',
-          'Uso de ayudas técnicas de alta asistencia (Grúas, camas clínicas).',
-          'Apoyo psicosocial al cuidador principal para evitar claudicación.'
-        ] 
+        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado máxima. El paciente depende casi totalmente de terceros.`,
+        recomendaciones: ['Prevención estricta de UPP', 'Uso de ayudas técnicas de alta asistencia (Grúas)'] 
       };
     }
   },
