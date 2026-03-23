@@ -1864,35 +1864,222 @@ export const scales: Scale[] = [
 
   {
     id: 'oswestry_lumbar',
-    nombre: 'Índice de Discapacidad de Oswestry',
+    nombre: 'Índice de Discapacidad de Oswestry (ODI)',
     categoria: 'traumatologia',
-    descripcion: 'Estándar de oro para evaluar la discapacidad funcional por dolor lumbar.',
+    descripcion: 'Herramienta de referencia para evaluar la discapacidad funcional por dolor lumbar en 10 dimensiones.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1530702) ---
-    bibliografia: "Fairbank JC, Pynsent PB. The Oswestry Disability Index. Spine. 2000.",
+    bibliografia: "Fairbank JC, Pynsent PB. The Oswestry Disability Index. Spine (Phila Pa 1976). 2000 Nov 15;25(22):2940-52.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11039248/",
-    evidenciaClinica: "Indispensable en patología de columna. Permite diferenciar entre pacientes que requieren manejo conservador vs quirúrgico.",
+    evidenciaClinica: "Indispensable en patología de columna. Permite diferenciar entre pacientes que requieren manejo conservador vs quirúrgico. Un cambio del 10% (5 puntos) es clínicamente relevante.",
 
     preguntas: [
-      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
+      { 
+        id: 'p1', 
+        text: '1. Intensidad del Dolor:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo soportar el dolor sin tomar analgésicos (0)', value: 0 },
+          { label: 'El dolor es soportable pero tomo analgésicos (1)', value: 1 },
+          { label: 'Los analgésicos me alivian poco el dolor (2)', value: 2 },
+          { label: 'Los analgésicos me alivian muy poco el dolor (3)', value: 3 },
+          { label: 'Los analgésicos no me alivian nada (4)', value: 4 },
+          { label: 'El dolor es tan intenso que no me alivian nada (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p2', 
+        text: '2. Cuidados Personales (lavarse, vestirse, etc.):', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo cuidarme normalmente sin dolor (0)', value: 0 },
+          { label: 'Puedo cuidarme normalmente pero me duele (1)', value: 1 },
+          { label: 'Me duele cuidarme y lo hago despacio y con cuidado (2)', value: 2 },
+          { label: 'Necesito alguna ayuda pero consigo hacerlo solo (3)', value: 3 },
+          { label: 'Necesito ayuda diaria en la mayoría de los cuidados (4)', value: 4 },
+          { label: 'No puedo vestirme, me lavo con dificultad y me quedo en cama (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p3', 
+        text: '3. Levantar Objetos:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo levantar objetos pesados sin dolor (0)', value: 0 },
+          { label: 'Puedo levantar objetos pesados pero con dolor (1)', value: 1 },
+          { label: 'El dolor me impide levantar objetos pesados del suelo (2)', value: 2 },
+          { label: 'Solo puedo levantar objetos pesados si están en un lugar alto (3)', value: 3 },
+          { label: 'Solo puedo levantar objetos muy ligeros (4)', value: 4 },
+          { label: 'No puedo levantar ni cargar nada (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p4', 
+        text: '4. Capacidad de Caminar:', 
+        type: 'select', 
+        options: [
+          { label: 'El dolor no me impide caminar cualquier distancia (0)', value: 0 },
+          { label: 'El dolor me impide caminar más de 1 km (1)', value: 1 },
+          { label: 'El dolor me impide caminar más de 500 metros (2)', value: 2 },
+          { label: 'El dolor me impide caminar más de 250 metros (3)', value: 3 },
+          { label: 'Solo puedo caminar con bastón o muletas (4)', value: 4 },
+          { label: 'Permanezco en la cama casi todo el tiempo (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p5', 
+        text: '5. Capacidad de Estar Sentado:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo estar sentado en cualquier silla el tiempo que quiera (0)', value: 0 },
+          { label: 'Solo puedo estar sentado en mi silla favorita el tiempo que quiera (1)', value: 1 },
+          { label: 'El dolor me impide estar sentado más de 1 hora (2)', value: 2 },
+          { label: 'El dolor me impide estar sentado más de 30 minutos (3)', value: 3 },
+          { label: 'El dolor me impide estar sentado más de 10 minutos (4)', value: 4 },
+          { label: 'El dolor me impide estar sentado (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p6', 
+        text: '6. Capacidad de Estar de Pie:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo estar de pie el tiempo que quiera sin dolor (0)', value: 0 },
+          { label: 'Puedo estar de pie el tiempo que quiera pero con dolor (1)', value: 1 },
+          { label: 'El dolor me impide estar de pie más de 1 hora (2)', value: 2 },
+          { label: 'El dolor me impide estar de pie más de 30 minutos (3)', value: 3 },
+          { label: 'El dolor me impide estar de pie más de 10 minutos (4)', value: 4 },
+          { label: 'El dolor me impide estar de pie (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p7', 
+        text: '7. Capacidad de Dormir:', 
+        type: 'select', 
+        options: [
+          { label: 'Duermo bien sin dolor (0)', value: 0 },
+          { label: 'El dolor me impide dormir bien si no tomo pastillas (1)', value: 1 },
+          { label: 'Incluso tomando pastillas duermo menos de 6 horas (2)', value: 2 },
+          { label: 'Incluso tomando pastillas duermo menos de 4 horas (3)', value: 3 },
+          { label: 'Incluso tomando pastillas duermo menos de 2 horas (4)', value: 4 },
+          { label: 'El dolor me impide dormir en absoluto (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p8', 
+        text: '8. Vida Sexual (si aplica):', 
+        type: 'select', 
+        options: [
+          { label: 'Mi vida sexual es normal y no me produce dolor (0)', value: 0 },
+          { label: 'Mi vida sexual es normal pero me produce algún dolor (1)', value: 1 },
+          { label: 'Mi vida sexual es casi normal pero es muy dolorosa (2)', value: 2 },
+          { label: 'Mi vida sexual se ha visto muy limitada por el dolor (3)', value: 3 },
+          { label: 'Mi vida sexual es casi nula por el dolor (4)', value: 4 },
+          { label: 'El dolor me impide cualquier tipo de vida sexual (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p9', 
+        text: '9. Vida Social:', 
+        type: 'select', 
+        options: [
+          { label: 'Mi vida social es normal y no me produce dolor (0)', value: 0 },
+          { label: 'Mi vida social es normal pero me aumenta el dolor (1)', value: 1 },
+          { label: 'El dolor me impide participar en actividades como deporte (2)', value: 2 },
+          { label: 'El dolor ha limitado mi vida social y salgo menos (3)', value: 3 },
+          { label: 'El dolor ha limitado mi vida social a mi casa (4)', value: 4 },
+          { label: 'No tengo vida social a causa del dolor (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p10', 
+        text: '10. Capacidad de Viajar:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo viajar a cualquier parte sin dolor (0)', value: 0 },
+          { label: 'Puedo viajar a cualquier parte pero con dolor (1)', value: 1 },
+          { label: 'El dolor es fuerte pero aguanto viajes de más de 2 horas (2)', value: 2 },
+          { label: 'El dolor limita mis viajes a menos de 1 hora (3)', value: 3 },
+          { label: 'El dolor limita mis viajes a menos de 30 minutos (4)', value: 4 },
+          { label: 'El dolor me impide viajar excepto para ir al médico (5)', value: 5 }
+        ] 
+      }
     ],
 
-    // Cálculo: (Suma / 50) * 100
+    // Cálculo oficial ODI: (Suma / (n_preguntas * 5)) * 100
     calcularPuntaje: (respuestas) => {
-      const suma = Number(respuestas.suma_total) || 0;
-      return (suma / 50) * 100;
+      const valores = Object.values(respuestas).filter(v => v !== undefined && v !== null);
+      if (valores.length === 0) return 0;
+      
+      const suma = valores.reduce((acc, curr) => acc + curr, 0);
+      const maximoPosible = valores.length * 5;
+      
+      const odiScore = (suma / maximoPosible) * 100;
+      return parseFloat(odiScore.toFixed(1));
     },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje > 80) return { texto: 'DISCAPACIDAD MÁXIMA / POSTRACIÓN', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación urgente por especialista en columna'] };
-      if (puntaje > 60) return { texto: 'DISCAPACIDAD DISCAPACITANTE', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Tratamiento de dolor crónico', 'Intervención multidisciplinaria'] };
-      if (puntaje > 40) return { texto: 'DISCAPACIDAD SEVERA', color: 'orange-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia enfocada en estabilización lumbopélvica'] };
-      if (puntaje > 20) return { texto: 'DISCAPACIDAD MODERADA', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ajustes ergonómicos', 'Ejercicio terapéutico supervisado'] };
-      return { texto: 'DISCAPACIDAD MÍNIMA', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa', 'Educación en manejo de cargas'] };
+    interpretar: (puntaje) => {
+      if (puntaje > 80) return { 
+        texto: 'DISCAPACIDAD MÁXIMA / POSTRACIÓN', 
+        color: 'slate-900', 
+        evidencia: `Puntaje: ${puntaje}%. El paciente está confinado a la cama o sus síntomas son extremadamente severos.`, 
+        recomendaciones: [
+          'Evaluación urgente por neurocirujano o especialista en columna.',
+          'Manejo de dolor agudo con farmacología de tercer escalón.',
+          'Vigilancia de signos de bandera roja (cauda equina).',
+          'Reposo relativo y educación en transferencias mínimas dolorosas.'
+        ] 
+      };
+      
+      if (puntaje > 60) return { 
+        texto: 'DISCAPACIDAD DISCAPACITANTE', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}%. El dolor lumbar afecta todas las áreas de la vida del paciente.`, 
+        recomendaciones: [
+          'Intervención multidisciplinaria (Unidad del Dolor).',
+          'Kinesioterapia centrada en control de síntomas y movilidad suave.',
+          'Evaluación de ayudas técnicas para la marcha.',
+          'Considerar estudio de imágenes si hay déficit neurológico progresivo.'
+        ] 
+      };
+      
+      if (puntaje > 40) return { 
+        texto: 'DISCAPACIDAD SEVERA', 
+        color: 'orange-600', 
+        evidencia: `Puntaje: ${puntaje}%. Gran dificultad para las actividades de la vida diaria.`, 
+        recomendaciones: [
+          'Kinesioterapia intensiva centrada en estabilización lumbopélvica (Core).',
+          'Educación en higiene postural y manejo de cargas.',
+          'Tratamiento de factores psicosociales (miedo al movimiento).',
+          'Uso de agentes físicos según tolerancia.'
+        ] 
+      };
+      
+      if (puntaje > 20) return { 
+        texto: 'DISCAPACIDAD MODERADA', 
+        color: 'yellow-600', 
+        evidencia: `Puntaje: ${puntaje}%. El paciente puede realizar la mayoría de las AVD con dolor.`, 
+        recomendaciones: [
+          'Programa de ejercicio terapéutico progresivo.',
+          'Ajustes ergonómicos en el puesto de trabajo.',
+          'Fomentar la actividad física general de bajo impacto.',
+          'Pautas de autocuidado y pausas activas.'
+        ] 
+      };
+
+      return { 
+        texto: 'DISCAPACIDAD MÍNIMA', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}%. El paciente funciona adecuadamente en el día a día.`, 
+        recomendaciones: [
+          'Mantener un estilo de vida activo.',
+          'Fortalecimiento preventivo de la musculatura estabilizadora.',
+          'Educación sobre ergonomía básica.',
+          'Seguimiento anual.'
+        ] 
+      };
     }
   },
-
- 
 
   {
     id: 'ndi_cervical',
