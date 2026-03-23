@@ -133,8 +133,8 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
 
     const pageHeight = doc.internal.pageSize.height;
     doc.setFontSize(7); doc.setTextColor(150, 150, 150);
-    doc.text("Generado por EscalaPro Intelligence v1.0 - Kinesiología Basada en Evidencia", 20, pageHeight - 10);
-    doc.save(`Informe_Elite_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
+    doc.text("Generado por EscalaPro Intelligence v1.0 - Medicion Basada en Evidencia", 20, pageHeight - 10);
+    doc.save(`Informe_Consolidado_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
