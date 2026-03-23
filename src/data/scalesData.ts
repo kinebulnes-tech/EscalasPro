@@ -2628,37 +2628,99 @@ export const scales: Scale[] = [
   },
   {
     id: 'visa_a_aquiles',
-    nombre: 'Escala VISA-A',
+    nombre: 'Escala VISA-A (Tendinopatía de Aquiles)',
     categoria: 'traumatologia',
-    descripcion: 'Mide la gravedad de la tendinopatía de Aquiles en relación con el dolor y la función deportiva.',
+    descripcion: 'Índice de severidad de la tendinopatía de Aquiles. Evalúa dolor, función y actividad (8 ítems).',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11078440) ---
-    bibliografia: "Robinson JM, et al. VISA-A questionnaire: a valid and reliable index of the severity of Achilles tendinopathy. Br J Sports Med. 2001.",
+    bibliografia: "Robinson JM, et al. VISA-A questionnaire: a valid and reliable index of the severity of Achilles tendinopathy. Br J Sports Med. 2001;35(5):335-41.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11579069/",
-    evidenciaClinica: "Un deportista sano debería puntuar 100. Es la herramienta principal para guiar el protocolo de carga excéntrica.",
+    evidenciaClinica: "Un deportista sano debe puntuar 100. Es la herramienta principal para guiar el protocolo de carga. Un cambio de 12-20 puntos se considera clínicamente relevante.",
 
     preguntas: [
-      { id: 'suma_items', text: 'Suma de los 8 ítems (0 a 100 pts):', type: 'number', min: 0, max: 100 }
+      { id: 'p1', text: '1. ¿Cuántos minutos permanece el dolor al levantarse por la mañana? (0: >100 min - 10: 0 min):', type: 'number', min: 0, max: 10 },
+      { id: 'p2', text: '2. Dolor al estirar el tendón de Aquiles al máximo (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
+      { id: 'p3', text: '3. Dolor tras caminar sobre terreno liso durante 30 min (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
+      { id: 'p4', text: '4. Dolor al bajar escaleras a paso normal (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
+      { id: 'p5', text: '5. Dolor tras realizar 10 elevaciones de talón bipodales (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
+      { id: 'p6', text: '6. Dolor al realizar saltos monopodales (10 repeticiones) (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
+      { 
+        id: 'p7', 
+        text: '7. ¿Actualmente está realizando deporte o actividad física?', 
+        type: 'select',
+        options: [
+          { label: 'Nada de dolor al realizar actividad (10)', value: 10 },
+          { label: 'Dolor leve que no reduce el rendimiento (7)', value: 7 },
+          { label: 'Dolor moderado que reduce el rendimiento (4)', value: 4 },
+          { label: 'Dolor que impide realizar la actividad (0)', value: 0 }
+        ]
+      },
+      { 
+        id: 'p8', 
+        text: '8. Tiempo de actividad deportiva sin dolor:', 
+        type: 'select',
+        options: [
+          { label: 'Entrenamiento completo y competición (>30 min) (30)', value: 30 },
+          { label: 'Entrenamiento moderado/reducido (20-30 min) (20)', value: 20 },
+          { label: 'Entrenamiento leve o limitado (<20 min) (10)', value: 10 },
+          { label: 'Incapaz de realizar deporte (0)', value: 0 }
+        ]
+      }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.suma_items) || 0,
+    calcularPuntaje: (respuestas) => {
+      // Suma de los 8 ítems para un máximo de 100 puntos
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 80) return { 
-        texto: 'RECUPERACIÓN AVANZADA', color: 'emerald-600', evidencia: `${puntaje} puntos.`, 
-        recomendaciones: ['Entrenamiento de pliometría progresiva', 'Mantener protocolo de carga pesada lenta (HSR)'] 
+    interpretar: (puntaje) => {
+      if (puntaje >= 90) return { 
+        texto: 'TENDÓN SANO / RECUPERACIÓN COMPLETA', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/100. El paciente presenta una tolerancia a la carga óptima.`, 
+        recomendaciones: [
+          'Mantener entrenamiento de fuerza preventiva (Heavy Slow Resistance).',
+          'Reintegro total a la competición.',
+          'Controlar cargas de impacto semanales para evitar recaídas.'
+        ] 
       };
-      if (puntaje >= 50) return { 
-        texto: 'AFECTACIÓN MODERADA', color: 'orange-500', evidencia: `${puntaje} puntos.`, 
-        recomendaciones: ['Iniciar ejercicios excéntricos (Protocolo de Alfredson)', 'Monitorizar dolor 24h post-ejercicio'] 
+      
+      if (puntaje >= 65) return { 
+        texto: 'AFECTACIÓN LEVE - FASE DE CARGA', 
+        color: 'green-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Persiste dolor en cargas máximas o pliometría.`, 
+        recomendaciones: [
+          'Iniciar o mantener pliometría de baja intensidad.',
+          'Continuar protocolo de carga pesada lenta (HSR) 3 veces por semana.',
+          'Monitorizar la respuesta al dolor 24 horas post-ejercicio (no debe superar EVA 3).'
+        ] 
       };
+
+      if (puntaje >= 40) return { 
+        texto: 'AFECTACIÓN MODERADA', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Discapacidad significativa que limita el volumen deportivo.`, 
+        recomendaciones: [
+          'Protocolo de Alfredson (ejercicios excéntricos) o HSR inicial.',
+          'Reducir o eliminar actividades de alto impacto (carrera rápida, saltos).',
+          'Kinesioterapia: Terapia manual en gastrocnemios y sóleo.',
+          'Evaluar calzado y técnica de carrera.'
+        ] 
+      };
+
       return { 
-        texto: 'AFECTACIÓN SEVERA', color: 'red-600', evidencia: `${puntaje} puntos.`, 
-        recomendaciones: ['Cesar actividades de impacto', 'Evaluación médica: considerar estudio de imagen (Eco/RM)', 'Iniciar ejercicios isométricos para analgesia'] 
+        texto: 'AFECTACIÓN SEVERA', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Dolor presente en AVD y cargas mínimas.`, 
+        recomendaciones: [
+          'Iniciar ejercicios isométricos monopodales para analgesia (45s x 5 rep).',
+          'Cesar actividades de impacto inmediatamente.',
+          'Evaluación médica: considerar ecografía para descartar roturas parciales o neovascularización.',
+          'Uso de taloneras temporales para descargar el tendón.'
+        ] 
       };
     }
   },
-
   {
     id: 'oxford_knee_score',
     nombre: 'Oxford Knee Score (OKS)',
