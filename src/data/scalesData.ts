@@ -2519,30 +2519,160 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'aofas_tobillo_pie',
+    id: 'aofas_ankle_hindfoot',
     nombre: 'Escala AOFAS (Tobillo y Retropié)',
     categoria: 'traumatologia',
-    descripcion: 'Sistema de puntuación clínico para evaluar la función, dolor y alineación en el pie y tobillo.',
+    descripcion: 'Evaluación clínica del tobillo y retropié. Combina síntomas subjetivos y hallazgos del examen físico.',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8062531) ---
-    bibliografia: "Kitaoka HB, et al. Clinical rating systems for the ankle-hindfoot, midfoot, hallux, and lesser toes. Foot Ankle Int. 1994.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8062531/", 
-    evidenciaClinica: "Combina 40 pts de dolor, 50 pts de función y 10 pts de alineación. Es fundamental en la evaluación de inestabilidad crónica de tobillo.",
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8063353) ---
+    bibliografia: "Kitaoka HB, et al. Clinical rating systems for the ankle-hindfoot, midfoot, hallux, and lesser toes. Foot Ankle Int. 1994;15(7):349-53.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8063353/",
+    evidenciaClinica: "Puntaje máximo de 100. Divide la evaluación en: Dolor (40 pts), Función (50 pts) y Alineación (10 pts). Es la escala de referencia para cirugía de pie y tobillo.",
 
     preguntas: [
-      { id: 'dolor', text: 'Dolor (0: Intenso - 40: Ninguno):', type: 'number', min: 0, max: 40 },
-      { id: 'funcion_actividad', text: 'Función - Actividad y Calzado (0: Limitado - 20: Normal):', type: 'number', min: 0, max: 20 },
-      { id: 'marcha_superficie', text: 'Marcha y Superficies (0: Dificultad - 15: Normal):', type: 'number', min: 0, max: 15 },
-      { id: 'movilidad_estabilidad', text: 'Movilidad y Estabilidad (0: Inestable - 15: Estable):', type: 'number', min: 0, max: 15 },
-      { id: 'alineacion', text: 'Alineación (0: Anormal - 10: Buena):', type: 'number', min: 0, max: 10 }
+      // SECCIÓN I: DOLOR (40 Puntos máx)
+      { 
+        id: 'p1', 
+        text: '1. Dolor:', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguno (40)', value: 40 },
+          { label: 'Leve, ocasional (30)', value: 30 },
+          { label: 'Moderado, diario (20)', value: 20 },
+          { label: 'Severo, casi constante (0)', value: 0 }
+        ] 
+      },
+      // SECCIÓN II: FUNCIÓN (50 Puntos máx)
+      { 
+        id: 'p2', 
+        text: '2. Limitación de actividad y requerimiento de apoyo:', 
+        type: 'select', 
+        options: [
+          { label: 'Sin limitaciones, no usa apoyos (10)', value: 10 },
+          { label: 'Limitada para actividades recreativas, no usa apoyos (7)', value: 7 },
+          { label: 'Limitada para actividades de la vida diaria, usa bastón (4)', value: 4 },
+          { label: 'Limitación severa, usa muletas o silla de ruedas (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p3', 
+        text: '3. Distancia máxima de caminata:', 
+        type: 'select', 
+        options: [
+          { label: 'Más de 6 cuadras (5)', value: 5 },
+          { label: 'De 4 a 6 cuadras (4)', value: 4 },
+          { label: 'De 1 a 3 cuadras (2)', value: 2 },
+          { label: 'Menos de 1 cuadra (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p4', 
+        text: '4. Superficies de marcha (Terreno):', 
+        type: 'select', 
+        options: [
+          { label: 'Sin dificultad en cualquier terreno (5)', value: 5 },
+          { label: 'Alguna dificultad en terreno irregular o escalas (3)', value: 3 },
+          { label: 'Mucha dificultad en cualquier terreno (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p5', 
+        text: '5. Anomalía en la marcha (Cojera):', 
+        type: 'select', 
+        options: [
+          { label: 'Ninguna / Leve (8)', value: 8 },
+          { label: 'Moderada / Obvia (4)', value: 4 },
+          { label: 'Marcada (0)', value: 0 }
+        ] 
+      },
+      // EXAMEN FÍSICO (Movilidad y Estabilidad)
+      { 
+        id: 'p6', 
+        text: '6. Movilidad Sagital (Flexo-extensión):', 
+        type: 'select', 
+        options: [
+          { label: 'Normal o restricción leve (>30°) (8)', value: 8 },
+          { label: 'Restricción moderada (15° - 29°) (4)', value: 4 },
+          { label: 'Restricción severa (<15°) (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p7', 
+        text: '7. Movilidad del retropié (Inversión-Eversión):', 
+        type: 'select', 
+        options: [
+          { label: 'Normal o restricción leve (75% - 100%) (6)', value: 6 },
+          { label: 'Restricción moderada (25% - 74%) (3)', value: 3 },
+          { label: 'Restricción severa (<25%) (0)', value: 0 }
+        ] 
+      },
+      { 
+        id: 'p8', 
+        text: '8. Estabilidad del tobillo (Anteroposterior y Varus-Valgus):', 
+        type: 'select', 
+        options: [
+          { label: 'Estable (8)', value: 8 },
+          { label: 'Inestable (0)', value: 0 }
+        ] 
+      },
+      // SECCIÓN III: ALINEACIÓN (10 Puntos máx)
+      { 
+        id: 'p9', 
+        text: '9. Alineación del pie:', 
+        type: 'select', 
+        options: [
+          { label: 'Buena, pie plantígrado (10)', value: 10 },
+          { label: 'Regular, grado leve de desalineación (5)', value: 5 },
+          { label: 'Mala, desalineación severa (0)', value: 0 }
+        ] 
+      }
     ],
 
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    calcularPuntaje: (respuestas) => {
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 90) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Reintegro deportivo progresivo'] };
-      if (puntaje >= 75) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Ejercicios de propiocepción y equilibrio dinámico'] };
-      return { texto: 'REGULAR / POBRE', color: 'orange-600', evidencia: `${puntaje}/100 puntos.`, recomendaciones: ['Evaluación de órtesis o plantillas', 'Fortalecimiento de peroneos'] };
+    interpretar: (puntaje) => {
+      if (puntaje >= 90) return { 
+        texto: 'EXCELENTE RESULTADO', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Mínimo compromiso funcional del tobillo.`, 
+        recomendaciones: [
+          'Mantener ejercicios de propiocepción monopodales.',
+          'Reentrenamiento del gesto deportivo si aplica.',
+          'Fortalecimiento preventivo de peroneos y tibial posterior.'
+        ] 
+      };
+      if (puntaje >= 75) return { 
+        texto: 'BUEN RESULTADO', 
+        color: 'green-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Discreta limitación en terrenos irregulares o rangos finales.`, 
+        recomendaciones: [
+          'Kinesioterapia: Terapia manual ortopédica para ganar grados de dorsiflexión.',
+          'Uso de calzado con buen soporte de retropié.',
+          'Pautas de estiramiento de cadena posterior.'
+        ] 
+      };
+      if (puntaje >= 50) return { 
+        texto: 'RESULTADO REGULAR', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/100. Limitación funcional moderada con dolor diario.`, 
+        recomendaciones: [
+          'Evaluar necesidad de plantillas ortopédicas.',
+          'Fortalecimiento muscular analítico y funcional.',
+          'Evitar actividades de alto impacto temporalmente.'
+        ] 
+      };
+      return { 
+        texto: 'RESULTADO POBRE', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/100. Gran compromiso de la marcha y estabilidad.`, 
+        recomendaciones: [
+          'Consulta con especialista en pie y tobillo.',
+          'Inmovilización parcial o uso de ortesis si hay inestabilidad marcada.',
+          'Control de edema y dolor como prioridad inicial.'
+        ] 
+      };
     }
   },
 
