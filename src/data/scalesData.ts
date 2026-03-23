@@ -2725,24 +2725,101 @@ export const scales: Scale[] = [
     id: 'oxford_knee_score',
     nombre: 'Oxford Knee Score (OKS)',
     categoria: 'traumatologia',
-    descripcion: 'Cuestionario de 12 ítems para medir el resultado de la artroplastia de rodilla.',
+    descripcion: 'Evaluación de los resultados funcionales y dolor tras artroplastia o cirugía mayor de rodilla (12 ítems).',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 9660544) ---
-    bibliografia: "Dawson J, et al. Questionnaire on the perceptions of patients about total knee replacement. J Bone Joint Surg Br. 1998.",
+    bibliografia: "Dawson J, Fitzpatrick R, Murray D, Carr A. Questionnaire on the perceptions of patients about total knee replacement. J Bone Joint Surg Br. 1998;80(1):63-9.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9513363/",
-    evidenciaClinica: "Puntaje de 0 a 48. Es la herramienta preferida en auditorías clínicas por su correlación con la satisfacción del paciente.",
+    evidenciaClinica: "Puntaje de 0 a 48. Es la herramienta preferida en auditorías clínicas internacionales. Un cambio de 5 puntos es el cambio mínimo importante.",
 
     preguntas: [
-      { id: 'suma_bruta', text: 'Suma de los 12 ítems (cada uno de 0 a 4):', type: 'number', min: 0, max: 48 }
+      { id: 'p1', text: '1. Dolor habitual en la rodilla:', type: 'select', options: [
+        { label: 'Ninguno (4)', value: 4 }, { label: 'Muy leve (3)', value: 3 }, { label: 'Leve (2)', value: 2 }, { label: 'Moderado (1)', value: 1 }, { label: 'Severo (0)', value: 0 }
+      ]},
+      { id: 'p2', text: '2. Dificultad para lavarse y secarse (debido a la rodilla):', type: 'select', options: [
+        { label: 'Ninguna (4)', value: 4 }, { label: 'Poca dificultad (3)', value: 3 }, { label: 'Dificultad moderada (2)', value: 2 }, { label: 'Mucha dificultad (1)', value: 1 }, { label: 'Imposible (0)', value: 0 }
+      ]},
+      { id: 'p3', text: '3. Dificultad para subir o bajar de un auto/transporte:', type: 'select', options: [
+        { label: 'Ninguna (4)', value: 4 }, { label: 'Poca dificultad (3)', value: 3 }, { label: 'Dificultad moderada (2)', value: 2 }, { label: 'Mucha dificultad (1)', value: 1 }, { label: 'Imposible (0)', value: 0 }
+      ]},
+      { id: 'p4', text: '4. ¿Cuánto tiempo puede caminar antes de que el dolor sea grave?', type: 'select', options: [
+        { label: 'Más de 30 min (4)', value: 4 }, { label: '16 a 30 min (3)', value: 3 }, { label: '5 a 15 min (2)', value: 2 }, { label: 'Solo alrededor de casa (1)', value: 1 }, { label: 'Imposible caminar (0)', value: 0 }
+      ]},
+      { id: 'p5', text: '5. Dolor tras estar sentado y luego intentar levantarse:', type: 'select', options: [
+        { label: 'Nada (4)', value: 4 }, { label: 'Un poco (3)', value: 3 }, { label: 'Moderado (2)', value: 2 }, { label: 'Mucho (1)', value: 1 }, { label: 'Inbearable (0)', value: 0 }
+      ]},
+      { id: 'p6', text: '6. ¿Ha estado cojeando al caminar debido a la rodilla?', type: 'select', options: [
+        { label: 'Nunca (4)', value: 4 }, { label: 'Raramente (3)', value: 3 }, { label: 'A veces (2)', value: 2 }, { label: 'Casi siempre (1)', value: 1 }, { label: 'Siempre (0)', value: 0 }
+      ]},
+      { id: 'p7', text: '7. ¿Podría arrodillarse y levantarse después?', type: 'select', options: [
+        { label: 'Fácilmente (4)', value: 4 }, { label: 'Con poca dificultad (3)', value: 3 }, { label: 'Con dificultad moderada (2)', value: 2 }, { label: 'Con mucha dificultad (1)', value: 1 }, { label: 'Imposible (0)', value: 0 }
+      ]},
+      { id: 'p8', text: '8. ¿Le ha molestado el dolor de rodilla en la cama por la noche?', type: 'select', options: [
+        { label: 'Nunca (4)', value: 4 }, { label: 'Solo una noche (3)', value: 3 }, { label: 'Algunas noches (2)', value: 2 }, { label: 'La mayoría de las noches (1)', value: 1 }, { label: 'Todas las noches (0)', value: 0 }
+      ]},
+      { id: 'p9', text: '9. ¿Cuánto ha interferido el dolor con su trabajo habitual?', type: 'select', options: [
+        { label: 'Nada (4)', value: 4 }, { label: 'Un poco (3)', value: 3 }, { label: 'Moderadamente (2)', value: 2 }, { label: 'Mucho (1)', value: 1 }, { label: 'Totalmente (0)', value: 0 }
+      ]},
+      { id: 'p10', text: '10. ¿Ha sentido que la rodilla "se le va" o falla?', type: 'select', options: [
+        { label: 'Nunca (4)', value: 4 }, { label: 'Raramente (3)', value: 3 }, { label: 'A veces (2)', value: 2 }, { label: 'Casi siempre (1)', value: 1 }, { label: 'Siempre (0)', value: 0 }
+      ]},
+      { id: 'p11', text: '11. ¿Puede hacer las compras por sí solo?', type: 'select', options: [
+        { label: 'Fácilmente (4)', value: 4 }, { label: 'Con poca dificultad (3)', value: 3 }, { label: 'Con dificultad moderada (2)', value: 2 }, { label: 'Con mucha dificultad (1)', value: 1 }, { label: 'Imposible (0)', value: 0 }
+      ]},
+      { id: 'p12', text: '12. ¿Puede bajar un tramo de escaleras?', type: 'select', options: [
+        { label: 'Fácilmente (4)', value: 4 }, { label: 'Con poca dificultad (3)', value: 3 }, { label: 'Con dificultad moderada (2)', value: 2 }, { label: 'Con mucha dificultad (1)', value: 1 }, { label: 'Imposible (0)', value: 0 }
+      ]}
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.suma_bruta) || 0,
+    calcularPuntaje: (respuestas) => {
+      // Suma de los 12 ítems (0 a 4 pts cada uno)
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 40) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Control anual', 'Excelente éxito quirúrgico'] };
-      if (puntaje >= 30) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Continuar programa de ejercicios domiciliario'] };
-      if (puntaje >= 20) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Kinesioterapia: mejorar rangos y fuerza de cuádriceps'] };
-      return { texto: 'POBRE / DEFICIENTE', color: 'red-600', evidencia: `${puntaje}/48 pts.`, recomendaciones: ['Evaluación médica urgente: descartar artrofibrosis o infección de prótesis'] };
+    interpretar: (puntaje) => {
+      if (puntaje >= 40) return { 
+        texto: 'EXCELENTE FUNCIÓN', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/48. Éxito quirúrgico y funcional sobresaliente.`, 
+        recomendaciones: [
+          'Mantener programa de ejercicios de bajo impacto.',
+          'Alta kinésica protocolizada.',
+          'Control médico anual de la prótesis.'
+        ] 
+      };
+      
+      if (puntaje >= 30) return { 
+        texto: 'BUENA FUNCIÓN', 
+        color: 'green-500', 
+        evidencia: `Puntaje: ${puntaje}/48. El paciente funciona bien pero refiere molestias leves.`, 
+        recomendaciones: [
+          'Reforzar musculatura de cuádriceps e isquiotibiales.',
+          'Educación en protección articular durante AVD.',
+          'Seguimiento mensual para optimizar rangos.'
+        ] 
+      };
+
+      if (puntaje >= 20) return { 
+        texto: 'FUNCIÓN REGULAR / MODERADA', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/48. Limitaciones significativas en la vida diaria.`, 
+        recomendaciones: [
+          'Intensificar kinesioterapia motora.',
+          'Evaluar estado inflamatorio de la articulación.',
+          'Revisar uso de ayudas técnicas temporales.'
+        ] 
+      };
+
+      return { 
+        texto: 'POBRE / DEFICIENTE', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/48. Grave compromiso funcional.`, 
+        recomendaciones: [
+          'Evaluación médica urgente por traumatólogo.',
+          'Descartar complicaciones (aflojamiento protésico, infección o artrofibrosis).',
+          'Manejo analgésico de rescate y reposo relativo.'
+        ] 
+      };
     }
   },
 
