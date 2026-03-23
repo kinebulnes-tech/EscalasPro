@@ -1,7 +1,7 @@
 // src/components/ReportSummary.tsx
 import { 
   Trash2, FileText, ArrowLeft, TrendingUp, TrendingDown, 
-  Minus, Award, AlertCircle, User, Activity 
+  Minus, Award, AlertCircle, User, Activity, Scale 
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { toPng } from 'html-to-image'; 
@@ -67,6 +67,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     // Encabezado
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18); doc.setTextColor(0, 128, 128);
+    // ✅ CORRECCIÓN: Nombre del informe sobrio
     doc.text("INFORME DE EVOLUCIÓN CLÍNICA", 20, y);
     y += 10; doc.setDrawColor(0, 128, 128); doc.setLineWidth(0.8); doc.line(20, y, 190, y); 
     
@@ -77,9 +78,28 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     y += 7; doc.setFont("helvetica", "normal");
     doc.text(`Diagnóstico: ${paciente.diagnostico} | Edad: ${paciente.edad} años`, 20, y);
 
-    // ✅ SECCIÓN CONCLUSIONES AUTOMÁTICAS
-    if (escalasConHistorial.length > 0) {
+    // ✅ CORRECCIÓN: BLOQUE DE ANTROPOMETRÍA RESTAURADO EN PDF
+    if (paciente.peso && paciente.talla) {
+      y += 10;
+      doc.setFillColor(248, 250, 252); // Fondo gris muy suave
+      doc.rect(18, y - 5, 175, 12, 'F');
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(0, 128, 128);
+      doc.text(`ANTROPOMETRÍA:`, 22, y + 2);
+      
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(50, 50, 50);
+      doc.text(`Peso: ${paciente.peso} kg   |   Talla: ${paciente.talla} cm   |   IMC: ${paciente.imc || 'N/A'}`, 60, y + 2);
       y += 15;
+    } else {
+      y += 15;
+    }
+
+    // SECCIÓN CONCLUSIONES AUTOMÁTICAS
+    if (escalasConHistorial.length > 0) {
+      if (y > 230) { doc.addPage(); y = 20; }
       doc.setFillColor(240, 250, 250);
       doc.rect(18, y, 175, 25, 'F');
       doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(0, 100, 100);
@@ -96,12 +116,14 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     }
 
     // Análisis de Avance %
+    if (y > 240) { doc.addPage(); y = 20; }
     doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
     doc.text("COMPARATIVA PORCENTUAL DE LOGROS", 20, y);
     y += 8;
     escalasConHistorial.forEach(([nombre, items]) => {
       const data = analizarProgreso(items);
       if (data) {
+        if (y > 270) { doc.addPage(); y = 20; }
         doc.setFontSize(9); doc.setTextColor(0, 0, 0);
         doc.text(`• ${nombre}:`, 25, y);
         doc.setFont("helvetica", "bold");
@@ -110,7 +132,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       }
     });
 
-    // ✅ RENDERIZADO DE GRÁFICOS EN PDF
+    // RENDERIZADO DE GRÁFICOS EN PDF
     if (escalasConHistorial.length > 0) {
       y += 10;
       for (const [nombre, items] of escalasConHistorial) {
@@ -132,9 +154,14 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     }
 
     const pageHeight = doc.internal.pageSize.height;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, pageHeight - 35, 90, pageHeight - 35);
+    doc.setFontSize(8); doc.setTextColor(100, 100, 100);
+    doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
+    
     doc.setFontSize(7); doc.setTextColor(150, 150, 150);
-    doc.text("Generado por EscalaPro Intelligence v1.0 - Medicion Basada en Evidencia", 20, pageHeight - 10);
-    doc.save(`Informe_Consolidado_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
+    doc.text("Generado por EscalaPro Intelligence v1.0 - Kinesiología Basada en Evidencia", 20, pageHeight - 10);
+    doc.save(`Informe_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
   };
 
   return (
@@ -152,9 +179,23 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
             <span>|</span>
             <span className="flex items-center gap-1"><Activity size={12}/> {paciente.diagnostico}</span>
           </div>
+          
+          {/* ✅ CORRECCIÓN: DATOS DE IMC, TALLA Y PESO RESTAURADOS EN LA APP */}
+          {paciente.peso && (
+            <div className="mt-5 flex items-center gap-6 bg-white/5 p-4 rounded-2xl border border-white/10 animate-in fade-in duration-500">
+              <div className="flex items-center gap-2 text-teal-400">
+                 <Scale size={18} />
+                 <span className="text-xs font-black italic">IMC: {paciente.imc}</span>
+              </div>
+              <div className="text-white/50 text-[11px] font-medium">
+                {paciente.peso} kg / {paciente.talla} cm
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="p-8 lg:p-12">
+          {/* WIDGETS NIVEL DIOS */}
           {escalasConHistorial.length > 0 && (
             <div className="mb-10 space-y-4">
               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Métricas de Rendimiento</h4>
@@ -183,6 +224,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
             </div>
           )}
 
+          {/* Gráficos de Tendencia */}
           {escalasConHistorial.length > 0 && (
             <div className="mb-12 space-y-4 bg-slate-50/50 p-6 lg:p-10 rounded-[3rem] border border-slate-100">
               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-6">Análisis Visual de Progresión</h4>
@@ -215,7 +257,8 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
           <button onClick={generateMasterPDF} className="group w-full bg-slate-900 text-white py-8 rounded-[2.5rem] font-black text-xl shadow-2xl flex items-center justify-center gap-4 active:scale-95 transition-all overflow-hidden relative">
             <div className="absolute inset-0 bg-teal-600 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
             <FileText size={28} className="relative z-10" /> 
-            <span className="relative z-10">GENERAR INFORME ELITE</span>
+            {/* ✅ CORRECCIÓN: Texto sobrio en el botón */}
+            <span className="relative z-10">DESCARGAR INFORME PROFESIONAL</span>
           </button>
         </div>
       </div>
