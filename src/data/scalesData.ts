@@ -3365,34 +3365,87 @@ export const scales: Scale[] = [
   },
 
   {
-    id: 'mmse_abreviado_chile',
-    nombre: 'Minimental Abreviado (v. Chilena)',
+    id: 'mmse_abreviado_chile_completo',
+    nombre: 'Minimental Abreviado (v. Chilena - EFAM)',
     categoria: 'geriatria',
-    descripcion: 'Prueba de cribado cognitivo validada en Chile para el Examen Funcional del Adulto Mayor (EFAM).',
+    descripcion: 'Prueba de cribado cognitivo de 19 puntos validada en Chile para el Examen Funcional del Adulto Mayor.',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (Chile - MINSAL) ---
-    bibliografia: "Ministerio de Salud de Chile. Manual del Examen Funcional del Adulto Mayor (EFAM).",
-    referenciaUrl: "https://www.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf",
+    // --- RIGOR CIENTÍFICO VERIFICADO (MINSAL Chile) ---
+    bibliografia: "Ministerio de Salud de Chile. Manual del Examen Funcional del Adulto Mayor (EFAM). Subsecretaría de Salud Pública.",
+    referenciaUrl: "https://web.minsal.cl/portal/url/item/ab1f420894080649e04001011e01297e.pdf", 
+    evidenciaClinica: "Puntaje máximo de 19. Un puntaje < 13 indica sospecha de deterioro cognitivo. Es la herramienta de tamizaje obligatoria en la APS chilena.",
 
     preguntas: [
-      { id: 'orientacion', text: 'Orientación (Mes, Día del mes, Día semana, Año) (0-4 pts):', type: 'number', min: 0, max: 4 },
-      { id: 'memoria', text: 'Memoria Corto Plazo (Repetir 3 palabras: Árbol, Mesa, Avión) (0-3 pts):', type: 'number', min: 0, max: 3 },
-      { id: 'atencion', text: 'Atención (Restar 7 desde 100 cinco veces) (0-5 pts):', type: 'number', min: 0, max: 5 },
-      { id: 'evocacion', text: 'Evocación (Recordar las 3 palabras anteriores) (0-3 pts):', type: 'number', min: 0, max: 3 },
-      { id: 'copia_dibujo', text: 'Copia de Dibujo (Pentágonos cruzados) (0-4 pts):', type: 'number', min: 0, max: 4 }
+      // === SECCIÓN 1: ORIENTACIÓN (4 pts) ===
+      { id: 'o1', text: '1. ¿Qué mes es hoy?:', type: 'select', options: [{ label: 'Correcto (1)', value: 1 }, { label: 'Incorrecto (0)', value: 0 }] },
+      { id: 'o2', text: '2. ¿Qué día del mes es hoy?:', type: 'select', options: [{ label: 'Correcto (1)', value: 1 }, { label: 'Incorrecto (0)', value: 0 }] },
+      { id: 'o3', text: '3. ¿Qué día de la semana es hoy?:', type: 'select', options: [{ label: 'Correcto (1)', value: 1 }, { label: 'Incorrecto (0)', value: 0 }] },
+      { id: 'o4', text: '4. ¿En qué año estamos?:', type: 'select', options: [{ label: 'Correcto (1)', value: 1 }, { label: 'Incorrecto (0)', value: 0 }] },
+
+      // === SECCIÓN 2: MEMORIA DE CORTO PLAZO (REGISTRO) (3 pts) ===
+      { id: 'm1', text: '5. Repita estas 3 palabras: Árbol, Mesa, Avión (Puntúe 1 por cada una repetida correctamente al primer intento):', type: 'select', options: [
+        { label: '3 palabras (3)', value: 3 }, { label: '2 palabras (2)', value: 2 }, { label: '1 palabra (1)', value: 1 }, { label: '0 palabras (0)', value: 0 }
+      ]},
+
+      // === SECCIÓN 3: ATENCIÓN Y CÁLCULO (5 pts) ===
+      { id: 'c1', text: '6. Reste de 7 en 7 a partir de 100 (100-93-86-79-72-65). Detenerse tras 5 restas. (1 punto por cada resta correcta):', type: 'select', options: [
+        { label: '5 aciertos (5)', value: 5 }, { label: '4 aciertos (4)', value: 4 }, { label: '3 aciertos (3)', value: 3 }, { label: '2 aciertos (2)', value: 2 }, { label: '1 acierto (1)', value: 1 }, { label: '0 aciertos (0)', value: 0 }
+      ]},
+
+      // === SECCIÓN 4: EVOCACIÓN (MEMORIA DIFERIDA) (3 pts) ===
+      { id: 'e1', text: '7. ¿Recuerda las 3 palabras que le pedí memorizar hace un momento? (Árbol, Mesa, Avión):', type: 'select', options: [
+        { label: 'Recuerda las 3 (3)', value: 3 }, { label: 'Recuerda 2 (2)', value: 2 }, { label: 'Recuerda 1 (1)', value: 1 }, { label: 'No recuerda ninguna (0)', value: 0 }
+      ]},
+
+      // === SECCIÓN 5: CAPACIDAD EJECUTIVA / COPIA (4 pts) ===
+      { id: 'd1', text: '8. Copia de dibujo (Pentágonos cruzados):', type: 'select', options: [
+        { label: 'Logra 10 ángulos y cruce de 4 ángulos (4)', value: 4 },
+        { label: 'Logra dibujo pero con errores menores (2)', value: 2 },
+        { label: 'Incapaz o dibujo muy alterado (0)', value: 0 }
+      ]}
     ],
 
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    calcularPuntaje: (respuestas) => {
+      // Suma total de los 19 puntos posibles
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje) => {
       if (puntaje < 13) return { 
-        texto: 'SOSPECHA DE DETERIORO COGNITIVO', color: 'red-600', evidencia: `Puntaje ${puntaje}/19.`,
-        recomendaciones: ['Derivación para evaluación neuropsicológica (MoCA)', 'Realizar Test del Reloj', 'Solicitar exámenes de laboratorio (B12, TSH)']
+        texto: 'SOSPECHA DE DETERIORO COGNITIVO', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/19. Resultado bajo el punto de corte (13 pts) establecido por MINSAL.`,
+        recomendaciones: [
+          'Derivación a Médico para evaluación de síndrome demencial.',
+          'Realizar Test del Reloj para complementar evaluación ejecutiva.',
+          'Solicitar exámenes de laboratorio (Vitamina B12, TSH, Electrolitos) para descartar causas reversibles.',
+          'Evaluar nivel de escolaridad (en analfabetos el punto de corte puede variar según juicio clínico).'
+        ]
       };
-      return { texto: 'Normal', color: 'emerald-600', evidencia: `Puntaje ${puntaje}/19.`, recomendaciones: ['Estimulación cognitiva preventiva'] };
+
+      if (puntaje <= 14) return { 
+        texto: 'ESTADO COGNITIVO LIMÍTROFE', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/19. El paciente se encuentra en el límite de la normalidad.`,
+        recomendaciones: [
+          'Sugerir talleres de estimulación cognitiva preventiva.',
+          'Controlar factores de riesgo cardiovascular (HTA, Diabetes).',
+          'Repetir evaluación en 6 meses para vigilar progresión.'
+        ]
+      };
+
+      return { 
+        texto: 'ESTADO COGNITIVO NORMAL', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/19. Rendimiento adecuado para su edad cronológica.`,
+        recomendaciones: [
+          'Mantener actividades de socialización y lectura.',
+          'Continuar controles preventivos en su centro de salud (EMPAM).',
+          'Fomentar el aprendizaje de nuevas habilidades.'
+        ] 
+      };
     }
   },
-
   {
     id: 'charlson_comorbilidad',
     nombre: 'Índice de Comorbilidad de Charlson',
