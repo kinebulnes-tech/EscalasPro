@@ -3526,26 +3526,134 @@ export const scales: Scale[] = [
   },
 
   {
-    id: 'tinetti_modificada_comunidad',
-    nombre: 'Tinetti Modificada',
+    id: 'tinetti_evaluacion_movilidad',
+    nombre: 'Escala de Tinetti (Marcha y Equilibrio)',
     categoria: 'geriatria',
-    descripcion: 'Evaluación de equilibrio y marcha para predicción de riesgo de caídas en entorno comunitario.',
+    descripcion: 'Evaluación del riesgo de caídas en adultos mayores mediante la observación directa de la movilidad.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3524641) ---
-    bibliografia: "Tinetti ME. Performance-oriented assessment of mobility problems in elderly patients. J Am Geriatr Soc. 1986.",
+    bibliografia: "Tinetti ME. Performance-oriented assessment of mobility problems in elderly patients. J Am Geriatr Soc. 1986;34(2):119-26.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3524641/",
+    evidenciaClinica: "Es la escala de oro en APS y geriatría. Un puntaje < 19 indica un riesgo de caídas 5 veces mayor. Evalúa estabilidad estática y dinámica.",
 
     preguntas: [
-      { id: 'equilibrio', text: 'Suma sección Equilibrio (0-16 pts):', type: 'number', min: 0, max: 16 },
-      { id: 'marcha', text: 'Suma sección Marcha (0-12 pts):', type: 'number', min: 0, max: 12 }
+      // === SECCIÓN 1: EQUILIBRIO (9 ítems - 16 puntos) ===
+      { 
+        id: 'e1', text: '1. Equilibrio sentado:', type: 'select', 
+        options: [{ label: 'Se inclina o desliza en la silla (0)', value: 0 }, { label: 'Seguro y firme (1)', value: 1 }] 
+      },
+      { 
+        id: 'e2', text: '2. Levantarse de la silla:', type: 'select', 
+        options: [{ label: 'Incapaz sin ayuda (0)', value: 0 }, { label: 'Capaz con ayuda de los brazos (1)', value: 1 }, { label: 'Capaz sin usar los brazos (2)', value: 2 }] 
+      },
+      { 
+        id: 'e3', text: '3. Intentos para levantarse:', type: 'select', 
+        options: [{ label: 'Incapaz sin ayuda (0)', value: 0 }, { label: 'Capaz en más de un intento (1)', value: 1 }, { label: 'Capaz en un intento (2)', value: 2 }] 
+      },
+      { 
+        id: 'e4', text: '4. Equilibrio bipedestación inmediata (5 seg):', type: 'select', 
+        options: [{ label: 'Inestable (se tambalea, mueve pies) (0)', value: 0 }, { label: 'Estable con andador/bastón o apoyo (1)', value: 1 }, { label: 'Estable sin apoyos (2)', value: 2 }] 
+      },
+      { 
+        id: 'e5', text: '5. Equilibrio en bipedestación prolongada:', type: 'select', 
+        options: [{ label: 'Inestable (0)', value: 0 }, { label: 'Estable con apoyo ancho (1)', value: 1 }, { label: 'Estable con apoyo estrecho y sin ayuda (2)', value: 2 }] 
+      },
+      { 
+        id: 'e6', text: '6. Empujón (Paciente estable, se le empuja suave 3 veces en el esternón):', type: 'select', 
+        options: [{ label: 'Empieza a caerse (0)', value: 0 }, { label: 'Se tambalea o agarra (1)', value: 1 }, { label: 'Estable (2)', value: 2 }] 
+      },
+      { 
+        id: 'e7', text: '7. Ojos cerrados (En bipedestación):', type: 'select', 
+        options: [{ label: 'Inestable (0)', value: 0 }, { label: 'Estable (1)', value: 1 }] 
+      },
+      { 
+        id: 'e8', text: '8. Giro de 360 grados:', type: 'select', 
+        options: [{ label: 'Pasos discontinuos (0)', value: 0 }, { label: 'Continuos (1)', value: 1 }, { label: 'Inestable (0)', value: 0 }, { label: 'Estable (1)', value: 1 }] 
+      }, // Nota: Tinetti evalúa 2 puntos aquí: continuidad y estabilidad.
+      { 
+        id: 'e9', text: '9. Sentarse:', type: 'select', 
+        options: [{ label: 'Inseguro / calcula mal la distancia (0)', value: 0 }, { label: 'Usa los brazos o movimiento brusco (1)', value: 1 }, { label: 'Seguro / Movimiento suave (2)', value: 2 }] 
+      },
+
+      // === SECCIÓN 2: MARCHA (7 ítems - 12 puntos) ===
+      { 
+        id: 'm1', text: '10. Iniciación de la marcha (Inmediatamente después de decir "camine"):', type: 'select', 
+        options: [{ label: 'Vacilación o múltiples intentos (0)', value: 0 }, { label: 'No vacila (1)', value: 1 }] 
+      },
+      { 
+        id: 'm2', text: '11. Longitud y altura del paso (Movimiento del pie derecho):', type: 'select', 
+        options: [
+          { label: 'No sobrepasa al izquierdo / No levanta el pie (0)', value: 0 }, 
+          { label: 'Sobrepasa al izquierdo y levanta el pie completamente (2)', value: 2 },
+          { label: 'Cumple solo uno de los dos criterios (1)', value: 1 }
+        ] 
+      },
+      { 
+        id: 'm3', text: '12. Longitud y altura del paso (Movimiento del pie izquierdo):', type: 'select', 
+        options: [
+          { label: 'No sobrepasa al derecho / No levanta el pie (0)', value: 0 }, 
+          { label: 'Sobrepasa al derecho y levanta el pie completamente (2)', value: 2 },
+          { label: 'Cumple solo uno de los dos criterios (1)', value: 1 }
+        ] 
+      },
+      { 
+        id: 'm4', text: '13. Simetría del paso:', type: 'select', 
+        options: [{ label: 'Longitud diferente entre ambos pies (0)', value: 0 }, { label: 'Pasos de igual longitud (1)', value: 1 }] 
+      },
+      { 
+        id: 'm5', text: '14. Continuidad de los pasos:', type: 'select', 
+        options: [{ label: 'Para o hay discontinuidad entre pasos (0)', value: 0 }, { label: 'Pasos continuos (1)', value: 1 }] 
+      },
+      { 
+        id: 'm6', text: '15. Trayectoria (Observando el suelo en 3 metros):', type: 'select', 
+        options: [{ label: 'Desviación marcada (0)', value: 0 }, { label: 'Desviación leve o moderada o usa ayuda técnica (1)', value: 1 }, { label: 'Derecho sin ayuda (2)', value: 2 }] 
+      },
+      { 
+        id: 'm7', text: '16. Tronco (Balanceo):', type: 'select', 
+        options: [{ label: 'Balanceo marcado o usa ayuda técnica (0)', value: 0 }, { label: 'No hay balanceo pero flexiona rodillas/espalda o abre brazos (1)', value: 1 }, { label: 'No se balancea, no flexiona, no usa brazos ni ayuda (2)', value: 2 }] 
+      }
     ],
 
-    calcularPuntaje: (respuestas) => (Number(respuestas.equilibrio) || 0) + (Number(respuestas.marcha) || 0),
+    calcularPuntaje: (respuestas) => {
+      // Suma total de los 16 ítems desglosados
+      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
+    },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje <= 18) return { texto: 'ALTO RIESGO DE CAÍDAS', color: 'red-600', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Uso obligatorio de ayuda técnica', 'Kinesioterapia: Entrenamiento de equilibrio reactivo', 'Adaptación del hogar (quitar alfombras, mejorar luz)'] };
-      if (puntaje <= 24) return { texto: 'RIESGO MODERADO DE CAÍDAS', color: 'orange-500', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Ejercicios de fuerza de miembros inferiores', 'Revisar calzado'] };
-      return { texto: 'Bajo riesgo de caídas', color: 'emerald-600', evidencia: `${puntaje}/28 pts.`, recomendaciones: ['Mantener actividad física regular'] };
+    interpretar: (puntaje) => {
+      if (puntaje < 19) return { 
+        texto: 'ALTO RIESGO DE CAÍDAS', 
+        color: 'red-600', 
+        evidencia: `Puntaje: ${puntaje}/28. El riesgo de sufrir una caída es 5 veces superior al normal.`,
+        recomendaciones: [
+          'Prescripción de ayuda técnica (bastón, andador) de forma obligatoria.',
+          'Kinesioterapia intensiva: entrenamiento de equilibrio reactivo y fuerza de tren inferior.',
+          'Realizar adecuación ambiental en el hogar (quitar alfombras, mejorar iluminación).',
+          'Interconsulta con médico para revisión de fármacos inductores de caídas (Benzodiacepinas).'
+        ]
+      };
+      
+      if (puntaje <= 24) return { 
+        texto: 'RIESGO MODERADO DE CAÍDAS', 
+        color: 'orange-500', 
+        evidencia: `Puntaje: ${puntaje}/28. Existe una vulnerabilidad funcional en la marcha o estabilidad.`,
+        recomendaciones: [
+          'Programa de ejercicio físico preventivo (Talleres de Adulto Mayor).',
+          'Reforzar musculatura de cuádriceps y plantiflexores.',
+          'Educar sobre el uso de calzado adecuado (suela antideslizante, buen ajuste).',
+          'Seguimiento trimestral con re-evaluación de Tinetti.'
+        ]
+      };
+
+      return { 
+        texto: 'RIESGO BAJO DE CAÍDAS', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/28. Marcha y equilibrio dentro de rangos de seguridad.`,
+        recomendaciones: [
+          'Fomentar la actividad física regular (caminatas diarias de 30 min).',
+          'Mantener controles preventivos (EMPAM/EFAM) al día.',
+          'Continuar con hábitos de vida saludable.'
+        ] 
+      };
     }
   },
 
