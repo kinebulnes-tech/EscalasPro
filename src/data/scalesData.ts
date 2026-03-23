@@ -2085,32 +2085,219 @@ export const scales: Scale[] = [
     id: 'ndi_cervical',
     nombre: 'Índice de Discapacidad Cervical (NDI)',
     categoria: 'traumatologia',
-    descripcion: 'Evaluación de cómo el dolor de cuello afecta la capacidad de gestionar la vida diaria.',
+    descripcion: 'Cuestionario para evaluar la discapacidad funcional causada por el dolor de cuello en 10 dimensiones.',
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 1730411) ---
-    bibliografia: "Vernon H, Mior S. The Neck Disability Index: a study of reliability and validity. J Manipulative Physiol Ther. 1991.",
+    bibliografia: "Vernon H, Mior S. The Neck Disability Index: a study of reliability and validity. J Manipulative Physiol Ther. 1991 Sep;14(7):409-15.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1730411/", 
-    evidenciaClinica: "Es la herramienta más validada para evaluar el latigazo cervical (whiplash) y radiculopatías cervicales. Un cambio de 5 puntos (10%) se considera clínicamente relevante.",
+    evidenciaClinica: "Es la herramienta más validada para evaluar el latigazo cervical (whiplash) y radiculopatías. Un cambio de 5 puntos (10%) se considera el Mínimo Cambio Clínicamente Importante (MCID).",
 
     preguntas: [
-      { id: 'suma_total', text: 'Suma total de los 10 ítems (0 a 5 cada uno):', type: 'number' }
+      { 
+        id: 'p1', 
+        text: '1. Intensidad del Dolor:', 
+        type: 'select', 
+        options: [
+          { label: 'No tengo dolor en este momento (0)', value: 0 },
+          { label: 'El dolor es muy leve en este momento (1)', value: 1 },
+          { label: 'El dolor es moderado en este momento (2)', value: 2 },
+          { label: 'El dolor es bastante severo en este momento (3)', value: 3 },
+          { label: 'El dolor es muy severo en este momento (4)', value: 4 },
+          { label: 'El dolor es el peor imaginable en este momento (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p2', 
+        text: '2. Cuidados Personales (lavarse, vestirse, etc.):', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo cuidarme normalmente sin que me aumente el dolor (0)', value: 0 },
+          { label: 'Puedo cuidarme normalmente pero me aumenta el dolor (1)', value: 1 },
+          { label: 'Me duele cuidarme y lo hago despacio y con cuidado (2)', value: 2 },
+          { label: 'Necesito alguna ayuda pero consigo hacerlo casi todo solo (3)', value: 3 },
+          { label: 'Necesito ayuda diaria en la mayoría de los aspectos (4)', value: 4 },
+          { label: 'No puedo vestirme, me lavo con dificultad y me quedo en cama (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p3', 
+        text: '3. Levantar Objetos:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo levantar objetos pesados sin dolor (0)', value: 0 },
+          { label: 'Puedo levantar objetos pesados pero con dolor (1)', value: 1 },
+          { label: 'El dolor me impide levantar objetos pesados del suelo (2)', value: 2 },
+          { label: 'Solo puedo levantar objetos pesados si están en un lugar alto (3)', value: 3 },
+          { label: 'Solo puedo levantar objetos muy ligeros (4)', value: 4 },
+          { label: 'No puedo levantar ni cargar nada (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p4', 
+        text: '4. Lectura:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo leer tanto como quiera sin dolor de cuello (0)', value: 0 },
+          { label: 'Puedo leer tanto como quiera con un ligero dolor de cuello (1)', value: 1 },
+          { label: 'Puedo leer tanto como quiera con un dolor moderado (2)', value: 2 },
+          { label: 'No puedo leer tanto como quisiera por el dolor moderado (3)', value: 3 },
+          { label: 'Apenas puedo leer por el dolor severo de cuello (4)', value: 4 },
+          { label: 'No puedo leer nada en absoluto (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p5', 
+        text: '5. Dolor de Cabeza:', 
+        type: 'select', 
+        options: [
+          { label: 'No tengo dolores de cabeza en absoluto (0)', value: 0 },
+          { label: 'Tengo dolores de cabeza ligeros e infrecuentes (1)', value: 1 },
+          { label: 'Tengo dolores de cabeza moderados e infrecuentes (2)', value: 2 },
+          { label: 'Tengo dolores de cabeza moderados y frecuentes (3)', value: 3 },
+          { label: 'Tengo dolores de cabeza severos y frecuentes (4)', value: 4 },
+          { label: 'Tengo dolores de cabeza casi todo el tiempo (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p6', 
+        text: '6. Concentración:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo concentrarme plenamente sin dificultad (0)', value: 0 },
+          { label: 'Puedo concentrarme plenamente con ligera dificultad (1)', value: 1 },
+          { label: 'Tengo un grado moderado de dificultad para concentrarme (2)', value: 2 },
+          { label: 'Tengo mucha dificultad para concentrarme (3)', value: 3 },
+          { label: 'Tengo gran dificultad para concentrarme (4)', value: 4 },
+          { label: 'No puedo concentrarme en absoluto (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p7', 
+        text: '7. Trabajo:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo trabajar tanto como quiera (0)', value: 0 },
+          { label: 'Solo puedo hacer mi trabajo habitual pero no más (1)', value: 1 },
+          { label: 'Puedo hacer la mayor parte de mi trabajo pero no más (2)', value: 2 },
+          { label: 'No puedo hacer mi trabajo habitual (3)', value: 3 },
+          { label: 'Apenas puedo hacer ningún trabajo (4)', value: 4 },
+          { label: 'No puedo hacer ningún trabajo en absoluto (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p8', 
+        text: '8. Conducir (si aplica):', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo conducir mi auto sin dolor de cuello (0)', value: 0 },
+          { label: 'Puedo conducir tanto como quiera con ligero dolor (1)', value: 1 },
+          { label: 'Puedo conducir tanto como quiera con dolor moderado (2)', value: 2 },
+          { label: 'No puedo conducir tanto como quiera por el dolor (3)', value: 3 },
+          { label: 'Apenas puedo conducir por el dolor severo (4)', value: 4 },
+          { label: 'No puedo conducir mi auto en absoluto (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p9', 
+        text: '9. Dormir:', 
+        type: 'select', 
+        options: [
+          { label: 'No tengo problemas para dormir (0)', value: 0 },
+          { label: 'Mi sueño está ligeramente interrumpido (menos de 1h) (1)', value: 1 },
+          { label: 'Mi sueño está algo interrumpido (1-2h) (2)', value: 2 },
+          { label: 'Mi sueño está moderadamente interrumpido (2-3h) (3)', value: 3 },
+          { label: 'Mi sueño está muy interrumpido (3-5h) (4)', value: 4 },
+          { label: 'No puedo dormir en absoluto (5-7h interrumpidas) (5)', value: 5 }
+        ] 
+      },
+      { 
+        id: 'p10', 
+        text: '10. Vida Social / Diversión:', 
+        type: 'select', 
+        options: [
+          { label: 'Puedo participar en todas mis actividades sociales (0)', value: 0 },
+          { label: 'Puedo participar pero me aumenta un poco el dolor (1)', value: 1 },
+          { label: 'El dolor limita algunas de mis actividades, pero aún participo (2)', value: 2 },
+          { label: 'El dolor ha limitado mucho mis actividades sociales (3)', value: 3 },
+          { label: 'Apenas tengo vida social a causa del dolor (4)', value: 4 },
+          { label: 'No tengo vida social en absoluto (5)', value: 5 }
+        ] 
+      }
     ],
 
-    // Cálculo: (Suma / 50) * 100
+    // Cálculo oficial NDI: (Suma / (n_preguntas * 5)) * 100
     calcularPuntaje: (respuestas) => {
-      const suma = Number(respuestas.suma_total) || 0;
-      return (suma / 50) * 100;
+      const valores = Object.values(respuestas).filter(v => v !== undefined && v !== null);
+      if (valores.length === 0) return 0;
+      
+      const suma = valores.reduce((acc, curr) => acc + curr, 0);
+      const maximoPosible = valores.length * 5;
+      
+      const ndiScore = (suma / maximoPosible) * 100;
+      return parseFloat(ndiScore.toFixed(1));
     },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 70) return { texto: 'DISCAPACIDAD COMPLETA', color: 'slate-900', evidencia: `${puntaje}%`, recomendaciones: ['Evaluación por neurocirujano o traumatólogo de columna', 'Manejo de dolor neuropático'] };
-      if (puntaje >= 50) return { texto: 'DISCAPACIDAD SEVERA', color: 'red-600', evidencia: `${puntaje}%`, recomendaciones: ['Kinesioterapia: Control motor cervical y ejercicios de estabilización profunda'] };
-      if (puntaje >= 30) return { texto: 'DISCAPACIDAD MODERADA', color: 'orange-500', evidencia: `${puntaje}%`, recomendaciones: ['Higiene postural laboral', 'Pausas activas y ergonomía'] };
-      if (puntaje >= 10) return { texto: 'DISCAPACIDAD LEVE', color: 'yellow-600', evidencia: `${puntaje}%`, recomendaciones: ['Ejercicios de movilidad', 'Calor local y manejo de estrés'] };
-      return { texto: 'SIN DISCAPACIDAD', color: 'emerald-600', evidencia: `${puntaje}%`, recomendaciones: ['Mantener vida activa'] };
+    interpretar: (puntaje) => {
+      if (puntaje >= 70) return { 
+        texto: 'DISCAPACIDAD COMPLETA', 
+        color: 'slate-900', 
+        evidencia: `${puntaje}% de discapacidad funcional cervical.`, 
+        recomendaciones: [
+          'Evaluación urgente por neurocirujano o traumatólogo de columna.',
+          'Manejo farmacológico del dolor neuropático/agudo.',
+          'Reposo funcional y uso de collarín blando si se indica.',
+          'Vigilancia de sintomatología radicular severa.'
+        ] 
+      };
+      
+      if (puntaje >= 50) return { 
+        texto: 'DISCAPACIDAD SEVERA', 
+        color: 'red-600', 
+        evidencia: `${puntaje}% de discapacidad funcional cervical.`, 
+        recomendaciones: [
+          'Kinesioterapia centrada en control motor cervical y ejercicios de estabilización profunda.',
+          'Evitar posturas mantenidas y cargas sobre los hombros.',
+          'Evaluación de la ergonomía en el descanso nocturno.',
+          'Considerar terapia manual suave según fase clínica.'
+        ] 
+      };
+      
+      if (puntaje >= 30) return { 
+        texto: 'DISCAPACIDAD MODERADA', 
+        color: 'orange-500', 
+        evidencia: `${puntaje}% de discapacidad funcional cervical.`, 
+        recomendaciones: [
+          'Higiene postural en el entorno laboral (pantallas, silla).',
+          'Programa de pausas activas y estiramientos musculares.',
+          'Gestión del estrés y técnicas de relajación miofascial.',
+          'Ejercicio aeróbico de bajo impacto.'
+        ] 
+      };
+      
+      if (puntaje >= 10) return { 
+        texto: 'DISCAPACIDAD LEVE', 
+        color: 'yellow-600', 
+        evidencia: `${puntaje}% de discapacidad funcional cervical.`, 
+        recomendaciones: [
+          'Mantener ejercicios de movilidad activa.',
+          'Aplicación de calor local si hay tensión muscular.',
+          'Educación sobre ergonomía básica.',
+          'Seguimiento clínico periódico.'
+        ] 
+      };
+
+      return { 
+        texto: 'SIN DISCAPACIDAD (o mínima)', 
+        color: 'emerald-600', 
+        evidencia: `${puntaje}% de compromiso funcional.`, 
+        recomendaciones: [
+          'Mantener vida activa.',
+          'Prevención mediante fortalecimiento de la musculatura periescapular.',
+          'Continuar con hábitos posturales saludables.'
+        ] 
+      };
     }
   },
-
   {
     id: 'tegner_activity_level',
     nombre: 'Tegner Activity Score',
