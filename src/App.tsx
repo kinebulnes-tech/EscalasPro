@@ -236,8 +236,19 @@ export default function App() {
                         <div>
                           <p className="text-[9px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
                           <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 italic opacity-70">
-                            {listaResultados.length} escalas registradas
+                          
+                          {/* ✅ MEJORA: Edad calculada e Identificación en el Banner */}
+                          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-2">
+                            <span className="text-[10px] text-white font-black bg-teal-500/20 px-2 py-0.5 rounded-md border border-teal-500/30">
+                              {pacienteActivo.edad}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight opacity-70">
+                              ID: {pacienteActivo.id}
+                            </span>
+                          </div>
+
+                          <p className="text-[10px] text-slate-400 font-bold uppercase mt-2 italic opacity-50">
+                            {listaResultados.length} {listaResultados.length === 1 ? 'escala registrada' : 'escalas registradas'}
                           </p>
                         </div>
                       </div>
