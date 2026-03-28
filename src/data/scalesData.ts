@@ -2840,33 +2840,98 @@ export const scales: Scale[] = [
     }
   },
 
-  {
-    id: 'constant_murley_hombro',
-    nombre: 'Score de Constant-Murley',
-    categoria: 'traumatologia',
-    descripcion: 'Evaluación de la función del hombro mediante parámetros subjetivos y objetivos.',
+ {
+  id: 'constant_murley_pro',
+  nombre: 'Constant-Murley (Hombro Pro)',
+  categoria: 'traumatologia',
+  descripcion: 'Evaluación funcional de hombro. Automatización de puntaje por grados de ROM y fuerza (lb/kg).',
+  bibliografia: "Constant CR, Murley AH. A clinical method of functional assessment of the shoulder. 1987.",
+  referenciaUrl: "https://www.sciencedirect.com/science/article/pii/000992368790131X",
+  evidenciaClinica: "Gold standard en hombro. Esta versión elimina el cálculo mental de puntos por rangos articulares, permitiendo el ingreso directo de grados goniométricos.",
+
+  preguntas: [
+    // --- DOLOR Y ACTIVIDAD (Subjetivo) ---
+    { id: 't_dolor', text: 'Nivel de Dolor en actividad:', type: 'select', options: [
+      {label: 'Sin dolor (15 pts)', value: 15}, {label: 'Leve (10 pts)', value: 10}, 
+      {label: 'Moderado (5 pts)', value: 5}, {label: 'Severo (0 pts)', value: 0}
+    ]},
+    { id: 't_act_vida', text: 'Nivel de actividad diaria:', type: 'select', options: [
+      {label: 'Sueño sin dolor (2 pts)', value: 2}, {label: 'Actividad laboral normal (4 pts)', value: 4},
+      {label: 'Actividad deportiva/ocio (4 pts)', value: 4} // Se pueden sumar, pero la escala clásica da opciones fijas
+    ]},
+    { id: 't_posicion', text: 'Nivel de alcance (Mano arriba de):', type: 'select', options: [
+      {label: 'Cintura (2 pts)', value: 2}, {label: 'Xifoides (4 pts)', value: 4},
+      {label: 'Cuello (6 pts)', value: 6}, {label: 'Cabeza (8 pts)', value: 8},
+      {label: 'Sobre la cabeza (10 pts)', value: 10}
+    ]},
+
+    // --- MOVILIDAD OBJETIVA (Grados Reales) ---
+    { id: 'deg_flexion', text: 'Flexión anterior (Grados 0-180°):', type: 'number', min: 0, max: 180 },
+    { id: 'deg_abduccion', text: 'Abducción lateral (Grados 0-180°):', type: 'number', min: 0, max: 180 },
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3678525) ---
-    bibliografia: "Constant CR, Murley AH. A clinical method of functional assessment of the shoulder. Clin Orthop Relat Res. 1987.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3678525/",
-    evidenciaClinica: "Divide la evaluación en Dolor (15), AVD (20), Movilidad (40) y Fuerza (25). Un cambio de 10 puntos es el mínimo cambio clínicamente importante (MCID).",
+    // Rotaciones (Posición alcanzada)
+    { id: 'rot_externa', text: 'Rotación Externa (Posición):', type: 'select', options: [
+      {label: 'Mano detrás cabeza, codos delante (2 pts)', value: 2},
+      {label: 'Mano detrás cabeza, codos atrás (2 pts)', value: 2},
+      {label: 'Mano arriba cabeza, codos delante (2 pts)', value: 2},
+      {label: 'Mano arriba cabeza, codos atrás (2 pts)', value: 2},
+      {label: 'Brazo arriba completo (2 pts)', value: 2} // Se suman hasta 10
+    ]},
+    { id: 'rot_interna', text: 'Rotación Interna (Dorso mano alcanza):', type: 'select', options: [
+      {label: 'Muslo lateral (0 pts)', value: 0}, {label: 'Glúteo (2 pts)', value: 2},
+      {label: 'Sacro (4 pts)', value: 4}, {label: 'L3 (6 pts)', value: 6},
+      {label: 'T12 (8 pts)', value: 8}, {label: 'Nivel inter-escapular (10 pts)', value: 10}
+    ]},
 
-    preguntas: [
-      { id: 'dolor', text: 'Puntaje de Dolor (0-15 pts):', type: 'number', min: 0, max: 15 },
-      { id: 'actividad', text: 'Nivel de Actividad/Sueño (0-20 pts):', type: 'number', min: 0, max: 20 },
-      { id: 'movilidad', text: 'Movilidad (Flexión/Abducción/Rotación) (0-40 pts):', type: 'number', min: 0, max: 40 },
-      { id: 'fuerza', text: 'Fuerza en Abducción (0-25 pts):', type: 'number', min: 0, max: 25 }
-    ],
+    // --- FUERZA ---
+    { id: 'force_val', text: 'Fuerza en Abducción a 90° (Libras/lbs):', type: 'number', min: 0, max: 25 }
+  ],
 
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+  calcularPuntaje: (respuestas) => {
+    let total = 0;
+    const res = respuestas as Record<string, any>;
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 86) return { texto: 'EXCELENTE', color: 'emerald-600', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Mantenimiento de estabilidad escapular'] };
-      if (puntaje >= 71) return { texto: 'BUENO', color: 'green-500', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Fortalecimiento de manguito rotador'] };
-      if (puntaje >= 56) return { texto: 'REGULAR', color: 'orange-500', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Kinesioterapia: Terapia manual y control motor'] };
-      return { texto: 'POBRE', color: 'red-600', evidencia: `${puntaje}/100 pts.`, recomendaciones: ['Re-evaluación médica: Posible rotura masiva o rigidez severa'] };
-    }
+    // 1. Suma de selectores directos
+    const subjetivos = ['t_dolor', 't_act_vida', 't_posicion', 'rot_externa', 'rot_interna'];
+    subjetivos.forEach(key => total += (Number(res[key]) || 0));
+
+    // 2. Lógica de Puntos por Grados (Flexión y Abducción)
+    const calcularPuntosROM = (grados: number) => {
+      if (grados <= 30) return 0;
+      if (grados <= 60) return 2;
+      if (grados <= 90) return 4;
+      if (grados <= 120) return 6;
+      if (grados <= 150) return 8;
+      return 10;
+    };
+
+    total += calcularPuntosROM(Number(res['deg_flexion']) || 0);
+    total += calcularPuntosROM(Number(res['deg_abduccion']) || 0);
+
+    // 3. Fuerza (1 punto por libra, máximo 25)
+    total += Math.min(Number(res['force_val']) || 0, 25);
+
+    return total;
   },
+
+  interpretar: (total) => {
+    let color = 'emerald-600';
+    let texto = 'EXCELENTE';
+    
+    if (total < 40) { texto = 'POBRE'; color = 'red-600'; }
+    else if (total < 60) { texto = 'REGULAR'; color = 'orange-500'; }
+    else if (total < 80) { texto = 'BUENO'; color = 'teal-600'; }
+
+    return {
+      texto: `FUNCIÓN: ${texto}`,
+      color: color,
+      evidencia: `Puntaje Total: ${total}/100. Interpretación basada en criterios funcionales de Constant.`,
+      recomendaciones: total < 60 
+        ? ['Priorizar ganancia de rango articular pasivo', 'Control de dolor agudo', 'Evitar cargas pesadas']
+        : ['Iniciar fortalecimiento progresivo', 'Reeducación propioceptiva', 'Retorno gradual a actividad deportiva']
+    };
+  }
+},
 
   {
     id: 'kujala_knee_pain',
