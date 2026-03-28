@@ -1911,28 +1911,51 @@ export const scales: Scale[] = [
     }
   },
 
-
-  {
+{
   id: 'dash_full_pro',
   nombre: 'DASH (Discapacidad Miembro Superior)',
   categoria: 'traumatologia',
-  descripcion: 'Evaluación integral de 30 ítems para hombro, codo y mano. Cálculo basado en la fórmula oficial AAOS/DASH.',
+  descripcion: 'Evaluación de 30 ítems. Cálculo oficial AAOS con manejo de hasta un 10% de ítems faltantes.',
   bibliografia: "Hudak PL, Amadio PC, Bombardier C. DASH. 1996.",
   referenciaUrl: "https://dash.iwh.on.ca/scoring",
-  evidenciaClinica: "Fórmula adaptativa: Maneja hasta un 10% de ítems faltantes sin invalidar el test. Cálculo de MCID integrado.",
+  evidenciaClinica: "Fórmula adaptativa: [(Suma/n) - 1] * 25. El MCID es de 10.2 puntos.",
 
   preguntas: [
-    // --- ACTIVIDADES DIARIAS (d_act) ---
-    { id: 'd_act_1', text: '1. Abrir un frasco apretado', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    // --- SECCIÓN: ACTIVIDADES DIARIAS (d_act) ---
+    { id: 'd_act_1', text: '1. Abrir un frasco nuevo o muy apretado', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
     { id: 'd_act_2', text: '2. Escribir', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
     { id: 'd_act_3', text: '3. Girar una llave', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
     { id: 'd_act_4', text: '4. Preparar una comida', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
     { id: 'd_act_5', text: '5. Empujar una puerta pesada', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
-    // ... Nota: Por brevedad en este chat se asumen los 30 ítems siguiendo este patrón d_act_X, d_sin_X (Síntomas), d_soc_X (Social)
+    { id: 'd_act_6', text: '6. Colocar un objeto pesado sobre su cabeza', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_7', text: '7. Hacer tareas domésticas pesadas (ej. fregar suelos)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_8', text: '8. Trabajar en el jardín o patio', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_9', text: '9. Hacer la cama', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_10', text: '10. Cargar una bolsa de compras pesada', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_11', text: '11. Llevar un objeto pesado (más de 5kg)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_12', text: '12. Cambiar una ampolleta/bombilla sobre su cabeza', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_13', text: '13. Lavarse o secarse la espalda', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_14', text: '14. Ponerse un chaleco o chaqueta', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_15', text: '15. Usar un cuchillo para cortar comida', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_16', text: '16. Actividades recreativas con impacto (ej. tenis)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_17', text: '17. Actividades recreativas con precisión (ej. tejer)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_18', text: '18. Recreación con transporte (ej. golf, cargar bolso)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_19', text: '19. Transporte público (subir a bus/metro)', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_20', text: '20. Actividades sexuales', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+    { id: 'd_act_21', text: '21. Capacidad general para usar el brazo', type: 'select', options: [{label:'Sin dificultad', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
 
-    // --- SÍNTOMAS (d_sin) ---
-    { id: 'd_sin_24', text: '24. Dolor en el brazo/mano', type: 'select', options: [{label:'Ninguno', value:1}, {label:'Leve', value:2}, {label:'Moderado', value:3}, {label:'Mucho', value:4}, {label:'Extremo', value:5}] },
-    { id: 'd_sin_29', text: '29. Dificultad para dormir por dolor', type: 'select', options: [{label:'Ninguna', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucha', value:4}, {label:'Extrema', value:5}] }
+    // --- SECCIÓN: PARTICIPACIÓN SOCIAL (d_soc) ---
+    { id: 'd_soc_22', text: '22. Interferencia con actividades sociales normales', type: 'select', options: [{label:'Nada', value:1}, {label:'Levemente', value:2}, {label:'Moderadamente', value:3}, {label:'Mucho', value:4}, {label:'Totalmente', value:5}] },
+    { id: 'd_soc_23', text: '23. Limitación en el trabajo u otras actividades diarias', type: 'select', options: [{label:'Nada limitado', value:1}, {label:'Levemente', value:2}, {label:'Moderadamente', value:3}, {label:'Mucho', value:4}, {label:'Incapaz', value:5}] },
+
+    // --- SECCIÓN: SÍNTOMAS (d_sin) ---
+    { id: 'd_sin_24', text: '24. Dolor en el brazo, hombro o mano', type: 'select', options: [{label:'Ninguno', value:1}, {label:'Leve', value:2}, {label:'Moderado', value:3}, {label:'Mucho', value:4}, {label:'Extremo', value:5}] },
+    { id: 'd_sin_25', text: '25. Dolor al realizar cualquier actividad específica', type: 'select', options: [{label:'Ninguno', value:1}, {label:'Leve', value:2}, {label:'Moderado', value:3}, {label:'Mucho', value:4}, {label:'Extremo', value:5}] },
+    { id: 'd_sin_26', text: '26. Hormigueo (pinchazos) en brazo/mano', type: 'select', options: [{label:'Ninguno', value:1}, {label:'Leve', value:2}, {label:'Moderado', value:3}, {label:'Mucho', value:4}, {label:'Extremo', value:5}] },
+    { id: 'd_sin_27', text: '27. Debilidad en el brazo, hombro o mano', type: 'select', options: [{label:'Ninguna', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucha', value:4}, {label:'Extrema', value:5}] },
+    { id: 'd_sin_28', text: '28. Rigidez en el brazo, hombro o mano', type: 'select', options: [{label:'Ninguna', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucha', value:4}, {label:'Extrema', value:5}] },
+    { id: 'd_sin_29', text: '29. Dificultad para dormir por dolor', type: 'select', options: [{label:'Ninguna', value:1}, {label:'Leve', value:2}, {label:'Moderada', value:3}, {label:'Mucha', value:4}, {label:'Extrema', value:5}] },
+    { id: 'd_sin_30', text: '30. Se siente menos capaz, con menos confianza', type: 'select', options: [{label:'Nada de acuerdo', value:1}, {label:'Un poco', value:2}, {label:'Moderadamente', value:3}, {label:'Mucho', value:4}, {label:'Muy de acuerdo', value:5}] }
   ],
 
   calcularPuntaje: (respuestas) => {
@@ -1942,12 +1965,9 @@ export const scales: Scale[] = [
       .map(([_, v]) => v as number);
 
     const n = valores.length;
-    // REGLA CLÍNICA: Mínimo 27 de 30 preguntas respondidas
-    if (n < 27) return 0; 
+    if (n < 27) return 0; // REGLA: Mínimo 27 respuestas para validez
 
     const suma = valores.reduce((acc, curr) => acc + curr, 0);
-    
-    // FÓRMULA DASH: [(Suma/n) - 1] * 25
     const score = ((suma / n) - 1) * 25;
     return Math.round(score);
   },
@@ -1959,11 +1979,11 @@ export const scales: Scale[] = [
     if (respondidas < 27) return {
       texto: 'TEST NO VÁLIDO',
       color: 'red-600',
-      evidencia: `Solo se respondieron ${respondidas} ítems. El DASH requiere al menos 27 respuestas para ser válido.`,
-      recomendaciones: ['Solicitar al paciente completar las preguntas faltantes.']
+      evidencia: `Se requieren al menos 27 respuestas. Solo hay ${respondidas}.`,
+      recomendaciones: ['Completar los ítems faltantes para obtener un diagnóstico válido.']
     };
 
-    let categoria = 'DISCAPACIDAD LEVE';
+    let categoria = 'DISCAPACIDAD MÍNIMA';
     let color = 'emerald-600';
 
     if (total > 60) { categoria = 'DISCAPACIDAD SEVERA'; color = 'red-600'; }
@@ -1972,10 +1992,10 @@ export const scales: Scale[] = [
     return {
       texto: `SCORE: ${total} - ${categoria}`,
       color: color,
-      evidencia: `Puntaje DASH de ${total}/100. El MCID (Cambio Clínico Mínimo) para esta escala es de 10.2 puntos.`,
+      evidencia: `Puntaje DASH: ${total}/100. El MCID es de 10.2 puntos.`,
       recomendaciones: [
-        'Comparar con evaluación anterior para verificar MCID.',
-        total > 30 ? 'Considerar intensificación de terapia manual y ejercicios funcionales.' : 'Mantener pauta de ejercicios y retorno gradual.'
+        'Comparar con evaluaciones previas.',
+        total > 30 ? 'Intensificar terapia física dirigida.' : 'Mantener observación y ejercicios de mantención.'
       ]
     };
   }
