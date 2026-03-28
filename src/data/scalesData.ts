@@ -3215,39 +3215,121 @@ export const scales: Scale[] = [
   // Geriatria
   // ==========================================
 
-  {
-    id: 'edmonton_frailty_scale',
-    nombre: 'Escala de Fragilidad de Edmonton (EFS)',
-    categoria: 'geriatria',
-    descripcion: 'Evaluación multidimensional de fragilidad que incluye cognición, función, nutrición y apoyo social.',
-    
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 16843441) ---
-    bibliografia: "Rolfson DB, et al. Validity and reliability of the Edmonton Frail Scale. Age Ageing. 2006.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/16843441/", 
-    evidenciaClinica: "Puntaje de 0 a 17. Es superior al FRAIL para predecir complicaciones postoperatorias en adultos mayores.",
+ {
+  id: 'edmonton_frailty_pro',
+  nombre: 'Escala de Fragilidad de Edmonton (EFS)',
+  categoria: 'geriatria',
+  descripcion: 'Evaluación multidimensional de fragilidad (Cognición, Función, Nutrición, Medicación y Desempeño Físico).',
+  
+  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 16843441) ---
+  bibliografia: "Rolfson DB, et al. Validity and reliability of the Edmonton Frail Scale. Age Ageing. 2006;35(5):526-9.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/16843441/", 
+  evidenciaClinica: "Puntaje máximo de 17. Es una herramienta diagnóstica superior para predecir mortalidad y estancia hospitalaria prolongada. Incluye el componente 'Timed Up and Go' como marcador de reserva funcional.",
 
-    preguntas: [
-      { id: 'cognicion', text: 'Cognición (Test del reloj alterado):', type: 'select', options: [{ label: 'Normal (0)', value: 0 }, { label: 'Alteración leve (1)', value: 1 }, { label: 'Alteración severa (2)', value: 2 }] },
-      { id: 'salud_hospital', text: '¿Cuántas veces ha estado hospitalizado en el último año?', type: 'select', options: [{ label: '0 veces (0)', value: 0 }, { label: '1-2 veces (1)', value: 1 }, { label: '3 o más (2)', value: 2 }] },
-      { id: 'salud_percibida', text: '¿Cómo calificaría su salud en general?', type: 'select', options: [{ label: 'Excelente/Muy Buena (0)', value: 0 }, { label: 'Regular/Mala (1)', value: 1 }, { label: 'Muy mala (2)', value: 2 }] },
-      { id: 'independencia', text: '¿En cuántas AVD (compras, dinero, fármacos) necesita ayuda?', type: 'select', options: [{ label: '0-1 (0)', value: 0 }, { label: '2-4 (1)', value: 1 }, { label: '5-8 (2)', value: 2 }] },
-      { id: 'apoyo_social', text: '¿Cuenta con alguien que le ayude si enferma?', type: 'select', options: [{ label: 'Sí (0)', value: 0 }, { label: 'No (1)', value: 1 }] },
-      { id: 'medicamentos', text: '¿Toma 5 o más medicamentos diferentes al día?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
-      { id: 'nutricion', text: '¿Ha perdido peso últimamente o nota su ropa más suelta?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
-      { id: 'animo', text: '¿Se siente triste o deprimido a menudo?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] },
-      { id: 'continencia', text: '¿Tiene problemas de control de orina?', type: 'select', options: [{ label: 'No (0)', value: 0 }, { label: 'Sí (1)', value: 1 }] }
-    ],
+  preguntas: [
+    // 1. COGNICIÓN
+    { id: 'efs_1', text: 'Cognición (Test del reloj: Dibuje un reloj con todos los números y marcando las 11:10):', type: 'select', options: [
+      { label: 'Normal (0 pts)', value: 0 }, 
+      { label: 'Errores menores en posición de números (1 pt)', value: 1 }, 
+      { label: 'Grave error en dibujo o incapacidad (2 pts)', value: 2 }
+    ] },
 
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    // 2. ESTADO DE SALUD
+    { id: 'efs_2', text: 'En el último año, ¿cuántas veces ha estado hospitalizado?', type: 'select', options: [
+      { label: '0 veces (0 pts)', value: 0 }, 
+      { label: '1 a 2 veces (1 pt)', value: 1 }, 
+      { label: '3 o más veces (2 pts)', value: 2 }
+    ] },
+    { id: 'efs_3', text: '¿Cómo calificaría su salud en general?', type: 'select', options: [
+      { label: 'Excelente / Muy Buena / Buena (0 pts)', value: 0 }, 
+      { label: 'Regular (1 pt)', value: 1 }, 
+      { label: 'Mala / Muy Mala (2 pts)', value: 2 }
+    ] },
 
-    interpretar: (puntaje, respuestas) => {
-      if (puntaje >= 12) return { texto: 'FRAGILIDAD SEVERA', color: 'red-700', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Cuidados paliativos geriátricos', 'Prevención total de complicaciones', 'Soporte social máximo'] };
-      if (puntaje >= 8) return { texto: 'FRAGILIDAD MODERADA', color: 'red-500', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Plan de intervención geriátrico intensivo', 'Revisión de polifarmacia'] };
-      if (puntaje >= 6) return { texto: 'FRAGILIDAD LEVE', color: 'orange-500', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Kinesioterapia: Entrenamiento de fuerza y equilibrio', 'Suplementación nutricional si aplica'] };
-      return { texto: 'Paciente No Frágil / Vulnerable', color: 'emerald-600', evidencia: `Score ${puntaje}/17.`, recomendaciones: ['Mantener controles preventivos'] };
-    }
+    // 3. INDEPENDENCIA FUNCIONAL
+    { id: 'efs_4', text: '¿En cuántas de las siguientes actividades necesita ayuda? (Comidas, compras, transporte, dinero, fármacos, aseo, teléfono):', type: 'select', options: [
+      { label: '0 a 1 actividad (0 pts)', value: 0 }, 
+      { label: '2 a 4 actividades (1 pt)', value: 1 }, 
+      { label: '5 a 8 actividades (2 pts)', value: 2 }
+    ] },
+
+    // 4. APOYO SOCIAL
+    { id: 'efs_5', text: 'Cuando necesita ayuda, ¿cuenta con alguien que atienda sus necesidades?', type: 'select', options: [
+      { label: 'Siempre (0 pts)', value: 0 }, 
+      { label: 'A veces (1 pt)', value: 1 }, 
+      { label: 'Nunca (2 pts)', value: 2 }
+    ] },
+
+    // 5. MEDICAMENTOS
+    { id: 'efs_6', text: '¿Usa habitualmente 5 o más medicamentos diferentes?', type: 'select', options: [
+      { label: 'No (0 pts)', value: 0 }, 
+      { label: 'Sí (1 pt)', value: 1 }
+    ] },
+    { id: 'efs_7', text: '¿Olvida a veces tomar sus medicamentos?', type: 'select', options: [
+      { label: 'No (0 pts)', value: 0 }, 
+      { label: 'Sí (1 pt)', value: 1 }
+    ] },
+
+    // 6. NUTRICIÓN
+    { id: 'efs_8', text: '¿Ha perdido peso recientemente o siente que su ropa le queda suelta?', type: 'select', options: [
+      { label: 'No (0 pts)', value: 0 }, 
+      { label: 'Sí (1 pt)', value: 1 }
+    ] },
+
+    // 7. ÁNIMO
+    { id: 'efs_9', text: '¿Se siente triste o deprimido a menudo?', type: 'select', options: [
+      { label: 'No (0 pts)', value: 0 }, 
+      { label: 'Sí (1 pt)', value: 1 }
+    ] },
+
+    // 8. CONTINENCIA
+    { id: 'efs_10', text: '¿Tiene problemas de control de orina (incontinencia)?', type: 'select', options: [
+      { label: 'No (0 pts)', value: 0 }, 
+      { label: 'Sí (1 pt)', value: 1 }
+    ] },
+
+    // 9. DESEMPEÑO FUNCIONAL (TIMED UP & GO)
+    { id: 'efs_11', text: 'Prueba "Timed Up & Go" (Tiempo en levantarse de la silla, caminar 3m, volver y sentarse):', type: 'select', options: [
+      { label: '0-10 segundos (0 pts)', value: 0 }, 
+      { label: '11-20 segundos (1 pt)', value: 1 }, 
+      { label: 'Más de 20 segundos o incapaz (2 pts)', value: 2 }
+    ] }
+  ],
+
+  calcularPuntaje: (respuestas) => {
+    return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
   },
 
+  interpretar: (total) => {
+    const isSevere = total >= 12;
+    const isModerate = total >= 8 && total <= 11;
+    const isMild = total >= 6 && total <= 7;
+    const isVulnerable = total >= 4 && total <= 5;
+
+    return {
+      texto: isSevere ? 'FRAGILIDAD SEVERA' : isModerate ? 'FRAGILIDAD MODERADA' : isMild ? 'FRAGILIDAD LEVE' : isVulnerable ? 'VULNERABLE' : 'SANO (NO FRÁGIL)',
+      color: isSevere ? 'red-700' : isModerate ? 'red-500' : isMild ? 'orange-500' : isVulnerable ? 'yellow-500' : 'emerald-600',
+      evidencia: `Puntaje Total: ${total}/17. Evaluación multidimensional de reserva fisiológica.`,
+      recomendaciones: total >= 8 
+        ? [
+            'Valoración Geriátrica Integral (VGI) prioritaria.',
+            'Revisión farmacológica (Criterios de Beers/STOPP-START) por polifarmacia.',
+            'Plan de prevención de caídas y monitoreo de sarcopenia.',
+            'Evaluar soporte social y riesgo de colapso del cuidador.'
+          ]
+        : total >= 6
+        ? [
+            'Programa de ejercicios multicomponente (Fuerza, Equilibrio, Marcha).',
+            'Optimización nutricional (proteínas y Vitamina D).',
+            'Seguimiento clínico cada 3-6 meses.'
+          ]
+        : [
+            'Fomentar envejecimiento activo y participación social.',
+            'Mantener controles preventivos anuales (EMPAM).'
+          ]
+    };
+  }
+},
   {
     id: 'rockwood_frailty_visual',
     nombre: 'Escala de Fragilidad Clínica (Rockwood)',
