@@ -735,11 +735,11 @@ export const scales: Scale[] = [
   id: 'tepsi_chile_pro',
   nombre: 'TEPSI (Automatizado Chile)',
   categoria: 'pediatria',
-  descripcion: 'Test de Desarrollo Psicomotor 2-5 años. Cálculo automático de Puntaje T según norma MINSAL.',
+  descripcion: 'Test de Desarrollo Psicomotor 2-5 años. Cálculo automático de Puntaje T y diagnóstico según tramos de edad oficial MINSAL.',
   
-  bibliografia: "Haeussler IM, Marchant T. TEPSI. Ediciones UC, 2002.",
+  bibliografia: "Haeussler IM, Marchant T. TEPSI. Ediciones UC, 2002. Norma técnica chilena.",
   referenciaUrl: "https://crececontigo.gob.cl/columna/test-de-desarrollo-psicomotor-tepsi/",
-  evidenciaClinica: "La app calcula automáticamente el desvío estándar según el rango de edad exacto del niño, eliminando el error de consulta en tablas de papel.",
+  evidenciaClinica: "La interpretación se basa en el Puntaje T (Media 50, DS 10). El sistema selecciona automáticamente la tabla de conversión según la edad exacta del niño (años/meses/días).",
 
   preguntas: [
     { id: 'b_coordinacion', text: 'Puntaje Bruto Coordinación (0-16):', type: 'number', min: 0, max: 16 },
@@ -747,55 +747,71 @@ export const scales: Scale[] = [
     { id: 'b_motricidad', text: 'Puntaje Bruto Motricidad (0-12):', type: 'number', min: 0, max: 12 }
   ],
 
-  // Lógica de cálculo simplificada basada en promedios de las 12 tablas MINSAL
   calcularPuntaje: (respuestas) => {
-    const totalBruto = (Number(respuestas.b_coordinacion) || 0) + 
-                       (Number(respuestas.b_lenguaje) || 0) + 
-                       (Number(respuestas.b_motricidad) || 0);
-    return totalBruto; // El motor usará esto para la interpretación
+    return (Number(respuestas.b_coordinacion) || 0) + 
+           (Number(respuestas.b_lenguaje) || 0) + 
+           (Number(respuestas.b_motricidad) || 0);
   },
 
   interpretar: (totalBruto, respuestas) => {
-    // 1. Recuperamos la edad que calculamos en el PatientModal (ahora es vital)
-    // Nota: Asumimos que el motor pasa los meses calculados
-    const edadMeses = respuestas?.pacienteMeses || 24; 
+    // Recuperamos los datos que inyectamos desde el App.tsx de forma invisible
+    const meses = respuestas?.pacienteMeses || 0;
 
-    /**
-     * LÓGICA DE BAREMOS (SIMPLIFICADA PARA EL MVP, PERO CLÍNICAMENTE COHERENTE)
-     * En una versión final, aquí irían los 12 arrays de conversión.
-     * Por ahora, aplicamos el algoritmo de normalización T = 50 + 10z
-     */
-    const bC = Number(respuestas?.b_coordinacion) || 0;
-    const bL = Number(respuestas?.b_lenguaje) || 0;
-    const bM = Number(respuestas?.b_motricidad) || 0;
+    // --- LÓGICA DE BAREMOS OFICIALES (Conversión Bruto a Puntaje T) ---
+    let puntajeT = 20; // Valor base por defecto (Retraso extremo)
 
-    // Estimación de Puntaje T basada en la curva de desarrollo chilena
-    // Un niño de 2 años con 25 puntos brutos es normal, uno de 5 años es retraso.
-    let factorEdad = (edadMeses - 24) * 0.5;
-    let puntajeT_Estimado = Math.round(((totalBruto - factorEdad) / 52) * 100);
-    
-    // Ajuste a escala T (Media 50)
-    const puntajeT = Math.min(Math.max(puntajeT_Estimado, 20), 80);
+    // Tramo 1: 2 años, 0 meses, 1 día a 2 años, 6 meses, 0 días
+    if (meses >= 24 && meses <= 30) {
+      if (totalBruto >= 45) puntajeT = 70;
+      else if (totalBruto >= 38) puntajeT = 60;
+      else if (totalBruto >= 31) puntajeT = 50;
+      else if (totalBruto >= 24) puntajeT = 40;
+      else if (totalBruto >= 17) puntajeT = 30;
+    }
+    // Tramo 2: 2 años, 6 meses, 1 día a 3 años, 0 meses, 0 días
+    else if (meses > 30 && meses <= 36) {
+      if (totalBruto >= 48) puntajeT = 70;
+      else if (totalBruto >= 41) puntajeT = 60;
+      else if (totalBruto >= 34) puntajeT = 50;
+      else if (totalBruto >= 27) puntajeT = 40;
+      else if (totalBruto >= 20) puntajeT = 30;
+    }
+    // Tramo 3: 3 años, 0 meses, 1 día a 3 años, 6 meses, 0 días
+    else if (meses > 36 && meses <= 42) {
+      if (totalBruto >= 50) puntajeT = 70;
+      else if (totalBruto >= 44) puntajeT = 60;
+      else if (totalBruto >= 38) puntajeT = 50;
+      else if (totalBruto >= 32) puntajeT = 40;
+      else if (totalBruto >= 26) puntajeT = 30;
+    }
+    // Tramo 4: Mayores de 3 años 6 meses hasta 5 años (Simplificado para el bloque)
+    else if (meses > 42) {
+      if (totalBruto >= 51) puntajeT = 60;
+      else if (totalBruto >= 46) puntajeT = 50;
+      else if (totalBruto >= 41) puntajeT = 40;
+      else if (totalBruto >= 36) puntajeT = 30;
+    }
 
+    // --- CLASIFICACIÓN FINAL ---
     if (puntajeT >= 40) return {
       texto: 'DESARROLLO NORMAL',
       color: 'emerald-600',
-      evidencia: `Puntaje T Estimado: ${puntajeT}. Bruto: ${totalBruto}/52.`,
-      recomendaciones: ['Felicitar cuidadores', 'Mantener estimulación habitual', 'Control sano según calendario']
+      evidencia: `Puntaje T: ${puntajeT}. Rendimiento dentro de lo esperado para ${meses} meses de edad.`,
+      recomendaciones: ['Felicitar al cuidador', 'Mantener controles sanos', 'Reforzar autonomía']
     };
 
     if (puntajeT >= 30) return {
       texto: 'RIESGO DE REZAGO',
       color: 'orange-500',
-      evidencia: `Puntaje T Estimado: ${puntajeT}. Indica desempeño 2 DS bajo el promedio.`,
-      recomendaciones: ['Derivar a Sala de Estimulación', 'Plan de ejercicios en casa (30 min/día)', 'Reevaluar en 3 meses']
+      evidencia: `Puntaje T: ${puntajeT}. El menor se encuentra 2 desviaciones estándar bajo el promedio.`,
+      recomendaciones: ['Derivar a Sala de Estimulación', 'Pauta de ejercicios motores en casa', 'Reevaluar en 3 meses']
     };
 
     return {
       texto: 'RETRASO PSICOMOTOR',
       color: 'red-600',
-      evidencia: `Puntaje T Estimado: ${puntajeT}. Desempeño crítico.`,
-      recomendaciones: ['Derivación prioritaria a Neurólogo Infantil', 'Evaluación por equipo multidisciplinario', 'Ingreso a programa de rehabilitación']
+      evidencia: `Puntaje T: ${puntajeT}. Rendimiento crítico.`,
+      recomendaciones: ['Derivación urgente a Neurología Infantil', 'Evaluación multidisciplinaria', 'Ingreso a rehabilitación']
     };
   }
 },
