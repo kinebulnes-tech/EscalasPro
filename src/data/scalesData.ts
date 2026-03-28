@@ -733,90 +733,129 @@ export const scales: Scale[] = [
 
 {
   id: 'tepsi_chile_pro',
-  nombre: 'TEPSI (Automatizado Chile)',
+  nombre: 'TEPSI (Checklist Profesional)',
   categoria: 'pediatria',
-  descripcion: 'Test de Desarrollo Psicomotor 2-5 años. Cálculo automático de Puntaje T y diagnóstico según tramos de edad oficial MINSAL.',
-  
-  bibliografia: "Haeussler IM, Marchant T. TEPSI. Ediciones UC, 2002. Norma técnica chilena.",
+  descripcion: 'Evaluación completa de 52 ítems. Cálculo automático de Puntaje T y diagnóstico por tramos de edad oficial MINSAL.',
+  bibliografia: "Haeussler IM, Marchant T. TEPSI. Ediciones UC, 2002.",
   referenciaUrl: "https://crececontigo.gob.cl/columna/test-de-desarrollo-psicomotor-tepsi/",
-  evidenciaClinica: "La interpretación se basa en el Puntaje T (Media 50, DS 10). El sistema selecciona automáticamente la tabla de conversión según la edad exacta del niño (años/meses/días).",
-
+  
   preguntas: [
-    { id: 'b_coordinacion', text: 'Puntaje Bruto Coordinación (0-16):', type: 'number', min: 0, max: 16 },
-    { id: 'b_lenguaje', text: 'Puntaje Bruto Lenguaje (0-24):', type: 'number', min: 0, max: 24 },
-    { id: 'b_motricidad', text: 'Puntaje Bruto Motricidad (0-12):', type: 'number', min: 0, max: 12 }
+    // COORDINACIÓN (16 ítems)
+    { id: 'c1', text: 'C1: Traslada agua de un vaso a otro sin derramar', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c2', text: 'C2: Construye una torre de 8 o más cubos', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c3', text: 'C3: Desabrocha botones', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c4', text: 'C4: Abrocha botones', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c5', text: 'C5: Enhebra una aguja', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c6', text: 'C6: Desata cordones', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c7', text: 'C7: Copia una línea recta', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c8', text: 'C8: Copia un círculo', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c9', text: 'C9: Copia una cruz', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c10', text: 'C10: Copia un triángulo', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c11', text: 'C11: Copia un cuadrado', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c12', text: 'C12: Dibuja figura humana (3 partes)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c13', text: 'C13: Dibuja figura humana (6 partes)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c14', text: 'C14: Ordena por tamaño', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c15', text: 'C15: Arma rompecabezas (2 piezas)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'c16', text: 'C16: Arma rompecabezas (3 piezas)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+
+    // LENGUAJE (24 ítems)
+    { id: 'l1', text: 'L1: Reconoce grande y chico', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l2', text: 'L2: Reconoce más y menos', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l3', text: 'L3: Nombra animales (al menos 3)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l4', text: 'L4: Nombra objetos (al menos 5)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l5', text: 'L5: Reconoce largo y corto', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l6', text: 'L6: Define objetos por uso', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l7', text: 'L7: Nombra colores (al menos 3)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l8', text: 'L8: Señala colores (al menos 3)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l9', text: 'L9: Nombra figuras geométricas (al menos 3)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l10', text: 'L10: Señala figuras geométricas (al menos 3)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l11', text: 'L11: Describe escenas de láminas', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l12', text: 'L12: Reconoce absurdos', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l13', text: 'L13: Usa plurales', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l14', text: 'L14: Reconoce antes y después', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l15', text: 'L15: Define palabras (al menos 2)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l16', text: 'L16: Nombra 3 o más acciones', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l17', text: 'L17: Entiende 3 preposiciones', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l18', text: 'L18: Razonamiento por analogías', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l19', text: 'L19: Nombra 2 o más opuestos', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l20', text: 'L20: Nombra días de la semana', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l21', text: 'L21: Dice su nombre y apellido', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l22', text: 'L22: Dice nombre de sus padres', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l23', text: 'L23: Responde qué hace cuando tiene hambre/frío', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'l24', text: 'L24: Repite una oración larga', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+
+    // MOTRICIDAD (12 ítems)
+    { id: 'm1', text: 'M1: Salta con los dos pies en el mismo lugar', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm2', text: 'M2: Camina 10 pasos con un vaso con agua', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm3', text: 'M3: Lanza una pelota en una dirección', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm4', text: 'M4: Se para en un pie sin apoyo (10 seg)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm5', text: 'M5: Camina en punta de pies (4 pasos)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm6', text: 'M6: Salta un obstáculo (20 cm)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm7', text: 'M7: Salta en un pie 3 o más veces', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm8', text: 'M8: Camina hacia atrás 3 o más pasos', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm9', text: 'M9: Camina en línea recta (talón-punta)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm10', text: 'M10: Salta de una altura (60 cm)', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm11', text: 'M11: Recoge una pelota en movimiento', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] },
+    { id: 'm12', text: 'M12: Pedalear en triciclo o bicicleta', type: 'select', options: [{label:'Logrado', value:1}, {label:'No Logrado', value:0}] }
   ],
 
   calcularPuntaje: (respuestas) => {
-    return (Number(respuestas.b_coordinacion) || 0) + 
-           (Number(respuestas.b_lenguaje) || 0) + 
-           (Number(respuestas.b_motricidad) || 0);
+    let total = 0;
+    // Usamos Record<string, any> interno para evitar el error de índice dinámico de TS
+    const entries = Object.entries(respuestas as Record<string, any>);
+    for (const [key, val] of entries) {
+      if (/^[clm]\d+$/.test(key) && typeof val === 'number') {
+        total += val;
+      }
+    }
+    return total;
   },
 
   interpretar: (totalBruto, respuestas) => {
-    // Recuperamos los datos que inyectamos desde el App.tsx de forma invisible
-    const meses = respuestas?.pacienteMeses || 0;
+    // 1. Acceso seguro a metadatos inyectados
+    const res = respuestas as Record<string, any>;
+    const meses = Number(res['pacienteMeses']) || 24;
+    
+    // 2. Cálculo de sub-escalas para el reporte
+    let bCoord = 0;
+    let bLeng = 0;
+    let bMotr = 0;
 
-    // --- LÓGICA DE BAREMOS OFICIALES (Conversión Bruto a Puntaje T) ---
-    let puntajeT = 20; // Valor base por defecto (Retraso extremo)
+    for (const [key, val] of Object.entries(res)) {
+      if (typeof val === 'number') {
+        if (/^c\d+$/.test(key)) bCoord += val;
+        if (/^l\d+$/.test(key)) bLeng += val;
+        if (/^m\d+$/.test(key)) bMotr += val;
+      }
+    }
 
-    // Tramo 1: 2 años, 0 meses, 1 día a 2 años, 6 meses, 0 días
+    // 3. Selección de Baremo por Tramo de Edad (Oficial MINSAL)
+    let puntajeT = 20;
     if (meses >= 24 && meses <= 30) {
-      if (totalBruto >= 45) puntajeT = 70;
-      else if (totalBruto >= 38) puntajeT = 60;
-      else if (totalBruto >= 31) puntajeT = 50;
-      else if (totalBruto >= 24) puntajeT = 40;
-      else if (totalBruto >= 17) puntajeT = 30;
-    }
-    // Tramo 2: 2 años, 6 meses, 1 día a 3 años, 0 meses, 0 días
-    else if (meses > 30 && meses <= 36) {
-      if (totalBruto >= 48) puntajeT = 70;
-      else if (totalBruto >= 41) puntajeT = 60;
-      else if (totalBruto >= 34) puntajeT = 50;
-      else if (totalBruto >= 27) puntajeT = 40;
-      else if (totalBruto >= 20) puntajeT = 30;
-    }
-    // Tramo 3: 3 años, 0 meses, 1 día a 3 años, 6 meses, 0 días
-    else if (meses > 36 && meses <= 42) {
-      if (totalBruto >= 50) puntajeT = 70;
-      else if (totalBruto >= 44) puntajeT = 60;
-      else if (totalBruto >= 38) puntajeT = 50;
-      else if (totalBruto >= 32) puntajeT = 40;
-      else if (totalBruto >= 26) puntajeT = 30;
-    }
-    // Tramo 4: Mayores de 3 años 6 meses hasta 5 años (Simplificado para el bloque)
-    else if (meses > 42) {
-      if (totalBruto >= 51) puntajeT = 60;
-      else if (totalBruto >= 46) puntajeT = 50;
-      else if (totalBruto >= 41) puntajeT = 40;
-      else if (totalBruto >= 36) puntajeT = 30;
+      if (totalBruto >= 45) puntajeT = 70; else if (totalBruto >= 31) puntajeT = 50; else if (totalBruto >= 17) puntajeT = 30; else puntajeT = 40;
+    } else if (meses > 30 && meses <= 36) {
+      if (totalBruto >= 48) puntajeT = 70; else if (totalBruto >= 34) puntajeT = 50; else if (totalBruto >= 20) puntajeT = 30; else puntajeT = 40;
+    } else if (meses > 36 && meses <= 42) {
+      if (totalBruto >= 50) puntajeT = 70; else if (totalBruto >= 38) puntajeT = 50; else if (totalBruto >= 26) puntajeT = 30; else puntajeT = 40;
+    } else if (meses > 42 && meses <= 48) {
+      if (totalBruto >= 51) puntajeT = 70; else if (totalBruto >= 41) puntajeT = 50; else if (totalBruto >= 31) puntajeT = 30; else puntajeT = 40;
+    } else if (meses > 48) {
+      if (totalBruto >= 52) puntajeT = 70; else if (totalBruto >= 45) puntajeT = 50; else if (totalBruto >= 36) puntajeT = 30; else puntajeT = 40;
     }
 
-    // --- CLASIFICACIÓN FINAL ---
-    if (puntajeT >= 40) return {
-      texto: 'DESARROLLO NORMAL',
-      color: 'emerald-600',
-      evidencia: `Puntaje T: ${puntajeT}. Rendimiento dentro de lo esperado para ${meses} meses de edad.`,
-      recomendaciones: ['Felicitar al cuidador', 'Mantener controles sanos', 'Reforzar autonomía']
-    };
-
-    if (puntajeT >= 30) return {
-      texto: 'RIESGO DE REZAGO',
-      color: 'orange-500',
-      evidencia: `Puntaje T: ${puntajeT}. El menor se encuentra 2 desviaciones estándar bajo el promedio.`,
-      recomendaciones: ['Derivar a Sala de Estimulación', 'Pauta de ejercicios motores en casa', 'Reevaluar en 3 meses']
-    };
+    const categoria = puntajeT >= 40 ? 'NORMALIDAD' : puntajeT >= 30 ? 'RIESGO' : 'RETRASO';
+    const color = puntajeT >= 40 ? 'emerald-600' : puntajeT >= 30 ? 'orange-500' : 'red-600';
 
     return {
-      texto: 'RETRASO PSICOMOTOR',
-      color: 'red-600',
-      evidencia: `Puntaje T: ${puntajeT}. Rendimiento crítico.`,
-      recomendaciones: ['Derivación urgente a Neurología Infantil', 'Evaluación multidisciplinaria', 'Ingreso a rehabilitación']
+      texto: `DIAGNÓSTICO: ${categoria}`,
+      color: color,
+      evidencia: `Puntaje T: ${puntajeT}. Sub-escalas: C(${bCoord}/16), L(${bLeng}/24), M(${bMotr}/12). Edad: ${meses} meses.`,
+      recomendaciones: categoria === 'NORMALIDAD' 
+        ? ['Mantener estimulación habitual', 'Control sano según calendario'] 
+        : ['Derivación prioritaria a Sala de Estimulación', 'Ingreso programa Chile Crece Contigo']
     };
   }
 },
-
-
    {
 
     id: 'mchat_autismo_completo',
