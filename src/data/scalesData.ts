@@ -2693,97 +2693,115 @@ export const scales: Scale[] = [
 
  {
   id: 'constant_murley_pro',
-  nombre: 'Constant-Murley (Hombro Pro)',
+  nombre: 'Constant-Murley Hombro',
   categoria: 'traumatologia',
-  descripcion: 'Evaluación funcional de hombro. Automatización de puntaje por grados de ROM y fuerza (lb/kg).',
+  descripcion: 'Evaluación funcional de hombro (Gold Standard). Automatización de puntaje por ROM goniométrico y fuerza.',
   bibliografia: "Constant CR, Murley AH. A clinical method of functional assessment of the shoulder. 1987.",
-  referenciaUrl: "https://www.sciencedirect.com/science/article/pii/000992368790131X",
-  evidenciaClinica: "Gold standard en hombro. Esta versión elimina el cálculo mental de puntos por rangos articulares, permitiendo el ingreso directo de grados goniométricos.",
-
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3621771/",
+  
   preguntas: [
-    // --- DOLOR Y ACTIVIDAD (Subjetivo) ---
-    { id: 't_dolor', text: 'Nivel de Dolor en actividad:', type: 'select', options: [
-      {label: 'Sin dolor (15 pts)', value: 15}, {label: 'Leve (10 pts)', value: 10}, 
-      {label: 'Moderado (5 pts)', value: 5}, {label: 'Severo (0 pts)', value: 0}
+    // --- 1. DOLOR (15 PTS) ---
+    { id: 't_dolor', text: 'Nivel de Dolor (Máximo 15):', type: 'select', options: [
+      {label: 'Sin dolor (15 pts)', value: 15}, 
+      {label: 'Leve / Ocasional (10 pts)', value: 10}, 
+      {label: 'Moderado (5 pts)', value: 5}, 
+      {label: 'Severo / Constante (0 pts)', value: 0}
     ]},
-    { id: 't_act_vida', text: 'Nivel de actividad diaria:', type: 'select', options: [
-      {label: 'Sueño sin dolor (2 pts)', value: 2}, {label: 'Actividad laboral normal (4 pts)', value: 4},
-      {label: 'Actividad deportiva/ocio (4 pts)', value: 4} // Se pueden sumar, pero la escala clásica da opciones fijas
+
+    // --- 2. ACTIVIDAD DIARIA (20 PTS) ---
+    { id: 't_act_sleep', text: 'Calidad del Sueño:', type: 'select', options: [
+      {label: 'Sueño sin interrupciones (2 pts)', value: 2}, 
+      {label: 'Interrupciones ocasionales (1 pt)', value: 1},
+      {label: 'Incapaz de dormir (0 pts)', value: 0}
+    ]},
+    { id: 't_act_work', text: 'Actividad Laboral / Diaria:', type: 'select', options: [
+      {label: 'Uso normal del brazo (4 pts)', value: 4}, 
+      {label: 'Limitación leve (3 pts)', value: 3},
+      {label: 'Limitación moderada (2 pts)', value: 2},
+      {label: 'Limitación severa (1 pt)', value: 1},
+      {label: 'Incapacidad total (0 pts)', value: 0}
+    ]},
+    { id: 't_act_sport', text: 'Actividad Recreativa / Deporte:', type: 'select', options: [
+      {label: 'Participación normal (4 pts)', value: 4}, 
+      {label: 'Limitación leve (3 pts)', value: 3},
+      {label: 'Limitación moderada (2 pts)', value: 2},
+      {label: 'Incapacidad total (0 pts)', value: 0}
     ]},
     { id: 't_posicion', text: 'Nivel de alcance (Mano arriba de):', type: 'select', options: [
-      {label: 'Cintura (2 pts)', value: 2}, {label: 'Xifoides (4 pts)', value: 4},
-      {label: 'Cuello (6 pts)', value: 6}, {label: 'Cabeza (8 pts)', value: 8},
-      {label: 'Sobre la cabeza (10 pts)', value: 10}
+      {label: 'Sobre la cabeza (10 pts)', value: 10},
+      {label: 'Nivel de la cabeza (8 pts)', value: 8},
+      {label: 'Nivel del cuello (6 pts)', value: 6},
+      {label: 'Nivel de xifoides (4 pts)', value: 4},
+      {label: 'Nivel de cintura (2 pts)', value: 2}
     ]},
 
-    // --- MOVILIDAD OBJETIVA (Grados Reales) ---
-    { id: 'deg_flexion', text: 'Flexión anterior (Grados 0-180°):', type: 'number', min: 0, max: 180 },
-    { id: 'deg_abduccion', text: 'Abducción lateral (Grados 0-180°):', type: 'number', min: 0, max: 180 },
+    // --- 3. MOVILIDAD OBJETIVA (40 PTS TOTAL) ---
+    { id: 'deg_flexion', text: 'Flexión anterior (Grados 0-180°):', type: 'number' },
+    { id: 'deg_abduccion', text: 'Abducción lateral (Grados 0-180°):', type: 'number' },
     
-    // Rotaciones (Posición alcanzada)
-    { id: 'rot_externa', text: 'Rotación Externa (Posición):', type: 'select', options: [
-      {label: 'Mano detrás cabeza, codos delante (2 pts)', value: 2},
-      {label: 'Mano detrás cabeza, codos atrás (2 pts)', value: 2},
-      {label: 'Mano arriba cabeza, codos delante (2 pts)', value: 2},
-      {label: 'Mano arriba cabeza, codos atrás (2 pts)', value: 2},
-      {label: 'Brazo arriba completo (2 pts)', value: 2} // Se suman hasta 10
+    { id: 'rot_externa', text: 'Rotación Externa (Hito alcanzado):', type: 'select', options: [
+      {label: 'Mano arriba, codos atrás (10 pts)', value: 10},
+      {label: 'Mano arriba, codos delante (8 pts)', value: 8},
+      {label: 'Mano tras cabeza, codos atrás (6 pts)', value: 6},
+      {label: 'Mano tras cabeza, codos delante (4 pts)', value: 4},
+      {label: 'Mano a la nuca (2 pts)', value: 2},
+      {label: 'Incapaz (0 pts)', value: 0}
     ]},
-    { id: 'rot_interna', text: 'Rotación Interna (Dorso mano alcanza):', type: 'select', options: [
-      {label: 'Muslo lateral (0 pts)', value: 0}, {label: 'Glúteo (2 pts)', value: 2},
-      {label: 'Sacro (4 pts)', value: 4}, {label: 'L3 (6 pts)', value: 6},
-      {label: 'T12 (8 pts)', value: 8}, {label: 'Nivel inter-escapular (10 pts)', value: 10}
+    { id: 'rot_interna', text: 'Rotación Interna (Dorso de mano alcanza):', type: 'select', options: [
+      {label: 'Nivel Inter-escapular / T12 (10 pts)', value: 10}, 
+      {label: 'Lumbares superiores / L1 (8 pts)', value: 8},
+      {label: 'Cintura / L3 (6 pts)', value: 6}, 
+      {label: 'Sacro (4 pts)', value: 4}, 
+      {label: 'Glúteo (2 pts)', value: 2},
+      {label: 'Muslo lateral (0 pts)', value: 0}
     ]},
 
-    // --- FUERZA ---
-    { id: 'force_val', text: 'Fuerza en Abducción a 90° (Libras/lbs):', type: 'number', min: 0, max: 25 }
+    // --- 4. FUERZA (25 PTS) ---
+    { id: 'force_val', text: 'Fuerza en Abducción a 90° (Lbs):', type: 'number' }
   ],
 
   calcularPuntaje: (respuestas) => {
     let total = 0;
     const res = respuestas as Record<string, any>;
 
-    // 1. Suma de selectores directos
-    const subjetivos = ['t_dolor', 't_act_vida', 't_posicion', 'rot_externa', 'rot_interna'];
-    subjetivos.forEach(key => total += (Number(res[key]) || 0));
+    // Suma de selectores directos
+    const idsSelect = ['t_dolor', 't_act_sleep', 't_act_work', 't_act_sport', 't_posicion', 'rot_externa', 'rot_interna'];
+    idsSelect.forEach(id => total += (Number(res[id]) || 0));
 
-    // 2. Lógica de Puntos por Grados (Flexión y Abducción)
-    const calcularPuntosROM = (grados: number) => {
-      if (grados <= 30) return 0;
-      if (grados <= 60) return 2;
-      if (grados <= 90) return 4;
-      if (grados <= 120) return 6;
-      if (grados <= 150) return 8;
+    // Lógica ROM: 0-30=0, 31-60=2, 61-90=4, 91-120=6, 121-150=8, 151-180=10
+    const puntosROM = (g: number) => {
+      if (g <= 30) return 0;
+      if (g <= 60) return 2;
+      if (g <= 90) return 4;
+      if (g <= 120) return 6;
+      if (g <= 150) return 8;
       return 10;
     };
 
-    total += calcularPuntosROM(Number(res['deg_flexion']) || 0);
-    total += calcularPuntosROM(Number(res['deg_abduccion']) || 0);
+    total += puntosROM(Number(res['deg_flexion']) || 0);
+    total += puntosROM(Number(res['deg_abduccion']) || 0);
 
-    // 3. Fuerza (1 punto por libra, máximo 25)
-    total += Math.min(Number(res['force_val']) || 0, 25);
+    // Fuerza: 1 punto por cada libra (Máximo 25)
+    total += Math.min(Math.round(Number(res['force_val']) || 0), 25);
 
     return total;
   },
 
   interpretar: (total) => {
-    let color = 'emerald-600';
-    let texto = 'EXCELENTE';
+    const isRed = total < 50;
+    const isAmber = total >= 50 && total < 70;
+    const isTeal = total >= 70 && total < 85;
     
-    if (total < 40) { texto = 'POBRE'; color = 'red-600'; }
-    else if (total < 60) { texto = 'REGULAR'; color = 'orange-500'; }
-    else if (total < 80) { texto = 'BUENO'; color = 'teal-600'; }
-
     return {
-      texto: `FUNCIÓN: ${texto}`,
-      color: color,
-      evidencia: `Puntaje Total: ${total}/100. Interpretación basada en criterios funcionales de Constant.`,
-      recomendaciones: total < 60 
-        ? ['Priorizar ganancia de rango articular pasivo', 'Control de dolor agudo', 'Evitar cargas pesadas']
-        : ['Iniciar fortalecimiento progresivo', 'Reeducación propioceptiva', 'Retorno gradual a actividad deportiva']
+      texto: total >= 85 ? 'EXCELENTE' : isTeal ? 'BUENO' : isAmber ? 'REGULAR' : 'POBRE',
+      color: total >= 85 ? 'emerald-600' : isTeal ? 'teal-600' : isAmber ? 'amber-500' : 'red-600',
+      evidencia: `Puntaje: ${total}/100. (Dolor: 15, Actividad: 20, ROM: 40, Fuerza: 25).`,
+      recomendaciones: total < 50 
+        ? ['Derivación a traumatología para evaluar integridad estructural', 'Manejo analgésico prioritario', 'Reposo relativo del miembro']
+        : ['Fortalecimiento del manguito rotador y estabilizadores escapulares', 'Progresión de carga según tolerancia', 'Ejercicios de movilidad activa asistida']
     };
   }
 },
-
   {
     id: 'kujala_knee_pain',
     nombre: 'Escala de Kujala (Dolor Anterior de Rodilla)',
