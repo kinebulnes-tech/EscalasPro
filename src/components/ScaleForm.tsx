@@ -5,7 +5,7 @@ import { calcularEscala, validarRespuestas, obtenerPreguntasFaltantes } from '..
 import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
-import { BookOpen, ExternalLink, ShieldCheck, Info, AlertCircle } from 'lucide-react';
+import { BookOpen, ExternalLink, ShieldCheck, Info, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface ScaleFormProps {
   scale: Scale;
@@ -16,11 +16,12 @@ interface ScaleFormProps {
 
 export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: ScaleFormProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
-  const [faltantes, setFaltantes] = useState<string[]>([]); // ✅ Rastreo de campos vacíos
-  const [resultado, setResultado] = useState<{
-    puntaje: number;
-    interpretacion: string;
-  } | null>(null);
+  const [faltantes, setFaltantes] = useState<string[]>([]); // ✅ Rastreo de campos vacíos o inválidos
+
+  // ✅ MEJORA CEO: Cálculo de invalidez en tiempo real para bloqueo de botón
+  const hayErroresCriticos = useMemo(() => {
+    return obtenerPreguntasFaltantes(scale, respuestas).length > 0;
+  }, [scale, respuestas]);
 
   const progress = useMemo(() => {
     const totalPreguntas = scale.preguntas.length;
@@ -30,7 +31,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   const currentScore = useMemo(() => {
     if (Object.keys(respuestas).length === 0) return 0;
-    // Usamos el motor para el cálculo en vivo (aunque sea parcial)
+    // Usamos el motor para el cálculo en vivo
     return scale.calcularPuntaje(respuestas);
   }, [respuestas, scale]);
 
@@ -38,27 +39,27 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
     feedback.playClick();
     feedback.vibrate(10); 
     
-    // ✅ Limpiamos el error visual si el usuario ya respondió esta pregunta
-    if (faltantes.includes(questionId)) {
-      setFaltantes(prev => prev.filter(id => id !== questionId));
-    }
-
+    // ✅ Limpiamos el error visual si el usuario ya respondió esta pregunta (o la corrigió)
+    // El motor ahora validará si el nuevo valor entra en rango
     setRespuestas(prev => ({
       ...prev,
       [questionId]: value
     }));
+
+    // Re-validamos inmediatamente para limpiar estados de error visual
+    const nuevosFaltantes = obtenerPreguntasFaltantes(scale, { ...respuestas, [questionId]: value });
+    setFaltantes(nuevosFaltantes);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // ✅ PASO 2: Verificamos qué preguntas faltan exactamente
-    const camposVacios = obtenerPreguntasFaltantes(scale, respuestas);
+    // ✅ PASO 2: Verificamos qué preguntas faltan o están fuera de rango
+    const camposInvalidos = obtenerPreguntasFaltantes(scale, respuestas);
     
-    if (camposVacios.length > 0) {
-      setFaltantes(camposVacios); // Marcamos visualmente
+    if (camposInvalidos.length > 0) {
+      setFaltantes(camposInvalidos); // Marcamos visualmente
       feedback.warning();
-      // No usamos alert, el feedback visual en las tarjetas es suficiente y más profesional
       return;
     }
 
@@ -66,7 +67,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
     
     const result = calcularEscala(scale, respuestas);
     
-    // Si el motor devuelve puntaje null por seguridad, no avanzamos
     if (result.puntaje !== null) {
       setResultado({
         puntaje: result.puntaje,
@@ -74,6 +74,11 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
       });
     }
   };
+
+  const [resultado, setResultado] = useState<{
+    puntaje: number;
+    interpretacion: string;
+  } | null>(null);
 
   const handleReset = () => {
     feedback.vibrate(30);
@@ -123,9 +128,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
             onClick={onBack}
             className="mb-6 text-teal-600 hover:text-teal-800 font-bold flex items-center gap-2 transition-all hover:-translate-x-1"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <ArrowLeft size={18} />
             Volver
           </button>
 
@@ -143,12 +146,17 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
           <form onSubmit={handleSubmit} className="space-y-6">
             {scale.preguntas.map((pregunta, index) => {
               const esFaltante = faltantes.includes(pregunta.id);
+              const tieneValor = respuestas[pregunta.id] !== undefined;
+              
+              // ✅ Identificamos si el error es por valor fuera de rango
+              const esErrorRango = esFaltante && tieneValor;
+
               return (
                 <div 
                   key={pregunta.id} 
                   className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
                     esFaltante 
-                    ? 'bg-red-50 border-red-200 shadow-md ring-4 ring-red-50' // ✅ Estilo de error
+                    ? 'bg-red-50 border-red-200 shadow-md ring-4 ring-red-50' 
                     : respuestas[pregunta.id] !== undefined 
                     ? 'bg-white border-teal-100 shadow-sm' 
                     : 'bg-gray-50/50 border-transparent'
@@ -168,7 +176,9 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
                   {esFaltante && (
                     <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-1">
-                       Campo obligatorio para el cálculo
+                       {esErrorRango 
+                         ? `⚠️ VALOR FUERA DE RANGO (${pregunta.min ?? 0} - ${pregunta.max ?? 'N/A'})` 
+                         : 'Campo obligatorio para el cálculo'}
                     </p>
                   )}
 
@@ -213,7 +223,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
                           type="number"
                           value={respuestas[pregunta.id] ?? ''}
                           onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
-                          placeholder="Ingrese valor numérico..."
+                          placeholder={pregunta.min !== undefined ? `Rango: ${pregunta.min} a ${pregunta.max}` : "Ingrese valor numérico..."}
                           className={`w-full text-xl font-bold text-center p-4 border-2 rounded-xl focus:border-teal-500 outline-none ${
                             esFaltante ? 'border-red-300 bg-red-50 text-red-900' : 'border-gray-200'
                           }`}
@@ -228,15 +238,18 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
             <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-8 border-t border-gray-100">
               <button
                 type="submit"
-                className={`flex-1 py-5 rounded-2xl font-black text-xl shadow-lg transition-all active:scale-95 flex flex-col items-center justify-center leading-none ${
-                  faltantes.length > 0 
-                  ? 'bg-red-600 hover:bg-red-700 text-white' 
-                  : 'bg-teal-600 hover:bg-teal-700 text-white'
+                disabled={hayErroresCriticos} // ✅ BLOQUEO FÍSICO NIVEL CEO
+                className={`flex-1 py-5 rounded-2xl font-black text-xl shadow-lg transition-all flex flex-col items-center justify-center leading-none ${
+                  hayErroresCriticos 
+                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                  : 'bg-teal-600 hover:bg-teal-700 text-white active:scale-95'
                 }`}
               >
-                <span>{faltantes.length > 0 ? 'Verificar Formulario' : 'Calcular Resultado'}</span>
+                <span>{hayErroresCriticos ? 'Datos Inválidos' : 'Calcular Resultado'}</span>
                 {faltantes.length > 0 && (
-                  <span className="text-[10px] uppercase tracking-widest mt-2 opacity-80">Faltan {faltantes.length} campos</span>
+                  <span className="text-[10px] uppercase tracking-widest mt-2 opacity-80">
+                    {faltantes.length} campos por corregir
+                  </span>
                 )}
               </button>
               <button
