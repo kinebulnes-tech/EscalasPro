@@ -1,27 +1,50 @@
 import { useState, useMemo } from 'react';
 import { Scale } from '../data/scalesData';
-// ✅ Importamos la nueva función del Paso 1
-import { calcularEscala, validarRespuestas, obtenerPreguntasFaltantes } from '../core/scaleEngine';
+import { calcularEscala, obtenerPreguntasFaltantes } from '../core/scaleEngine';
 import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import TimerPlugin from './plugins/TimerPlugin';
-import { BookOpen, ExternalLink, ShieldCheck, Info, AlertCircle, ArrowLeft } from 'lucide-react';
+import { 
+  ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Layers, CheckCircle2 
+} from 'lucide-react';
 
 interface ScaleFormProps {
   scale: Scale;
   onBack: () => void;
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
+  pacienteContexto?: any;
 }
 
-export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: ScaleFormProps) {
+export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacienteContexto }: ScaleFormProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
-  const [faltantes, setFaltantes] = useState<string[]>([]); // ✅ Rastreo de campos vacíos o inválidos
+  const [faltantes, setFaltantes] = useState<string[]>([]);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // ✅ MEJORA CEO: Cálculo de invalidez en tiempo real para bloqueo de botón
-  const hayErroresCriticos = useMemo(() => {
-    return obtenerPreguntasFaltantes(scale, respuestas).length > 0;
-  }, [scale, respuestas]);
+  // ✅ LÓGICA CEO: Agrupación Automática de Preguntas
+  const groupedQuestions = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    
+    scale.preguntas.forEach(q => {
+      let sectionName = "Evaluación General";
+      // Clasificación por prefijos (TEPSI: c, l, m | EEDP: e)
+      if (q.id.startsWith('c')) sectionName = "Área Coordinación";
+      else if (q.id.startsWith('l')) sectionName = "Área Lenguaje";
+      else if (q.id.startsWith('m')) sectionName = "Área Motricidad";
+      else if (q.id.startsWith('e')) {
+          const mes = q.id.split('_')[0].replace('e', '');
+          sectionName = `Evaluación: Mes ${mes}`;
+      }
+      
+      if (!groups[sectionName]) groups[sectionName] = [];
+      groups[sectionName].push(q);
+    });
+    return groups;
+  }, [scale.preguntas]);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const progress = useMemo(() => {
     const totalPreguntas = scale.preguntas.length;
@@ -31,233 +54,172 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre }: Sca
 
   const currentScore = useMemo(() => {
     if (Object.keys(respuestas).length === 0) return 0;
-    // Usamos el motor para el cálculo en vivo
     return scale.calcularPuntaje(respuestas);
   }, [respuestas, scale]);
 
   const handleChange = (questionId: string, value: number) => {
     feedback.playClick();
     feedback.vibrate(10); 
-    
-    // ✅ Limpiamos el error visual si el usuario ya respondió esta pregunta (o la corrigió)
-    // El motor ahora validará si el nuevo valor entra en rango
-    setRespuestas(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
-
-    // Re-validamos inmediatamente para limpiar estados de error visual
-    const nuevosFaltantes = obtenerPreguntasFaltantes(scale, { ...respuestas, [questionId]: value });
-    setFaltantes(nuevosFaltantes);
+    const nuevasRespuestas = { ...respuestas, [questionId]: value };
+    setRespuestas(nuevasRespuestas);
+    setFaltantes(obtenerPreguntasFaltantes(scale, nuevasRespuestas));
   };
+
+  const [resultado, setResultado] = useState<{puntaje: number; interpretacion: string;} | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // ✅ PASO 2: Verificamos qué preguntas faltan o están fuera de rango
     const camposInvalidos = obtenerPreguntasFaltantes(scale, respuestas);
     
     if (camposInvalidos.length > 0) {
-      setFaltantes(camposInvalidos); // Marcamos visualmente
+      setFaltantes(camposInvalidos);
       feedback.warning();
       return;
     }
 
+    const respuestasConContexto = {
+      ...respuestas,
+      pacienteMeses: pacienteContexto?.totalMeses || 0,
+      pacienteDias: pacienteContexto?.totalDias || 0,
+      pacienteAnios: pacienteContexto?.años || 0
+    };
+
     feedback.success();
-    
-    const result = calcularEscala(scale, respuestas);
-    
+    const result = calcularEscala(scale, respuestasConContexto);
     if (result.puntaje !== null) {
-      setResultado({
-        puntaje: result.puntaje,
-        interpretacion: result.interpretacion
-      });
+      setResultado({ puntaje: result.puntaje, interpretacion: result.interpretacion });
     }
   };
 
-  const [resultado, setResultado] = useState<{
-    puntaje: number;
-    interpretacion: string;
-  } | null>(null);
-
-  const handleReset = () => {
-    feedback.vibrate(30);
-    setRespuestas({});
-    setFaltantes([]);
-    setResultado(null);
-  };
-
-  if (resultado) {
-    return (
-      <ScaleResult
-        scale={scale}
-        totalScore={resultado.puntaje}
-        respuestas={respuestas}
-        onBack={onBack}
-        onSave={onSave}
-        pacienteNombre={pacienteNombre}
-      />
-    );
-  }
+  if (resultado) return <ScaleResult scale={scale} totalScore={resultado.puntaje} respuestas={{...respuestas, ...pacienteContexto}} onBack={onBack} onSave={onSave} pacienteNombre={pacienteNombre} />;
 
   return (
     <>
-      {/* 1. BARRA DE PROGRESO */}
+      {/* BARRA DE PROGRESO */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-[60]">
-        <div 
-          className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out"
-          style={{ width: `${progress}%` }}
-        />
+        <div className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
       </div>
 
-      {/* 2. PÍLDORA DE PUNTAJE EN VIVO */}
+      {/* PUNTUACIÓN FLOTANTE */}
       <div className="fixed top-28 right-4 z-[100] pointer-events-none">
-        <div className="bg-white/95 backdrop-blur-xl border-2 border-teal-500 rounded-full px-5 py-2.5 shadow-2xl flex items-center gap-3 pointer-events-auto">
-          <div className="flex flex-col items-end border-r border-teal-100 pr-3">
-            <span className="text-[9px] font-black text-teal-600 uppercase tracking-widest leading-none mb-1">Total</span>
-            <span className="text-[9px] font-bold text-gray-400 uppercase leading-none">Puntos</span>
+        <div className="bg-slate-900 border-2 border-teal-500 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4 pointer-events-auto">
+          <div className="text-right">
+            <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">Puntos</p>
+            <p className="text-2xl font-black text-white leading-none">{currentScore}</p>
           </div>
-          <span className="text-2xl font-black text-gray-900 tabular-nums">{currentScore}</span>
+          <div className="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center text-white">
+             <CheckCircle2 size={24} />
+          </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto pb-10 px-4 pt-4">
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mt-4">
+        <div className="bg-white rounded-[2.5rem] shadow-xl p-6 sm:p-10 mt-4 border border-slate-100">
           
-          <button
-            onClick={onBack}
-            className="mb-6 text-teal-600 hover:text-teal-800 font-bold flex items-center gap-2 transition-all hover:-translate-x-1"
-          >
-            <ArrowLeft size={18} />
-            Volver
+          <button onClick={onBack} className="mb-8 text-slate-400 hover:text-teal-600 font-bold flex items-center gap-2 group transition-all">
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> 
+            <span>Volver al Catálogo</span>
           </button>
 
-          <div className="mb-8 border-b border-gray-100 pb-6">
+          <div className="mb-10 border-b border-slate-50 pb-8">
             {pacienteNombre && (
-              <div className="bg-teal-50 text-teal-700 px-4 py-2 rounded-xl inline-flex items-center gap-2 mb-4">
-                 <ShieldCheck size={14} />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Paciente: {pacienteNombre}</span>
+              <div className="bg-slate-50 text-slate-600 px-4 py-2 rounded-xl inline-flex items-center gap-3 mb-6">
+                 <ShieldCheck size={14} className="text-teal-600" />
+                 <span className="text-[10px] font-black uppercase tracking-widest">
+                   Protocolo: {pacienteNombre} {pacienteContexto?.años ? `(${pacienteContexto.años} años)` : ''}
+                 </span>
               </div>
             )}
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">{scale.nombre}</h2>
-            <p className="text-gray-500 text-sm leading-relaxed">{scale.descripcion}</p>
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase italic mb-3">{scale.nombre}</h2>
+            <p className="text-slate-500 font-medium">{scale.descripcion}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {scale.preguntas.map((pregunta, index) => {
-              const esFaltante = faltantes.includes(pregunta.id);
-              const tieneValor = respuestas[pregunta.id] !== undefined;
-              
-              // ✅ Identificamos si el error es por valor fuera de rango
-              const esErrorRango = esFaltante && tieneValor;
+            {Object.entries(groupedQuestions).map(([sectionName, questions]) => {
+              const isOpen = openSections[sectionName] !== false; // Abiertas por defecto
+              const respondidas = questions.filter(q => respuestas[q.id] !== undefined).length;
+              const esCompleta = respondidas === questions.length;
 
               return (
-                <div 
-                  key={pregunta.id} 
-                  className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
-                    esFaltante 
-                    ? 'bg-red-50 border-red-200 shadow-md ring-4 ring-red-50' 
-                    : respuestas[pregunta.id] !== undefined 
-                    ? 'bg-white border-teal-100 shadow-sm' 
-                    : 'bg-gray-50/50 border-transparent'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <label className={`text-lg font-semibold leading-snug ${esFaltante ? 'text-red-700' : 'text-gray-800'}`}>
-                      <span className={`${esFaltante ? 'text-red-600' : 'text-teal-600'} mr-2 font-black`}>{index + 1}.</span> 
-                      {pregunta.text}
-                    </label>
-                    {esFaltante && (
-                      <div className="bg-red-600 text-white p-1 rounded-full animate-pulse">
-                        <AlertCircle size={18} />
+                <div key={sectionName} className={`border-2 rounded-[2rem] transition-all overflow-hidden ${isOpen ? 'border-slate-100 bg-slate-50/30' : 'border-transparent bg-white shadow-sm'}`}>
+                  {/* HEADER DEL DESPLEGABLE */}
+                  <button 
+                    type="button"
+                    onClick={() => toggleSection(sectionName)}
+                    className="w-full flex items-center justify-between p-6 bg-white hover:bg-slate-50/80 transition-all"
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${esCompleta ? 'bg-emerald-100 text-emerald-600' : 'bg-teal-50 text-teal-600'}`}>
+                        {esCompleta ? <CheckCircle2 size={24} /> : <Layers size={24} />}
                       </div>
-                    )}
-                  </div>
-
-                  {esFaltante && (
-                    <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-4 flex items-center gap-1">
-                       {esErrorRango 
-                         ? `⚠️ VALOR FUERA DE RANGO (${pregunta.min ?? 0} - ${pregunta.max ?? 'N/A'})` 
-                         : 'Campo obligatorio para el cálculo'}
-                    </p>
-                  )}
-
-                  {pregunta.type === 'plugin' && pregunta.componente === 'CRONOMETRO' ? (
-                    <TimerPlugin 
-                      label="Asistente de tiempo"
-                      onValueChange={(val) => handleChange(pregunta.id, val)} 
-                    />
-                  ) : (
-                    <div className="w-full">
-                      {(pregunta.type === 'select' || pregunta.type === 'radio') && pregunta.options && (
-                        <div className="flex flex-col gap-2.5">
-                          {pregunta.options.map((option, idx) => {
-                            const isSelected = respuestas[pregunta.id] === option.value;
-                            return (
-                              <button
-                                key={idx}
-                                type="button"
-                                onClick={() => handleChange(pregunta.id, option.value)}
-                                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                                  isSelected
-                                    ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-sm'
-                                    : esFaltante
-                                    ? 'border-red-100 bg-white/50 text-red-400'
-                                    : 'border-gray-100 bg-white text-gray-600 hover:border-teal-200'
-                                }`}
-                              >
-                                <span className={isSelected ? 'font-bold' : ''}>{option.label}</span>
-                                <div className={`shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                  isSelected ? 'border-teal-500 bg-teal-500' : esFaltante ? 'border-red-200' : 'border-gray-300'
-                                }`}>
-                                  {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
-                                </div>
-                              </button>
-                            );
-                          })}
+                      <div className="text-left">
+                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">{sectionName}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                           <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-teal-500 transition-all" style={{ width: `${(respondidas/questions.length)*100}%` }} />
+                           </div>
+                           <span className="text-[9px] font-black text-slate-400 uppercase">{respondidas} / {questions.length}</span>
                         </div>
-                      )}
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="text-slate-300" /> : <ChevronDown className="text-slate-300" />}
+                  </button>
 
-                      {pregunta.type === 'number' && (
-                        <input
-                          type="number"
-                          value={respuestas[pregunta.id] ?? ''}
-                          onChange={(e) => handleChange(pregunta.id, Number(e.target.value))}
-                          placeholder={pregunta.min !== undefined ? `Rango: ${pregunta.min} a ${pregunta.max}` : "Ingrese valor numérico..."}
-                          className={`w-full text-xl font-bold text-center p-4 border-2 rounded-xl focus:border-teal-500 outline-none ${
-                            esFaltante ? 'border-red-300 bg-red-50 text-red-900' : 'border-gray-200'
-                          }`}
-                        />
-                      )}
+                  {/* CONTENIDO DESPLEGABLE */}
+                  {isOpen && (
+                    <div className="p-6 space-y-5 animate-in slide-in-from-top-4 duration-300">
+                      {questions.map((pregunta, idx) => {
+                        const esInvalido = faltantes.includes(pregunta.id);
+                        const tieneValor = respuestas[pregunta.id] !== undefined;
+
+                        return (
+                          <div key={pregunta.id} className={`p-6 rounded-[1.5rem] border-2 transition-all ${esInvalido ? 'bg-red-50 border-red-200 shadow-inner' : tieneValor ? 'bg-white border-teal-500/10 shadow-sm' : 'bg-white/50 border-slate-50'}`}>
+                             <div className="flex justify-between items-start mb-4">
+                                <label className="text-sm font-bold text-slate-700 leading-tight">
+                                  <span className="text-teal-600 mr-2 font-black italic">{idx + 1}.</span> {pregunta.text}
+                                </label>
+                                {esInvalido && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
+                             </div>
+                             
+                             <div className="flex gap-2">
+                               {pregunta.options?.map((opt: any) => (
+                                 <button
+                                   key={opt.value}
+                                   type="button"
+                                   onClick={() => handleChange(pregunta.id, opt.value)}
+                                   className={`flex-1 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all active:scale-95 ${
+                                     respuestas[pregunta.id] === opt.value
+                                     ? 'bg-slate-900 border-slate-900 text-white shadow-xl'
+                                     : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
+                                   }`}
+                                 >
+                                   {opt.label}
+                                 </button>
+                               ))}
+                             </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               );
             })}
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-8 border-t border-gray-100">
+            <div className="pt-10">
               <button
                 type="submit"
-                disabled={hayErroresCriticos} // ✅ BLOQUEO FÍSICO NIVEL CEO
-                className={`flex-1 py-5 rounded-2xl font-black text-xl shadow-lg transition-all flex flex-col items-center justify-center leading-none ${
-                  hayErroresCriticos 
-                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
-                  : 'bg-teal-600 hover:bg-teal-700 text-white active:scale-95'
+                disabled={progress < 100}
+                className={`w-full py-7 rounded-[2rem] font-black text-xl shadow-2xl transition-all flex flex-col items-center justify-center gap-1 ${
+                  progress < 100 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95'
                 }`}
               >
-                <span>{hayErroresCriticos ? 'Datos Inválidos' : 'Calcular Resultado'}</span>
-                {faltantes.length > 0 && (
-                  <span className="text-[10px] uppercase tracking-widest mt-2 opacity-80">
-                    {faltantes.length} campos por corregir
+                <span>{progress < 100 ? 'Evaluación Incompleta' : 'Finalizar y Generar Diagnóstico'}</span>
+                {progress < 100 && (
+                  <span className="text-[10px] uppercase tracking-[0.2em] opacity-60">
+                    Faltan {scale.preguntas.length - Object.keys(respuestas).length} ítems
                   </span>
                 )}
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="px-8 py-5 border-2 border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-colors"
-              >
-                Limpiar
               </button>
             </div>
           </form>
