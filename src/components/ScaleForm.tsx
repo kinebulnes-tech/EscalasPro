@@ -3,7 +3,6 @@ import { Scale } from '../data/scalesData';
 import { calcularEscala, obtenerPreguntasFaltantes } from '../core/scaleEngine';
 import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
-import TimerPlugin from './plugins/TimerPlugin';
 import { 
   ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Layers, CheckCircle2 
 } from 'lucide-react';
@@ -21,24 +20,20 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
   const [faltantes, setFaltantes] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // ✅ AGRUPACIÓN INTELIGENTE (CEO APPROVED)
   const groupedQuestions = useMemo(() => {
     const groups: Record<string, any[]> = {};
-    
     scale.preguntas.forEach(q => {
       let sectionName = "Evaluación General";
       if (q.id.startsWith('c')) sectionName = "Área Coordinación";
       else if (q.id.startsWith('l')) sectionName = "Área Lenguaje";
       else if (q.id.startsWith('m')) sectionName = "Área Motricidad";
-      else if (q.id.startsWith('h_p')) sectionName = "Área Dolor";
-      else if (q.id.startsWith('h_f')) sectionName = "Área Función";
-      else if (q.id.startsWith('h_m')) sectionName = "Área Movilidad";
-      else if (q.id.startsWith('h_d')) sectionName = "Área Deformidad";
+      else if (q.id.startsWith('t_')) sectionName = "Parámetros Funcionales"; // Constant-Murley
+      else if (q.id.startsWith('deg_') || q.id.startsWith('force_')) sectionName = "Mediciones Objetivas";
+      else if (q.id.startsWith('h_')) sectionName = "Área Clínica";
       else if (q.id.startsWith('e')) {
           const mes = q.id.split('_')[0].replace('e', '');
           sectionName = `Evaluación: Mes ${mes}`;
       }
-      
       if (!groups[sectionName]) groups[sectionName] = [];
       groups[sectionName].push(q);
     });
@@ -73,20 +68,17 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const camposInvalidos = obtenerPreguntasFaltantes(scale, respuestas);
-    
     if (camposInvalidos.length > 0) {
       setFaltantes(camposInvalidos);
       feedback.warning();
       return;
     }
-
     const respuestasConContexto = {
       ...respuestas,
       pacienteMeses: pacienteContexto?.totalMeses || 0,
       pacienteDias: pacienteContexto?.totalDias || 0,
       pacienteAnios: pacienteContexto?.años || 0
     };
-
     feedback.success();
     const result = calcularEscala(scale, respuestasConContexto);
     if (result.puntaje !== null) {
@@ -98,12 +90,10 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
 
   return (
     <>
-      {/* BARRA DE PROGRESO */}
       <div className="fixed top-16 left-0 w-full h-1.5 bg-gray-100 z-[60]">
         <div className="h-full bg-gradient-to-r from-teal-500 to-blue-500 transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
       </div>
 
-      {/* PUNTUACIÓN FLOTANTE */}
       <div className="fixed top-28 right-4 z-[100] pointer-events-none">
         <div className="bg-slate-900 border-2 border-teal-500 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4 pointer-events-auto">
           <div className="text-right">
@@ -118,7 +108,6 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
 
       <div className="max-w-4xl mx-auto pb-10 px-4 pt-4">
         <div className="bg-white rounded-[2.5rem] shadow-xl p-6 sm:p-10 mt-4 border border-slate-100">
-          
           <button onClick={onBack} className="mb-8 text-slate-400 hover:text-teal-600 font-bold flex items-center gap-2 group transition-all">
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> 
             <span>Volver al Catálogo</span>
@@ -140,17 +129,12 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
           <form onSubmit={handleSubmit} className="space-y-6">
             {Object.entries(groupedQuestions).map(([sectionName, questions]) => {
               const isOpen = openSections[sectionName] !== false;
-              const respondidas = questions.filter(q => respuestas[q.id] !== undefined).length;
+              const respondidas = questions.filter(q => respuestas[q.id] !== undefined && respuestas[q.id] !== null).length;
               const esCompleta = respondidas === questions.length;
 
               return (
                 <div key={sectionName} className={`border-2 rounded-[2rem] transition-all overflow-hidden ${isOpen ? 'border-slate-100 bg-slate-50/30' : 'border-transparent bg-white shadow-sm'}`}>
-                  {/* HEADER DEL DESPLEGABLE */}
-                  <button 
-                    type="button"
-                    onClick={() => toggleSection(sectionName)}
-                    className="w-full flex items-center justify-between p-6 bg-white hover:bg-slate-50/80 transition-all"
-                  >
+                  <button type="button" onClick={() => toggleSection(sectionName)} className="w-full flex items-center justify-between p-6 bg-white hover:bg-slate-50/80 transition-all">
                     <div className="flex items-center gap-5">
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${esCompleta ? 'bg-emerald-100 text-emerald-600 shadow-inner' : 'bg-teal-50 text-teal-600'}`}>
                         {esCompleta ? <CheckCircle2 size={24} /> : <Layers size={24} />}
@@ -168,12 +152,11 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                     {isOpen ? <ChevronUp className="text-slate-300" /> : <ChevronDown className="text-slate-300" />}
                   </button>
 
-                  {/* CONTENIDO DESPLEGABLE */}
                   {isOpen && (
                     <div className="p-6 space-y-6 animate-in slide-in-from-top-4 duration-300">
                       {questions.map((pregunta, idx) => {
                         const esInvalido = faltantes.includes(pregunta.id);
-                        const tieneValor = respuestas[pregunta.id] !== undefined;
+                        const tieneValor = respuestas[pregunta.id] !== undefined && respuestas[pregunta.id] !== null;
 
                         return (
                           <div key={pregunta.id} className={`p-6 rounded-[1.5rem] border-2 transition-all ${esInvalido ? 'bg-red-50 border-red-200 shadow-inner' : tieneValor ? 'bg-white border-teal-500/10 shadow-sm' : 'bg-white/50 border-slate-50'}`}>
@@ -184,35 +167,43 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                                 {esInvalido && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
                              </div>
                              
-                             {/* ✅ GRID ADAPTATIVO (MOBILE READY) */}
-                             <div className={`grid gap-3 ${
-                               pregunta.options && pregunta.options.length <= 2 
-                                 ? 'grid-cols-2' // Para Logrado/No (TEPSI)
-                                 : 'grid-cols-1 sm:grid-cols-5' // Para escalas largas (DASH)
-                             }`}>
-                               {pregunta.options?.map((opt: any) => {
-                                 const isSelected = respuestas[pregunta.id] === opt.value;
-                                 return (
-                                   <button
-                                     key={opt.value}
-                                     type="button"
-                                     onClick={() => handleChange(pregunta.id, opt.value)}
-                                     className={`relative py-4 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all active:scale-95 flex items-center justify-center text-center ${
-                                       isSelected
-                                       ? 'bg-slate-900 border-slate-900 text-white shadow-xl z-10'
-                                       : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
-                                     }`}
-                                   >
-                                     {isSelected && (
-                                       <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm z-20">
-                                         <CheckCircle2 size={10} className="text-white" />
-                                       </div>
-                                     )}
-                                     <span className="leading-tight">{opt.label}</span>
-                                   </button>
-                                 );
-                               })}
-                             </div>
+                             {pregunta.type === 'number' ? (
+                               <div className="relative max-w-[220px]">
+                                 <input
+                                   type="number"
+                                   value={respuestas[pregunta.id] ?? ''}
+                                   onChange={(e) => handleChange(pregunta.id, e.target.value === '' ? null as any : Number(e.target.value))}
+                                   className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 text-2xl font-black text-slate-900 focus:border-teal-500 focus:bg-white outline-none transition-all placeholder:text-slate-200"
+                                   placeholder="0"
+                                 />
+                                 <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <span className="text-xs font-black text-slate-300 uppercase tracking-widest">
+                                      {pregunta.id.includes('deg') ? 'Grados' : 'Lbs'}
+                                    </span>
+                                 </div>
+                               </div>
+                             ) : (
+                               <div className={`grid gap-3 ${pregunta.options && pregunta.options.length <= 2 ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-5'}`}>
+                                 {pregunta.options?.map((opt: any) => {
+                                   const isSelected = respuestas[pregunta.id] === opt.value;
+                                   return (
+                                     <button
+                                       key={opt.value}
+                                       type="button"
+                                       onClick={() => handleChange(pregunta.id, opt.value)}
+                                       className={`relative py-4 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all active:scale-95 flex items-center justify-center text-center ${isSelected ? 'bg-slate-900 border-slate-900 text-white shadow-xl z-10' : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'}`}
+                                     >
+                                       {isSelected && (
+                                         <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm z-20">
+                                           <CheckCircle2 size={10} className="text-white" />
+                                         </div>
+                                       )}
+                                       <span className="leading-tight">{opt.label}</span>
+                                     </button>
+                                   );
+                                 })}
+                               </div>
+                             )}
                           </div>
                         );
                       })}
@@ -226,9 +217,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
               <button
                 type="submit"
                 disabled={progress < 100}
-                className={`w-full py-7 rounded-[2rem] font-black text-xl shadow-2xl transition-all flex flex-col items-center justify-center gap-1 ${
-                  progress < 100 ? 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none' : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95 shadow-teal-200'
-                }`}
+                className={`w-full py-7 rounded-[2rem] font-black text-xl shadow-2xl transition-all flex flex-col items-center justify-center gap-1 ${progress < 100 ? 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none' : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95 shadow-teal-200'}`}
               >
                 <span>{progress < 100 ? 'Evaluación en curso' : 'Finalizar Evaluación'}</span>
                 {progress < 100 && (
