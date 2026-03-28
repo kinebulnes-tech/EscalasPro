@@ -12,8 +12,9 @@ import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 import TrendChart from './components/TrendChart';
 
-// ✅ IMPORTACIÓN DEL CEREBRO DE INTELIGENCIA
+// ✅ IMPORTACIÓN DEL CEREBRO DE INTELIGENCIA Y BIOMETRÍA
 import { getSuggestedScales } from './data/clinicalIntelligence';
+import { calcularEdadExacta } from './utils/biometrics'; // ✅ Requisito para automatización
 
 // ✅ NUEVO COMPONENTE
 import RecentPatients from './components/RecentPatients';
@@ -31,6 +32,7 @@ interface Paciente {
   nombre: string;
   id: string;      
   country: string; 
+  fechaNacimiento: string; // ✅ Añadido para persistencia de cálculo exacto
   edad: string;
   diagnostico: string;
   peso?: string;
@@ -136,7 +138,6 @@ export default function App() {
 
   // --- FILTRADO INTELIGENTE (IA LOCAL) ---
   const { favoriteScales, suggestedScales, otherScales } = useMemo(() => {
-    // 1. Identificamos IDs sugeridos por diagnóstico (si la búsqueda tiene > 2 letras)
     const suggestedIds = query.length > 2 ? getSuggestedScales(query) : [];
 
     const filtered = scales.filter(scale => {
@@ -148,9 +149,7 @@ export default function App() {
 
     return {
       favoriteScales: filtered.filter(s => favorites.includes(s.id)),
-      // Escalas sugeridas por IA que coincidan con la búsqueda y NO sean favoritos
       suggestedScales: filtered.filter(s => suggestedIds.includes(s.id) && !favorites.includes(s.id)),
-      // El resto de escalas que no son ni favoritos ni sugerencias directas
       otherScales: filtered.filter(s => !favorites.includes(s.id) && !suggestedIds.includes(s.id))
     };
   }, [selectedCategory, query, favorites]);
@@ -213,6 +212,11 @@ export default function App() {
                 <ScaleForm 
                   scale={selectedScale} 
                   onBack={() => setActiveScale(null)}
+                  // ✅ INYECCIÓN DE CONTEXTO: Pasamos datos calculados de edad al motor de escalas
+                  pacienteContexto={pacienteActivo ? {
+                    ...pacienteActivo,
+                    ...calcularEdadExacta(pacienteActivo.fechaNacimiento)
+                  } : null}
                   onSave={async (n) => { 
                     const res = { ...n, fecha: new Date().toISOString() };
                     setListaResultados(p => [...p, res]); 
@@ -237,7 +241,7 @@ export default function App() {
                           <p className="text-[9px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
                           <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
                           
-                          {/* ✅ MEJORA: Edad calculada e Identificación en el Banner */}
+                          {/* ✅ MEJORA: Banner con Edad precisa e ID visible en todo momento */}
                           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-2">
                             <span className="text-[10px] text-white font-black bg-teal-500/20 px-2 py-0.5 rounded-md border border-teal-500/30">
                               {pacienteActivo.edad}
