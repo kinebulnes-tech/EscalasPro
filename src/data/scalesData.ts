@@ -28,6 +28,7 @@ export interface Scale {
   // Rigor científico
   bibliografia?: string;
   evidenciaClinica?: string;
+  mcid?: number;
   referenciaUrl?: string;
 }
 // Mapeo de Iconos por Especialidad
