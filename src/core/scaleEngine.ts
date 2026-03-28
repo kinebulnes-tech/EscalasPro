@@ -1,18 +1,13 @@
 // src/core/scaleEngine.ts
 
 /**
- * ARCHIVO: scaleEngine.ts (Motor de Cálculo Clínico)
+ * ARCHIVO: scaleEngine.ts (Motor de Cálculo Clínico - Versión Blindada)
  * UBICACIÓN: src/core/
- * DESCRIPCIÓN: Este archivo es el "cerebro" puro del sistema. 
- * No debe importar nada de React ni de la interfaz de usuario.
+ * DESCRIPCIÓN: Cerebro lógico del sistema con validación estricta de rangos biológicos.
  */
 
 import { Scale, InterpretacionAvanzada } from '../data/scalesData';
 
-/**
- * Estructura del resultado final de cualquier evaluación.
- * El uso de 'null' en puntaje es una medida de seguridad clínica.
- */
 export interface ScaleResult {
   puntaje: number | null; 
   interpretacion: string;
@@ -23,25 +18,24 @@ export interface ScaleResult {
 }
 
 /**
- * Función principal: Ejecuta el cálculo y la interpretación.
- * Blindada para evitar que errores de datos produzcan resultados falsos.
+ * Ejecuta el cálculo e interpretación con blindaje de datos.
  */
 export const calcularEscala = (
   scale: Scale,
   respuestas: Record<string, any>
 ): ScaleResult => {
   try {
-    // 1. Verificamos que no falten campos obligatorios o haya valores fuera de rango
-    const camposFaltantes = obtenerPreguntasFaltantes(scale, respuestas);
+    // 1. Bloqueo de seguridad: Verificamos integridad y rangos biológicos
+    const camposInvalidos = obtenerPreguntasFaltantes(scale, respuestas);
     
-    if (camposFaltantes.length > 0) {
-      throw new Error(`Integridad de datos fallida: faltan ${camposFaltantes.length} campos.`);
+    if (camposInvalidos.length > 0) {
+      throw new Error(`Falla de integridad: ${camposInvalidos.length} campos fuera de rango o vacíos.`);
     }
 
-    // 2. Ejecutamos la fórmula matemática definida en la data
+    // 2. Cálculo matemático
     const puntaje = scale.calcularPuntaje(respuestas);
     
-    // 3. Obtenemos la interpretación clínica basada en el puntaje
+    // 3. Interpretación clínica
     const interpretacionRaw = scale.interpretar(puntaje, respuestas);
 
     const textoInterpretacion = typeof interpretacionRaw === 'string' 
@@ -57,14 +51,12 @@ export const calcularEscala = (
       error: false
     };
   } catch (err) {
-    // En software médico, ante la duda, devolvemos 'null' y bandera de error.
-    // Nunca debemos inventar un puntaje (ej: devolver 0) si el cálculo falla.
-    console.error(`🚨 Error en ScaleEngine [${scale.id}]:`, err);
+    console.error(`🚨 Error Crítico en Engine [${scale.id}]:`, err);
     
     return {
       puntaje: null,
       interpretacion: "Cálculo no disponible",
-      detalleCompleto: "Error interno en la validación de la escala.",
+      detalleCompleto: "Error: Datos biológicamente incompatibles o incompletos.",
       escala: scale.nombre,
       categoria: scale.categoria,
       error: true
@@ -73,8 +65,7 @@ export const calcularEscala = (
 };
 
 /**
- * Validador de consistencia: 
- * Revisa si todas las preguntas tienen una respuesta válida y dentro de los límites.
+ * VALIDADOR CRÍTICO: Identifica campos vacíos O valores biológicamente imposibles.
  */
 export const obtenerPreguntasFaltantes = (
   scale: Scale,
@@ -84,15 +75,21 @@ export const obtenerPreguntasFaltantes = (
     .filter(pregunta => {
       const respuesta = respuestas[pregunta.id];
 
-      // Caso 1: La pregunta no ha sido respondida
+      // Caso 1: Campo no respondido
       if (respuesta === undefined || respuesta === null || respuesta === "") return true;
 
-      // Caso 2: Validación de rangos para campos numéricos (evita errores de ingreso)
+      // Caso 2: Validación de rangos (Sanity Check nivel CEO)
       if (pregunta.type === 'number') {
         const valorNum = Number(respuesta);
-        const min = pregunta.min ?? -Infinity;
-        const max = pregunta.max ?? Infinity;
-        return isNaN(valorNum) || valorNum < min || valorNum > max;
+        
+        // Límites: Prioridad a los de la escala, si no, límites biológicos extremos
+        const min = pregunta.min ?? 0; 
+        const max = pregunta.max ?? 1000;
+
+        if (isNaN(valorNum) || valorNum < min || valorNum > max) {
+          console.warn(`🛑 Bloqueo por valor imposible: ${pregunta.id} = ${valorNum}`);
+          return true; // Se reporta como "faltante/inválido" para bloquear el cálculo
+        }
       }
       
       return false;
@@ -101,7 +98,7 @@ export const obtenerPreguntasFaltantes = (
 };
 
 /**
- * Valida si el formulario está listo para ser procesado.
+ * Determina si el formulario es apto para procesarse.
  */
 export const validarRespuestas = (
   scale: Scale,
@@ -111,14 +108,10 @@ export const validarRespuestas = (
 };
 
 /**
- * Formateador universal de puntajes clínicos.
- * Maneja decimales con coma (estándar médico hispano) y estados de error.
+ * Formateador de puntajes con estándar médico.
  */
 export const formatearPuntaje = (puntaje: number | null): string => {
   if (puntaje === null) return "--";
-  
   if (Number.isInteger(puntaje)) return puntaje.toString();
-  
-  // Para escalas con decimales (ej: Murray), forzamos 2 decimales y coma.
   return puntaje.toFixed(2).replace('.', ',');
 };
