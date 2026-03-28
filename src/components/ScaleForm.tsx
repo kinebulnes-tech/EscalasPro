@@ -21,16 +21,19 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
   const [faltantes, setFaltantes] = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // ✅ LÓGICA CEO: Agrupación Automática de Preguntas
+  // ✅ AGRUPACIÓN INTELIGENTE (CEO APPROVED)
   const groupedQuestions = useMemo(() => {
     const groups: Record<string, any[]> = {};
     
     scale.preguntas.forEach(q => {
       let sectionName = "Evaluación General";
-      // Clasificación por prefijos (TEPSI: c, l, m | EEDP: e)
       if (q.id.startsWith('c')) sectionName = "Área Coordinación";
       else if (q.id.startsWith('l')) sectionName = "Área Lenguaje";
       else if (q.id.startsWith('m')) sectionName = "Área Motricidad";
+      else if (q.id.startsWith('h_p')) sectionName = "Área Dolor";
+      else if (q.id.startsWith('h_f')) sectionName = "Área Función";
+      else if (q.id.startsWith('h_m')) sectionName = "Área Movilidad";
+      else if (q.id.startsWith('h_d')) sectionName = "Área Deformidad";
       else if (q.id.startsWith('e')) {
           const mes = q.id.split('_')[0].replace('e', '');
           sectionName = `Evaluación: Mes ${mes}`;
@@ -104,8 +107,8 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
       <div className="fixed top-28 right-4 z-[100] pointer-events-none">
         <div className="bg-slate-900 border-2 border-teal-500 rounded-2xl px-5 py-3 shadow-2xl flex items-center gap-4 pointer-events-auto">
           <div className="text-right">
-            <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">Puntos</p>
-            <p className="text-2xl font-black text-white leading-none">{currentScore}</p>
+            <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest leading-none mb-1">Puntos</p>
+            <p className="text-2xl font-black text-white leading-none tabular-nums">{currentScore}</p>
           </div>
           <div className="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center text-white">
              <CheckCircle2 size={24} />
@@ -123,20 +126,20 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
 
           <div className="mb-10 border-b border-slate-50 pb-8">
             {pacienteNombre && (
-              <div className="bg-slate-50 text-slate-600 px-4 py-2 rounded-xl inline-flex items-center gap-3 mb-6">
+              <div className="bg-slate-50 text-slate-600 px-4 py-2 rounded-xl inline-flex items-center gap-3 mb-6 shadow-sm">
                  <ShieldCheck size={14} className="text-teal-600" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">
-                   Protocolo: {pacienteNombre} {pacienteContexto?.años ? `(${pacienteContexto.años} años)` : ''}
+                 <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                   Evaluando: {pacienteNombre} {pacienteContexto?.años ? `(${pacienteContexto.años} años)` : ''}
                  </span>
               </div>
             )}
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase italic mb-3">{scale.nombre}</h2>
-            <p className="text-slate-500 font-medium">{scale.descripcion}</p>
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase italic mb-3 leading-tight">{scale.nombre}</h2>
+            <p className="text-slate-500 font-medium leading-relaxed">{scale.descripcion}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {Object.entries(groupedQuestions).map(([sectionName, questions]) => {
-              const isOpen = openSections[sectionName] !== false; // Abiertas por defecto
+              const isOpen = openSections[sectionName] !== false;
               const respondidas = questions.filter(q => respuestas[q.id] !== undefined).length;
               const esCompleta = respondidas === questions.length;
 
@@ -149,16 +152,16 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                     className="w-full flex items-center justify-between p-6 bg-white hover:bg-slate-50/80 transition-all"
                   >
                     <div className="flex items-center gap-5">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${esCompleta ? 'bg-emerald-100 text-emerald-600' : 'bg-teal-50 text-teal-600'}`}>
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${esCompleta ? 'bg-emerald-100 text-emerald-600 shadow-inner' : 'bg-teal-50 text-teal-600'}`}>
                         {esCompleta ? <CheckCircle2 size={24} /> : <Layers size={24} />}
                       </div>
                       <div className="text-left">
                         <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">{sectionName}</h4>
                         <div className="flex items-center gap-2 mt-1">
                            <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-teal-500 transition-all" style={{ width: `${(respondidas/questions.length)*100}%` }} />
+                              <div className="h-full bg-teal-500 transition-all duration-700" style={{ width: `${(respondidas/questions.length)*100}%` }} />
                            </div>
-                           <span className="text-[9px] font-black text-slate-400 uppercase">{respondidas} / {questions.length}</span>
+                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{respondidas} / {questions.length}</span>
                         </div>
                       </div>
                     </div>
@@ -167,35 +170,48 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
 
                   {/* CONTENIDO DESPLEGABLE */}
                   {isOpen && (
-                    <div className="p-6 space-y-5 animate-in slide-in-from-top-4 duration-300">
+                    <div className="p-6 space-y-6 animate-in slide-in-from-top-4 duration-300">
                       {questions.map((pregunta, idx) => {
                         const esInvalido = faltantes.includes(pregunta.id);
                         const tieneValor = respuestas[pregunta.id] !== undefined;
 
                         return (
                           <div key={pregunta.id} className={`p-6 rounded-[1.5rem] border-2 transition-all ${esInvalido ? 'bg-red-50 border-red-200 shadow-inner' : tieneValor ? 'bg-white border-teal-500/10 shadow-sm' : 'bg-white/50 border-slate-50'}`}>
-                             <div className="flex justify-between items-start mb-4">
+                             <div className="flex justify-between items-start mb-5">
                                 <label className="text-sm font-bold text-slate-700 leading-tight">
                                   <span className="text-teal-600 mr-2 font-black italic">{idx + 1}.</span> {pregunta.text}
                                 </label>
                                 {esInvalido && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
                              </div>
                              
-                             <div className="flex gap-2">
-                               {pregunta.options?.map((opt: any) => (
-                                 <button
-                                   key={opt.value}
-                                   type="button"
-                                   onClick={() => handleChange(pregunta.id, opt.value)}
-                                   className={`flex-1 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all active:scale-95 ${
-                                     respuestas[pregunta.id] === opt.value
-                                     ? 'bg-slate-900 border-slate-900 text-white shadow-xl'
-                                     : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
-                                   }`}
-                                 >
-                                   {opt.label}
-                                 </button>
-                               ))}
+                             {/* ✅ GRID ADAPTATIVO (MOBILE READY) */}
+                             <div className={`grid gap-3 ${
+                               pregunta.options && pregunta.options.length <= 2 
+                                 ? 'grid-cols-2' // Para Logrado/No (TEPSI)
+                                 : 'grid-cols-1 sm:grid-cols-5' // Para escalas largas (DASH)
+                             }`}>
+                               {pregunta.options?.map((opt: any) => {
+                                 const isSelected = respuestas[pregunta.id] === opt.value;
+                                 return (
+                                   <button
+                                     key={opt.value}
+                                     type="button"
+                                     onClick={() => handleChange(pregunta.id, opt.value)}
+                                     className={`relative py-4 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest border-2 transition-all active:scale-95 flex items-center justify-center text-center ${
+                                       isSelected
+                                       ? 'bg-slate-900 border-slate-900 text-white shadow-xl z-10'
+                                       : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
+                                     }`}
+                                   >
+                                     {isSelected && (
+                                       <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm z-20">
+                                         <CheckCircle2 size={10} className="text-white" />
+                                       </div>
+                                     )}
+                                     <span className="leading-tight">{opt.label}</span>
+                                   </button>
+                                 );
+                               })}
                              </div>
                           </div>
                         );
@@ -211,12 +227,12 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                 type="submit"
                 disabled={progress < 100}
                 className={`w-full py-7 rounded-[2rem] font-black text-xl shadow-2xl transition-all flex flex-col items-center justify-center gap-1 ${
-                  progress < 100 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95'
+                  progress < 100 ? 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none' : 'bg-teal-600 text-white hover:bg-teal-700 active:scale-95 shadow-teal-200'
                 }`}
               >
-                <span>{progress < 100 ? 'Evaluación Incompleta' : 'Finalizar y Generar Diagnóstico'}</span>
+                <span>{progress < 100 ? 'Evaluación en curso' : 'Finalizar Evaluación'}</span>
                 {progress < 100 && (
-                  <span className="text-[10px] uppercase tracking-[0.2em] opacity-60">
+                  <span className="text-[10px] uppercase tracking-[0.2em] opacity-50">
                     Faltan {scale.preguntas.length - Object.keys(respuestas).length} ítems
                   </span>
                 )}
