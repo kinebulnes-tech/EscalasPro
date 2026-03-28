@@ -2486,106 +2486,131 @@ export const scales: Scale[] = [
   id: 'harris_hip_pro',
   nombre: 'Harris Hip Score (Cadera Pro)',
   categoria: 'traumatologia',
-  descripcion: 'Evaluación integral de cadera. Automatización de puntos por rangos de movilidad (ROM) y funcionalidad.',
-  bibliografia: "Harris WH. Traumatic arthritis of the hip after dislocation and acetabular fractures. 1969.",
-  referenciaUrl: "https://www.orthopaedicscore.com/scorepages/harris_hip_score.html",
-  evidenciaClinica: "Versión de alta precisión: Calcula automáticamente el Índice de Movilidad basado en 4 planos goniométricos, eliminando tablas de conversión manuales.",
+  descripcion: 'Evaluación integral de cadera pre/post artroplastia. Cálculo automatizado de índices de movilidad y deformidad.',
+  bibliografia: "Harris WH. Traumatic arthritis of the hip after dislocation and acetabular fractures. J Bone Joint Surg Am. 1969.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/5783851/",
+  evidenciaClinica: "Gold standard para evaluar el éxito de una prótesis total de cadera (PTC). Un puntaje < 70 se considera falla clínica. El MCID es de aproximadamente 8 puntos.",
 
   preguntas: [
-    // --- SECCIÓN: DOLOR (h_p) ---
-    { id: 'h_p_dolor', text: 'Nivel de Dolor:', type: 'select', options: [
-      {label: 'Ninguno/Ignorable (44 pts)', value: 44}, {label: 'Leve, sin compromiso funcional (40 pts)', value: 40},
-      {label: 'Moderado, tolerable, limita algo (30 pts)', value: 30}, {label: 'Marcado, limitaciones serias (20 pts)', value: 20},
-      {label: 'Severo, incapacitante (10 pts)', value: 10}, {label: 'Totalmente incapacitado (0 pts)', value: 0}
+    // --- SECCIÓN I: DOLOR (Máximo 44 pts) ---
+    { id: 'h_p_dolor', text: 'Nivel de Dolor percibido:', type: 'select', options: [
+      {label: 'Ninguno / Ignorable (44 pts)', value: 44},
+      {label: 'Leve, ocasional, no limita actividad (40 pts)', value: 40},
+      {label: 'Moderado, tolerable, limita alguna actividad (30 pts)', value: 30},
+      {label: 'Marcado, limitaciones serias en AVD (20 pts)', value: 20},
+      {label: 'Severo, dolor en reposo, incapacitante (10 pts)', value: 10},
+      {label: 'Totalmente incapacitado, postrado (0 pts)', value: 0}
     ]},
 
-    // --- SECCIÓN: FUNCIÓN - MARCHA (h_f) ---
-    { id: 'h_f_cojera', text: 'Cojera:', type: 'select', options: [
-      {label: 'Ninguna (11 pts)', value: 11}, {label: 'Leve (8 pts)', value: 8},
-      {label: 'Moderada (5 pts)', value: 5}, {label: 'Severa (0 pts)', value: 0}
+    // --- SECCIÓN II: FUNCIÓN - MARCHA (Máximo 33 pts) ---
+    { id: 'h_f_cojera', text: 'Cojera (Trendelenburg / Antálgica):', type: 'select', options: [
+      {label: 'Ninguna (11 pts)', value: 11},
+      {label: 'Leve (8 pts)', value: 8},
+      {label: 'Moderada (5 pts)', value: 5},
+      {label: 'Severa (0 pts)', value: 0}
     ]},
-    { id: 'h_f_apoyo', text: 'Soporte/Bastón:', type: 'select', options: [
-      {label: 'Ninguno (11 pts)', value: 11}, {label: 'Bastón para largas caminatas (7 pts)', value: 7},
-      {label: 'Bastón la mayor parte del tiempo (5 pts)', value: 5}, {label: 'Una muleta (3 pts)', value: 3},
-      {label: 'Dos bastones (2 pts)', value: 2}, {label: 'Dos muletas o no camina (0 pts)', value: 0}
+    { id: 'h_f_apoyo', text: 'Soporte para la marcha:', type: 'select', options: [
+      {label: 'Ninguno (11 pts)', value: 11},
+      {label: 'Bastón para caminatas largas (7 pts)', value: 7},
+      {label: 'Bastón la mayor parte del tiempo (5 pts)', value: 5},
+      {label: 'Una muleta (3 pts)', value: 3},
+      {label: 'Dos bastones (2 pts)', value: 2},
+      {label: 'Dos muletas o incapacidad de caminar (0 pts)', value: 0}
     ]},
-    { id: 'h_f_distancia', text: 'Distancia máxima caminada:', type: 'select', options: [
-      {label: 'Ilimitada (11 pts)', value: 11}, {label: '6 cuadras (~500m) (8 pts)', value: 8},
-      {label: '2-3 cuadras (5 pts)', value: 5}, {label: 'Solo dentro de casa (2 pts)', value: 2},
-      {label: 'Cama a silla / No camina (0 pts)', value: 0}
+    { id: 'h_f_distancia', text: 'Distancia máxima que puede caminar:', type: 'select', options: [
+      {label: 'Ilimitada (11 pts)', value: 11},
+      {label: 'Seis cuadras (~500m) (8 pts)', value: 8},
+      {label: 'Dos o tres cuadras (~200m) (5 pts)', value: 5},
+      {label: 'Solo dentro de casa (2 pts)', value: 2},
+      {label: 'Cama a silla / Incapaz (0 pts)', value: 0}
     ]},
 
-    // --- SECCIÓN: FUNCIÓN - ACTIVIDADES (h_f) ---
-    { id: 'h_f_escaleras', text: 'Escaleras:', type: 'select', options: [
-      {label: 'Normalmente sin pasamanos (4 pts)', value: 4}, {label: 'Usando pasamanos (2 pts)', value: 2},
-      {label: 'De manera difícil (1 pt)', value: 1}, {label: 'Incapaz (0 pts)', value: 0}
+    // --- SECCIÓN III: FUNCIÓN - ACTIVIDADES (Máximo 14 pts) ---
+    { id: 'h_f_escaleras', text: 'Subir/Bajar escaleras:', type: 'select', options: [
+      {label: 'Normalmente sin usar pasamanos (4 pts)', value: 4},
+      {label: 'Usando pasamanos (2 pts)', value: 2},
+      {label: 'De manera difícil / Uno a uno (1 pt)', value: 1},
+      {label: 'Incapaz de usar escaleras (0 pts)', value: 0}
     ]},
-    { id: 'h_f_calcetines', text: 'Zapatos y Calcetines:', type: 'select', options: [
-      {label: 'Con facilidad (4 pts)', value: 4}, {label: 'Con dificultad (2 pts)', value: 2},
+    { id: 'h_f_calcetines', text: 'Ponerse calcetines y zapatos:', type: 'select', options: [
+      {label: 'Con facilidad (4 pts)', value: 4},
+      {label: 'Con dificultad (2 pts)', value: 2},
       {label: 'Incapaz (0 pts)', value: 0}
     ]},
-    { id: 'h_f_sentado', text: 'Sentado:', type: 'select', options: [
-      {label: 'Cómodamente 1 hora en silla normal (5 pts)', value: 5}, {label: 'En silla alta por 30 min (3 pts)', value: 3},
-      {label: 'Incapaz en cualquier silla (0 pts)', value: 0}
+    { id: 'h_f_sentado', text: 'Estar sentado:', type: 'select', options: [
+      {label: 'Cómodamente 1 hora en silla normal (5 pts)', value: 5},
+      {label: 'En silla alta por 30 minutos (3 pts)', value: 3},
+      {label: 'Incapaz de estar sentado en cualquier silla (0 pts)', value: 0}
     ]},
 
-    // --- SECCIÓN: MOVILIDAD (h_m) ---
-    { id: 'h_m_flexion', text: 'Flexión (0-140°):', type: 'number', min: 0, max: 140 },
-    { id: 'h_m_abduccion', text: 'Abducción (0-40°):', type: 'number', min: 0, max: 40 },
-    { id: 'h_m_rot_ext', text: 'Rotación Externa (0-40°):', type: 'number', min: 0, max: 40 },
-    { id: 'h_m_aduccion', text: 'Aducción (0-40°):', type: 'number', min: 0, max: 40 },
+    // --- SECCIÓN IV: MOVILIDAD (Goniometría - Máximo 5 pts acumulativos) ---
+    { id: 'h_m_flexion', text: 'Flexión de cadera (Grados 0-140°):', type: 'number' },
+    { id: 'h_m_abduccion', text: 'Abducción (Grados 0-40°):', type: 'number' },
+    { id: 'h_m_rot_ext', text: 'Rotación Externa (Grados 0-40°):', type: 'number' },
+    { id: 'h_m_aduccion', text: 'Aducción (Grados 0-40°):', type: 'number' },
 
-    // --- SECCIÓN: DEFORMIDAD (h_d) ---
-    { id: 'h_d_flex_fija', text: 'Deformidad en Flexión Fija < 30°:', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
-    { id: 'h_d_add_fija', text: 'Aducción Fija < 10°:', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
-    { id: 'h_d_rot_fija', text: 'Rotación Interna Fija < 10°:', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
-    { id: 'h_d_dismetria', text: 'Dismetría de extremidades < 3.2cm:', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] }
+    // --- SECCIÓN V: AUSENCIA DE DEFORMIDAD FIJA (4 pts si cumple todos) ---
+    { id: 'h_d_flex_fija', text: '¿Contractura en flexión menor a 30°?', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
+    { id: 'h_d_add_fija', text: '¿Contractura en aducción menor a 10°?', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
+    { id: 'h_d_rot_fija', text: '¿Contractura en rotación interna menor a 10°?', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] },
+    { id: 'h_d_dismetria', text: '¿Diferencia de longitud menor a 3.2 cm?', type: 'select', options: [{label: 'Sí', value: 1}, {label: 'No', value: 0}] }
   ],
 
   calcularPuntaje: (respuestas) => {
     const res = respuestas as Record<string, any>;
     let total = 0;
 
-    // 1. Suma de Dolor y Función
-    Object.keys(res).forEach(key => {
-      if (/^h_[pf]_/.test(key) && typeof res[key] === 'number') {
-        total += res[key];
-      }
-    });
+    // 1. Suma de Dolor y Función (Selectores directos)
+    const directKeys = ['h_p_dolor', 'h_f_cojera', 'h_f_apoyo', 'h_f_distancia', 'h_f_escaleras', 'h_f_calcetines', 'h_f_sentado'];
+    directKeys.forEach(key => total += (Number(res[key]) || 0));
 
-    // 2. Cálculo del Índice de Movilidad (Máx 5 pts)
-    // El HHS usa factores multiplicadores por cada rango
-    const f = (Number(res['h_m_flexion']) || 0) * 0.05;
-    const a = (Number(res['h_m_abduccion']) || 0) * 0.1;
-    const re = (Number(res['h_m_rot_ext']) || 0) * 0.1;
-    const ad = (Number(res['h_m_aduccion']) || 0) * 0.1;
-    
-    const mobilityIndex = Math.min((f + a + re + ad), 5);
-    total += mobilityIndex;
+    // 2. Cálculo del Índice de Movilidad (Factores de Harris originales)
+    const flex = Number(res['h_m_flexion']) || 0;
+    const abd = Number(res['h_m_abduccion']) || 0;
+    const re = Number(res['h_m_rot_ext']) || 0;
+    const add = Number(res['h_m_aduccion']) || 0;
 
-    // 3. Deformidad (4 puntos si cumple los 4 criterios "Sí")
-    const deformidadPts = Object.keys(res)
-      .filter(k => k.startsWith('h_d_') && res[k] === 1).length;
-    if (deformidadPts === 4) total += 4;
+    let ptsM = 0;
+    // Puntos por Flexión (Máx 1.1)
+    if (flex >= 110) ptsM += 1.1; else if (flex >= 90) ptsM += 0.8; else if (flex >= 70) ptsM += 0.5;
+    // Puntos por Abducción (Máx 0.8)
+    if (abd >= 20) ptsM += 0.8; else if (abd >= 15) ptsM += 0.5;
+    // Puntos por Rotación Externa (Máx 0.8)
+    if (re >= 15) ptsM += 0.8; else if (re >= 10) ptsM += 0.5;
+    // Puntos por Aducción (Máx 0.5)
+    if (add >= 15) ptsM += 0.5;
+
+    // El índice de movilidad tiene un tope de 5 puntos
+    total += Math.min(ptsM, 5);
+
+    // 3. Deformidad (Se otorgan 4 puntos SOLO si los 4 criterios son "Sí" = 1)
+    const defKeys = ['h_d_flex_fija', 'h_d_add_fija', 'h_d_rot_fija', 'h_d_dismetria'];
+    const cumpleDeformidad = defKeys.every(k => Number(res[k]) === 1);
+    if (cumpleDeformidad) total += 4;
 
     return Math.round(total);
   },
 
   interpretar: (total) => {
-    let categoria = 'POBRE';
-    let color = 'red-600';
-
-    if (total >= 90) { categoria = 'EXCELENTE'; color = 'emerald-600'; }
-    else if (total >= 80) { categoria = 'BUENO'; color = 'teal-600'; }
-    else if (total >= 70) { categoria = 'REGULAR'; color = 'orange-500'; }
+    const isExcellent = total >= 90;
+    const isGood = total >= 80 && total < 90;
+    const isFair = total >= 70 && total < 80;
 
     return {
-      texto: `RESULTADO: ${categoria}`,
-      color: color,
-      evidencia: `Puntaje: ${total}/100. Un puntaje < 70 indica falla clínica significativa.`,
+      texto: isExcellent ? 'EXCELENTE' : isGood ? 'BUENO' : isFair ? 'REGULAR' : 'POBRE (FALLA CLÍNICA)',
+      color: isExcellent ? 'emerald-600' : isGood ? 'teal-600' : isFair ? 'amber-500' : 'red-600',
+      evidencia: `Puntaje Total: ${total}/100. Un resultado menor a 70 puntos es indicativo de falla funcional severa.`,
       recomendaciones: total < 70 
-        ? ['Evaluación radiológica urgente', 'Considerar revisión protésica', 'Limitación de carga']
-        : ['Continuar con plan de rehabilitación', 'Fortalecimiento de abductores', 'Progresión de marcha']
+        ? [
+            'Evaluación radiográfica para descartar aflojamiento protésico o luxación.',
+            'Analítica para descartar infección periprotésica si hay dolor súbito.',
+            'Kinesioterapia: Enfoque en fortalecimiento de abductores y control motor.'
+          ]
+        : [
+            'Progresar a carga total e impacto controlado según tolerancia.',
+            'Mantener programa de fortalecimiento de glúteo medio.',
+            'Seguimiento anual para control de componentes protésicos.'
+          ]
     };
   }
 },
@@ -3000,100 +3025,90 @@ export const scales: Scale[] = [
     }
   },
   {
-    id: 'visa_a_aquiles',
-    nombre: 'Escala VISA-A (Tendinopatía de Aquiles)',
-    categoria: 'traumatologia',
-    descripcion: 'Índice de severidad de la tendinopatía de Aquiles. Evalúa dolor, función y actividad (8 ítems).',
-    
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11078440) ---
-    bibliografia: "Robinson JM, et al. VISA-A questionnaire: a valid and reliable index of the severity of Achilles tendinopathy. Br J Sports Med. 2001;35(5):335-41.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11579069/",
-    evidenciaClinica: "Un deportista sano debe puntuar 100. Es la herramienta principal para guiar el protocolo de carga. Un cambio de 12-20 puntos se considera clínicamente relevante.",
+  id: 'visa_a_aquiles_pro',
+  nombre: 'VISA-A (Tendinopatía de Aquiles Pro)',
+  categoria: 'traumatologia',
+  descripcion: 'Índice de severidad para tendinopatía de Aquiles. Evalúa dolor, función y actividad deportiva.',
+  bibliografia: "Robinson JM, et al. VISA-A questionnaire: a valid and reliable index of the severity of Achilles tendinopathy. Br J Sports Med. 2001.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11579069/",
+  evidenciaClinica: "Puntaje máximo de 100 (tendón sano). Un cambio de 12 a 20 puntos es el Cambio Mínimo Clínicamente Importante (MCID). Guía la progresión de carga (Isométrico > Isotónico > Pliométrico).",
 
-    preguntas: [
-      { id: 'p1', text: '1. ¿Cuántos minutos permanece el dolor al levantarse por la mañana? (0: >100 min - 10: 0 min):', type: 'number', min: 0, max: 10 },
-      { id: 'p2', text: '2. Dolor al estirar el tendón de Aquiles al máximo (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
-      { id: 'p3', text: '3. Dolor tras caminar sobre terreno liso durante 30 min (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
-      { id: 'p4', text: '4. Dolor al bajar escaleras a paso normal (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
-      { id: 'p5', text: '5. Dolor tras realizar 10 elevaciones de talón bipodales (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
-      { id: 'p6', text: '6. Dolor al realizar saltos monopodales (10 repeticiones) (0: Intenso - 10: Ninguno):', type: 'number', min: 0, max: 10 },
-      { 
-        id: 'p7', 
-        text: '7. ¿Actualmente está realizando deporte o actividad física?', 
-        type: 'select',
-        options: [
-          { label: 'Nada de dolor al realizar actividad (10)', value: 10 },
-          { label: 'Dolor leve que no reduce el rendimiento (7)', value: 7 },
-          { label: 'Dolor moderado que reduce el rendimiento (4)', value: 4 },
-          { label: 'Dolor que impide realizar la actividad (0)', value: 0 }
-        ]
-      },
-      { 
-        id: 'p8', 
-        text: '8. Tiempo de actividad deportiva sin dolor:', 
-        type: 'select',
-        options: [
-          { label: 'Entrenamiento completo y competición (>30 min) (30)', value: 30 },
-          { label: 'Entrenamiento moderado/reducido (20-30 min) (20)', value: 20 },
-          { label: 'Entrenamiento leve o limitado (<20 min) (10)', value: 10 },
-          { label: 'Incapaz de realizar deporte (0)', value: 0 }
-        ]
-      }
-    ],
+  preguntas: [
+    // --- SECCIÓN: DOLOR Y FUNCIÓN BÁSICA (0-10 pts cada una) ---
+    { id: 'v_1', text: '1. Minutos de rigidez/dolor al levantarse (0: >100 min | 10: 0 min):', type: 'number' },
+    { id: 'v_2', text: '2. Dolor al estirar el tendón al máximo (0: Intenso | 10: Ninguno):', type: 'number' },
+    { id: 'v_3', text: '3. Dolor tras caminar en terreno liso 30 min (0: Intenso | 10: Ninguno):', type: 'number' },
+    { id: 'v_4', text: '4. Dolor al bajar escaleras a paso normal (0: Intenso | 10: Ninguno):', type: 'number' },
+    { id: 'v_5', text: '5. Dolor tras 10 elevaciones de talón bipodales (0: Intenso | 10: Ninguno):', type: 'number' },
+    { id: 'v_6', text: '6. Dolor en saltos monopodales (10 repeticiones) (0: Intenso | 10: Ninguno):', type: 'number' },
 
-    calcularPuntaje: (respuestas) => {
-      // Suma de los 8 ítems para un máximo de 100 puntos
-      return Object.values(respuestas).reduce((acc, val) => acc + (Number(val) || 0), 0);
-    },
+    // --- SECCIÓN: ACTIVIDAD (Pregunta 7 y 8 con lógica interdependiente) ---
+    { id: 'v_7', text: '7. Nivel de dolor durante la actividad física actual:', type: 'select', options: [
+      {label: 'Nada de dolor al realizar actividad (10 pts)', value: 10},
+      {label: 'Dolor leve que no reduce el rendimiento (7 pts)', value: 7},
+      {label: 'Dolor moderado que reduce el rendimiento (4 pts)', value: 4},
+      {label: 'Dolor que impide realizar la actividad (0 pts)', value: 0}
+    ]},
+    { id: 'v_8', text: '8. Capacidad actual de entrenamiento/competición:', type: 'select', options: [
+      {label: 'Entrenamiento completo y competición (>30 min) (30 pts)', value: 30},
+      {label: 'Entrenamiento moderado o reducido (20-30 min) (20 pts)', value: 20},
+      {label: 'Entrenamiento leve o limitado (<20 min) (10 pts)', value: 10},
+      {label: 'Incapaz de realizar cualquier deporte (0 pts)', value: 0}
+    ]}
+  ],
 
-    interpretar: (puntaje) => {
-      if (puntaje >= 90) return { 
-        texto: 'TENDÓN SANO / RECUPERACIÓN COMPLETA', 
-        color: 'emerald-600', 
-        evidencia: `Puntaje: ${puntaje}/100. El paciente presenta una tolerancia a la carga óptima.`, 
-        recomendaciones: [
-          'Mantener entrenamiento de fuerza preventiva (Heavy Slow Resistance).',
-          'Reintegro total a la competición.',
-          'Controlar cargas de impacto semanales para evitar recaídas.'
-        ] 
-      };
-      
-      if (puntaje >= 65) return { 
-        texto: 'AFECTACIÓN LEVE - FASE DE CARGA', 
-        color: 'green-500', 
-        evidencia: `Puntaje: ${puntaje}/100. Persiste dolor en cargas máximas o pliometría.`, 
-        recomendaciones: [
-          'Iniciar o mantener pliometría de baja intensidad.',
-          'Continuar protocolo de carga pesada lenta (HSR) 3 veces por semana.',
-          'Monitorizar la respuesta al dolor 24 horas post-ejercicio (no debe superar EVA 3).'
-        ] 
-      };
+  calcularPuntaje: (respuestas) => {
+    const res = respuestas as Record<string, any>;
+    let total = 0;
 
-      if (puntaje >= 40) return { 
-        texto: 'AFECTACIÓN MODERADA', 
-        color: 'orange-500', 
-        evidencia: `Puntaje: ${puntaje}/100. Discapacidad significativa que limita el volumen deportivo.`, 
-        recomendaciones: [
-          'Protocolo de Alfredson (ejercicios excéntricos) o HSR inicial.',
-          'Reducir o eliminar actividades de alto impacto (carrera rápida, saltos).',
-          'Kinesioterapia: Terapia manual en gastrocnemios y sóleo.',
-          'Evaluar calzado y técnica de carrera.'
-        ] 
-      };
-
-      return { 
-        texto: 'AFECTACIÓN SEVERA', 
-        color: 'red-600', 
-        evidencia: `Puntaje: ${puntaje}/100. Dolor presente en AVD y cargas mínimas.`, 
-        recomendaciones: [
-          'Iniciar ejercicios isométricos monopodales para analgesia (45s x 5 rep).',
-          'Cesar actividades de impacto inmediatamente.',
-          'Evaluación médica: considerar ecografía para descartar roturas parciales o neovascularización.',
-          'Uso de taloneras temporales para descargar el tendón.'
-        ] 
-      };
+    // 1. Suma de ítems 1 al 6 (Validación de rango 0-10)
+    for (let i = 1; i <= 6; i++) {
+      total += Math.min(Math.max(Number(res[`v_${i}`]) || 0, 0), 10);
     }
+
+    // 2. Suma ítem 7
+    const p7 = Number(res['v_7']) || 0;
+    total += p7;
+
+    // 3. LÓGICA CRÍTICA ÍTEM 8: 
+    // Si el paciente no puede hacer deporte (p7 es 0 por dolor), el ítem 8 DEBE ser 0.
+    // Solo sumamos p8 si p7 > 0, de lo contrario se considera 0 por defecto.
+    if (p7 > 0) {
+      total += Number(res['v_8']) || 0;
+    }
+
+    return total;
   },
+
+  interpretar: (total) => {
+    const isHealthy = total >= 90;
+    const isMild = total >= 70 && total < 90;
+    const isModerate = total >= 40 && total < 70;
+
+    return {
+      texto: isHealthy ? 'RECUPERACIÓN COMPLETA' : isMild ? 'TENDINOPATÍA LEVE' : isModerate ? 'TENDINOPATÍA MODERADA' : 'TENDINOPATÍA SEVERA',
+      color: isHealthy ? 'emerald-600' : isMild ? 'green-500' : isModerate ? 'amber-500' : 'red-600',
+      evidencia: `Puntaje VISA-A: ${total}/100. Nivel de severidad clínica basado en tolerancia a la carga.`,
+      recomendaciones: total < 40
+        ? [
+            'Iniciar isométricos monopodales (Analgesia): 5 reps x 45 seg al 70% MVIC.',
+            'Cesar actividades de impacto (saltos/carrera) temporalmente.',
+            'Uso de taloneras de silicona (7-10mm) para descarga mecánica.'
+          ]
+        : total < 70
+        ? [
+            'Protocolo HSR (Heavy Slow Resistance): 3 series de 6-8 reps lentas.',
+            'Pliometría de baja intensidad solo si el dolor post-24h es menor a EVA 3.',
+            'Revisar técnica de carrera (cadencia y apoyo).'
+          ]
+        : [
+            'Mantener carga de mantenimiento 2 veces por semana.',
+            'Retorno gradual a la competición plena.',
+            'Educación en gestión de picos de carga semanales.'
+          ]
+    };
+  }
+},
   {
     id: 'oxford_knee_score',
     nombre: 'Oxford Knee Score (OKS)',
