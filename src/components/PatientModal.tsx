@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { UserPlus, X, Activity, Globe } from 'lucide-react';
+import { UserPlus, X, Activity, Globe, Calendar } from 'lucide-react';
 // ✅ Importamos la nueva lógica internacional
 import { validateIdentification, formatIdentification } from '../utils/validators';
 import { identityConfigs, DEFAULT_COUNTRY } from '../utils/patientIdentity';
-import { calcularIMC, clasificarIMC } from '../utils/biometrics.ts';
+// ✅ Importamos el cálculo cronológico de biometrics
+import { calcularIMC, clasificarIMC, calcularEdadExacta } from '../utils/biometrics.ts';
 
 interface PatientModalProps {
   onConfirm: (paciente: { 
     nombre: string; 
-    id: string; // Cambiado de rut a id
+    id: string; 
     country: string;
+    fechaNacimiento: string; // ✅ Nueva propiedad para persistencia
     edad: string; 
     diagnostico: string;
     peso: string;
@@ -23,8 +25,8 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
   const [country, setCountry] = useState(DEFAULT_COUNTRY);
   const [formData, setFormData] = useState({
     nombre: '',
-    id: '', // Cambiado de rut a id
-    edad: '',
+    id: '', 
+    fechaNacimiento: '', // ✅ Cambiado de 'edad' a 'fechaNacimiento'
     diagnostico: '',
     peso: '',
     talla: ''
@@ -41,10 +43,20 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validamos según el país seleccionado
+    // 1. Validamos ID según el país seleccionado
     if (!validateIdentification(formData.id, country)) {
       setErrorID(true);
       return; 
+    }
+
+    // 2. Cálculo de edad legible para el reporte
+    const calculo = calcularEdadExacta(formData.fechaNacimiento);
+    let edadTexto = "";
+    
+    if (calculo.años > 0) {
+      edadTexto = `${calculo.años} años ${calculo.meses > 0 ? `y ${calculo.meses} m` : ''}`;
+    } else {
+      edadTexto = `${calculo.meses} meses y ${calculo.dias} días`;
     }
 
     setErrorID(false);
@@ -52,6 +64,8 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
       ...formData,
       id: formatIdentification(formData.id, country),
       country: country,
+      fechaNacimiento: formData.fechaNacimiento,
+      edad: edadTexto, // ✅ Ahora se pasa una edad calculada con precisión
       imc: imcValue ? imcValue.toString() : 'N/A'
     });
   };
@@ -126,15 +140,18 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
                 />
               </div>
               <div>
-                <label className="block text-[9px] font-black uppercase text-gray-400 mb-1 ml-1 tracking-widest">Edad</label>
-                <input 
-                  required
-                  type="number" 
-                  className="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-sm transition-all"
-                  placeholder="39"
-                  value={formData.edad}
-                  onChange={(e) => setFormData({...formData, edad: e.target.value})}
-                />
+                {/* ✅ MEJORA: Fecha de Nacimiento sustituye a Edad manual */}
+                <label className="block text-[9px] font-black uppercase text-gray-400 mb-1 ml-1 tracking-widest">Fecha Nacimiento</label>
+                <div className="relative">
+                  <input 
+                    required
+                    type="date" 
+                    max={new Date().toISOString().split("T")[0]} // No permite fechas futuras
+                    className="w-full bg-gray-50 border-2 border-gray-100 p-3 rounded-xl focus:border-teal-500 outline-none font-bold text-xs transition-all"
+                    value={formData.fechaNacimiento}
+                    onChange={(e) => setFormData({...formData, fechaNacimiento: e.target.value})}
+                  />
+                </div>
               </div>
             </div>
           </div>
