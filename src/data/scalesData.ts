@@ -4540,7 +4540,7 @@ export const scales: Scale[] = [
     };
   }
 },
-  {
+ {
   id: 'sit_to_stand_1min',
   nombre: 'Test Sit to Stand (1 minuto)',
   categoria: 'kinesiologia',
@@ -4554,7 +4554,7 @@ export const scales: Scale[] = [
   preguntas: [
     { 
       id: 'sexo', 
-      text: 'Sexo biológico del paciente:', 
+      text: '1. Sexo biológico del paciente:', 
       type: 'select', 
       options: [
         { label: 'Hombre', value: 1 }, 
@@ -4563,37 +4563,40 @@ export const scales: Scale[] = [
     },
     { 
       id: 'edad', 
-      text: 'Edad cronológica (años):', 
+      text: '2. Edad cronológica (años):', 
       type: 'number',
       min: 0,
-      max: 110,
+      max: 115,
       placeholder: 'Ej: 65'
     },
     { 
       id: 'altura', 
-      text: 'Estatura actual (cm):', 
+      text: '3. Estatura actual (cm):', 
       type: 'number',
       min: 50,
       max: 250,
       placeholder: 'Ej: 170'
     },
     { 
+      // ✅ RESTAURADO: 'timer' activa el componente visual de cronómetro
       id: 'cronometro', 
-      text: 'Instrucción: Silla de 46-48 cm, brazos cruzados al pecho. Control de tiempo:', 
-      type: 'plugin',
-      componente: 'CRONOMETRO'
+      text: '4. Protocolo: Silla de 46-48 cm. Control de tiempo:', 
+      type: 'timer',
+      duration: 60 
     },
     { 
+      // ✅ BLINDADO: 'min: 0' prohíbe el ingreso de valores negativos
       id: 'repeticiones', 
-      text: 'Número total de repeticiones completadas:', 
+      text: '5. Número total de repeticiones completadas:', 
       type: 'number',
-      min: 0, // ✅ Bloquea el error de números negativos (-12)
+      min: 0,
       max: 150,
       placeholder: 'Ingrese el conteo final'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
+    // El motor de cálculo toma directamente el número de repeticiones
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4603,19 +4606,17 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de seguridad clínica para evitar cálculos erróneos
+    // Validación de integridad clínica antes de procesar Strassmann
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
         texto: 'Esperando datos biométricos', 
         color: 'slate-500', 
-        evidencia: 'Se requiere Edad, Altura y un conteo de Repeticiones válido (>0).',
-        recomendaciones: ['Complete los campos para generar la comparación normativa de Strassmann.'] 
+        evidencia: 'Se requiere Edad, Altura y Repeticiones (>0) para el cálculo normativo.',
+        recomendaciones: ['Complete los campos para activar la interpretación de Strassmann.'] 
       };
     }
 
     // --- ECUACIONES DE STRASSMANN (2013) ---
-    // Hombre: 40.8 - (0.43 * edad) + (0.17 * altura)
-    // Mujer: 33.5 - (0.32 * edad) + (0.14 * altura)
     const predicho = (sexo === 1) 
       ? 40.8 - (0.43 * edad) + (0.17 * altura)
       : 33.5 - (0.32 * edad) + (0.14 * altura);
@@ -4626,11 +4627,11 @@ export const scales: Scale[] = [
       return { 
         texto: `Rendimiento Normal (${porcentaje}%)`, 
         color: 'emerald-600',
-        evidencia: `Paciente realizó ${reps} reps. Valor predicho: ${Math.round(predicho)} reps. Capacidad funcional preservada.`,
+        evidencia: `Paciente realizó ${reps} reps. Valor predicho: ${Math.round(predicho)} reps.`,
         recomendaciones: [
           'Mantener nivel de actividad física actual.',
           'Incorporar ejercicios de potencia muscular 2 veces/semana.',
-          'Control preventivo anual.'
+          'Control preventivo anual de capacidad funcional.'
         ] 
       };
     }
@@ -4639,11 +4640,11 @@ export const scales: Scale[] = [
       return { 
         texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
         color: 'amber-500',
-        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo incipiente de fragilidad.`,
+        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo de fragilidad detectado.`,
         recomendaciones: [
-          'Iniciar fortalecimiento específico de cuádriceps y glúteos.',
-          'Dosis sugerida: 3 series de 10-12 reps al 70% de esfuerzo percibido.',
-          'Re-evaluar en 12 semanas para medir MCID.'
+          'Iniciar programa de fortalecimiento específico de cuádriceps y glúteos.',
+          'Dosis: 3 series de 10-12 repeticiones al 70% de 1RM percibida.',
+          'Re-evaluar en 12 semanas para medir mejoría clínica.'
         ] 
       };
     }
@@ -4651,11 +4652,11 @@ export const scales: Scale[] = [
     return { 
       texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
       color: 'red-600',
-      evidencia: `Rendimiento crítico respecto al predicho de ${Math.round(predicho)} reps. Alto riesgo de caídas y hospitalización.`,
+      evidencia: `Rendimiento crítico. Muy por debajo de los valores normativos (${Math.round(predicho)} reps).`,
       recomendaciones: [
-        'Intervención kinésica inmediata con supervisión.',
-        'Considerar ayuda técnica para transferencias (andador/bastón).',
-        'Evaluar presencia de sarcopenia con dinamometría manual.'
+        'Intervención kinésica inmediata bajo supervisión estrecha.',
+        'Considerar el uso de ayudas técnicas para transferencias y deambulación.',
+        'Evaluación de sarcopenia mediante Dinamometría de Prensión Manual.'
       ] 
     };
   }
