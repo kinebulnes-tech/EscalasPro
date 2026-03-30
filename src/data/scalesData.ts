@@ -4578,21 +4578,25 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 170'
     },
     { 
-      // ✅ SOLUCIÓN AL DOBLE INPUT: 
-      // El campo 'repeticiones' ahora integra el cronómetro. 
-      // Se elimina el paso anterior para que no te pregunte dos veces.
+      // ✅ PASO 4: REPETICIONES (Campo numérico blindado)
       id: 'repeticiones', 
-      text: '4. Ejecución del Test: Use el cronómetro de 1 min y registre el total de repeticiones aquí:', 
-      type: 'timer',
-      duration: 60,
-      min: 0, // Blindaje total contra números negativos
+      text: '4. Cantidad de repeticiones completadas:', 
+      type: 'number',
+      min: 0,
       max: 150,
-      placeholder: 'Ingrese el conteo final'
+      placeholder: 'Anote el resultado final'
+    },
+    { 
+      // ✅ PASO 5: CRONÓMETRO (Herramienta de apoyo al final)
+      id: 'cronometro_soporte', 
+      text: '5. Cronómetro de apoyo (Protocolo 1 minuto):', 
+      type: 'timer',
+      duration: 60 
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor ahora captura el valor directamente desde el componente timer
+    // El motor extrae el dato desde el ID 'repeticiones'
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4602,19 +4606,17 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de seguridad clínica
+    // Validación de integridad clínica
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
-        texto: 'Esperando datos de evaluación', 
+        texto: 'Esperando ejecución del test', 
         color: 'slate-500', 
-        evidencia: 'Se requiere completar Sexo, Edad, Altura y realizar el test (>0 repeticiones).',
+        evidencia: 'Se requiere completar Edad, Altura y registrar Repeticiones (>0) para el cálculo.',
         recomendaciones: ['Complete los campos biométricos para activar la interpretación de Strassmann.'] 
       };
     }
 
     // --- ECUACIONES DE STRASSMANN (2013) ---
-    // Hombre: $40.8 - (0.43 \cdot edad) + (0.17 \cdot altura)$
-    // Mujer: $33.5 - (0.32 \cdot edad) + (0.14 \cdot altura)$
     const predicho = (sexo === 1) 
       ? 40.8 - (0.43 * edad) + (0.17 * altura)
       : 33.5 - (0.32 * edad) + (0.14 * altura);
