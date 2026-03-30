@@ -4546,15 +4546,13 @@ export const scales: Scale[] = [
   categoria: 'kinesiologia',
   descripcion: 'Evaluación de la fuerza, resistencia de miembros inferiores y capacidad funcional aeróbica.',
   
-  // ✅ CORRECCIÓN: PMID unificado al correcto (23974352)
   bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8. PMID: 23974352",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23974352/",
   evidenciaClinica: "Estándar para medir la capacidad de ejercicio funcional. El valor predicho se calcula mediante ecuaciones de regresión de Strassmann que consideran edad, sexo y altura.",
 
   preguntas: [
-    // ✅ PASO 1-3: Datos biométricos primero (como en el papel)
     { 
-      id: 'sexo', 
+      id: 'sts_sexo',       // ✅ prefijo 'sts_' → cae en "Evaluación General"
       text: '1. Sexo biológico del paciente:', 
       type: 'select', 
       options: [
@@ -4563,7 +4561,7 @@ export const scales: Scale[] = [
       ] 
     },
     { 
-      id: 'edad', 
+      id: 'sts_edad',       // ✅ prefijo 'sts_' → cae en "Evaluación General"
       text: '2. Edad cronológica (años):', 
       type: 'number',
       min: 0,
@@ -4571,23 +4569,21 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 65'
     },
     { 
-      id: 'altura', 
+      id: 'sts_altura',     // ✅ prefijo 'sts_' → cae en "Evaluación General"
       text: '3. Estatura actual (cm):', 
       type: 'number',
       min: 50,
       max: 250,
       placeholder: 'Ej: 170'
     },
-    // ✅ PASO 4: CRONÓMETRO — El clínico ejecuta el test aquí
     { 
-      id: 'cronometro_soporte', 
-      text: '4. Cronómetro (Inicie al dar la orden, detenga al completar 1 minuto):', 
+      id: 'sts_timer',      // ✅ prefijo 'sts_' → cae en "Evaluación General"
+      text: '4. Cronómetro — Inicie al dar la orden, detenga al completar 1 minuto:', 
       type: 'timer',
       duration: 60 
     },
-    // ✅ PASO 5: REPETICIONES — Una sola vez, al finalizar el test
     { 
-      id: 'repeticiones', 
+      id: 'sts_reps',       // ✅ prefijo 'sts_' → cae en "Evaluación General"
       text: '5. Cantidad de repeticiones completadas en 1 minuto:', 
       type: 'number',
       min: 0,
@@ -4597,14 +4593,14 @@ export const scales: Scale[] = [
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    return Number(respuestas.repeticiones) || 0;
+    return Number(respuestas.sts_reps) || 0;  // ✅ ID actualizado
   },
 
   interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
     const reps = puntaje;
-    const edad = Number(respuestas?.edad) || 0;
-    const altura = Number(respuestas?.altura) || 0;
-    const sexo = Number(respuestas?.sexo) || 1;
+    const edad = Number(respuestas?.sts_edad) || 0;    // ✅ ID actualizado
+    const altura = Number(respuestas?.sts_altura) || 0; // ✅ ID actualizado
+    const sexo = Number(respuestas?.sts_sexo) || 1;    // ✅ ID actualizado
 
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
@@ -4615,7 +4611,6 @@ export const scales: Scale[] = [
       };
     }
 
-    // --- ECUACIONES DE STRASSMANN (2013) ---
     const predicho = (sexo === 1) 
       ? 40.8 - (0.43 * edad) + (0.17 * altura)
       : 33.5 - (0.32 * edad) + (0.14 * altura);
