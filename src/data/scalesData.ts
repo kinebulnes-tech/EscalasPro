@@ -4565,25 +4565,31 @@ export const scales: Scale[] = [
       id: 'edad', 
       text: 'Edad cronológica (años):', 
       type: 'number',
+      min: 0,
+      max: 110,
       placeholder: 'Ej: 65'
     },
     { 
       id: 'altura', 
       text: 'Estatura actual (cm):', 
       type: 'number',
+      min: 50,
+      max: 250,
       placeholder: 'Ej: 170'
     },
     { 
       id: 'cronometro', 
-      text: 'Protocolo: Silla de 46-48 cm, brazos cruzados al pecho. Realice el test por 1 minuto:', 
-      type: 'timer',
-      duration: 60 
+      text: 'Instrucción: Silla de 46-48 cm, brazos cruzados al pecho. Control de tiempo:', 
+      type: 'plugin',
+      componente: 'CRONOMETRO'
     },
     { 
       id: 'repeticiones', 
       text: 'Número total de repeticiones completadas:', 
       type: 'number',
-      placeholder: '0'
+      min: 0, // ✅ Bloquea el error de números negativos (-12)
+      max: 150,
+      placeholder: 'Ingrese el conteo final'
     }
   ],
 
@@ -4591,20 +4597,19 @@ export const scales: Scale[] = [
     return Number(respuestas.repeticiones) || 0;
   },
 
-  // ✅ FIRMA CORREGIDA: 'respuestas?' para coincidir con la Interfaz Scale
   interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
     const reps = puntaje;
     const edad = Number(respuestas?.edad) || 0;
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de seguridad clínica
-    if (reps === 0 || edad === 0 || altura === 0) {
+    // Validación de seguridad clínica para evitar cálculos erróneos
+    if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
-        texto: 'Datos insuficientes', 
+        texto: 'Esperando datos biométricos', 
         color: 'slate-500', 
-        evidencia: 'Se requiere Edad, Altura y Repeticiones para el cálculo normativo.',
-        recomendaciones: ['Complete los campos biométricos para activar la interpretación por Strassmann.'] 
+        evidencia: 'Se requiere Edad, Altura y un conteo de Repeticiones válido (>0).',
+        recomendaciones: ['Complete los campos para generar la comparación normativa de Strassmann.'] 
       };
     }
 
@@ -4621,11 +4626,11 @@ export const scales: Scale[] = [
       return { 
         texto: `Rendimiento Normal (${porcentaje}%)`, 
         color: 'emerald-600',
-        evidencia: `El paciente realizó ${reps} repeticiones. Su valor predicho según Strassmann es de ${Math.round(predicho)} repeticiones. Se encuentra dentro de los rangos de normalidad poblacional.`,
+        evidencia: `Paciente realizó ${reps} reps. Valor predicho: ${Math.round(predicho)} reps. Capacidad funcional preservada.`,
         recomendaciones: [
-          'Mantener el nivel de actividad física actual.',
-          'Incorporar ejercicios de potencia muscular 2 veces por semana.',
-          'Control anual de la capacidad funcional.'
+          'Mantener nivel de actividad física actual.',
+          'Incorporar ejercicios de potencia muscular 2 veces/semana.',
+          'Control preventivo anual.'
         ] 
       };
     }
@@ -4634,12 +4639,11 @@ export const scales: Scale[] = [
       return { 
         texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
         color: 'amber-500',
-        evidencia: `Rendimiento por debajo del promedio. Un porcentaje < 80% indica una pérdida incipiente de la reserva funcional y fuerza de miembros inferiores.`,
+        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo incipiente de fragilidad.`,
         recomendaciones: [
-          'Iniciar programa de fortalecimiento específico (Énfasis en cuádriceps y glúteo mayor).',
-          'Dosis: 3 series de 10-12 repeticiones al 70% de 1RM percibida.',
-          'Evaluar la estabilidad postural para reducir riesgo de caídas.',
-          'Re-evaluar en 12 semanas para medir mejoría clínica.'
+          'Iniciar fortalecimiento específico de cuádriceps y glúteos.',
+          'Dosis sugerida: 3 series de 10-12 reps al 70% de esfuerzo percibido.',
+          'Re-evaluar en 12 semanas para medir MCID.'
         ] 
       };
     }
@@ -4647,12 +4651,11 @@ export const scales: Scale[] = [
     return { 
       texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
       color: 'red-600',
-      evidencia: `Rendimiento crítico. El paciente se encuentra significativamente por debajo de los valores normativos, lo que implica alta fragilidad y riesgo de eventos adversos (hospitalización/caídas).`,
+      evidencia: `Rendimiento crítico respecto al predicho de ${Math.round(predicho)} reps. Alto riesgo de caídas y hospitalización.`,
       recomendaciones: [
-        'Intervención kinésica inmediata bajo supervisión estrecha.',
-        'Considerar el uso de ayudas técnicas para transferencias si la fatiga es inmediata.',
-        'Coordinar con nutricionista para evaluar presencia de sarcopenia.',
-        'Entrenamiento de resistencia aeróbica de baja intensidad adaptado.'
+        'Intervención kinésica inmediata con supervisión.',
+        'Considerar ayuda técnica para transferencias (andador/bastón).',
+        'Evaluar presencia de sarcopenia con dinamometría manual.'
       ] 
     };
   }
