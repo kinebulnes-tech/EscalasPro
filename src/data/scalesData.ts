@@ -4549,7 +4549,7 @@ export const scales: Scale[] = [
   // --- RIGOR CIENTÍFICO (PMID: 23585231) ---
   bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8.",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23974352/",
-  evidenciaClinica: "Estándar para medir la capacidad de ejercicio funcional. El valor predicho se calcula mediante ecuaciones de regresión que consideran edad, sexo y altura.",
+  evidenciaClinica: "Estándar para medir la capacidad de ejercicio funcional. El valor predicho se calcula mediante ecuaciones de regresión de Strassmann que consideran edad, sexo y altura.",
 
   preguntas: [
     { 
@@ -4578,25 +4578,21 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 170'
     },
     { 
-      // ✅ CRONÓMETRO RESTAURADO COMO CAMPO INDEPENDIENTE
-      id: 'control_tiempo', 
-      text: '4. Cronómetro de apoyo (Protocolo 1 minuto):', 
-      type: 'timer',
-      duration: 60 
-    },
-    { 
-      // ✅ CAMPO DE REPETICIONES BLINDADO (Mínimo 0)
+      // ✅ SOLUCIÓN AL DOBLE INPUT: 
+      // El campo 'repeticiones' ahora integra el cronómetro. 
+      // Se elimina el paso anterior para que no te pregunte dos veces.
       id: 'repeticiones', 
-      text: '5. Cantidad de repeticiones completadas:', 
-      type: 'number',
-      min: 0,
+      text: '4. Ejecución del Test: Use el cronómetro de 1 min y registre el total de repeticiones aquí:', 
+      type: 'timer',
+      duration: 60,
+      min: 0, // Blindaje total contra números negativos
       max: 150,
-      placeholder: 'Ingrese el total final'
+      placeholder: 'Ingrese el conteo final'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor de cálculo utiliza el valor ingresado en 'repeticiones'
+    // El motor ahora captura el valor directamente desde el componente timer
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4606,19 +4602,19 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de seguridad: No calcula si faltan datos biométricos o reps
+    // Validación de seguridad clínica
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
         texto: 'Esperando datos de evaluación', 
         color: 'slate-500', 
-        evidencia: 'Se requiere Sexo, Edad, Altura y Repeticiones (>0) para el análisis normativo.',
-        recomendaciones: ['Complete todos los campos para activar el cálculo de Strassmann.'] 
+        evidencia: 'Se requiere completar Sexo, Edad, Altura y realizar el test (>0 repeticiones).',
+        recomendaciones: ['Complete los campos biométricos para activar la interpretación de Strassmann.'] 
       };
     }
 
     // --- ECUACIONES DE STRASSMANN (2013) ---
-    // Hombre: 40.8 - (0.43 * edad) + (0.17 * altura)
-    // Mujer: 33.5 - (0.32 * edad) + (0.14 * altura)
+    // Hombre: $40.8 - (0.43 \cdot edad) + (0.17 \cdot altura)$
+    // Mujer: $33.5 - (0.32 \cdot edad) + (0.14 \cdot altura)$
     const predicho = (sexo === 1) 
       ? 40.8 - (0.43 * edad) + (0.17 * altura)
       : 33.5 - (0.32 * edad) + (0.14 * altura);
@@ -4629,11 +4625,11 @@ export const scales: Scale[] = [
       return { 
         texto: `Rendimiento Normal (${porcentaje}%)`, 
         color: 'emerald-600',
-        evidencia: `Paciente realizó ${reps} reps. Su valor predicho es de ${Math.round(predicho)} reps.`,
+        evidencia: `Paciente realizó ${reps} reps. El valor predicho es de ${Math.round(predicho)} reps. Capacidad funcional preservada.`,
         recomendaciones: [
           'Mantener nivel de actividad física actual.',
-          'Incorporar ejercicios de potencia muscular 2 veces por semana.',
-          'Control anual de capacidad funcional.'
+          'Incorporar ejercicios de potencia muscular 2 veces/semana.',
+          'Control preventivo anual.'
         ] 
       };
     }
@@ -4642,7 +4638,7 @@ export const scales: Scale[] = [
       return { 
         texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
         color: 'amber-500',
-        evidencia: `Rendimiento por debajo del promedio poblacional (${Math.round(predicho)} reps esperadas).`,
+        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Indica una pérdida incipiente de la reserva funcional.`,
         recomendaciones: [
           'Iniciar programa de fortalecimiento específico de cuádriceps y glúteo mayor.',
           'Dosis: 3 series de 10-12 repeticiones al 70% de intensidad percibida.',
@@ -4654,7 +4650,7 @@ export const scales: Scale[] = [
     return { 
       texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
       color: 'red-600',
-      evidencia: `Rendimiento crítico respecto a la norma de ${Math.round(predicho)} reps. Alto riesgo de caídas.`,
+      evidencia: `Rendimiento crítico respecto a la norma de ${Math.round(predicho)} reps. Alto riesgo de caídas y fragilidad motora.`,
       recomendaciones: [
         'Intervención kinésica inmediata bajo supervisión estrecha.',
         'Considerar el uso de ayudas técnicas para transferencias y deambulación.',
