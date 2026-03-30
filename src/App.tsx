@@ -12,14 +12,9 @@ import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 import TrendChart from './components/TrendChart';
 
-// ✅ IMPORTACIÓN DEL CEREBRO DE INTELIGENCIA Y BIOMETRÍA
 import { getSuggestedScales } from './data/clinicalIntelligence';
-import { calcularEdadExacta } from './utils/biometrics'; // ✅ Requisito para automatización
-
-// ✅ NUEVO COMPONENTE
+import { calcularEdadExacta } from './utils/biometrics';
 import RecentPatients from './components/RecentPatients';
-
-// ✅ Integración de DB y Seguridad
 import { db } from './utils/db';
 import { Security } from './utils/security';
 
@@ -27,12 +22,11 @@ import {
   ArrowLeft, Menu, Search, UserPlus, Activity, ShieldCheck, FileText, Star, Lightbulb
 } from 'lucide-react';
 
-// --- INTERFACES ---
 interface Paciente {
   nombre: string;
   id: string;      
   country: string; 
-  fechaNacimiento: string; // ✅ Añadido para persistencia de cálculo exacto
+  fechaNacimiento: string;
   edad: string;
   diagnostico: string;
   peso?: string;
@@ -50,8 +44,39 @@ interface ResultadoSesion {
   fecha: string;
 }
 
+// Sesión expira en 8 horas (jornada clínica)
+const SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000;
+
+const cargarSesionActiva = (): Paciente | null => {
+  try {
+    const saved = sessionStorage.getItem('escalapro_paciente');
+    const timestamp = sessionStorage.getItem('escalapro_sesion_ts');
+    if (!saved || !timestamp) return null;
+    const edad = Date.now() - parseInt(timestamp, 10);
+    if (edad > SESSION_TIMEOUT_MS) {
+      sessionStorage.removeItem('escalapro_paciente');
+      sessionStorage.removeItem('escalapro_sesion_ts');
+      sessionStorage.removeItem('escalapro_resultados');
+      return null;
+    }
+    return Security.decrypt(saved);
+  } catch {
+    return null;
+  }
+};
+
+const cargarResultadosSesion = (): ResultadoSesion[] => {
+  try {
+    const saved = sessionStorage.getItem('escalapro_resultados');
+    if (!saved) return [];
+    const decrypted = Security.decrypt(saved);
+    return Array.isArray(decrypted) ? decrypted : [];
+  } catch {
+    return [];
+  }
+};
+
 export default function App() {
-  // --- ESTADOS ---
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [activeScale, setActiveScale] = useState<string | null>(null);
@@ -59,28 +84,16 @@ export default function App() {
   const [viewingReport, setViewingReport] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // ✅ ESTADO PARA PACIENTES RECIENTES
   const [recientes, setRecientes] = useState<any[]>([]);
 
-  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(() => {
-    const saved = localStorage.getItem('escalapro_paciente');
-    return saved ? Security.decrypt(saved) : null;
-  });
-
-  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(() => {
-    const saved = localStorage.getItem('escalapro_resultados');
-    if (!saved) return [];
-    const decrypted = Security.decrypt(saved);
-    return Array.isArray(decrypted) ? decrypted : [];
-  });
+  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(cargarSesionActiva);
+  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(cargarResultadosSesion);
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     try { return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
 
-  // --- EFECTO INICIAL: CARGAR RECIENTES ---
   useEffect(() => {
     const cargarRecientes = async () => {
       const data = await db.getPacientesRecientes();
@@ -89,36 +102,37 @@ export default function App() {
     cargarRecientes();
   }, [pacienteActivo]); 
 
-  // --- PERSISTENCIA ---
   useEffect(() => {
     if (pacienteActivo) {
-      localStorage.setItem('escalapro_paciente', Security.encrypt(pacienteActivo));
+      sessionStorage.setItem('escalapro_paciente', Security.encrypt(pacienteActivo));
+      sessionStorage.setItem('escalapro_sesion_ts', Date.now().toString());
     } else {
-      localStorage.removeItem('escalapro_paciente');
+      sessionStorage.removeItem('escalapro_paciente');
+      sessionStorage.removeItem('escalapro_sesion_ts');
     }
-    if (listaResultados.length > 0) {
-      localStorage.setItem('escalapro_resultados', Security.encrypt(listaResultados));
-    } else {
-      localStorage.removeItem('escalapro_resultados');
-    }
-    localStorage.setItem('escalapro_favs', JSON.stringify(favorites));
-  }, [pacienteActivo, listaResultados, favorites]);
+  }, [pacienteActivo]);
 
-  // --- LÓGICA DE NEGOCIO ---
+  useEffect(() => {
+    if (listaResultados.length > 0) {
+      sessionStorage.setItem('escalapro_resultados', Security.encrypt(listaResultados));
+    } else {
+      sessionStorage.removeItem('escalapro_resultados');
+    }
+  }, [listaResultados]);
+
+  useEffect(() => {
+    localStorage.setItem('escalapro_favs', JSON.stringify(favorites));
+  }, [favorites]);
+
   const handlePacienteIdentificado = async (data: Paciente) => {
     try {
-      const historialExistente = await db.getHistorial(data.id);
-      if (historialExistente && historialExistente.length > 0) {
-        setPacienteActivo(data);
-        setListaResultados(historialExistente as any);
-        setShowPatientModal(false);
-        return;
-      }
       await db.upsertPaciente(data);
       setPacienteActivo(data);
       setListaResultados([]);
       setShowPatientModal(false);
-    } catch (e) { alert("Error al acceder a la base de datos."); }
+    } catch (e) { 
+      alert("Error al acceder a la base de datos."); 
+    }
   };
 
   const finalizaSesionTotal = () => {
@@ -127,8 +141,9 @@ export default function App() {
       setListaResultados([]);
       setViewingReport(false);
       setActiveScale(null);
-      localStorage.removeItem('escalapro_paciente');
-      localStorage.removeItem('escalapro_resultados');
+      sessionStorage.removeItem('escalapro_paciente');
+      sessionStorage.removeItem('escalapro_resultados');
+      sessionStorage.removeItem('escalapro_sesion_ts');
     }
   };
 
@@ -136,17 +151,14 @@ export default function App() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
   };
 
-  // --- FILTRADO INTELIGENTE (IA LOCAL) ---
   const { favoriteScales, suggestedScales, otherScales } = useMemo(() => {
     const suggestedIds = query.length > 2 ? getSuggestedScales(query) : [];
-
     const filtered = scales.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
       const matchesSearch = scale.nombre.toLowerCase().includes(query.toLowerCase()) || 
                            scale.descripcion.toLowerCase().includes(query.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-
     return {
       favoriteScales: filtered.filter(s => favorites.includes(s.id)),
       suggestedScales: filtered.filter(s => suggestedIds.includes(s.id) && !favorites.includes(s.id)),
@@ -212,7 +224,6 @@ export default function App() {
                 <ScaleForm 
                   scale={selectedScale} 
                   onBack={() => setActiveScale(null)}
-                  // ✅ INYECCIÓN DE CONTEXTO: Pasamos datos calculados de edad al motor de escalas
                   pacienteContexto={pacienteActivo ? {
                     ...pacienteActivo,
                     ...calcularEdadExacta(pacienteActivo.fechaNacimiento)
@@ -240,8 +251,6 @@ export default function App() {
                         <div>
                           <p className="text-[9px] font-black uppercase text-teal-400 tracking-[0.2em] mb-1 leading-none">Protocolo Activo</p>
                           <h2 className="text-2xl lg:text-3xl font-black italic tracking-tighter">{pacienteActivo.nombre}</h2>
-                          
-                          {/* ✅ MEJORA: Banner con Edad precisa e ID visible en todo momento */}
                           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-2">
                             <span className="text-[10px] text-white font-black bg-teal-500/20 px-2 py-0.5 rounded-md border border-teal-500/30">
                               {pacienteActivo.edad}
@@ -250,7 +259,6 @@ export default function App() {
                               ID: {pacienteActivo.id}
                             </span>
                           </div>
-
                           <p className="text-[10px] text-slate-400 font-bold uppercase mt-2 italic opacity-50">
                             {listaResultados.length} {listaResultados.length === 1 ? 'escala registrada' : 'escalas registradas'}
                           </p>
@@ -309,7 +317,6 @@ export default function App() {
                 <CategoryPills selectedCategory={selectedCategory} onSelectCategory={(id) => { setSelectedCategory(id); setQuery(''); setActiveScale(null); }} />
 
                 <div className="space-y-12 pb-24">
-                  {/* --- SECCIÓN 1: FAVORITOS --- */}
                   {favoriteScales.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-6 text-amber-500">
@@ -324,7 +331,6 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* --- SECCIÓN 2: SUGERENCIAS IA (INTELIGENCIA CLÍNICA) --- */}
                   {suggestedScales.length > 0 && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                       <div className="flex items-center gap-2 mb-6 text-teal-600">
@@ -341,7 +347,6 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* --- SECCIÓN 3: OTROS RESULTADOS --- */}
                   {otherScales.length > 0 ? (
                     <div>
                        {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
