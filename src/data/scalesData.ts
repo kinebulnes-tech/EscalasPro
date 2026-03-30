@@ -4916,122 +4916,143 @@ export const scales: Scale[] = [
   id: 'tug',
   nombre: 'Timed Up and Go (TUG)',
   categoria: 'kinesiologia',
-  descripcion: 'Prueba rápida para evaluar la movilidad funcional, el equilibrio dinámico y el riesgo de caídas.',
-  
-  // --- RIGOR CIENTÍFICO (PMID: 11020445) ---
-  bibliografia: "Shumway-Cook A, et al. Predicting the probability for falls in community-dwelling older adults using the Timed Up & Go Test. Phys Ther. 2000.",
+  descripcion: 'Prueba rápida para evaluar la movilidad funcional, el equilibrio dinámico y el riesgo de caídas en adultos mayores.',
+
+  bibliografia: "Shumway-Cook A, et al. Predicting the probability for falls in community-dwelling older adults using the Timed Up & Go Test. Phys Ther. 2000;80(9):896-903.",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11020445/",
-  evidenciaClinica: "Punto de corte crítico: > 13.5 segundos indica un alto riesgo de caídas en adultos mayores independientes en la comunidad.",
+  evidenciaClinica: "Punto de corte validado: > 13.5 segundos predice caídas con sensibilidad del 87% y especificidad del 87% en adultos mayores independientes en la comunidad (Shumway-Cook, 2000). Un cambio de 3.5 segundos representa el MCID.",
 
   preguntas: [
-    { 
-      id: 'sexo', 
-      text: '1. Sexo biológico del paciente:', 
-      type: 'select', 
+    {
+      // ✅ INSTRUCCIONES PROTOCOLO: El clínico debe leerlas antes de ejecutar
+      id: 'instrucciones',
+      text: '📋 PROTOCOLO: Paciente sentado en silla con apoyabrazos (altura estándar 46 cm). Al dar la señal: levantarse, caminar 3 metros, girar, regresar y sentarse. Se permite ayuda técnica habitual (bastón/andador). Registrar el mejor de 2 intentos.',
+      type: 'text',
+      placeholder: 'Lea el protocolo antes de iniciar'
+    },
+    {
+      // ✅ PASO 1: AYUDA TÉCNICA — Dato clínico relevante para el reporte
+      id: 'ayuda_tecnica',
+      text: '1. ¿El paciente usa ayuda técnica?',
+      type: 'select',
       options: [
-        { label: 'Hombre', value: 1 }, 
-        { label: 'Mujer', value: 2 }
-      ] 
+        { label: 'No (marcha independiente)', value: 0 },
+        { label: 'Sí — Bastón simple', value: 1 },
+        { label: 'Sí — Bastón cuádruple', value: 2 },
+        { label: 'Sí — Andador', value: 3 }
+      ]
     },
-    { 
-      id: 'edad', 
-      text: '2. Edad cronológica (años):', 
-      type: 'number',
-      min: 0,
-      max: 115,
-      placeholder: 'Ej: 72'
+    {
+      // ✅ PASO 2: CRONÓMETRO PRIMERO — El clínico ejecuta el test
+      id: 'cronometro_tug',
+      text: '2. Cronómetro — Inicie al dar la orden de partida:',
+      type: 'timer',
+      duration: 0
     },
-    { 
-      id: 'estatura', 
-      text: '3. Estatura actual (cm):', 
-      type: 'number',
-      min: 50,
-      max: 250,
-      placeholder: 'Ej: 165'
-    },
-    { 
-      // ✅ PASO 4: REGISTRO MANUAL DEL TIEMPO
-      id: 'tiempo', 
-      text: '4. Tiempo final registrado (segundos):', 
+    {
+      // ✅ PASO 3: TIEMPO FINAL — Se anota después de ejecutar
+      id: 'tiempo',
+      text: '3. Tiempo final registrado (segundos) — Anote el mejor de 2 intentos:',
       type: 'number',
       min: 0,
       max: 300,
       placeholder: 'Ej: 12.5'
     },
-    { 
-      // ✅ PASO 5: EL CRONÓMETRO AL FINAL, COMO SOLICITASTE
-      id: 'herramienta_tiempo', 
-      text: '5. Cronómetro de apoyo para la ejecución:', 
-      type: 'timer',
-      duration: 0 
+    {
+      // ✅ PASO 4: OBSERVACIONES CLÍNICAS — Enriquecen el reporte PDF
+      id: 'observaciones',
+      text: '4. Observaciones durante la ejecución:',
+      type: 'select',
+      options: [
+        { label: 'Sin alteraciones observadas', value: 0 },
+        { label: 'Inestabilidad en el giro', value: 1 },
+        { label: 'Necesitó apoyo de apoyabrazos para levantarse', value: 2 },
+        { label: 'Marcha con patrón alterado (arrastre, tijera, etc.)', value: 3 },
+        { label: 'Detuvo la marcha durante el test', value: 4 }
+      ]
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor extrae el dato clínico del campo 'tiempo' (Paso 4)
+    // El puntaje clínico es el tiempo en segundos
     return Number(respuestas.tiempo) || 0;
   },
 
   interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
     const t = puntaje;
+    const ayuda = Number(respuestas?.ayuda_tecnica) || 0;
+    const obs = Number(respuestas?.observaciones) || 0;
+
+    const ayudaTexto = ['sin ayuda técnica', 'con bastón simple', 'con bastón cuádruple', 'con andador'];
+    const ayudaLabel = ayudaTexto[ayuda] || 'sin ayuda técnica';
+
+    // ✅ Alerta si hay observaciones clínicas relevantes
+    const alertaObs = obs > 0
+      ? ' ⚠️ Se registraron alteraciones durante la ejecución — revisar observaciones.'
+      : '';
 
     if (t <= 0) {
-      return { 
-        texto: 'Esperando ejecución del test', 
-        color: 'slate-500', 
-        evidencia: 'Se requiere registrar el tiempo final (paso 4) para el análisis.',
-        recomendaciones: ['Utilice el cronómetro de apoyo y anote el tiempo obtenido.'] 
+      return {
+        texto: 'Esperando ejecución del test',
+        color: 'slate-500',
+        evidencia: 'Use el cronómetro (paso 2) y anote el tiempo obtenido en el paso 3.',
+        recomendaciones: ['Siga el protocolo indicado al inicio de la escala.']
       };
     }
 
     if (t < 10) {
-      return { 
-        texto: 'Movilidad Normal (< 10s)', 
+      return {
+        texto: `Movilidad Normal (${t}s)`,
         color: 'emerald-600',
-        evidencia: `Tiempo: ${t}s. El paciente se considera independiente y con bajo riesgo de caídas.`,
+        evidencia: `Tiempo: ${t}s ${ayudaLabel}.${alertaObs} Paciente independiente con bajo riesgo de caídas según punto de corte de Shumway-Cook (< 10s).`,
         recomendaciones: [
           'Mantener nivel de actividad física habitual.',
-          'Re-evaluación anual preventiva.',
-          'Fomentar ejercicios de agilidad y equilibrio dinámico.'
-        ] 
+          'Ejercicios preventivos de equilibrio dinámico.',
+          'Re-evaluación anual o ante cambio de condición.'
+        ]
       };
     }
 
     if (t <= 13.5) {
-      return { 
-        texto: 'Riesgo Leve / Vigilancia (10 - 13.5s)', 
+      return {
+        texto: `Vigilancia — Riesgo Leve (${t}s)`,
         color: 'blue-600',
-        evidencia: `Tiempo: ${t}s. Se encuentra cerca del umbral de riesgo de caídas en la comunidad.`,
+        evidencia: `Tiempo: ${t}s ${ayudaLabel}.${alertaObs} Cerca del umbral de riesgo de caídas (13.5s). No alcanza criterio de riesgo pero requiere monitoreo.`,
         recomendaciones: [
-          'Evaluar seguridad del calzado y entorno doméstico.',
-          'Iniciar programa preventivo de equilibrio dinámico.',
-          'Control de agudeza visual y auditiva.'
-        ] 
+          'Programa preventivo de equilibrio y fuerza de miembros inferiores.',
+          'Evaluación del entorno domiciliario (alfombras, iluminación, barandas).',
+          'Control de agudeza visual y auditiva.',
+          'Revisar calzado (suela antideslizante, talón bajo).'
+        ]
       };
     }
 
     if (t <= 20) {
-      return { 
-        texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (> 13.5s)', 
+      return {
+        texto: `RIESGO DE CAÍDAS (${t}s)`,
         color: 'orange-600',
-        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook (13.5s). Riesgo significativo detectado.`,
+        evidencia: `Tiempo: ${t}s ${ayudaLabel}.${alertaObs} Supera el punto de corte de Shumway-Cook (13.5s). Sensibilidad 87%, especificidad 87% para predicción de caídas.`,
         recomendaciones: [
-          'Entrenamiento intensivo de fuerza de miembros inferiores (Énfasis excéntrico).',
-          'Evaluación de necesidad de ayuda técnica (Bastón simple).',
-          'Revisión médica de polifarmacia (Psicotrópicos/Hipotensores).'
-        ] 
+          'Entrenamiento de fuerza de miembros inferiores con énfasis excéntrico (descenso de escalón, sentadilla asistida).',
+          'Entrenamiento de marcha con cambios de dirección y obstáculos.',
+          'Evaluar prescripción de ayuda técnica si aún no la usa.',
+          'Revisión médica de polifarmacia (psicotrópicos, hipotensores, diuréticos).',
+          'Educación al paciente y familia sobre prevención de caídas.'
+        ]
       };
     }
 
-    return { 
-      texto: 'ALTO RIESGO / MOVILIDAD LIMITADA (> 20s)', 
+    return {
+      texto: `ALTO RIESGO — Movilidad Limitada (${t}s)`,
       color: 'red-600',
-      evidencia: `Tiempo: ${t}s. Limitación funcional severa. Alta probabilidad de requerir asistencia técnica.`,
+      evidencia: `Tiempo: ${t}s ${ayudaLabel}.${alertaObs} Limitación funcional severa. Muy alta probabilidad de caída sin supervisión o asistencia técnica.`,
       recomendaciones: [
-        'Prescripción inmediata de ayuda técnica estable (Andador).',
-        'Supervisión constante en traslados y deambulación externa.',
-        'Intervención de Terapia Ocupacional para adaptaciones en el hogar.'
-      ] 
+        'Prescripción inmediata de ayuda técnica estable (andador de 4 ruedas o estándar).',
+        'Supervisión constante en traslados, deambulación interna y externa.',
+        'Intervención de Terapia Ocupacional para adaptaciones en el hogar (barras de apoyo, silla de ducha).',
+        'Evaluación de sarcopenia (Dinamometría de Prensión Manual + SARC-F).',
+        'Considerar derivación a programa de rehabilitación intensiva.'
+      ]
     };
   }
 },
