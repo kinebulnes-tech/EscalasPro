@@ -4546,12 +4546,13 @@ export const scales: Scale[] = [
   categoria: 'kinesiologia',
   descripcion: 'Evaluación de la fuerza, resistencia de miembros inferiores y capacidad funcional aeróbica.',
   
-  // --- RIGOR CIENTÍFICO (PMID: 23585231) ---
-  bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8.",
+  // ✅ CORRECCIÓN: PMID unificado al correcto (23974352)
+  bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8. PMID: 23974352",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23974352/",
   evidenciaClinica: "Estándar para medir la capacidad de ejercicio funcional. El valor predicho se calcula mediante ecuaciones de regresión de Strassmann que consideran edad, sexo y altura.",
 
   preguntas: [
+    // ✅ PASO 1-3: Datos biométricos primero (como en el papel)
     { 
       id: 'sexo', 
       text: '1. Sexo biológico del paciente:', 
@@ -4577,26 +4578,25 @@ export const scales: Scale[] = [
       max: 250,
       placeholder: 'Ej: 170'
     },
+    // ✅ PASO 4: CRONÓMETRO — El clínico ejecuta el test aquí
     { 
-      // ✅ PASO 4: REPETICIONES (Campo numérico blindado)
+      id: 'cronometro_soporte', 
+      text: '4. Cronómetro (Inicie al dar la orden, detenga al completar 1 minuto):', 
+      type: 'timer',
+      duration: 60 
+    },
+    // ✅ PASO 5: REPETICIONES — Una sola vez, al finalizar el test
+    { 
       id: 'repeticiones', 
-      text: '4. Cantidad de repeticiones completadas:', 
+      text: '5. Cantidad de repeticiones completadas en 1 minuto:', 
       type: 'number',
       min: 0,
       max: 150,
-      placeholder: 'Anote el resultado final'
-    },
-    { 
-      // ✅ PASO 5: CRONÓMETRO (Herramienta de apoyo al final)
-      id: 'cronometro_soporte', 
-      text: '5. Cronómetro de apoyo (Protocolo 1 minuto):', 
-      type: 'timer',
-      duration: 60 
+      placeholder: 'Anote el resultado final aquí'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor extrae el dato desde el ID 'repeticiones'
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4606,13 +4606,12 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de integridad clínica
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
         texto: 'Esperando ejecución del test', 
         color: 'slate-500', 
-        evidencia: 'Se requiere completar Edad, Altura y registrar Repeticiones (>0) para el cálculo.',
-        recomendaciones: ['Complete los campos biométricos para activar la interpretación de Strassmann.'] 
+        evidencia: 'Complete los datos biométricos (pasos 1-3), ejecute el cronómetro (paso 4) y registre las repeticiones (paso 5).',
+        recomendaciones: ['Complete todos los campos para activar la interpretación de Strassmann.'] 
       };
     }
 
