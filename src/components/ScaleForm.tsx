@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Scale } from '../data/scalesData';
 import { calcularEscala, obtenerPreguntasFaltantes } from '../core/scaleEngine';
 import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import { 
-  ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Layers, CheckCircle2 
+  ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, 
+  Layers, CheckCircle2, Play, Square, RotateCcw, Timer as TimerIcon 
 } from 'lucide-react';
 
 interface ScaleFormProps {
@@ -14,6 +15,70 @@ interface ScaleFormProps {
   pacienteNombre?: string;
   pacienteContexto?: any;
 }
+
+// --- COMPONENTE INTERNO: CRONÓMETRO PROFESIONAL ---
+const Stopwatch = ({ duration, onFinish }: { duration?: number, onFinish?: (seconds: number) => void }) => {
+  const [seconds, setSeconds] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    let interval: any = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        setSeconds((s) => s + 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  const toggle = () => {
+    feedback.playClick();
+    setIsActive(!isActive);
+  };
+
+  const reset = () => {
+    feedback.playClick();
+    setIsActive(false);
+    setSeconds(0);
+  };
+
+  const formatTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex flex-col items-center bg-slate-900 p-6 rounded-3xl border-2 border-teal-500/30 my-4 shadow-xl">
+      <div className="text-5xl font-black text-white tabular-nums mb-6 tracking-tighter">
+        {formatTime(seconds)}
+      </div>
+      <div className="flex gap-4">
+        <button
+          type="button"
+          onClick={toggle}
+          className={`p-4 rounded-2xl transition-all active:scale-90 ${isActive ? 'bg-red-500 text-white' : 'bg-teal-500 text-white'}`}
+        >
+          {isActive ? <Square size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+        </button>
+        <button
+          type="button"
+          onClick={reset}
+          className="p-4 bg-slate-700 text-slate-300 rounded-2xl hover:text-white transition-all active:scale-90"
+        >
+          <RotateCcw size={24} />
+        </button>
+      </div>
+      {duration && (
+        <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-teal-400">
+          Objetivo: {duration} segundos
+        </p>
+      )}
+    </div>
+  );
+};
 
 export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacienteContexto }: ScaleFormProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
@@ -27,7 +92,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
       if (q.id.startsWith('c')) sectionName = "Área Coordinación";
       else if (q.id.startsWith('l')) sectionName = "Área Lenguaje";
       else if (q.id.startsWith('m')) sectionName = "Área Motricidad";
-      else if (q.id.startsWith('t_')) sectionName = "Parámetros Funcionales"; // Constant-Murley
+      else if (q.id.startsWith('t_')) sectionName = "Parámetros Funcionales";
       else if (q.id.startsWith('deg_') || q.id.startsWith('force_')) sectionName = "Mediciones Objetivas";
       else if (q.id.startsWith('h_')) sectionName = "Área Clínica";
       else if (q.id.startsWith('e')) {
@@ -167,7 +232,24 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                                 {esInvalido && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
                              </div>
                              
-                             {pregunta.type === 'number' ? (
+                             {/* LÓGICA DE RENDERIZADO SEGÚN TIPO */}
+                             {pregunta.type === 'timer' ? (
+                               <div className="flex flex-col items-center">
+                                  <Stopwatch 
+                                    duration={(pregunta as any).duration} 
+                                  />
+                                  <div className="w-full mt-4 p-4 bg-teal-50 rounded-2xl border border-teal-100">
+                                    <p className="text-[10px] font-black text-teal-700 uppercase mb-2 tracking-widest">Registrar Resultado Manual:</p>
+                                    <input
+                                      type="number"
+                                      value={respuestas[pregunta.id] ?? ''}
+                                      onChange={(e) => handleChange(pregunta.id, e.target.value === '' ? null as any : Number(e.target.value))}
+                                      className="w-full bg-white border-2 border-teal-200 rounded-xl py-3 px-4 text-xl font-black text-slate-900 outline-none"
+                                      placeholder="Ingrese repeticiones o segundos"
+                                    />
+                                  </div>
+                               </div>
+                             ) : pregunta.type === 'number' ? (
                                <div className="relative max-w-[220px]">
                                  <input
                                    type="number"
@@ -178,7 +260,7 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                                  />
                                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
                                     <span className="text-xs font-black text-slate-300 uppercase tracking-widest">
-                                      {pregunta.id.includes('deg') ? 'Grados' : 'Lbs'}
+                                      {pregunta.id.includes('deg') ? 'Grados' : pregunta.id.includes('peso') ? 'Kg' : pregunta.id.includes('altura') || pregunta.id.includes('talla') ? 'cm' : 'Valor'}
                                     </span>
                                  </div>
                                </div>
