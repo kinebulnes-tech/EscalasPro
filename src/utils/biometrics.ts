@@ -32,12 +32,24 @@ export const clasificarIMC = (imc: number): { etiqueta: string; color: string } 
 
 /**
  * CALCULADOR DE EDAD CRONOLÓGICA EXACTA (Requisito EEDP/TEPSI)
- * No usa aproximaciones. Calcula días, meses y años reales según calendario.
+ * ✅ CORRECCIÓN: Usamos año/mes/día por separado para evitar el bug de zona
+ * horaria. new Date('YYYY-MM-DD') interpreta la fecha como UTC medianoche,
+ * lo que en Chile (GMT-4) puede restar un día y alterar percentiles pediátricos.
  */
 export const calcularEdadExacta = (fechaNacimiento: string) => {
   const hoy = new Date();
-  const cumple = new Date(fechaNacimiento);
-  
+
+  // ✅ CORRECCIÓN CLAVE: Parseamos manualmente para forzar hora local
+  // en lugar de dejar que JavaScript interprete como UTC
+  const partes = fechaNacimiento?.split('-').map(Number);
+  if (!partes || partes.length !== 3 || partes.some(isNaN)) {
+    return { años: 0, meses: 0, dias: 0, totalMeses: 0, totalDias: 0, error: true };
+  }
+
+  const [anio, mes, dia] = partes;
+  // Al pasar año, mes-1, día al constructor, JavaScript usa hora LOCAL (no UTC)
+  const cumple = new Date(anio, mes - 1, dia);
+
   // Validación de seguridad
   if (isNaN(cumple.getTime()) || cumple > hoy) {
     return { años: 0, meses: 0, dias: 0, totalMeses: 0, totalDias: 0, error: true };
@@ -59,15 +71,17 @@ export const calcularEdadExacta = (fechaNacimiento: string) => {
     meses--;
     dias += ultimoDiaMesAnterior;
     
-    // Si al restar el mes la cuenta de meses es negativa, ajustamos el año
     if (meses < 0) {
       meses = 11;
       años--;
     }
   }
 
-  // Cálculo de totales para uso directo en baremos pediátricos
-  const diffTime = hoy.getTime() - cumple.getTime();
+  // ✅ CORRECCIÓN: totalDias también usa la fecha local (no getTime con UTC)
+  // para ser consistente con el cálculo de años/meses/días de arriba
+  const hoyLocal = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  const cumpleLocal = new Date(anio, mes - 1, dia);
+  const diffTime = hoyLocal.getTime() - cumpleLocal.getTime();
   const totalDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   const totalMeses = (años * 12) + meses;
 
