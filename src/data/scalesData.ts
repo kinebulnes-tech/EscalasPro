@@ -4578,25 +4578,19 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 170'
     },
     { 
-      // ✅ RESTAURADO: 'timer' activa el componente visual de cronómetro
-      id: 'cronometro', 
-      text: '4. Protocolo: Silla de 46-48 cm. Control de tiempo:', 
-      type: 'timer',
-      duration: 60 
-    },
-    { 
-      // ✅ BLINDADO: 'min: 0' prohíbe el ingreso de valores negativos
+      // ✅ UNIFICACIÓN TOTAL: Eliminamos el paso redundante y dejamos solo este campo
       id: 'repeticiones', 
-      text: '5. Número total de repeticiones completadas:', 
+      text: '4. Ejecución del Test: Silla de 46-48 cm, brazos cruzados. Use el cronómetro de 1 min y anote las repeticiones finales:', 
       type: 'number',
-      min: 0,
+      componente: 'CRONOMETRO', // Activa la herramienta visual en este mismo paso
+      min: 0, 
       max: 150,
-      placeholder: 'Ingrese el conteo final'
+      placeholder: 'Conteo final de repeticiones'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor de cálculo toma directamente el número de repeticiones
+    // El motor ahora solo busca el ID 'repeticiones'
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4606,13 +4600,13 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de integridad clínica antes de procesar Strassmann
+    // Validación de seguridad clínica
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
-        texto: 'Esperando datos biométricos', 
+        texto: 'Esperando ejecución del test', 
         color: 'slate-500', 
-        evidencia: 'Se requiere Edad, Altura y Repeticiones (>0) para el cálculo normativo.',
-        recomendaciones: ['Complete los campos para activar la interpretación de Strassmann.'] 
+        evidencia: 'Se requiere completar Edad, Altura y Repeticiones (>0).',
+        recomendaciones: ['Complete los campos biométricos para activar la interpretación de Strassmann.'] 
       };
     }
 
@@ -4631,7 +4625,7 @@ export const scales: Scale[] = [
         recomendaciones: [
           'Mantener nivel de actividad física actual.',
           'Incorporar ejercicios de potencia muscular 2 veces/semana.',
-          'Control preventivo anual de capacidad funcional.'
+          'Control anual de capacidad funcional.'
         ] 
       };
     }
@@ -4640,10 +4634,10 @@ export const scales: Scale[] = [
       return { 
         texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
         color: 'amber-500',
-        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo de fragilidad detectado.`,
+        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo de fragilidad.`,
         recomendaciones: [
-          'Iniciar programa de fortalecimiento específico de cuádriceps y glúteos.',
-          'Dosis: 3 series de 10-12 repeticiones al 70% de 1RM percibida.',
+          'Iniciar fortalecimiento específico de cuádriceps y glúteo mayor.',
+          'Dosis: 3 series de 10-12 repeticiones al 70% de intensidad percibida.',
           'Re-evaluar en 12 semanas para medir mejoría clínica.'
         ] 
       };
@@ -4652,7 +4646,7 @@ export const scales: Scale[] = [
     return { 
       texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
       color: 'red-600',
-      evidencia: `Rendimiento crítico. Muy por debajo de los valores normativos (${Math.round(predicho)} reps).`,
+      evidencia: `Rendimiento crítico respecto a la norma de ${Math.round(predicho)} reps.`,
       recomendaciones: [
         'Intervención kinésica inmediata bajo supervisión estrecha.',
         'Considerar el uso de ayudas técnicas para transferencias y deambulación.',
