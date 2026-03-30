@@ -4914,74 +4914,113 @@ export const scales: Scale[] = [
   },
 
   {
-    id: 'tug',
-    nombre: 'Timed Up and Go (TUG)',
-    categoria: 'kinesiologia',
-    descripcion: 'Prueba rápida para evaluar la movilidad funcional, el equilibrio dinámico y el riesgo de caídas en adultos mayores.',
-    
-    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
-    // 1. Origen: Podsiadlo D, et al. (1991) PMID: 1991946
-    // 2. Validación: Shumway-Cook A, et al. (2000) PMID: 11020445
-    // 3. Estándar: Un tiempo > 13.5 segundos identifica a los sujetos con alto riesgo de caídas.
-    bibliografia: "Podsiadlo D, Richardson S. The timed 'Up & Go': a test of basic functional mobility for frail elderly persons. J Am Geriatr Soc. 1991;39(2):142-8.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1991946/",
-    evidenciaClinica: "El TUG mide el tiempo en segundos que le toma a una persona levantarse de una silla, caminar 3 metros, girar, regresar y sentarse. Es una medida excelente de la independencia funcional y la fragilidad motora.",
+  id: 'tug',
+  nombre: 'Timed Up and Go (TUG)',
+  categoria: 'kinesiologia',
+  descripcion: 'Prueba rápida para evaluar la movilidad funcional, el equilibrio dinámico y el riesgo de caídas.',
+  
+  // --- RIGOR CIENTÍFICO (PMID: 11020445) ---
+  bibliografia: "Shumway-Cook A, et al. Predicting the probability for falls in community-dwelling older adults using the Timed Up & Go Test. Phys Ther. 2000.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/11020445/",
+  evidenciaClinica: "Punto de corte crítico: > 13.5 segundos indica un alto riesgo de caídas en adultos mayores independientes en la comunidad.",
 
-    preguntas: [
-      { 
-        id: 'tiempo', 
-        text: 'Inicie el cronómetro al despegar de la silla y deténgalo cuando el paciente esté nuevamente sentado con la espalda apoyada:', 
-        type: 'plugin', 
-        componente: 'CRONOMETRO' 
-      }
-    ],
+  preguntas: [
+    { 
+      id: 'sexo', 
+      text: '1. Sexo biológico del paciente:', 
+      type: 'select', 
+      options: [
+        { label: 'Hombre', value: 1 }, 
+        { label: 'Mujer', value: 2 }
+      ] 
+    },
+    { 
+      id: 'edad', 
+      text: '2. Edad cronológica (años):', 
+      type: 'number',
+      min: 0,
+      max: 115,
+      placeholder: 'Ej: 72'
+    },
+    { 
+      // ✅ EL TIEMPO ES EL DATO CLÍNICO: Usamos el ID 'tiempo' para el cálculo
+      id: 'tiempo', 
+      text: '3. Ejecución del Test: Levante al paciente, camine 3m, gire y siéntese. Registre el tiempo exacto:', 
+      type: 'timer',
+      duration: 0, // Cronómetro ascendente
+      min: 0,
+      placeholder: 'Segundos (Ej: 11.5)'
+    }
+  ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.tiempo) || 0,
+  calcularPuntaje: (respuestas: Record<string, any>) => {
+    // El motor captura el tiempo registrado por el cronómetro
+    return Number(respuestas.tiempo) || 0;
+  },
 
-    interpretar: (puntaje) => {
-      if (puntaje === 0) return { texto: 'Sin datos', color: 'slate-400', recomendaciones: [] };
-      
-      if (puntaje < 10) return { 
-        texto: 'MOVILIDAD NORMAL (< 10s)', 
-        color: 'emerald-600',
-        evidencia: `Tiempo de ${puntaje}s. El paciente se considera independiente y con bajo riesgo de caídas.`,
-        recomendaciones: ['Mantener actividad física habitual', 'Re-evaluación anual preventivamente'] 
-      };
+  interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
+    const t = puntaje;
 
-      if (puntaje <= 13.5) return { 
-        texto: 'RIESGO LEVE / VIGILANCIA (10 - 13.5s)', 
-        color: 'blue-600',
-        evidencia: `Aunque es funcional, el tiempo de ${puntaje}s se acerca al umbral de riesgo de caídas en la comunidad.`,
-        recomendaciones: [
-          'Iniciar programa de ejercicios de equilibrio estático y dinámico',
-          'Evaluar seguridad del calzado y entorno del hogar',
-          'Considerar evaluación de visión y audición'
-        ] 
-      };
-
-      if (puntaje <= 20) return { 
-        texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (13.6 - 20s)', 
-        color: 'orange-600',
-        evidencia: `Puntaje por encima del punto de corte de Shumway-Cook (13.5s). Indica un riesgo significativo de caídas.`,
-        recomendaciones: [
-          'Entrenamiento intensivo de fuerza de miembros inferiores (Cuádriceps)',
-          'Evaluación de necesidad de ayuda técnica (Bastón simple)',
-          'Revisión médica de polifarmacia'
-        ] 
-      };
-
+    if (t === 0) {
       return { 
-        texto: 'ALTO RIESGO / MOVILIDAD LIMITADA (> 20s)', 
-        color: 'red-600',
-        evidencia: `Tiempo de ${puntaje}s. Indica una limitación funcional severa y alta probabilidad de requerir asistencia en comunidad.`,
+        texto: 'Esperando registro de tiempo', 
+        color: 'slate-500', 
+        evidencia: 'No se ha registrado la ejecución del test.',
+        recomendaciones: ['Inicie el cronómetro y deténgalo cuando el paciente esté sentado con la espalda apoyada.'] 
+      };
+    }
+
+    if (t < 10) {
+      return { 
+        texto: 'Movilidad Normal (< 10s)', 
+        color: 'emerald-600',
+        evidencia: `Tiempo: ${t}s. El paciente se considera independiente y con bajo riesgo de caídas.`,
         recomendaciones: [
-          'Prescripción inmediata de ayuda técnica estable (Andador)',
-          'Supervisión constante en transferencias y deambulación',
-          'Intervención de Terapia Ocupacional para adaptaciones en el hogar'
+          'Mantener nivel de actividad física habitual.',
+          'Re-evaluación anual preventiva.',
+          'Fomentar ejercicios de agilidad y equilibrio dinámico.'
         ] 
       };
     }
-  },
+
+    if (t <= 13.5) {
+      return { 
+        texto: 'Riesgo Leve / Vigilancia (10 - 13.5s)', 
+        color: 'blue-600',
+        evidencia: `Tiempo: ${t}s. Se encuentra cerca del umbral de riesgo de caídas en la comunidad.`,
+        recomendaciones: [
+          'Evaluar seguridad del calzado y entorno doméstico.',
+          'Iniciar programa preventivo de equilibrio dinámico.',
+          'Controlar visión y audición.'
+        ] 
+      };
+    }
+
+    if (t <= 20) {
+      return { 
+        texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (> 13.5s)', 
+        color: 'orange-600',
+        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook. Riesgo significativo de caídas.`,
+        recomendaciones: [
+          'Entrenamiento intensivo de fuerza de miembros inferiores (Énfasis en excéntrico).',
+          'Evaluación de necesidad de ayuda técnica (Bastón simple).',
+          'Revisión médica de polifarmacia (Psicotrópicos/Hipotensores).'
+        ] 
+      };
+    }
+
+    return { 
+      texto: 'ALTO RIESGO / MOVILIDAD LIMITADA (> 20s)', 
+      color: 'red-600',
+      evidencia: `Tiempo: ${t}s. Limitación funcional severa. Alta probabilidad de requerir asistencia.`,
+      recomendaciones: [
+        'Prescripción inmediata de ayuda técnica estable (Andador).',
+        'Supervisión constante en traslados y deambulación externa.',
+        'Intervención de Terapia Ocupacional para adaptaciones en el hogar.'
+      ] 
+    };
+  }
+},
   {
     id: 'six_minute_walk',
     nombre: 'Test de Caminata de 6 Minutos (6MWT)',
