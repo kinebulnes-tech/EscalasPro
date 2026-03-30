@@ -1,8 +1,18 @@
+import { 
+  Activity, Mic2, Brain, Bone, Accessibility, Heart, 
+  Siren, Stethoscope, Baby, Thermometer, Puzzle, 
+  Smile, Apple, Flower2, ClipboardList 
+} from 'lucide-react';
+
+// --- LAS INTERFACES DEBEN ESTAR AQUÍ, FUERA DE LOS IMPORTS ---
+
 export interface Question {
   id: string;
   text: string;
-  type: 'select' | 'number' | 'radio' | 'checkbox' | 'plugin';
+  type: 'select' | 'number' | 'radio' | 'checkbox' | 'plugin' | 'timer' | 'text';
   componente?: 'CRONOMETRO' | 'TEMPORIZADOR';
+  placeholder?: string;
+  duration?: number;
   options?: Array<{ label: string; value: number }>;
   min?: number;
   max?: number;
@@ -12,7 +22,7 @@ export interface InterpretacionAvanzada {
   texto: string;
   recomendaciones: string[];
   color?: string;    
-  evidencia?: string; // ✅ Campo para el dato estadístico del resultado
+  evidencia?: string; 
 }
 
 export interface Scale {
@@ -21,17 +31,16 @@ export interface Scale {
   categoria: string;
   descripcion: string;
   preguntas: Question[];
-  calcularPuntaje: (respuestas: Record<string, number>) => number;
-  // ✅ CAMBIO CLAVE: Agregamos 'respuestas' como segundo argumento opcional
-  // Esto elimina las líneas rojas cuando intentas usar respuestas?.edad o similares.
+  calcularPuntaje: (respuestas: Record<string, any>) => number;
   interpretar: (puntaje: number, respuestas?: Record<string, any>) => string | InterpretacionAvanzada;
-  // Rigor científico
   bibliografia?: string;
   evidenciaClinica?: string;
   mcid?: number;
   referenciaUrl?: string;
 }
-// Mapeo de Iconos por Especialidad
+
+// --- MAPEADO DE ICONOS ---
+
 export const categoryIcons: Record<string, any> = {
   kinesiologia: Activity,
   fonoaudiologia: Mic2,
@@ -51,6 +60,7 @@ export const categoryIcons: Record<string, any> = {
 };
 
 export const scales: Scale[] = [
+  
 
 
   // ==========================================
@@ -4531,52 +4541,74 @@ export const scales: Scale[] = [
   }
 },
   {
-  id: 'sit_to_stand',
+  id: 'sit_to_stand_1min',
   nombre: 'Test Sit to Stand (1 minuto)',
   categoria: 'kinesiologia',
   descripcion: 'Evaluación de la fuerza, resistencia de miembros inferiores y capacidad funcional aeróbica.',
   
-  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 23585231) ---
+  // --- RIGOR CIENTÍFICO (PMID: 23585231) ---
   bibliografia: "Strassmann A, et al. Reference values for the 1-min sit-to-stand test: a cross-sectional study. Eur Respir J. 2013;41(4):142-8.",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/23974352/",
-  evidenciaClinica: "Basado en valores normativos europeos (Strassmann, 2013). Un rendimiento < 60% del predicho se asocia a fragilidad y mayor riesgo de hospitalización.",
+  evidenciaClinica: "Estándar para medir la capacidad de ejercicio funcional. El valor predicho se calcula mediante ecuaciones de regresión que consideran edad, sexo y altura.",
 
   preguntas: [
     { 
       id: 'sexo', 
-      text: 'Sexo biológico:', 
+      text: 'Sexo biológico del paciente:', 
       type: 'select', 
-      options: [{ label: 'Hombre', value: 1 }, { label: 'Mujer', value: 2 }] 
+      options: [
+        { label: 'Hombre', value: 1 }, 
+        { label: 'Mujer', value: 2 }
+      ] 
     },
-    { id: 'edad', text: 'Edad del paciente (años):', type: 'number' },
-    { id: 'altura', text: 'Altura del paciente (cm):', type: 'number' },
+    { 
+      id: 'edad', 
+      text: 'Edad cronológica (años):', 
+      type: 'number',
+      placeholder: 'Ej: 65'
+    },
+    { 
+      id: 'altura', 
+      text: 'Estatura actual (cm):', 
+      type: 'number',
+      placeholder: 'Ej: 170'
+    },
     { 
       id: 'cronometro', 
-      text: 'Realice el test durante 1 minuto exacto:', 
-      type: 'plugin', 
-      componente: 'CRONOMETRO' 
+      text: 'Protocolo: Silla de 46-48 cm, brazos cruzados al pecho. Realice el test por 1 minuto:', 
+      type: 'timer',
+      duration: 60 
     },
-    { id: 'repeticiones', text: 'Total de repeticiones logradas:', type: 'number' }
+    { 
+      id: 'repeticiones', 
+      text: 'Número total de repeticiones completadas:', 
+      type: 'number',
+      placeholder: '0'
+    }
   ],
 
-  calcularPuntaje: (respuestas) => Number(respuestas.repeticiones) || 0,
+  calcularPuntaje: (respuestas: Record<string, any>) => {
+    return Number(respuestas.repeticiones) || 0;
+  },
 
-  interpretar: (puntaje, respuestas) => {
+  // ✅ FIRMA CORREGIDA: 'respuestas?' para coincidir con la Interfaz Scale
+  interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
     const reps = puntaje;
     const edad = Number(respuestas?.edad) || 0;
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Si faltan datos críticos, devolvemos una advertencia
+    // Validación de seguridad clínica
     if (reps === 0 || edad === 0 || altura === 0) {
       return { 
-        texto: 'Faltan datos (Edad/Altura) para el cálculo clínico', 
-        color: 'gray', 
-        recomendaciones: ['Complete todos los campos para obtener el valor predicho según Strassmann.'] 
+        texto: 'Datos insuficientes', 
+        color: 'slate-500', 
+        evidencia: 'Se requiere Edad, Altura y Repeticiones para el cálculo normativo.',
+        recomendaciones: ['Complete los campos biométricos para activar la interpretación por Strassmann.'] 
       };
     }
 
-    // --- CÁLCULO DE VALOR PREDICHO (ECUACIONES DE STRASSMANN) ---
+    // --- ECUACIONES DE STRASSMANN (2013) ---
     // Hombre: 40.8 - (0.43 * edad) + (0.17 * altura)
     // Mujer: 33.5 - (0.32 * edad) + (0.14 * altura)
     const predicho = (sexo === 1) 
@@ -4585,35 +4617,42 @@ export const scales: Scale[] = [
 
     const porcentaje = Math.round((reps / predicho) * 100);
 
-    // RESULTADO: NORMAL (> 80%)
-    if (porcentaje >= 80) return { 
-      texto: `Rendimiento Normal (${porcentaje}% del esperado)`, 
-      color: 'green',
-      evidencia: `El valor normativo para su perfil es de ${Math.round(predicho)} repeticiones. El paciente superó el umbral del 80%.`,
-      recomendaciones: ['Continuar con actividad física regular', 'Mantener entrenamiento de fuerza funcional'] 
-    };
+    if (porcentaje >= 80) {
+      return { 
+        texto: `Rendimiento Normal (${porcentaje}%)`, 
+        color: 'emerald-600',
+        evidencia: `El paciente realizó ${reps} repeticiones. Su valor predicho según Strassmann es de ${Math.round(predicho)} repeticiones. Se encuentra dentro de los rangos de normalidad poblacional.`,
+        recomendaciones: [
+          'Mantener el nivel de actividad física actual.',
+          'Incorporar ejercicios de potencia muscular 2 veces por semana.',
+          'Control anual de la capacidad funcional.'
+        ] 
+      };
+    }
 
-    // RESULTADO: RIESGO MODERADO (60% - 79%)
-    if (porcentaje >= 60) return { 
-      texto: `Deterioro Funcional Moderado (${porcentaje}% del esperado)`, 
-      color: 'orange',
-      evidencia: `Rendimiento por debajo del promedio poblacional. Indica riesgo de fragilidad incipiente y sarcopenia.`,
-      recomendaciones: [
-        'Iniciar programa de fortalecimiento de cuádriceps (3 series x 10-12 reps)',
-        'Evaluar ingesta proteica diaria',
-        'Re-evaluar en 8 semanas para medir MCID (Mínimo cambio importante: 3 reps)'
-      ] 
-    };
+    if (porcentaje >= 60) {
+      return { 
+        texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
+        color: 'amber-500',
+        evidencia: `Rendimiento por debajo del promedio. Un porcentaje < 80% indica una pérdida incipiente de la reserva funcional y fuerza de miembros inferiores.`,
+        recomendaciones: [
+          'Iniciar programa de fortalecimiento específico (Énfasis en cuádriceps y glúteo mayor).',
+          'Dosis: 3 series de 10-12 repeticiones al 70% de 1RM percibida.',
+          'Evaluar la estabilidad postural para reducir riesgo de caídas.',
+          'Re-evaluar en 12 semanas para medir mejoría clínica.'
+        ] 
+      };
+    }
 
-    // RESULTADO: DETERIORO SEVERO (< 60%)
     return { 
-      texto: `Deterioro Funcional Severo (${porcentaje}% del esperado)`, 
-      color: 'red',
-      evidencia: `Rendimiento crítico. En pacientes con patología respiratoria o crónica, este nivel se asocia a una disminución marcada en la calidad de vida y autonomía.`,
+      texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
+      color: 'red-600',
+      evidencia: `Rendimiento crítico. El paciente se encuentra significativamente por debajo de los valores normativos, lo que implica alta fragilidad y riesgo de eventos adversos (hospitalización/caídas).`,
       recomendaciones: [
-        'Derivación prioritaria a rehabilitación kinésica',
-        'Evaluación de ayudas técnicas para la marcha si hay inestabilidad',
-        'Considerar evaluación médica para descartar miopatías o causas metabólicas'
+        'Intervención kinésica inmediata bajo supervisión estrecha.',
+        'Considerar el uso de ayudas técnicas para transferencias si la fatiga es inmediata.',
+        'Coordinar con nutricionista para evaluar presencia de sarcopenia.',
+        'Entrenamiento de resistencia aeróbica de baja intensidad adaptado.'
       ] 
     };
   }
@@ -10454,10 +10493,4 @@ export const categories = [
   { id: 'paliativos', nombre: 'Cuidados Paliativos', descripcion: 'Manejo de síntomas, calidad de vida y escalas oncológicas.' },
   { id: 'cognitivas', nombre: 'Evaluación Cognitiva', descripcion: 'Estado mental, memoria y funciones ejecutivas.' }
 ];
-// Agrega estas importaciones al principio del archivo si no las tienes
-import { 
-  Activity, Mic2, Brain, Bone, Accessibility, 
-  Heart, Siren, Stethoscope, Baby, Thermometer, 
-  Puzzle, Smile, Apple, Flower2, ClipboardList 
-} from 'lucide-react';
 
