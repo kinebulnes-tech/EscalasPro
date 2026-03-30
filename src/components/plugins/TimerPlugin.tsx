@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Timer as TimerIcon } from 'lucide-react';
 
 interface TimerPluginProps {
@@ -23,10 +23,24 @@ export default function TimerPlugin({ onValueChange, label }: TimerPluginProps) 
     return () => clearInterval(interval);
   }, [isActive]);
 
+  // ✅ CORRECCIÓN: useCallback evita que onValueChange se recree en cada render
+  // del componente padre, lo que antes causaba un bucle infinito silencioso.
+  const notificar = useCallback((val: number) => {
+    onValueChange(val);
+  }, [onValueChange]);
+
+  // ✅ CORRECCIÓN: Agregamos notificar como dependencia del useEffect.
+  // Antes faltaba esta dependencia, lo que podía hacer que el formulario
+  // recibiera valores desactualizados del cronómetro.
+  useEffect(() => {
+    notificar(seconds);
+  }, [seconds, notificar]);
+
+  // ✅ CORRECCIÓN: handleReset también usa notificar en lugar de onValueChange directo
   const handleReset = () => {
     setSeconds(0);
     setIsActive(false);
-    onValueChange(0);
+    notificar(0);
   };
 
   const formatTime = (s: number) => {
@@ -34,11 +48,6 @@ export default function TimerPlugin({ onValueChange, label }: TimerPluginProps) 
     const secs = s % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  // Notificar al formulario cada vez que el tiempo cambia
-  useEffect(() => {
-    onValueChange(seconds);
-  }, [seconds]);
 
   return (
     <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl border border-slate-700 my-4 animate-in fade-in zoom-in duration-300">
