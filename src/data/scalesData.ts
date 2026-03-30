@@ -4657,17 +4657,16 @@ export const scales: Scale[] = [
 },
   {
     id: 'fim_completo_refinado',
-    nombre: 'Medida de Independencia Funcional (FIM) - Refinado',
+    nombre: 'Medida de Independencia Funcional (FIM)',
     categoria: 'kinesiologia',
     descripcion: 'Estándar internacional para medir la carga de cuidados. Evalúa 18 ítems con descriptores de porcentaje de asistencia.',
     
-    // --- TRIPLE VERIFICACIÓN CIENTÍFICA ---
     bibliografia: "Keith RA, Granger CV, Hamilton BB, Sherwin FS. The functional independence measure: a new tool for rehabilitation. Adv Clin Rehabil. 1987;1:6-18.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3503663/",
-    evidenciaClinica: "La FIM cuantifica qué tanto esfuerzo realiza el paciente vs el asistente. Es el predictor más sólido de horas de cuidado necesarias en el hogar.",
+    evidenciaClinica: "La FIM cuantifica qué tanto esfuerzo realiza el paciente vs el asistente. Es el predictor más sólido de horas de cuidado necesarias en el hogar. Puntaje máximo: 126 puntos (18 ítems × 7).",
 
     preguntas: [
-      { id: 'p1', text: '1. Alimentación (Cubiertos, llevar comida a boca, deglución):', type: 'select', options: [
+      { id: 'fim_p1', text: '1. Alimentación (Cubiertos, llevar comida a boca, deglución):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4677,7 +4676,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p2', text: '2. Aseo Personal (Cara, manos, dientes, peinado, afeitarse):', type: 'select', options: [
+      { id: 'fim_p2', text: '2. Aseo Personal (Cara, manos, dientes, peinado, afeitarse):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4687,7 +4686,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p3', text: '3. Baño (Lavado y secado de cuello para abajo):', type: 'select', options: [
+      { id: 'fim_p3', text: '3. Baño (Lavado y secado de cuello para abajo):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4697,7 +4696,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p4', text: '4. Vestido Mitad Superior (Incluye prótesis/órtesis):', type: 'select', options: [
+      { id: 'fim_p4', text: '4. Vestido Mitad Superior (Incluye prótesis/órtesis):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4707,7 +4706,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p5', text: '5. Vestido Mitad Inferior (Incluye calzado):', type: 'select', options: [
+      { id: 'fim_p5', text: '5. Vestido Mitad Inferior (Incluye calzado):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4717,7 +4716,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p6', text: '6. Uso del Inodoro (Limpieza y manejo de ropa):', type: 'select', options: [
+      { id: 'fim_p6', text: '6. Uso del Inodoro (Limpieza y manejo de ropa):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda/aparatos)', value: 7 },
           { label: '6: Independencia modificada (Usa aparatos, requiere más tiempo)', value: 6 },
           { label: '5: Supervisión (Preparación, guía verbal, sin contacto físico)', value: 5 },
@@ -4727,7 +4726,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p7', text: '7. Control de Vejiga (Continencia y uso de dispositivos):', type: 'select', options: [
+      { id: 'fim_p7', text: '7. Control de Vejiga (Continencia y uso de dispositivos):', type: 'select', options: [
           { label: '7: Sin accidentes, independencia completa', value: 7 },
           { label: '6: Uso de dispositivo/sonda de forma independiente', value: 6 },
           { label: '5: Supervisión o preparación del dispositivo', value: 5 },
@@ -4737,7 +4736,7 @@ export const scales: Scale[] = [
           { label: '1: Incontinencia total (Paciente hace menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p8', text: '8. Control de Intestino (Continencia anal):', type: 'select', options: [
+      { id: 'fim_p8', text: '8. Control de Intestino (Continencia anal):', type: 'select', options: [
           { label: '7: Sin accidentes, independencia completa', value: 7 },
           { label: '6: Uso independiente de enemas o medicación', value: 6 },
           { label: '5: Supervisión o preparación de insumos', value: 5 },
@@ -4747,7 +4746,7 @@ export const scales: Scale[] = [
           { label: '1: Incontinencia total (Paciente realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p9', text: '9. Traslado Cama/Silla/Silla de Ruedas:', type: 'select', options: [
+      { id: 'fim_p9', text: '9. Traslado Cama/Silla/Silla de Ruedas:', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
           { label: '6: Independencia modificada (Ayuda técnica, más tiempo)', value: 6 },
           { label: '5: Supervisión (Guía verbal, sin contacto físico)', value: 5 },
@@ -4757,7 +4756,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p10', text: '10. Traslado en Inodoro (Sentarse/Levantarse):', type: 'select', options: [
+      { id: 'fim_p10', text: '10. Traslado en Inodoro (Sentarse/Levantarse):', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
           { label: '6: Independencia modificada (Ayuda técnica, barras)', value: 6 },
           { label: '5: Supervisión (Guía verbal)', value: 5 },
@@ -4767,7 +4766,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p11', text: '11. Traslado en Ducha o Bañera:', type: 'select', options: [
+      { id: 'fim_p11', text: '11. Traslado en Ducha o Bañera:', type: 'select', options: [
           { label: '7: Independencia completa (Seguro, sin ayuda)', value: 7 },
           { label: '6: Independencia modificada (Silla de baño, barras)', value: 6 },
           { label: '5: Supervisión (Guía verbal)', value: 5 },
@@ -4777,7 +4776,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p12', text: '12. Locomoción (Caminar o Silla de Ruedas):', type: 'select', options: [
+      { id: 'fim_p12', text: '12. Locomoción (Caminar o Silla de Ruedas):', type: 'select', options: [
           { label: '7: Camina 50m libre e independiente', value: 7 },
           { label: '6: Usa ayuda técnica para 50m de forma autónoma', value: 6 },
           { label: '5: Supervisión o camina solo 15m', value: 5 },
@@ -4787,7 +4786,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p13', text: '13. Escaleras (Subir/Bajar 12-14 peldaños):', type: 'select', options: [
+      { id: 'fim_p13', text: '13. Escaleras (Subir/Bajar 12-14 peldaños):', type: 'select', options: [
           { label: '7: Independencia completa', value: 7 },
           { label: '6: Independencia modificada (Usa baranda)', value: 6 },
           { label: '5: Supervisión (Por seguridad)', value: 5 },
@@ -4797,7 +4796,7 @@ export const scales: Scale[] = [
           { label: '1: Dependencia total (Sujeto realiza menos del 25%)', value: 1 }
         ]
       },
-      { id: 'p14', text: '14. Comprensión (Auditiva o visual):', type: 'select', options: [
+      { id: 'fim_p14', text: '14. Comprensión (Auditiva o visual):', type: 'select', options: [
           { label: '7: Sin dificultad (Entiende temas complejos)', value: 7 },
           { label: '6: Alguna lentitud o dificultad leve', value: 6 },
           { label: '5: Supervisión <10% del tiempo', value: 5 },
@@ -4807,7 +4806,7 @@ export const scales: Scale[] = [
           { label: '1: Entiende menos del 25%', value: 1 }
         ]
       },
-      { id: 'p15', text: '15. Expresión (Verbal o no verbal):', type: 'select', options: [
+      { id: 'fim_p15', text: '15. Expresión (Verbal o no verbal):', type: 'select', options: [
           { label: '7: Expresa pensamientos complejos claramente', value: 7 },
           { label: '6: Dificultad leve o requiere más tiempo', value: 6 },
           { label: '5: Supervisión <10% del tiempo', value: 5 },
@@ -4817,7 +4816,7 @@ export const scales: Scale[] = [
           { label: '1: Expresa menos del 25%', value: 1 }
         ]
       },
-      { id: 'p16', text: '16. Interacción Social:', type: 'select', options: [
+      { id: 'fim_p16', text: '16. Interacción Social:', type: 'select', options: [
           { label: '7: Interactúa apropiadamente siempre', value: 7 },
           { label: '6: Requiere medicación o esfuerzo para controlarse', value: 6 },
           { label: '5: Necesita supervisión en situaciones de estrés', value: 5 },
@@ -4827,7 +4826,7 @@ export const scales: Scale[] = [
           { label: '1: Interactúa apropiadamente menos del 25%', value: 1 }
         ]
       },
-      { id: 'p17', text: '17. Resolución de Problemas (Decisiones de la vida diaria):', type: 'select', options: [
+      { id: 'fim_p17', text: '17. Resolución de Problemas (Decisiones de la vida diaria):', type: 'select', options: [
           { label: '7: Resuelve problemas complejos independientemente', value: 7 },
           { label: '6: Dificultad leve o mayor tiempo de decisión', value: 6 },
           { label: '5: Necesita supervisión <10% del tiempo', value: 5 },
@@ -4837,7 +4836,7 @@ export const scales: Scale[] = [
           { label: '1: Resuelve menos del 25%', value: 1 }
         ]
       },
-      { id: 'p18', text: '18. Memoria (Reconocimiento de personas y tareas):', type: 'select', options: [
+      { id: 'fim_p18', text: '18. Memoria (Reconocimiento de personas y tareas):', type: 'select', options: [
           { label: '7: Recuerda todo sin dificultad', value: 7 },
           { label: '6: Usa ayudas (agendas, recordatorios)', value: 6 },
           { label: '5: Necesita supervisión <10% del tiempo', value: 5 },
@@ -4854,32 +4853,53 @@ export const scales: Scale[] = [
     },
 
     interpretar: (puntaje) => {
-      if (puntaje >= 108) return { 
+      // ✅ CORRECCIÓN: Umbral independencia corregido de 108 → 120
+      // Máximo real = 18 ítems × 7 pts = 126. 
+      // ≥120 equivale a nivel 6-7 en todos los ítems (independencia real)
+      if (puntaje >= 120) return { 
         texto: 'INDEPENDENCIA FUNCIONAL', 
         color: 'emerald-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado mínima o nula. El paciente es apto para alta funcional de rehabilitación intensiva.`,
-        recomendaciones: ['Mantener actividad física regular', 'Control trimestral preventivo'] 
+        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado mínima o nula. El paciente realiza todas sus actividades de forma independiente o con dispositivos de apoyo.`,
+        recomendaciones: [
+          'Mantener actividad física regular.',
+          'Control trimestral preventivo.',
+          'Alta funcional de rehabilitación intensiva si aplica.'
+        ] 
       };
 
-      if (puntaje >= 72) return { 
+      // ≥90: nivel 5 promedio — supervisión sin asistencia física
+      if (puntaje >= 90) return { 
         texto: 'DEPENDENCIA LEVE (Supervisión)', 
-        color: 'yellow-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Requiere asistencia no física o mínima (Nivel 4-5). Carga de cuidado moderada-baja.`,
-        recomendaciones: ['Enfoque en seguridad del hogar', 'Entrenamiento de tareas instrumentales'] 
+        color: 'yellow-500', 
+        evidencia: `Puntaje: ${puntaje}/126. Requiere supervisión o asistencia mínima (Nivel 4-5). Realiza más del 75% del esfuerzo en la mayoría de actividades.`,
+        recomendaciones: [
+          'Enfoque en seguridad del hogar.',
+          'Entrenamiento de tareas instrumentales.',
+          'Educación al cuidador en supervisión sin sobreasistencia.'
+        ] 
       };
 
-      if (puntaje >= 36) return { 
+      // ≥54: nivel 3 promedio — asistencia moderada
+      if (puntaje >= 54) return { 
         texto: 'DEPENDENCIA MODERADA (Asistencia física)', 
         color: 'orange-500', 
-        evidencia: `Puntaje: ${puntaje}/126. El paciente requiere asistencia física activa en la mitad de sus actividades básicas.`,
-        recomendaciones: ['Kinesioterapia motora intensiva', 'Capacitación a cuidadores en transferencias asistidas'] 
+        evidencia: `Puntaje: ${puntaje}/126. El paciente requiere asistencia física activa en la mayoría de sus actividades básicas (realiza entre 25-74% del esfuerzo).`,
+        recomendaciones: [
+          'Kinesioterapia motora intensiva.',
+          'Capacitación a cuidadores en transferencias asistidas.',
+          'Terapia Ocupacional para adaptaciones del entorno.'
+        ] 
       };
 
       return { 
         texto: 'DEPENDENCIA SEVERA A TOTAL', 
         color: 'red-600', 
-        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado máxima. El paciente depende casi totalmente de terceros.`,
-        recomendaciones: ['Prevención estricta de UPP', 'Uso de ayudas técnicas de alta asistencia (Grúas)'] 
+        evidencia: `Puntaje: ${puntaje}/126. Carga de cuidado máxima. El paciente realiza menos del 25% del esfuerzo en la mayoría de actividades.`,
+        recomendaciones: [
+          'Prevención estricta de úlceras por presión (cambios posturales c/2h).',
+          'Uso de ayudas técnicas de alta asistencia (grúas de traslado).',
+          'Evaluación de cuidados paliativos si aplica.'
+        ] 
       };
     }
   },
