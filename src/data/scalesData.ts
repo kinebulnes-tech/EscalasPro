@@ -4951,30 +4951,37 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 165'
     },
     { 
-      // ✅ PASO FINAL: El cronómetro se activa después de los datos biométricos
+      // ✅ PASO 4: REGISTRO MANUAL DEL TIEMPO
       id: 'tiempo', 
-      text: '4. Ejecución del Test: Levante al paciente, camine 3m, gire y siéntese. Registre el tiempo exacto:', 
-      type: 'timer',
-      duration: 0, // Inicia desde cero (cronómetro ascendente)
+      text: '4. Tiempo final registrado (segundos):', 
+      type: 'number',
       min: 0,
-      placeholder: 'Segundos (Ej: 11.5)'
+      max: 300,
+      placeholder: 'Ej: 12.5'
+    },
+    { 
+      // ✅ PASO 5: EL CRONÓMETRO AL FINAL, COMO SOLICITASTE
+      id: 'herramienta_tiempo', 
+      text: '5. Cronómetro de apoyo para la ejecución:', 
+      type: 'timer',
+      duration: 0 
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor captura el tiempo registrado por el cronómetro como puntaje final
+    // El motor extrae el dato clínico del campo 'tiempo' (Paso 4)
     return Number(respuestas.tiempo) || 0;
   },
 
   interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
     const t = puntaje;
 
-    if (t === 0) {
+    if (t <= 0) {
       return { 
-        texto: 'Esperando registro de tiempo', 
+        texto: 'Esperando ejecución del test', 
         color: 'slate-500', 
-        evidencia: 'No se ha registrado la ejecución del test.',
-        recomendaciones: ['Inicie el cronómetro y deténgalo cuando el paciente esté sentado con la espalda apoyada.'] 
+        evidencia: 'Se requiere registrar el tiempo final (paso 4) para el análisis.',
+        recomendaciones: ['Utilice el cronómetro de apoyo y anote el tiempo obtenido.'] 
       };
     }
 
@@ -5008,7 +5015,7 @@ export const scales: Scale[] = [
       return { 
         texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (> 13.5s)', 
         color: 'orange-600',
-        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook. Riesgo significativo detectado.`,
+        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook (13.5s). Riesgo significativo detectado.`,
         recomendaciones: [
           'Entrenamiento intensivo de fuerza de miembros inferiores (Énfasis excéntrico).',
           'Evaluación de necesidad de ayuda técnica (Bastón simple).',
@@ -5020,7 +5027,7 @@ export const scales: Scale[] = [
     return { 
       texto: 'ALTO RIESGO / MOVILIDAD LIMITADA (> 20s)', 
       color: 'red-600',
-      evidencia: `Tiempo: ${t}s. Limitación funcional severa. Alta probabilidad de requerir asistencia.`,
+      evidencia: `Tiempo: ${t}s. Limitación funcional severa. Alta probabilidad de requerir asistencia técnica.`,
       recomendaciones: [
         'Prescripción inmediata de ayuda técnica estable (Andador).',
         'Supervisión constante en traslados y deambulación externa.',
