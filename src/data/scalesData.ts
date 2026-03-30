@@ -4540,7 +4540,7 @@ export const scales: Scale[] = [
     };
   }
 },
- {
+{
   id: 'sit_to_stand_1min',
   nombre: 'Test Sit to Stand (1 minuto)',
   categoria: 'kinesiologia',
@@ -4578,19 +4578,25 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 170'
     },
     { 
-      // ✅ UNIFICACIÓN TOTAL: Eliminamos el paso redundante y dejamos solo este campo
+      // ✅ CRONÓMETRO RESTAURADO COMO CAMPO INDEPENDIENTE
+      id: 'control_tiempo', 
+      text: '4. Cronómetro de apoyo (Protocolo 1 minuto):', 
+      type: 'timer',
+      duration: 60 
+    },
+    { 
+      // ✅ CAMPO DE REPETICIONES BLINDADO (Mínimo 0)
       id: 'repeticiones', 
-      text: '4. Ejecución del Test: Silla de 46-48 cm, brazos cruzados. Use el cronómetro de 1 min y anote las repeticiones finales:', 
+      text: '5. Cantidad de repeticiones completadas:', 
       type: 'number',
-      componente: 'CRONOMETRO', // Activa la herramienta visual en este mismo paso
-      min: 0, 
+      min: 0,
       max: 150,
-      placeholder: 'Conteo final de repeticiones'
+      placeholder: 'Ingrese el total final'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor ahora solo busca el ID 'repeticiones'
+    // El motor de cálculo utiliza el valor ingresado en 'repeticiones'
     return Number(respuestas.repeticiones) || 0;
   },
 
@@ -4600,17 +4606,19 @@ export const scales: Scale[] = [
     const altura = Number(respuestas?.altura) || 0;
     const sexo = Number(respuestas?.sexo) || 1;
 
-    // Validación de seguridad clínica
+    // Validación de seguridad: No calcula si faltan datos biométricos o reps
     if (reps <= 0 || edad <= 0 || altura <= 0) {
       return { 
-        texto: 'Esperando ejecución del test', 
+        texto: 'Esperando datos de evaluación', 
         color: 'slate-500', 
-        evidencia: 'Se requiere completar Edad, Altura y Repeticiones (>0).',
-        recomendaciones: ['Complete los campos biométricos para activar la interpretación de Strassmann.'] 
+        evidencia: 'Se requiere Sexo, Edad, Altura y Repeticiones (>0) para el análisis normativo.',
+        recomendaciones: ['Complete todos los campos para activar el cálculo de Strassmann.'] 
       };
     }
 
     // --- ECUACIONES DE STRASSMANN (2013) ---
+    // Hombre: 40.8 - (0.43 * edad) + (0.17 * altura)
+    // Mujer: 33.5 - (0.32 * edad) + (0.14 * altura)
     const predicho = (sexo === 1) 
       ? 40.8 - (0.43 * edad) + (0.17 * altura)
       : 33.5 - (0.32 * edad) + (0.14 * altura);
@@ -4621,10 +4629,10 @@ export const scales: Scale[] = [
       return { 
         texto: `Rendimiento Normal (${porcentaje}%)`, 
         color: 'emerald-600',
-        evidencia: `Paciente realizó ${reps} reps. Valor predicho: ${Math.round(predicho)} reps.`,
+        evidencia: `Paciente realizó ${reps} reps. Su valor predicho es de ${Math.round(predicho)} reps.`,
         recomendaciones: [
           'Mantener nivel de actividad física actual.',
-          'Incorporar ejercicios de potencia muscular 2 veces/semana.',
+          'Incorporar ejercicios de potencia muscular 2 veces por semana.',
           'Control anual de capacidad funcional.'
         ] 
       };
@@ -4634,9 +4642,9 @@ export const scales: Scale[] = [
       return { 
         texto: `Deterioro Funcional Moderado (${porcentaje}%)`, 
         color: 'amber-500',
-        evidencia: `Rendimiento bajo el promedio (${Math.round(predicho)} reps esperadas). Riesgo de fragilidad.`,
+        evidencia: `Rendimiento por debajo del promedio poblacional (${Math.round(predicho)} reps esperadas).`,
         recomendaciones: [
-          'Iniciar fortalecimiento específico de cuádriceps y glúteo mayor.',
+          'Iniciar programa de fortalecimiento específico de cuádriceps y glúteo mayor.',
           'Dosis: 3 series de 10-12 repeticiones al 70% de intensidad percibida.',
           'Re-evaluar en 12 semanas para medir mejoría clínica.'
         ] 
@@ -4646,7 +4654,7 @@ export const scales: Scale[] = [
     return { 
       texto: `Deterioro Funcional Severo (${porcentaje}%)`, 
       color: 'red-600',
-      evidencia: `Rendimiento crítico respecto a la norma de ${Math.round(predicho)} reps.`,
+      evidencia: `Rendimiento crítico respecto a la norma de ${Math.round(predicho)} reps. Alto riesgo de caídas.`,
       recomendaciones: [
         'Intervención kinésica inmediata bajo supervisión estrecha.',
         'Considerar el uso de ayudas técnicas para transferencias y deambulación.',
