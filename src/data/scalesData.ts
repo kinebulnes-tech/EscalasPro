@@ -4943,18 +4943,26 @@ export const scales: Scale[] = [
       placeholder: 'Ej: 72'
     },
     { 
-      // ✅ EL TIEMPO ES EL DATO CLÍNICO: Usamos el ID 'tiempo' para el cálculo
+      id: 'estatura', 
+      text: '3. Estatura actual (cm):', 
+      type: 'number',
+      min: 50,
+      max: 250,
+      placeholder: 'Ej: 165'
+    },
+    { 
+      // ✅ PASO FINAL: El cronómetro se activa después de los datos biométricos
       id: 'tiempo', 
-      text: '3. Ejecución del Test: Levante al paciente, camine 3m, gire y siéntese. Registre el tiempo exacto:', 
+      text: '4. Ejecución del Test: Levante al paciente, camine 3m, gire y siéntese. Registre el tiempo exacto:', 
       type: 'timer',
-      duration: 0, // Cronómetro ascendente
+      duration: 0, // Inicia desde cero (cronómetro ascendente)
       min: 0,
       placeholder: 'Segundos (Ej: 11.5)'
     }
   ],
 
   calcularPuntaje: (respuestas: Record<string, any>) => {
-    // El motor captura el tiempo registrado por el cronómetro
+    // El motor captura el tiempo registrado por el cronómetro como puntaje final
     return Number(respuestas.tiempo) || 0;
   },
 
@@ -4991,7 +4999,7 @@ export const scales: Scale[] = [
         recomendaciones: [
           'Evaluar seguridad del calzado y entorno doméstico.',
           'Iniciar programa preventivo de equilibrio dinámico.',
-          'Controlar visión y audición.'
+          'Control de agudeza visual y auditiva.'
         ] 
       };
     }
@@ -5000,9 +5008,9 @@ export const scales: Scale[] = [
       return { 
         texto: 'RIESGO DE CAÍDAS / FRAGILIDAD (> 13.5s)', 
         color: 'orange-600',
-        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook. Riesgo significativo de caídas.`,
+        evidencia: `Tiempo: ${t}s. Supera el punto de corte de Shumway-Cook. Riesgo significativo detectado.`,
         recomendaciones: [
-          'Entrenamiento intensivo de fuerza de miembros inferiores (Énfasis en excéntrico).',
+          'Entrenamiento intensivo de fuerza de miembros inferiores (Énfasis excéntrico).',
           'Evaluación de necesidad de ayuda técnica (Bastón simple).',
           'Revisión médica de polifarmacia (Psicotrópicos/Hipotensores).'
         ] 
