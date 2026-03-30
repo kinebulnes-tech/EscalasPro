@@ -4286,34 +4286,183 @@ export const scales: Scale[] = [
   id: 'barthel_funcional',
   nombre: 'Índice de Barthel',
   categoria: 'kinesiologia',
-  descripcion: 'Medida de la independencia funcional del paciente en 10 actividades básicas de la vida diaria.',
+  descripcion: 'Evaluación del nivel de independencia funcional en 10 actividades básicas de la vida diaria (AVD).',
   
   // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 14236020) ---
   bibliografia: "Mahoney FI, Barthel DW. Functional evaluation: the Barthel Index. Md State Med J. 1965 Feb;14:61-5.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14236020/", // ✅ LINK VERIFICADO
-  evidenciaClinica: "Es el estándar de oro para evaluar la discapacidad física. Puntajes más altos indican mayor independencia. Muy sensible para medir el progreso en rehabilitación post-ACV.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/14236020/",
+  evidenciaClinica: "Instrumento con alta validez y fiabilidad para medir el cambio funcional en pacientes post-ACV y adultos mayores. Puntaje máximo de 100 puntos.",
 
   preguntas: [
-    { id: 'comer', text: 'Comer:', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] },
-    { id: 'lavarse', text: 'Lavarse (Baño):', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Independiente (entra/sale solo)', value: 5 }] },
-    { id: 'vestirse', text: 'Vestirse:', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente (ata cordones, botones)', value: 10 }] },
-    { id: 'aseo', text: 'Aseo personal (Peinado, dientes, afeitado):', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Independiente', value: 5 }] },
-    { id: 'deposicion', text: 'Deposición (Continencia anal):', type: 'select', options: [{ label: '0: Incontinente', value: 0 }, { label: '5: Accidente ocasional', value: 5 }, { label: '10: Continente', value: 10 }] },
-    { id: 'miccion', text: 'Micción (Continencia urinaria):', type: 'select', options: [{ label: '0: Incontinente o sondado', value: 0 }, { label: '5: Accidente ocasional', value: 5 }, { label: '10: Continente', value: 10 }] },
-    { id: 'retrete', text: 'Uso del retrete:', type: 'select', options: [{ label: '0: Dependiente', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] },
-    { id: 'traslado', text: 'Traslado (Silla - Cama):', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Gran ayuda (2 personas)', value: 5 }, { label: '10: Pequeña ayuda (1 persona)', value: 10 }, { label: '15: Independiente', value: 15 }] },
-    { id: 'deambulacion', text: 'Deambulación (Caminar):', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Independiente en silla de ruedas', value: 5 }, { label: '10: Necesita ayuda (1 persona)', value: 10 }, { label: '15: Independiente (mín. 50 metros)', value: 15 }] },
-    { id: 'escaleras', text: 'Escaleras:', type: 'select', options: [{ label: '0: Incapaz', value: 0 }, { label: '5: Necesita ayuda', value: 5 }, { label: '10: Independiente', value: 10 }] }
+    { 
+      id: 'comer', 
+      text: 'Comer:', 
+      type: 'select', 
+      options: [
+        { label: '0: Incapaz', value: 0 }, 
+        { label: '5: Necesita ayuda (ej. para cortar pan)', value: 5 }, 
+        { label: '10: Independiente (comida al alcance)', value: 10 }
+      ] 
+    },
+    { 
+      id: 'lavarse', 
+      text: 'Lavarse (Baño):', 
+      type: 'select', 
+      options: [
+        { label: '0: Dependiente', value: 0 }, 
+        { label: '5: Independiente (entra y sale solo del baño)', value: 5 }
+      ] 
+    },
+    { 
+      id: 'vestirse', 
+      text: 'Vestirse:', 
+      type: 'select', 
+      options: [
+        { label: '0: Dependiente', value: 0 }, 
+        { label: '5: Necesita ayuda (hace al menos la mitad sin ayuda)', value: 5 }, 
+        { label: '10: Independiente (incluye botones, cierres y cordones)', value: 10 }
+      ] 
+    },
+    { 
+      id: 'aseo', 
+      text: 'Aseo personal (Peinado, dientes, afeitado):', 
+      type: 'select', 
+      options: [
+        { label: '0: Dependiente', value: 0 }, 
+        { label: '5: Independiente (incluye implementos)', value: 5 }
+      ] 
+    },
+    { 
+      id: 'deposicion', 
+      text: 'Deposición (Continencia anal):', 
+      type: 'select', 
+      options: [
+        { label: '0: Incontinente (o necesita enemas)', value: 0 }, 
+        { label: '5: Accidente ocasional (1 vez/semana)', value: 5 }, 
+        { label: '10: Continente (sin accidentes)', value: 10 }
+      ] 
+    },
+    { 
+      id: 'miccion', 
+      text: 'Micción (Continencia urinaria):', 
+      type: 'select', 
+      options: [
+        { label: '0: Incontinente (o sondado incapaz de manejarse)', value: 0 }, 
+        { label: '5: Accidente ocasional (máx. 1 vez/24 horas)', value: 5 }, 
+        { label: '10: Continente (mantiene sequedad 7 días)', value: 10 }
+      ] 
+    },
+    { 
+      id: 'retrete', 
+      text: 'Uso del retrete:', 
+      type: 'select', 
+      options: [
+        { label: '0: Dependiente', value: 0 }, 
+        { label: '5: Necesita ayuda (para equilibrio o limpiarse)', value: 5 }, 
+        { label: '10: Independiente (capaz de entrar, salir y vestirse)', value: 10 }
+      ] 
+    },
+    { 
+      id: 'traslado', 
+      text: 'Traslado (Silla - Cama):', 
+      type: 'select', 
+      options: [
+        { label: '0: Incapaz (no mantiene el equilibrio sentado)', value: 0 }, 
+        { label: '5: Gran ayuda (precisa 2 personas, puede estar sentado)', value: 5 }, 
+        { label: '10: Pequeña ayuda (precisa 1 persona o supervisión)', value: 10 }, 
+        { label: '15: Independiente', value: 15 }
+      ] 
+    },
+    { 
+      id: 'deambulacion', 
+      text: 'Deambulación (Caminar):', 
+      type: 'select', 
+      options: [
+        { label: '0: Incapaz', value: 0 }, 
+        { label: '5: Independiente en silla de ruedas (propulsión autónoma)', value: 5 }, 
+        { label: '10: Necesita ayuda (asistencia física o supervisión de 1 persona)', value: 10 }, 
+        { label: '15: Independiente (al menos 50 m solo, puede usar bastón)', value: 15 }
+      ] 
+    },
+    { 
+      id: 'escaleras', 
+      text: 'Subir y bajar escaleras:', 
+      type: 'select', 
+      options: [
+        { label: '0: Incapaz', value: 0 }, 
+        { label: '5: Necesita ayuda (física o supervisión)', value: 5 }, 
+        { label: '10: Independiente (puede usar barandilla o bastón)', value: 10 }
+      ] 
+    }
   ],
 
-  calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+  calcularPuntaje: (respuestas: Record<string, number>) => {
+    const total = Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
+    return Math.min(100, Math.max(0, total)); // Asegura el rango 0-100
+  },
 
-  interpretar: (puntaje) => {
-    if (puntaje === 100) return { texto: 'Independencia Total', color: 'emerald-600', evidencia: 'El paciente realiza todas las AVD básicas sin asistencia.', recomendaciones: ['Mantener nivel de actividad física', 'Alta funcional'] };
-    if (puntaje >= 91) return { texto: 'Dependencia Leve', color: 'green-500', evidencia: 'Necesita ayuda mínima en tareas específicas.', recomendaciones: ['Entrenamiento de tareas específicas', 'Seguridad en el hogar'] };
-    if (puntaje >= 61) return { texto: 'Dependencia Moderada', color: 'yellow-500', evidencia: 'Requiere asistencia para varias AVD básicas.', recomendaciones: ['Kinesiología motora intensa', 'Terapia Ocupacional para adaptaciones', 'Entrenamiento de cuidadores'] };
-    if (puntaje >= 21) return { texto: 'Dependencia Severa', color: 'orange-600', evidencia: 'Incapaz de realizar la mayoría de las AVD sin ayuda física importante.', recomendaciones: ['Prevención de complicaciones por inmovilidad', 'Uso de ayudas técnicas', 'Plan de cuidados 24/7'] };
-    return { texto: 'Dependencia Total', color: 'red-600', evidencia: 'Dependencia absoluta para todas las necesidades básicas.', recomendaciones: ['Manejo paliativo/confort', 'Prevención de UPP y neumonías'] };
+  interpretar: (puntaje: number) => {
+    if (puntaje === 100) {
+      return { 
+        texto: 'Independencia Total', 
+        color: 'emerald', 
+        evidencia: 'El paciente es capaz de realizar todas las actividades básicas de la vida diaria sin ningún tipo de asistencia o supervisión.',
+        recomendaciones: [
+          'Mantener nivel actual de actividad física diaria.',
+          'Incorporar programa de ejercicios preventivos (aeróbico y fuerza).',
+          'Alta funcional del programa de rehabilitación básica.'
+        ] 
+      };
+    }
+    if (puntaje >= 91) {
+      return { 
+        texto: 'Dependencia Leve', 
+        color: 'green', 
+        evidencia: 'El paciente realiza la mayoría de las tareas de forma independiente pero requiere mínima ayuda o supervisión en ítems específicos.',
+        recomendaciones: [
+          'Entrenamiento específico de las tareas con puntaje menor al máximo.',
+          'Evaluación de la seguridad en el hogar para prevenir caídas.',
+          'Fomentar la autonomía supervisada.'
+        ] 
+      };
+    }
+    if (puntaje >= 61) {
+      return { 
+        texto: 'Dependencia Moderada', 
+        color: 'amber', 
+        evidencia: 'Necesidad de asistencia clara en múltiples actividades funcionales básicas.',
+        recomendaciones: [
+          'Plan de kinesiología enfocado en transferencias y equilibrio.',
+          'Fortalecimiento muscular global y reeducación de la marcha.',
+          'Intervención de Terapia Ocupacional para adaptaciones en el hogar.',
+          'Entrenamiento al cuidador en técnicas de asistencia mínima.'
+        ] 
+      };
+    }
+    if (puntaje >= 21) {
+      return { 
+        texto: 'Dependencia Severa', 
+        color: 'orange', 
+        evidencia: 'Limitación funcional significativa; el paciente requiere ayuda importante en casi todas las actividades diarias.',
+        recomendaciones: [
+          'Prevención de complicaciones por inmovilismo (contracturas, rigidez).',
+          'Entrenamiento de transferencias asistidas con seguridad.',
+          'Prescripción y entrenamiento en el uso de ayudas técnicas (silla de ruedas, barras de apoyo).',
+          'Educación intensa al cuidador sobre manejo de cargas y cambios posturales.'
+        ] 
+      };
+    }
+    return { 
+      texto: 'Dependencia Total', 
+      color: 'red', 
+      evidencia: 'El paciente depende completamente de terceros para todas las necesidades básicas.',
+      recomendaciones: [
+        'Manejo preventivo: Protocolo de cambios posturales cada 2 horas para evitar UPP.',
+        'Kinesiología respiratoria para prevenir neumonías por aspiración o hipoventilación.',
+        'Ejercicios de movilidad pasiva para mantener rangos articulares.',
+        'Asesoría en manejo paliativo y confort funcional.'
+      ] 
+    };
   }
 },
   {
