@@ -1740,46 +1740,81 @@ export const scales: Scale[] = [
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 19700392) ---
     bibliografia: "Jones PW, et al. Development and first validation of the COPD Assessment Test. Eur Respir J. 2009.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/19700392/", // ✅ LINK VERIFICADO
-    evidenciaClinica: "Un puntaje ≥ 10 indica un paciente altamente sintomático. Es el estándar para monitorizar la respuesta clínica al tratamiento broncodilatador y rehabilitador.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/19700392/",
+    evidenciaClinica: "Un puntaje ≥ 10 indica un paciente 'altamente sintomático' según guías GOLD 2024. El punto de corte ≥ 30 (no > 30) define impacto muy alto. Es el estándar para monitorizar la respuesta clínica al tratamiento broncodilatador y rehabilitador.",
 
     preguntas: [
-      { id: 'tos', text: '1. Tos: (0: Nunca toso - 5: Siempre estoy tosiendo)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'flema', text: '2. Flema: (0: No tengo flema en el pecho - 5: Tengo el pecho lleno de flema)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'opresion', text: '3. Opresión: (0: No siento opresión en el pecho - 5: Siento mucha opresión)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'disnea_esfuerzo', text: '4. Disnea al subir: (0: No me falta el aire al subir una cuesta o un piso - 5: Me falta mucho el aire)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'limitacion', text: '5. Limitación en casa: (0: No me siento limitado para actividades domésticas - 5: Muy limitado)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'confianza', text: '6. Seguridad: (0: Me siento seguro al salir de casa - 5: No me siento nada seguro)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'sueno', text: '7. Sueño: (0: Duermo profundamente - 5: No duermo bien por mis problemas pulmonares)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
-      { id: 'energia', text: '8. Energía: (0: Tengo mucha energía - 5: No tengo nada de energía)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] }
+      { id: 'tos',             text: '1. Tos: (0: Nunca toso — 5: Siempre estoy tosiendo)',                                               type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'flema',           text: '2. Flema: (0: No tengo flema en el pecho — 5: Tengo el pecho lleno de flema)',                       type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'opresion',        text: '3. Opresión: (0: No siento opresión en el pecho — 5: Siento mucha opresión)',                        type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'disnea_esfuerzo', text: '4. Disnea al subir: (0: No me falta el aire al subir una cuesta o un piso — 5: Me falta mucho el aire)', type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'limitacion',      text: '5. Limitación en casa: (0: No me siento limitado para actividades domésticas — 5: Muy limitado)',    type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'confianza',       text: '6. Seguridad: (0: Me siento seguro al salir de casa — 5: No me siento nada seguro)',                type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'sueno',           text: '7. Sueño: (0: Duermo profundamente — 5: No duermo bien por mis problemas pulmonares)',              type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] },
+      { id: 'energia',         text: '8. Energía: (0: Tengo mucha energía — 5: No tengo nada de energía)',                                type: 'radio', options: [{ label: '0', value: 0 }, { label: '1', value: 1 }, { label: '2', value: 2 }, { label: '3', value: 3 }, { label: '4', value: 4 }, { label: '5', value: 5 }] }
     ],
 
-    calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
+    // ✅ CORREGIDO: Se usa -1 como centinela de formulario incompleto
+    //    en lugar de null, para respetar la firma => number de la interfaz.
+    //    TypeScript no lanza error y el interpretar lo detecta limpiamente.
+    calcularPuntaje: (respuestas) => {
+      const camposRequeridos = [
+        'tos', 'flema', 'opresion', 'disnea_esfuerzo',
+        'limitacion', 'confianza', 'sueno', 'energia'
+      ];
+
+      const completo = camposRequeridos.every(
+        (campo) => respuestas[campo] !== undefined
+      );
+
+      if (!completo) return -1;
+
+      return camposRequeridos.reduce(
+        (sum, campo) => sum + Number(respuestas[campo]),
+        0
+      );
+    },
 
     interpretar: (puntaje, respuestas) => {
-      if (puntaje > 30) {
+      // ✅ Detecta el centinela -1 en lugar de null.
+      //    Compatible 100% con la firma de la interfaz.
+      if (puntaje === -1) {
         return {
-          texto: 'Impacto MUY ALTO (> 30)',
-          color: 'red-700',
-          evidencia: `Puntaje CAT: ${puntaje}/40. Calidad de vida gravemente comprometida.`,
+          texto: 'CUESTIONARIO INCOMPLETO',
+          color: 'gray-400',
+          evidencia: 'Se requieren las 8 respuestas para calcular el impacto de la EPOC de forma válida.',
           recomendaciones: [
-            'Evaluación médica inmediata para ajuste de terapia triple',
+            'Complete todos los ítems del cuestionario antes de interpretar el resultado.',
+            'Cada ítem evalúa un dominio distinto: síntomas, limitación funcional, sueño y bienestar.'
+          ]
+        };
+      }
+
+      if (puntaje >= 30) {
+        return {
+          texto: 'Impacto MUY ALTO (≥ 30)',
+          color: 'red-700',
+          evidencia: `Puntaje CAT: ${puntaje}/40. Calidad de vida gravemente comprometida. Corresponde al grupo de mayor carga sintomática según GOLD 2024.`,
+          recomendaciones: [
+            'Evaluación médica inmediata para ajuste de terapia triple (LAMA + LABA + ICS)',
             'Derivación a programa de Rehabilitación Pulmonar intensivo',
-            'Evaluar necesidad de oxigenoterapia o soporte ventilatorio',
-            'Vigilancia estricta de exacerbaciones'
+            'Evaluar necesidad de oxigenoterapia domiciliaria (PaO₂ ≤ 55 mmHg o SatO₂ ≤ 88%)',
+            'Considerar soporte ventilatorio no invasivo (VNI) si hay hipercapnia',
+            'Vigilancia estricta de exacerbaciones y plan de acción escrito'
           ]
         };
       }
 
       if (puntaje >= 21) {
         return {
-          texto: 'Impacto ALTO (21 - 30)',
+          texto: 'Impacto ALTO (21 - 29)',
           color: 'red-500',
-          evidencia: `Puntaje CAT: ${puntaje}/40. Gran limitación en la mayoría de los dominios evaluados.`,
+          evidencia: `Puntaje CAT: ${puntaje}/40. Gran limitación en la mayoría de los dominios evaluados. Paciente sintomático según clasificación GOLD 2024.`,
           recomendaciones: [
-            'Optimizar tratamiento broncodilatador (LAMA+LABA)',
-            'Reforzar educación en autocuidado y cese tabáquico',
-            'Evaluar técnica de inhalación'
+            'Optimizar tratamiento broncodilatador de larga acción (LAMA + LABA)',
+            'Evaluar adición de ICS si hay ≥ 2 exacerbaciones moderadas al año o eosinófilos ≥ 300 céls/µL',
+            'Reforzar educación en autocuidado y cese tabáquico activo',
+            'Revisar técnica de inhalación en cada control'
           ]
         };
       }
@@ -1788,11 +1823,12 @@ export const scales: Scale[] = [
         return {
           texto: 'Impacto MODERADO (10 - 20)',
           color: 'orange-500',
-          evidencia: `Puntaje CAT: ${puntaje}/40. El paciente se considera "altamente sintomático" según guías GOLD.`,
+          evidencia: `Puntaje CAT: ${puntaje}/40. El paciente se considera "altamente sintomático" según guías GOLD 2024. Requiere ajuste terapéutico.`,
           recomendaciones: [
+            'Iniciar o mantener broncodilatador de larga acción (LAMA como primera línea)',
             'Revisar plan de acción ante crisis respiratorias',
-            'Fomentar actividad física diaria supervisada',
-            'Controlar factores ambientales'
+            'Fomentar actividad física diaria supervisada (mínimo 30 min/día)',
+            'Controlar factores ambientales y laborales desencadenantes'
           ]
         };
       }
@@ -1800,16 +1836,16 @@ export const scales: Scale[] = [
       return {
         texto: 'Impacto BAJO (< 10)',
         color: 'emerald-600',
-        evidencia: `Puntaje CAT: ${puntaje}/40. Síntomas estables con poco impacto en la vida diaria.`,
+        evidencia: `Puntaje CAT: ${puntaje}/40. Síntomas estables con poco impacto en la vida diaria. Paciente "poco sintomático" según GOLD 2024.`,
         recomendaciones: [
-          'Mantener terapia actual',
-          'Control anual preventivo',
-          'Fomentar estilos de vida saludables'
+          'Mantener terapia broncodilatadora actual si está indicada',
+          'Control anual con espirometría para monitorizar progresión',
+          'Vacunación vigente: Influenza anual, Neumococo, COVID-19',
+          'Fomentar estilos de vida saludables y cese tabáquico si aplica'
         ]
       };
     }
   },
-
   {
     id: 'wells_tep',
     nombre: 'Score de Wells (Embolia Pulmonar)',
