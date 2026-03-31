@@ -4664,6 +4664,137 @@ export const scales: Scale[] = [
   // ==========================================
   // KINESIOLOGÍA
   // ==========================================
+
+// ============================================================
+// SCORE DE TAL — Sala IRA / Kinesiterapia Respiratoria
+// Agregar dentro del array de escalas en scalesData.ts
+// ============================================================
+
+{
+  id: 'score-tal',
+  nombre: 'Score de TAL',
+  descripcion: 'Evaluación de dificultad respiratoria en lactantes y niños con IRA baja. Valora frecuencia respiratoria, sibilancias, cianosis y uso de musculatura accesoria.',
+  categoria: 'Respiratorio',
+  bibliografia: 'Tal A, et al. "Scoring system for assessing the severity of acute asthma in children." J Allergy Clin Immunol. 1983;72(4):430-6.',
+  referenciaUrl: 'https://pubmed.ncbi.nlm.nih.gov/6620006/',
+
+  preguntas: [
+    // ── ÍTEM 1: Frecuencia Respiratoria ──────────────────────────
+    {
+      id: 'tal_fr',
+      text: 'Frecuencia Respiratoria (según edad del paciente)',
+      type: 'select',
+      options: [
+        { value: 0, label: '≤ 30 rpm (lactante) / ≤ 20 rpm (niño)' },
+        { value: 1, label: '31–45 rpm (lactante) / 21–35 rpm (niño)' },
+        { value: 2, label: '46–60 rpm (lactante) / 36–50 rpm (niño)' },
+        { value: 3, label: '> 60 rpm (lactante) / > 50 rpm (niño)' },
+      ],
+    },
+
+    // ── ÍTEM 2: Sibilancias ──────────────────────────────────────
+    {
+      id: 'tal_sibilancias',
+      text: 'Sibilancias (auscultación)',
+      type: 'select',
+      options: [
+        { value: 0, label: 'Ausentes' },
+        { value: 1, label: 'Espiratorias al final' },
+        { value: 2, label: 'Inspiratorias y espiratorias' },
+        { value: 3, label: 'Audibles sin estetoscopio / silencio auscultatorio' },
+      ],
+    },
+
+    // ── ÍTEM 3: Cianosis ─────────────────────────────────────────
+    {
+      id: 'tal_cianosis',
+      text: 'Cianosis',
+      type: 'select',
+      options: [
+        { value: 0, label: 'Ausente' },
+        { value: 1, label: 'Perioral al llanto' },
+        { value: 2, label: 'Perioral en reposo' },
+        { value: 3, label: 'Generalizada en reposo' },
+      ],
+    },
+
+    // ── ÍTEM 4: Uso de musculatura accesoria ─────────────────────
+    {
+      id: 'tal_retraccion',
+      text: 'Uso de musculatura accesoria / Retracción',
+      type: 'select',
+      options: [
+        { value: 0, label: 'Ninguna' },
+        { value: 1, label: 'Subcostal / intercostal leve' },
+        { value: 2, label: 'Supraclavicular + intercostal moderado' },
+        { value: 3, label: 'Supraesternal + balanceo de cabeza (lactante)' },
+      ],
+    },
+  ],
+
+  // ── Cálculo: suma simple de los 4 ítems (0–12) ───────────────
+  calcularPuntaje: (respuestas: Record<string, number>): number => {
+    return (
+      (respuestas['tal_fr']         ?? 0) +
+      (respuestas['tal_sibilancias'] ?? 0) +
+      (respuestas['tal_cianosis']   ?? 0) +
+      (respuestas['tal_retraccion'] ?? 0)
+    );
+  },
+
+  // ── Interpretación clínica con recomendaciones ───────────────
+  interpretar: (puntaje: number): InterpretacionAvanzada => {
+    if (puntaje <= 4) {
+      return {
+        texto: 'Crisis Leve',
+        color: 'emerald',
+        evidencia:
+          'Puntaje ≤ 4: obstrucción bronquial leve. Responde habitualmente a broncodilatador inhalado en sala IRA sin necesidad de derivación.',
+        recomendaciones: [
+          'Administrar broncodilatador (salbutamol) por aerocámara según protocolo IRA.',
+          'Reevaluar con Score de TAL a los 20 minutos post-broncodilatador.',
+          'Educar a cuidadores sobre signos de alarma y técnica de inhalación correcta.',
+          'Alta con indicaciones si score post-BD ≤ 4 y saturación ≥ 95%.',
+        ],
+      };
+    }
+
+    if (puntaje <= 8) {
+      return {
+        texto: 'Crisis Moderada',
+        color: 'amber',
+        evidencia:
+          'Puntaje 5–8: obstrucción bronquial moderada. Requiere tratamiento en sala IRA con observación mínima de 2 horas y reevaluación periódica.',
+        recomendaciones: [
+          'Iniciar broncodilatador en nebulización o aerocámara cada 20 min × 3 dosis.',
+          'Monitorizar saturación de oxígeno de forma continua; O₂ si SatO₂ < 94%.',
+          'Reevaluar score cada 20–30 min; si no mejora tras 3 ciclos → derivar a urgencias.',
+          'Considerar corticoides sistémicos según protocolo institucional.',
+          'Registrar evolución clínica y variación del score en ficha.',
+        ],
+      };
+    }
+
+    // puntaje 9–12
+    return {
+      texto: 'Crisis Grave',
+      color: 'red',
+      evidencia:
+          'Puntaje ≥ 9: obstrucción bronquial grave. Riesgo de insuficiencia respiratoria. Requiere derivación inmediata a urgencias pediátricas o UCIP.',
+      recomendaciones: [
+        '⚠️ Activar protocolo de derivación a urgencias / UCIP de inmediato.',
+        'Oxigenoterapia de alto flujo para mantener SatO₂ ≥ 94%.',
+        'Broncodilatador continuo en nebulización + corticoide IV/IM.',
+        'Monitorización continua de FC, FR y SatO₂; tener equipo de reanimación disponible.',
+        'Documentar hora de inicio del tratamiento y respuesta clínica para traslado.',
+      ],
+    };
+  },
+},
+
+
+
+
   
 {
   id: 'borg_modificada',
