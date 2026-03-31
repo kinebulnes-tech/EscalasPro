@@ -5355,7 +5355,7 @@ export const scales: Scale[] = [
     return { 
       texto: `Tinetti ${puntaje}/28: RIESGO ALTO`, 
       color: 'red-600', 
-      evidencia: 'Alta probabilidad de caída inminente. El déficit de movilidad es crítico.',
+      evidencia: 'Alta probabilidad de caída. El déficit de movilidad es crítico.',
       recomendaciones: [
         'Uso obligatorio de ayuda técnica (andador/bastón)',
         'Adaptación del entorno (quitar alfombras, mejorar luz)',
