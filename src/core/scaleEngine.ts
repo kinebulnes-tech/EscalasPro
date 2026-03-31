@@ -73,6 +73,9 @@ export const obtenerPreguntasFaltantes = (
 ): string[] => {
   return scale.preguntas
     .filter(pregunta => {
+      // ✅ FIX: Preguntas informativas no requieren respuesta
+      if (pregunta.type === 'text') return false;
+
       const respuesta = respuestas[pregunta.id];
 
       // Caso 1: Campo no respondido
@@ -88,7 +91,7 @@ export const obtenerPreguntasFaltantes = (
 
         if (isNaN(valorNum) || valorNum < min || valorNum > max) {
           console.warn(`🛑 Bloqueo por valor imposible: ${pregunta.id} = ${valorNum}`);
-          return true; // Se reporta como "faltante/inválido" para bloquear el cálculo
+          return true;
         }
       }
       
