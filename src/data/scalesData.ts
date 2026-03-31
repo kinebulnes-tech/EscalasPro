@@ -4559,9 +4559,8 @@ export const scales: Scale[] = [
   categoria: 'kinesiologia',
   descripcion: 'Evaluación de la fuerza muscular máxima de prensión para la detección de sarcopenia y fragilidad.',
   
-  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 30312472) ---
   bibliografia: "Cruz-Jentoft AJ, et al. Sarcopenia: revised European consensus on definition and diagnosis. Age Ageing. 2019 Jan 1;48(1):16-31.",
-  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/30312472/", // ✅ ENLACE VERIFICADO: Consenso EWGSOP2
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/30312472/",
   evidenciaClinica: "La fuerza de prensión es un predictor potente de mortalidad y discapacidad. Los puntos de corte de EWGSOP2 son < 27 kg para hombres y < 16 kg para mujeres.",
 
   preguntas: [
@@ -4578,42 +4577,58 @@ export const scales: Scale[] = [
       id: 'fuerza_kg', 
       text: 'Fuerza máxima alcanzada (mejor de 3 intentos en kg):', 
       type: 'number',
-      
     }
   ],
 
+  // ✅ FIX: Puntaje = la fuerza real en kg, no 0/1
+  // Así ScaleResult muestra "24 pts" (kg) en vez de "0 pts"
   calcularPuntaje: (respuestas) => {
-    const fuerza = Number(respuestas.fuerza_kg) || 0;
-    const sexo = Number(respuestas.sexo);
-    
-    // Clasificación basada en puntos de corte EWGSOP2
-    if (sexo === 1) { // Hombre
-      return fuerza < 27 ? 0 : 1; 
-    } else { // Mujer
-      return fuerza < 16 ? 0 : 1;
-    }
+    return Number(respuestas.fuerza_kg) || 0;
   },
 
-  interpretar: (puntaje) => {
-    if (puntaje === 0) return { 
-      texto: 'FUERZA DISMINUIDA (Probable Sarcopenia)', 
-      color: 'red-600', 
-      evidencia: 'El valor está por debajo de los puntos de corte internacionales (Hombres < 27 kg, Mujeres < 16 kg).',
-      recomendaciones: [
-        'Realizar evaluación de masa muscular (BIA, DXA o Circunferencia de pantorrilla)',
-        'Evaluar desempeño físico (Velocidad de marcha o Test de levantarse de la silla)',
-        'Intervención nutricional (aporte proteico)',
-        'Entrenamiento de fuerza progresivo'
-      ] 
-    };
+  // ✅ FIX: interpretar recibe puntaje (kg) + respuestas completas para saber el sexo
+  interpretar: (puntaje: number, respuestas?: Record<string, any>) => {
+    const fuerza = puntaje;
+    const sexo = Number(respuestas?.sexo);
+
+    // Guardia: sin datos suficientes
+    if (fuerza <= 0 || !sexo) {
+      return {
+        texto: 'Datos incompletos',
+        color: 'slate-500',
+        evidencia: 'Ingrese la fuerza medida y seleccione el sexo del paciente.',
+        recomendaciones: ['Complete todos los campos para obtener la interpretación clínica.']
+      };
+    }
+
+    const umbral = sexo === 1 ? 27 : 16;
+    const sexoTexto = sexo === 1 ? 'hombres' : 'mujeres';
+    const corteTexto = sexo === 1 ? '< 27 kg' : '< 16 kg';
+
+    if (fuerza < umbral) {
+      return { 
+        texto: `FUERZA DISMINUIDA — ${fuerza} kg (Probable Sarcopenia)`, 
+        color: 'red-600', 
+        evidencia: `Resultado: ${fuerza} kg. Por debajo del punto de corte EWGSOP2 para ${sexoTexto} (${corteTexto}). Predictor de mortalidad y discapacidad funcional (Cruz-Jentoft, 2019).`,
+        recomendaciones: [
+          'Realizar evaluación de masa muscular (BIA, DXA o Circunferencia de pantorrilla).',
+          'Evaluar desempeño físico: Velocidad de marcha o Test de levantarse de la silla (5STS).',
+          'Intervención nutricional: aporte proteico ≥ 1.2 g/kg/día.',
+          'Entrenamiento de fuerza progresivo con énfasis en miembros superiores e inferiores.',
+          'Considerar derivación a nutricionista y médico geriatra para manejo integral.'
+        ] 
+      };
+    }
 
     return { 
-      texto: 'Fuerza Normal', 
+      texto: `Fuerza Normal — ${fuerza} kg`, 
       color: 'emerald-600', 
-      evidencia: 'La fuerza de prensión se encuentra dentro de los rangos funcionales para el diagnóstico de sarcopenia.',
+      evidencia: `Resultado: ${fuerza} kg. Dentro del rango funcional normal para ${sexoTexto} (corte EWGSOP2: ${corteTexto}). Sin criterio de baja fuerza muscular.`,
       recomendaciones: [
-        'Mantener niveles de actividad física',
-        'Prevención primaria y control anual'
+        'Mantener niveles de actividad física habitual.',
+        'Ejercicios preventivos de fuerza y resistencia muscular.',
+        'Evaluación anual o ante cambio de condición clínica.',
+        'Vigilar factores de riesgo de sarcopenia: sedentarismo, desnutrición, enfermedades crónicas.'
       ] 
     };
   }
