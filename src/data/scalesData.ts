@@ -1505,7 +1505,7 @@ export const scales: Scale[] = [
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 8062531) ---
     bibliografia: "The Criteria Committee of the New York Heart Association. Nomenclature and Criteria for Diagnosis of Diseases of the Heart and Great Vessels. 9th ed. Boston, Mass: Little, Brown & Co; 1994:253-256.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8062531/", // ✅ LINK VERIFICADO
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/8062531/",
     evidenciaClinica: "La NYHA es el predictor pronóstico más simple y potente en insuficiencia cardíaca. Los cambios entre clases definen el éxito de la terapia médica o quirúrgica.",
 
     preguntas: [
@@ -1522,10 +1522,29 @@ export const scales: Scale[] = [
       }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.clase_funcional) || 1,
+    // ✅ CORREGIDO: Se usa undefined check para evitar interpretación
+    //    falsa cuando el usuario aún no ha seleccionado ninguna opción.
+    //    La Clase I es un valor clínicamente válido (value: 1), por lo que
+    //    no se puede usar || 1 como fallback seguro.
+    calcularPuntaje: (respuestas) =>
+      respuestas.clase_funcional !== undefined
+        ? Number(respuestas.clase_funcional)
+        : null,
 
-    // ✅ Firma corregida para cumplir con tu Interface Scale
     interpretar: (puntaje, respuestas) => {
+      // ✅ CORREGIDO: Guarda de nulidad. Si el formulario está incompleto,
+      //    no se emite ninguna interpretación clínica.
+      if (puntaje === null) {
+        return {
+          texto: 'SIN DATOS SUFICIENTES',
+          color: 'gray-400',
+          evidencia: 'El paciente aún no ha seleccionado una clase funcional.',
+          recomendaciones: [
+            'Solicite al paciente o evaluador que seleccione la clase que mejor describe la limitación funcional.'
+          ]
+        };
+      }
+
       if (puntaje === 4) {
         return {
           texto: 'NYHA CLASE IV (Severa)',
@@ -1546,9 +1565,13 @@ export const scales: Scale[] = [
           color: 'orange-600',
           evidencia: 'Limitación marcada. Actividades básicas (vestirse, caminar distancias cortas) provocan síntomas.',
           recomendaciones: [
-            'Ajuste fino de terapia farmacológica (IECA/ARAII, Beta-bloqueo)',
+            // ✅ CORREGIDO: Se añade ARNI (Sacubitril/Valsartán) como primera
+            //    línea según guías ESC 2021 y ACC/AHA 2022, reemplazando la
+            //    mención exclusiva de IECA/ARAII que estaba desactualizada.
+            'Ajuste de terapia farmacológica: priorizar ARNI (Sacubitril/Valsartán) sobre IECA/ARAII según guías ESC 2021',
+            'Optimizar Beta-bloqueo con titulación progresiva',
             'Rehabilitación cardiovascular supervisada con monitoreo estrecho',
-            'Educación sobre signos de descompensación (edema, ganancia de peso)'
+            'Educación sobre signos de descompensación (edema, ganancia de peso > 2 kg en 48h)'
           ]
         };
       }
@@ -1566,6 +1589,7 @@ export const scales: Scale[] = [
         };
       }
 
+      // puntaje === 1 → Clase I
       return {
         texto: 'NYHA CLASE I (Asintomático)',
         color: 'emerald-600',
@@ -1578,7 +1602,6 @@ export const scales: Scale[] = [
       };
     }
   },
-
   {
     id: 'act_control_asma',
     nombre: 'Test de Control del Asma (ACT)',
