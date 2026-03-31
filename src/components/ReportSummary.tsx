@@ -17,6 +17,7 @@ interface ReportSummaryProps {
   onBack: () => void;
   onRemoveScale: (index: number) => void;
   onFinalize: () => void;
+  onToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
 const TEAL  = [13,  148, 136] as const;
@@ -26,7 +27,7 @@ const MUTED = [100, 116, 139] as const;
 const WHITE = [255, 255, 255] as const;
 const GRAY  = [220, 220, 220] as const;
 
-export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize }: ReportSummaryProps) {
+export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize, onToast }: ReportSummaryProps) {
   const docLabel = identityConfigs[paciente.country]?.documentName || "Identificación";
 
   const conteo: Record<string, any[]> = {};
@@ -140,7 +141,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
 
       doc.setFont("helvetica", esActual ? "bold" : "normal");
       doc.setFontSize(8);
-
       const colorFila = esActual ? TEAL : DARK;
       doc.setTextColor(colorFila[0], colorFila[1], colorFila[2]);
       doc.text(etiqueta,            20,  y + 5.2);
@@ -172,7 +172,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       const fecha = new Date().toLocaleDateString('es-CL');
       const hora  = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 
-      // PORTADA
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
       doc.rect(0, 0, pw, 52, 'F');
       doc.setFont("helvetica", "bold");
@@ -187,7 +186,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.text(`Generado: ${fecha} a las ${hora}`, pw / 2, 38, { align: 'center' });
       doc.text(`Escalas evaluadas en esta sesión: ${resultados.length}`, pw / 2, 45, { align: 'center' });
 
-      // Tarjeta paciente
       let y = 62;
       const alturaCard = paciente.peso ? 40 : 30;
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
@@ -217,7 +215,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         doc.text(`Peso: ${paciente.peso} kg   Talla: ${paciente.talla} cm   IMC: ${paciente.imc || 'N/A'}`, 21, y + alturaCard - 4);
       }
 
-      // Resumen ejecutivo
       y += alturaCard + 12;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
@@ -245,7 +242,6 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         y += 9;
       });
 
-      // Análisis de evolución
       if (escalasConHistorial.length > 0) {
         y += 8;
         y = checkBreak(doc, y, 25);
@@ -289,7 +285,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
 
     } catch (err) {
       console.error('Error generando PDF:', err);
-      alert('Hubo un error al generar el PDF. Por favor intenta nuevamente.');
+      onToast?.("Error al generar el PDF. Intenta nuevamente.", "error");
     }
   };
 
