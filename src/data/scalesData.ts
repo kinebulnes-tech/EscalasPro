@@ -11211,7 +11211,7 @@ export const scales: Scale[] = [
   },
   ];
 
-// Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
+
 
 export const categories = [
   { id: 'kinesiologia', nombre: 'Kinesiología', descripcion: 'Evaluación funcional, movilidad y rehabilitación motora.' },
