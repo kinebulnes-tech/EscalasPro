@@ -13,6 +13,7 @@ interface ScaleResultProps {
   onBack: () => void;
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
+  onToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
 export default function ScaleResult({ 
@@ -21,7 +22,8 @@ export default function ScaleResult({
   respuestas, 
   onBack, 
   onSave, 
-  pacienteNombre 
+  pacienteNombre,
+  onToast
 }: ScaleResultProps) {
   
   const result = scale.interpretar(totalScore, respuestas); 
@@ -50,216 +52,194 @@ export default function ScaleResult({
   };
 
   const generateIndividualPDF = () => {
-    const doc = new jsPDF();
-    const pw   = doc.internal.pageSize.width;
-    const date = new Date().toLocaleDateString('es-CL');
-    const hour = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-    let y = 20;
+    try {
+      const doc = new jsPDF();
+      const pw   = doc.internal.pageSize.width;
+      const date = new Date().toLocaleDateString('es-CL');
+      const hour = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+      let y = 20;
 
-    // 1. Encabezado teal
-    doc.setFillColor(0, 128, 128); 
-    doc.rect(0, 0, 210, 40, 'F');
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
-    doc.text("REPORTE DE EVALUACIÓN", 20, 25);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("SOPORTE DE DECISIÓN CLÍNICA — ESCALAPRO", 20, 32);
-
-    // 2. Datos del paciente
-    y = 55;
-    if (pacienteNombre) {
-      doc.setDrawColor(230, 230, 230);
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(15, y - 5, 180, 20, 2, 2, 'FD');
+      doc.setFillColor(0, 128, 128); 
+      doc.rect(0, 0, 210, 40, 'F');
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`PACIENTE: ${pacienteNombre.toUpperCase()}`, 20, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.text(`FECHA DE EVALUACIÓN: ${date} — ${hour}`, 20, y + 12);
-      y += 30;
-    } else {
-      y += 10;
-    }
-
-    // 3. Título de la escala
-    y = checkPageBreak(doc, y, 20);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text(scale.nombre.toUpperCase(), 20, y);
-    y += 12;
-
-    // 4. Caja teal de resultado
-    // ✅ FIX: altura dinámica según largo del texto de interpretación
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    const splitInterp = doc.splitTextToSize(interpretationText.toUpperCase(), 95);
-    const alturaInterp = Math.max(30, (splitInterp.length * 7) + 18);
-
-    y = checkPageBreak(doc, y, alturaInterp + 10);
-    doc.setFillColor(240, 253, 250);
-    doc.setDrawColor(0, 128, 128);
-    doc.roundedRect(20, y, 170, alturaInterp, 3, 3, 'FD');
-
-    doc.setFontSize(9);
-    doc.setTextColor(0, 128, 128);
-    doc.setFont("helvetica", "bold");
-    doc.text("PUNTAJE OBTENIDO", 25, y + 9);
-
-    doc.setFontSize(28);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(15, 23, 42);
-    doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 24);
-
-    // Interpretación completa, con wrap, alineada a la derecha de la caja
-    doc.setFontSize(13);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 128, 128);
-    const interpX = 120;
-    const interpY = y + (alturaInterp / 2) + 2;
-    splitInterp.forEach((linea: string, idx: number) => {
-      const lineY = y + 14 + (idx * 7);
-      doc.text(linea, interpX, lineY);
-    });
-
-    y += alturaInterp + 12;
-
-    // 5. Evidencia clínica
-    if (evidenciaEspecifica) {
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text("REPORTE DE EVALUACIÓN", 20, 25);
       doc.setFontSize(10);
-      const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
-      const espacioEvidencia = (splitEvidencia.length * 5) + 25;
-      y = checkPageBreak(doc, y, espacioEvidencia);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-      doc.text("EVIDENCIA DEL RESULTADO:", 20, y);
-      y += 7;
-
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(60, 60, 60);
-      doc.text(splitEvidencia, 20, y);
-      y += (splitEvidencia.length * 5) + 10;
-    }
+      doc.text("SOPORTE DE DECISIÓN CLÍNICA — ESCALAPRO", 20, 32);
 
-    // 6. Recomendaciones con jerarquía visual
-    // ✅ FIX: Primera recomendación = URGENTE (borde rojo), resto = SEGUIMIENTO (borde teal)
-    if (recommendationsList.length > 0) {
+      y = 55;
+      if (pacienteNombre) {
+        doc.setDrawColor(230, 230, 230);
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(15, y - 5, 180, 20, 2, 2, 'FD');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(51, 65, 85);
+        doc.text(`PACIENTE: ${pacienteNombre.toUpperCase()}`, 20, y + 5);
+        doc.setFont("helvetica", "normal");
+        doc.text(`FECHA DE EVALUACIÓN: ${date} — ${hour}`, 20, y + 12);
+        y += 30;
+      } else {
+        y += 10;
+      }
+
       y = checkPageBreak(doc, y, 20);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      doc.setFontSize(16);
       doc.setTextColor(0, 0, 0);
-      doc.text("SUGERENCIAS DE INTERVENCIÓN:", 20, y);
-      y += 10;
+      doc.text(scale.nombre.toUpperCase(), 20, y);
+      y += 12;
 
-      recommendationsList.forEach((rec, i) => {
-        const splitRec  = doc.splitTextToSize(rec, 152);
-        const altoRec   = (splitRec.length * 5) + 10;
-        y = checkPageBreak(doc, y, altoRec + 4);
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      const splitInterp = doc.splitTextToSize(interpretationText.toUpperCase(), 95);
+      const alturaInterp = Math.max(30, (splitInterp.length * 7) + 18);
 
-        // Detectar si es recomendación urgente por contenido
-        const esUrgente = rec.startsWith('⚠️') || rec.toLowerCase().includes('inmediato') || rec.toLowerCase().includes('activar') || i === 0 && alertColor?.includes('red');
+      y = checkPageBreak(doc, y, alturaInterp + 10);
+      doc.setFillColor(240, 253, 250);
+      doc.setDrawColor(0, 128, 128);
+      doc.roundedRect(20, y, 170, alturaInterp, 3, 3, 'FD');
 
-        // Fondo de la tarjeta
-        if (esUrgente) {
-          doc.setFillColor(255, 245, 245);
-          doc.setDrawColor(200, 50, 50);
-        } else {
-          doc.setFillColor(248, 250, 252);
-          doc.setDrawColor(0, 128, 128);
-        }
+      doc.setFontSize(9);
+      doc.setTextColor(0, 128, 128);
+      doc.setFont("helvetica", "bold");
+      doc.text("PUNTAJE OBTENIDO", 25, y + 9);
 
-        doc.setLineWidth(0.4);
-        doc.roundedRect(20, y, 170, altoRec, 2, 2, 'FD');
+      doc.setFontSize(28);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(15, 23, 42);
+      doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 24);
 
-        // Borde izquierdo de color (acento visual)
-        if (esUrgente) {
-          doc.setFillColor(200, 50, 50);
-        } else {
-          doc.setFillColor(0, 128, 128);
-        }
-        doc.rect(20, y, 3, altoRec, 'F');
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 128, 128);
+      splitInterp.forEach((linea: string, idx: number) => {
+        const lineY = y + 14 + (idx * 7);
+        doc.text(linea, 120, lineY);
+      });
 
-        // Número de ítem
-        if (esUrgente) {
-          doc.setTextColor(200, 50, 50);
-        } else {
-          doc.setTextColor(0, 128, 128);
-        }
+      y += alturaInterp + 12;
+
+      if (evidenciaEspecifica) {
+        doc.setFontSize(10);
+        const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
+        const espacioEvidencia = (splitEvidencia.length * 5) + 25;
+        y = checkPageBreak(doc, y, espacioEvidencia);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text("EVIDENCIA DEL RESULTADO:", 20, y);
+        y += 7;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(60, 60, 60);
+        doc.text(splitEvidencia, 20, y);
+        y += (splitEvidencia.length * 5) + 10;
+      }
+
+      if (recommendationsList.length > 0) {
+        y = checkPageBreak(doc, y, 20);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text("SUGERENCIAS DE INTERVENCIÓN:", 20, y);
+        y += 10;
+
+        recommendationsList.forEach((rec, i) => {
+          const splitRec = doc.splitTextToSize(rec, 152);
+          const altoRec  = (splitRec.length * 5) + 10;
+          y = checkPageBreak(doc, y, altoRec + 4);
+
+          const esUrgente = rec.startsWith('⚠️') || rec.toLowerCase().includes('inmediato') || rec.toLowerCase().includes('activar') || (i === 0 && alertColor?.includes('red'));
+
+          if (esUrgente) {
+            doc.setFillColor(255, 245, 245);
+            doc.setDrawColor(200, 50, 50);
+          } else {
+            doc.setFillColor(248, 250, 252);
+            doc.setDrawColor(0, 128, 128);
+          }
+
+          doc.setLineWidth(0.4);
+          doc.roundedRect(20, y, 170, altoRec, 2, 2, 'FD');
+
+          if (esUrgente) { doc.setFillColor(200, 50, 50); }
+          else           { doc.setFillColor(0, 128, 128); }
+          doc.rect(20, y, 3, altoRec, 'F');
+
+          if (esUrgente) { doc.setTextColor(200, 50, 50); }
+          else           { doc.setTextColor(0, 128, 128); }
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9);
+          doc.text(`${i + 1}.`, 27, y + 6.5);
+
+          doc.setTextColor(50, 50, 50);
+          doc.setFont("helvetica", esUrgente ? "bold" : "normal");
+          doc.setFontSize(9);
+          doc.text(splitRec, 35, y + 6.5);
+
+          if (esUrgente) {
+            doc.setFillColor(200, 50, 50);
+            doc.roundedRect(pw - 40, y + 2, 26, 6, 1, 1, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(6);
+            doc.setFont("helvetica", "bold");
+            doc.text("URGENTE", pw - 37, y + 6.2);
+          }
+
+          y += altoRec + 4;
+        });
+        y += 5;
+      }
+
+      if (scale.bibliografia) {
+        y = checkPageBreak(doc, y, 25);
+        doc.setDrawColor(220, 220, 220);
+        doc.line(20, y, 190, y);
+        y += 8;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
-        doc.text(`${i + 1}.`, 27, y + 6.5);
+        doc.setTextColor(100, 100, 100);
+        doc.text("REFERENCIA CIENTÍFICA:", 20, y);
+        y += 5;
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(8);
+        doc.setTextColor(130, 130, 130);
+        const splitBiblio = doc.splitTextToSize(scale.bibliografia, 170);
+        y = checkPageBreak(doc, y, splitBiblio.length * 4 + 5);
+        doc.text(splitBiblio, 20, y);
+        y += (splitBiblio.length * 4) + 8;
+      }
 
-        // Texto de la recomendación
-        doc.setTextColor(50, 50, 50);
-        doc.setFont("helvetica", esUrgente ? "bold" : "normal");
-        doc.setFontSize(9);
-        doc.text(splitRec, 35, y + 6.5);
+      const totalPaginas = doc.getNumberOfPages();
+      const pageHeight   = doc.internal.pageSize.height;
+      for (let p = 1; p <= totalPaginas; p++) {
+        doc.setPage(p);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.3);
+        doc.line(20, pageHeight - 35, pw - 20, pageHeight - 35);
+        doc.setDrawColor(150, 150, 150);
+        doc.line(20, pageHeight - 19, 90, pageHeight - 19);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 14);
+        doc.text(`Página ${p} de ${totalPaginas}`, pw - 20, pageHeight - 24, { align: 'right' });
+        doc.text(`Emitido: ${date}`, pw - 20, pageHeight - 19, { align: 'right' });
+        doc.setFontSize(6);
+        doc.setTextColor(180, 180, 180);
+        const disclaimer = "AVISO: Este reporte es un documento de apoyo clínico. Los resultados deben ser validados por el profesional responsable según el contexto clínico del paciente.";
+        doc.text(doc.splitTextToSize(disclaimer, 170), 20, pageHeight - 10);
+      }
 
-        // Etiqueta URGENTE si aplica
-        if (esUrgente) {
-          doc.setFillColor(200, 50, 50);
-          doc.roundedRect(pw - 40, y + 2, 26, 6, 1, 1, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(6);
-          doc.setFont("helvetica", "bold");
-          doc.text("URGENTE", pw - 37, y + 6.2);
-        }
+      doc.save(`Resultado_${scale.nombre.replace(/\s+/g, '_')}_${date}.pdf`);
 
-        y += altoRec + 4;
-      });
-      y += 5;
+    } catch (err) {
+      console.error('Error generando PDF:', err);
+      onToast?.("Error al generar el PDF. Intenta nuevamente.", "error");
     }
-
-    // 7. Bibliografía
-    if (scale.bibliografia) {
-      y = checkPageBreak(doc, y, 25);
-      doc.setDrawColor(220, 220, 220);
-      doc.line(20, y, 190, y);
-      y += 8;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text("REFERENCIA CIENTÍFICA:", 20, y);
-      y += 5;
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(8);
-      doc.setTextColor(130, 130, 130);
-      const splitBiblio = doc.splitTextToSize(scale.bibliografia, 170);
-      y = checkPageBreak(doc, y, splitBiblio.length * 4 + 5);
-      doc.text(splitBiblio, 20, y);
-      y += (splitBiblio.length * 4) + 8;
-    }
-
-    // 8. Pie en todas las páginas
-    const totalPaginas = doc.getNumberOfPages();
-    const pageHeight   = doc.internal.pageSize.height;
-
-    for (let p = 1; p <= totalPaginas; p++) {
-      doc.setPage(p);
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(20, pageHeight - 35, pw - 20, pageHeight - 35);
-      doc.setDrawColor(150, 150, 150);
-      doc.line(20, pageHeight - 19, 90, pageHeight - 19);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 14);
-      doc.text(`Página ${p} de ${totalPaginas}`, pw - 20, pageHeight - 24, { align: 'right' });
-      doc.text(`Emitido: ${date}`, pw - 20, pageHeight - 19, { align: 'right' });
-      doc.setFontSize(6);
-      doc.setTextColor(180, 180, 180);
-      const disclaimer = "AVISO: Este reporte es un documento de apoyo clínico. Los resultados deben ser validados por el profesional responsable según el contexto clínico del paciente.";
-      doc.text(doc.splitTextToSize(disclaimer, 170), 20, pageHeight - 10);
-    }
-
-    doc.save(`Resultado_${scale.nombre.replace(/\s+/g, '_')}_${date}.pdf`);
   };
 
   const getAlertStyles = (color?: string) => {
@@ -296,7 +276,7 @@ export default function ScaleResult({
                   evidencia: evidenciaEspecifica,
                   fecha: new Date().toLocaleDateString('es-CL')
                 });
-                alert("✓ Resultado guardado con éxito.");
+                onToast?.("Resultado vinculado al informe.", "success");
               }
             }}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-emerald-200 flex items-center justify-center gap-3 transition-all active:scale-95"
