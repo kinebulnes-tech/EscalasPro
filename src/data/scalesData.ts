@@ -9679,8 +9679,8 @@ export const scales: Scale[] = [
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 11507253) ---
     bibliografia: "Rubenstein LZ, et al. Screening for undernutrition in geriatric practice: developing the short-form mini-nutritional assessment (MNA-SF). J Gerontol. 2001.",
-    referenciaUrl: "https://www.mna-elderly.com/", // ✅ FUENTE OFICIAL VERIFICADA
-    evidenciaClinica: "Es el estándar de oro en geriatría. Un puntaje < 12 indica la necesidad de una intervención nutricional o una evaluación diagnóstica más profunda.",
+    referenciaUrl: "https://www.mna-elderly.com/",
+    evidenciaClinica: "Estándar de oro en geriatría. Puntos de corte validados (Kaiser et al., 2009): 12-14 = normal, 8-11 = riesgo de malnutrición, 0-7 = malnutrición. Sensibilidad 89%, especificidad 82%. Puntajes 0-7 asociados con probabilidad 6x mayor de mortalidad hospitalaria.",
 
     preguntas: [
       { id: 'ingesta', text: 'A. ¿Ha comido menos por falta de apetito, problemas digestivos o de masticación en los últimos 3 meses?', type: 'select', options: [
@@ -9720,41 +9720,49 @@ export const scales: Scale[] = [
       return Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0);
     },
 
+    // ✅ FIX: Puntos de corte corregidos con rangos explícitos y evidencia clínica completa
     interpretar: (puntaje) => {
       if (puntaje >= 12) {
         return { 
           texto: 'Estado Nutricional Normal', 
           color: 'emerald-600', 
-          evidencia: `Puntaje de ${puntaje}/14: Bajo riesgo de malnutrición.`, 
+          evidencia: `Puntaje ${puntaje}/14 (rango normal: 12-14). Sin criterios de malnutrición ni riesgo según MNA-SF (Kaiser et al., 2009). Sensibilidad 89%, especificidad 82%.`, 
           recomendaciones: [
-            'Reevaluación anual o tras cualquier cambio clínico importante', 
-            'Mantener dieta equilibrada y asegurar ingesta de líquidos', 
-            'Fomentar actividad física para preservar masa muscular'
+            'Reevaluación trimestral en paciente institucionalizado o anual en comunidad.',
+            'Mantener dieta equilibrada y asegurar ingesta de líquidos ≥ 1.5L/día.',
+            'Fomentar actividad física para preservar masa muscular y prevenir sarcopenia.'
           ] 
         };
       }
+
       if (puntaje >= 8) {
         return { 
           texto: 'Riesgo de Malnutrición', 
           color: 'orange-600', 
-          evidencia: `Puntaje de ${puntaje}/14: Se requiere vigilancia activa.`, 
+          // ✅ FIX: rango 8-11 explícito + evidencia de mortalidad
+          evidencia: `Puntaje ${puntaje}/14 (rango de riesgo: 8-11). Riesgo de malnutrición confirmado. Asociado con probabilidad 3x mayor de mortalidad hospitalaria y 1.5x mayor riesgo de rehospitalización a 90 días. Requiere evaluación nutricional completa con MNA® Versión Larga.`, 
           recomendaciones: [
-            'Realizar evaluación profunda (MNA® Versión Larga)', 
-            'Seguimiento de peso mensual estricto', 
-            'Evaluación odontológica y de deglución', 
-            'Enriquecer la dieta con proteínas y calorías'
+            'Realizar evaluación completa con MNA® Versión Larga (18 ítems).',
+            'Seguimiento de peso mensual estricto con registro.',
+            'Evaluación odontológica y de deglución si hay dificultad para masticar.',
+            'Enriquecer la dieta con proteínas (1.0-1.2 g/kg/día) y calorías.',
+            'Reevaluar con MNA-SF en 1 mes o ante cualquier cambio clínico.'
           ] 
         };
       }
+
+      // ✅ FIX: rango 0-7 explícito + etiqueta clínicamente precisa + evidencia de riesgo severo
       return { 
-        texto: 'Malnutrición Evidente', 
+        texto: 'Malnutrición Confirmada', 
         color: 'red-600', 
-        evidencia: `Puntaje de ${puntaje}/14: Alto compromiso nutricional con impacto sistémico.`, 
+        evidencia: `Puntaje ${puntaje}/14 (rango malnutrición: 0-7). Malnutrición confirmada según MNA-SF. Asociada con probabilidad 6x mayor de mortalidad hospitalaria y 1.5x mayor riesgo de rehospitalización a 90 días (Frontiers Nutr, 2022). Intervención inmediata requerida.`, 
         recomendaciones: [
-          'Derivación URGENTE a Nutricionista y Geriatra', 
-          'Indicar suplementación nutricional oral según requerimiento', 
-          'Evaluar causas médicas de la baja de peso (neoplasias, depresión, etc.)', 
-          'Monitorización de fuerza de prensión (Handgrip) para evaluar funcionalidad'
+          'Derivación URGENTE a Nutricionista y Médico Geriatra.',
+          'Indicar suplementación nutricional oral (SNO) según requerimiento calórico-proteico.',
+          'Evaluar causas médicas subyacentes: neoplasias, depresión, disfagia, polifarmacia.',
+          'Monitorización semanal de peso, ingesta y fuerza de prensión manual (Handgrip).',
+          'Considerar soporte enteral si la ingesta oral es insuficiente tras 3-5 días de intervención.',
+          'Vigilar síndrome de realimentación si el puntaje es ≤ 4.'
         ] 
       };
     }
