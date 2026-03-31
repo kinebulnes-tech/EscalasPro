@@ -11,6 +11,8 @@ import ReportSummary from './components/ReportSummary';
 import DisclaimerModal from './components/DisclaimerModal';
 import CategoryPills from './components/CategoryPills'; 
 import TrendChart from './components/TrendChart';
+import Toast from './components/Toast';
+import { useToast } from './hooks/useToast';
 
 import { getSuggestedScales } from './data/clinicalIntelligence';
 import { calcularEdadExacta } from './utils/biometrics';
@@ -44,12 +46,11 @@ interface ResultadoSesion {
   fecha: string;
 }
 
-// Sesión expira en 8 horas (jornada clínica)
 const SESSION_TIMEOUT_MS = 8 * 60 * 60 * 1000;
 
 const cargarSesionActiva = (): Paciente | null => {
   try {
-    const saved = sessionStorage.getItem('escalapro_paciente');
+    const saved     = sessionStorage.getItem('escalapro_paciente');
     const timestamp = sessionStorage.getItem('escalapro_sesion_ts');
     if (!saved || !timestamp) return null;
     const edad = Date.now() - parseInt(timestamp, 10);
@@ -77,22 +78,25 @@ const cargarResultadosSesion = (): ResultadoSesion[] => {
 };
 
 export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
-  const [activeScale, setActiveScale] = useState<string | null>(null);
-  const [showPatientModal, setShowPatientModal] = useState(false);
-  const [viewingReport, setViewingReport] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [recientes, setRecientes] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory]         = useState<string | null>(null);
+  const [query, setQuery]                               = useState('');
+  const [activeScale, setActiveScale]                   = useState<string | null>(null);
+  const [showPatientModal, setShowPatientModal]         = useState(false);
+  const [viewingReport, setViewingReport]               = useState(false);
+  const [showAbout, setShowAbout]                       = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen]               = useState(false);
+  const [recientes, setRecientes]                       = useState<any[]>([]);
+  const [showConfirmFinalizar, setShowConfirmFinalizar] = useState(false);
 
-  const [pacienteActivo, setPacienteActivo] = useState<Paciente | null>(cargarSesionActiva);
-  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(cargarResultadosSesion);
+  const [pacienteActivo, setPacienteActivo]     = useState<Paciente | null>(cargarSesionActiva);
+  const [listaResultados, setListaResultados]   = useState<ResultadoSesion[]>(cargarResultadosSesion);
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
     try { return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
+
+  const { toasts, showToast, removeToast } = useToast();
 
   useEffect(() => {
     const cargarRecientes = async () => {
@@ -130,21 +134,26 @@ export default function App() {
       setPacienteActivo(data);
       setListaResultados([]);
       setShowPatientModal(false);
+      showToast(`Paciente ${data.nombre} cargado correctamente.`, 'success');
     } catch (e) { 
-      alert("Error al acceder a la base de datos."); 
+      showToast("Error al acceder a la base de datos.", "error");
     }
   };
 
   const finalizaSesionTotal = () => {
-    if(confirm("¿Finalizar evaluación? Se borrarán los datos de la sesión actual.")) {
-      setPacienteActivo(null);
-      setListaResultados([]);
-      setViewingReport(false);
-      setActiveScale(null);
-      sessionStorage.removeItem('escalapro_paciente');
-      sessionStorage.removeItem('escalapro_resultados');
-      sessionStorage.removeItem('escalapro_sesion_ts');
-    }
+    setShowConfirmFinalizar(true);
+  };
+
+  const confirmarFinalizar = () => {
+    setPacienteActivo(null);
+    setListaResultados([]);
+    setViewingReport(false);
+    setActiveScale(null);
+    sessionStorage.removeItem('escalapro_paciente');
+    sessionStorage.removeItem('escalapro_resultados');
+    sessionStorage.removeItem('escalapro_sesion_ts');
+    setShowConfirmFinalizar(false);
+    showToast("Sesión finalizada correctamente.", "success");
   };
 
   const toggleFavorite = (id: string) => {
@@ -155,14 +164,14 @@ export default function App() {
     const suggestedIds = query.length > 2 ? getSuggestedScales(query) : [];
     const filtered = scales.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
-      const matchesSearch = scale.nombre.toLowerCase().includes(query.toLowerCase()) || 
-                           scale.descripcion.toLowerCase().includes(query.toLowerCase());
+      const matchesSearch   = scale.nombre.toLowerCase().includes(query.toLowerCase()) || 
+                              scale.descripcion.toLowerCase().includes(query.toLowerCase());
       return matchesCategory && matchesSearch;
     });
     return {
-      favoriteScales: filtered.filter(s => favorites.includes(s.id)),
+      favoriteScales:  filtered.filter(s => favorites.includes(s.id)),
       suggestedScales: filtered.filter(s => suggestedIds.includes(s.id) && !favorites.includes(s.id)),
-      otherScales: filtered.filter(s => !favorites.includes(s.id) && !suggestedIds.includes(s.id))
+      otherScales:     filtered.filter(s => !favorites.includes(s.id) && !suggestedIds.includes(s.id))
     };
   }, [selectedCategory, query, favorites]);
 
@@ -173,10 +182,12 @@ export default function App() {
       if (!groups[res.nombreEscala]) groups[res.nombreEscala] = [];
       groups[res.nombreEscala].push(res);
     });
-    return Object.entries(groups).filter(([_, items]) => items.length >= 2).map(([nombre, items]) => ({ nombre, items }));
+    return Object.entries(groups)
+      .filter(([_, items]) => items.length >= 2)
+      .map(([nombre, items]) => ({ nombre, items }));
   }, [listaResultados]);
 
-  const selectedScale = scales.find(s => s.id === activeScale);
+  const selectedScale   = scales.find(s => s.id === activeScale);
   const currentCategory = categories.find(c => c.id === selectedCategory);
 
   return (
@@ -212,6 +223,7 @@ export default function App() {
                 onBack={() => setViewingReport(false)}
                 onRemoveScale={(index) => setListaResultados(prev => prev.filter((_, i) => i !== index))}
                 onFinalize={finalizaSesionTotal}
+                onToast={showToast}
               />
             ) : 
 
@@ -231,10 +243,12 @@ export default function App() {
                   onSave={async (n) => { 
                     const res = { ...n, fecha: new Date().toISOString() };
                     setListaResultados(p => [...p, res]); 
-                    setActiveScale(null); 
-                    if(pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
+                    setActiveScale(null);
+                    showToast(`${n.nombreEscala} vinculada al informe.`, 'success');
+                    if (pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
                   }} 
-                  pacienteNombre={pacienteActivo?.nombre} 
+                  pacienteNombre={pacienteActivo?.nombre}
+                  
                 />
               </div>
             ) : (
@@ -335,7 +349,7 @@ export default function App() {
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                       <div className="flex items-center gap-2 mb-6 text-teal-600">
                         <div className="bg-teal-50 p-2 rounded-lg">
-                           <Lightbulb size={18} fill="currentColor" />
+                          <Lightbulb size={18} fill="currentColor" />
                         </div>
                         <h4 className="font-black uppercase tracking-widest text-[10px]">Sugerencias según Diagnóstico</h4>
                       </div>
@@ -349,10 +363,10 @@ export default function App() {
 
                   {otherScales.length > 0 ? (
                     <div>
-                       {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
-                         <h4 className="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Todos los resultados</h4>
-                       )}
-                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
+                        <h4 className="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Todos los resultados</h4>
+                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {otherScales.map(s => (
                           <ScaleCard key={s.id} scale={s} isFavorite={false} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
                         ))}
@@ -369,10 +383,10 @@ export default function App() {
             )}
 
             <footer className="py-12 border-t border-slate-100 mt-auto flex flex-col items-center gap-6">
-               <button onClick={() => setShowAbout(true)} className="flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-500 px-6 py-3 rounded-xl transition-all shadow-sm border border-slate-200 active:scale-95">
-                  <ShieldCheck className="w-4 h-4 text-teal-600" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Información Legal & Privacidad</span>
-               </button>
+              <button onClick={() => setShowAbout(true)} className="flex items-center gap-3 bg-white hover:bg-slate-50 text-slate-500 px-6 py-3 rounded-xl transition-all shadow-sm border border-slate-200 active:scale-95">
+                <ShieldCheck className="w-4 h-4 text-teal-600" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Información Legal & Privacidad</span>
+              </button>
             </footer>
           </div>
         </main>
@@ -385,6 +399,31 @@ export default function App() {
       {showPatientModal && (
         <PatientModal onConfirm={handlePacienteIdentificado} onClose={() => setShowPatientModal(false)} />
       )}
+
+      {showConfirmFinalizar && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full animate-in zoom-in duration-300">
+            <h3 className="text-xl font-black text-slate-900 mb-2">¿Finalizar sesión?</h3>
+            <p className="text-sm text-slate-500 font-medium mb-8">Se borrarán los datos de la sesión actual. Esta acción no se puede deshacer.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowConfirmFinalizar(false)}
+                className="py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all text-sm active:scale-95"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarFinalizar}
+                className="py-4 bg-red-500 text-white font-black rounded-2xl hover:bg-red-600 transition-all text-sm active:scale-95"
+              >
+                Finalizar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toast toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }
