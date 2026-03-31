@@ -52,93 +52,112 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     return { valor: parseFloat(porcentaje.toFixed(1)), impacto, color, esMejoria: porcentaje > 0 };
   };
 
+  // ✅ FIX: try/catch global + doc.save() garantizado al final
   const generateMasterPDF = async () => {
-    const doc = new jsPDF();
-    let y = 20;
+    try {
+      const doc = new jsPDF();
+      let y = 20;
 
-    // 1. Encabezado
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18); doc.setTextColor(0, 128, 128);
-    doc.text("INFORME DE EVOLUCIÓN CLÍNICA", 20, y);
-    y += 10; doc.setDrawColor(0, 128, 128); doc.setLineWidth(0.8); doc.line(20, y, 190, y); 
-    
-    // 2. Info Paciente
-    y += 15; doc.setFontSize(10); doc.setTextColor(0, 0, 0);
-    doc.text(`PACIENTE: ${paciente.nombre.toUpperCase()}`, 20, y);
-    doc.text(`${docLabel}: ${paciente.id}`, 130, y);
-    y += 7; doc.setFont("helvetica", "normal");
-    doc.text(`Diagnóstico: ${paciente.diagnostico} | Edad: ${paciente.edad} años`, 20, y);
+      // 1. Encabezado
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18); doc.setTextColor(0, 128, 128);
+      doc.text("INFORME DE EVOLUCIÓN CLÍNICA", 20, y);
+      y += 10; doc.setDrawColor(0, 128, 128); doc.setLineWidth(0.8); doc.line(20, y, 190, y); 
+      
+      // 2. Info Paciente
+      y += 15; doc.setFontSize(10); doc.setTextColor(0, 0, 0);
+      doc.text(`PACIENTE: ${paciente.nombre.toUpperCase()}`, 20, y);
+      doc.text(`${docLabel}: ${paciente.id}`, 130, y);
+      y += 7; doc.setFont("helvetica", "normal");
+      doc.text(`Diagnóstico: ${paciente.diagnostico} | Edad: ${paciente.edad} años`, 20, y);
 
-    // 3. Antropometría
-    if (paciente.peso && paciente.talla) {
-      y += 10; doc.setFillColor(248, 250, 252); doc.rect(18, y - 5, 175, 12, 'F');
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(0, 128, 128);
-      doc.text(`ANTROPOMETRÍA:`, 22, y + 2);
-      doc.setFont("helvetica", "normal"); doc.setTextColor(50, 50, 50);
-      doc.text(`Peso: ${paciente.peso} kg | Talla: ${paciente.talla} cm | IMC: ${paciente.imc || 'N/A'}`, 60, y + 2);
-      y += 15;
-    }
-
-    // 4. NUEVA SECCIÓN: RESULTADOS DE LA SESIÓN ACTUAL (Aquí aparecen todas, ej. Barthel)
-    doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
-    doc.text("RESULTADOS DE LA EVALUACIÓN ACTUAL", 20, y);
-    y += 8;
-
-    resultados.forEach((res) => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
-      doc.text(`• ${res.nombreEscala}:`, 25, y);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${res.puntaje} pts - ${res.interpretacion}`, 85, y);
-      y += 6;
-    });
-    y += 10;
-
-    // 5. Análisis de Tendencias y Gráficos (Solo si hay historial)
-    if (escalasConHistorial.length > 0) {
-      for (let i = 0; i < escalasConHistorial.length; i++) {
-        const [nombre, items] = escalasConHistorial[i] as [string, any[]];
-        const analisis = analizarProgreso(items);
-
-        if (y > 180) { doc.addPage(); y = 20; }
-        
-        doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
-        doc.text(`ANÁLISIS DE EVOLUCIÓN: ${nombre.toUpperCase()}`, 20, y);
-        y += 8;
-
-        doc.setFontSize(9); doc.setFont("helvetica", "italic"); doc.setTextColor(60, 60, 60);
-        const textoIA = `Variación del ${analisis?.valor}% indicando una ${analisis?.impacto.toLowerCase()}.`;
-        doc.text(textoIA, 25, y);
-        y += 7;
-
-        const cleanId = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
-        const chartElement = document.getElementById(`pdf-chart-${cleanId}`);
-        if (chartElement) {
-          try {
-            const dataUrl = await toPng(chartElement, { backgroundColor: '#ffffff', pixelRatio: 2 });
-            doc.addImage(dataUrl, 'PNG', 30, y, 150, 60);
-            y += 65;
-          } catch (err) { console.error(err); }
-        }
-
-        doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 100, 100);
-        doc.text("Historial cronológico:", 25, y);
-        y += 5;
-        items.forEach((it) => {
-          doc.setFont("helvetica", "normal");
-          const f = new Date(it.fecha).toLocaleDateString();
-          doc.text(`• ${f}: ${it.puntaje} pts - ${it.interpretacion}`, 30, y);
-          y += 4;
-        });
-        y += 12;
+      // 3. Antropometría
+      if (paciente.peso && paciente.talla) {
+        y += 10; doc.setFillColor(248, 250, 252); doc.rect(18, y - 5, 175, 12, 'F');
+        doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(0, 128, 128);
+        doc.text(`ANTROPOMETRÍA:`, 22, y + 2);
+        doc.setFont("helvetica", "normal"); doc.setTextColor(50, 50, 50);
+        doc.text(`Peso: ${paciente.peso} kg | Talla: ${paciente.talla} cm | IMC: ${paciente.imc || 'N/A'}`, 60, y + 2);
+        y += 15;
       }
-    }
 
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, pageHeight - 35, 90, pageHeight - 35);
-    doc.setFontSize(8); doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
-    doc.save(`Informe_Profesional_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
+      // 4. Resultados de la sesión actual
+      y += 5;
+      doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
+      doc.text("RESULTADOS DE LA EVALUACIÓN ACTUAL", 20, y);
+      y += 8;
+
+      resultados.forEach((res) => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
+        doc.text(`• ${res.nombreEscala}:`, 25, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${res.puntaje} pts - ${res.interpretacion}`, 85, y);
+        y += 6;
+      });
+      y += 10;
+
+      // 5. Análisis de Tendencias (solo si hay historial >= 2)
+      if (escalasConHistorial.length > 0) {
+        for (let i = 0; i < escalasConHistorial.length; i++) {
+          const [nombre, items] = escalasConHistorial[i] as [string, any[]];
+          const analisis = analizarProgreso(items);
+
+          if (y > 180) { doc.addPage(); y = 20; }
+          
+          doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 128, 128);
+          doc.text(`ANÁLISIS DE EVOLUCIÓN: ${nombre.toUpperCase()}`, 20, y);
+          y += 8;
+
+          doc.setFontSize(9); doc.setFont("helvetica", "italic"); doc.setTextColor(60, 60, 60);
+          const textoIA = `Variación del ${analisis?.valor}% indicando una ${analisis?.impacto.toLowerCase()}.`;
+          doc.text(textoIA, 25, y);
+          y += 7;
+
+          const cleanId = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+          const chartElement = document.getElementById(`pdf-chart-${cleanId}`);
+          if (chartElement) {
+            try {
+              const dataUrl = await toPng(chartElement, { backgroundColor: '#ffffff', pixelRatio: 2 });
+              doc.addImage(dataUrl, 'PNG', 30, y, 150, 60);
+              y += 65;
+            } catch (err) {
+              // ✅ FIX: Si falla el gráfico, continúa sin él en vez de bloquearse
+              console.error('Error capturando gráfico:', err);
+              y += 5;
+            }
+          }
+
+          doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 100, 100);
+          doc.text("Historial cronológico:", 25, y);
+          y += 5;
+          items.forEach((it) => {
+            // ✅ FIX: Verificar desborde de página dentro del historial
+            if (y > 270) { doc.addPage(); y = 20; }
+            doc.setFont("helvetica", "normal");
+            const f = new Date(it.fecha).toLocaleDateString();
+            doc.text(`• ${f}: ${it.puntaje} pts - ${it.interpretacion}`, 30, y);
+            y += 4;
+          });
+          y += 12;
+        }
+      }
+
+      // 6. Pie de página
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, pageHeight - 35, 90, pageHeight - 35);
+      doc.setFontSize(8); doc.setTextColor(100, 100, 100);
+      doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
+
+      // ✅ FIX: doc.save() siempre se ejecuta, sin importar si hay historial o no
+      doc.save(`Informe_Profesional_${paciente.nombre.replace(/\s+/g, '_')}.pdf`);
+
+    } catch (err) {
+      // ✅ FIX: Error visible para el usuario en vez de silencio
+      console.error('Error generando PDF:', err);
+      alert('Hubo un error al generar el PDF. Por favor intenta nuevamente.');
+    }
   };
 
   return (
@@ -168,7 +187,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         </div>
 
         <div className="p-8 lg:p-12">
-          {/* SECCIÓN 1: SESIÓN ACTUAL (Aparecen TODAS las escalas) */}
+          {/* SECCIÓN 1: SESIÓN ACTUAL */}
           <div className="space-y-4 mb-12">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4">Resultados de la Sesión</h4>
             {resultados.map((res, index) => (
