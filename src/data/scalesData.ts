@@ -1910,6 +1910,378 @@ export const scales: Scale[] = [
     }
   },
 
+  {
+  id: 'minnesota_hf',
+  nombre: 'Minnesota Living with Heart Failure (MLHFQ)',
+  categoria: 'cardiorespiratorio',
+  descripcion: 'Cuestionario de calidad de vida específico para insuficiencia cardíaca, post-infarto y pacientes cardio-operados. Evalúa el impacto físico, emocional y socioeconómico de la enfermedad en las últimas 4 semanas.',
+
+  bibliografia: "Rector TS, Cohn JN. Assessment of patient outcome with the Minnesota Living with Heart Failure questionnaire: reliability and validity during a randomized, double-blind, placebo-controlled trial of pimobendan. Am Heart J. 1992;124(4):1017-25.",
+  referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/1529875/",
+  evidenciaClinica: "Instrumento más utilizado en América Latina para CVRS en IC. Puntos de corte validados por redes neuronales (Garin et al., 2013): < 24 buena CV, 24-45 moderada, > 45 mala. MCID = 5 puntos (Rector et al., 1995). Alfa de Cronbach ≥ 0.8 en versión española validada (Rev Esp Cardiol, 2008). Correlación significativa con clase funcional NYHA (p < 0.001).",
+
+  preguntas: [
+    {
+      id: 'instrucciones',
+      text: '📋 INSTRUCCIONES: Pregunte al paciente en qué medida su enfermedad cardíaca le impidió vivir como hubiera querido durante el ÚLTIMO MES. Para cada situación, el paciente debe responder de 0 (nada) a 5 (muchísimo). Si una situación no le aplica, marcar 0.',
+      type: 'text',
+      placeholder: 'Cuestionario autoaplicable — Lea las instrucciones al paciente antes de iniciar. Tiempo estimado: 10-15 minutos.'
+    },
+
+    // === DIMENSIÓN FÍSICA (ítems 2-7, 12-13 según estructura original) ===
+    {
+      id: 'mhf_1',
+      text: '1. ¿Le causó hinchazón en los tobillos o piernas?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_2',
+      text: '2. ¿Le obligó a sentarse o acostarse durante el día?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_3',
+      text: '3. ¿Dificultó su capacidad para caminar o subir escaleras?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_4',
+      text: '4. ¿Dificultó el trabajo de la casa o el jardín?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_5',
+      text: '5. ¿Dificultó salir de su casa o desplazarse fuera?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_6',
+      text: '6. ¿Le produjo dificultad para dormir bien por la noche?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_7',
+      text: '7. ¿Le dificultó relacionarse o hacer cosas con su familia o amigos?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_8',
+      text: '8. ¿Le dificultó realizar su trabajo o actividades remuneradas?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_9',
+      text: '9. ¿Le dificultó sus actividades recreativas o de ocio?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_10',
+      text: '10. ¿Le dificultó su actividad o vida sexual?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada / No aplica', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_11',
+      text: '11. ¿Le obligó a comer menos de lo que le gustaba o los alimentos que quería?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_12',
+      text: '12. ¿Le produjo disnea (falta de aire) al hacer esfuerzo físico?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_13',
+      text: '13. ¿Le produjo fatiga, agotamiento o falta de energía?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_14',
+      text: '14. ¿Le obligó a ingresar en el hospital o acudir a urgencias?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_15',
+      text: '15. ¿Le supuso un gasto económico importante para usted o su familia?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_16',
+      text: '16. ¿Le produjo efectos secundarios por los medicamentos?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+
+    // === DIMENSIÓN EMOCIONAL (ítems 17-21) ===
+    {
+      id: 'mhf_17',
+      text: '17. ¿Le hizo sentir una carga para su familia o amigos?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_18',
+      text: '18. ¿Le hizo sentir una pérdida de control sobre su propia vida?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_19',
+      text: '19. ¿Le produjo sentimientos de preocupación o ansiedad?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_20',
+      text: '20. ¿Le fue difícil concentrarse o recordar cosas?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    },
+    {
+      id: 'mhf_21',
+      text: '21. ¿Le produjo sentimientos de depresión o tristeza?',
+      type: 'select',
+      options: [
+        { label: '0 — Nada', value: 0 },
+        { label: '1 — Muy poco', value: 1 },
+        { label: '2 — Poco', value: 2 },
+        { label: '3 — Moderado', value: 3 },
+        { label: '4 — Bastante', value: 4 },
+        { label: '5 — Muchísimo', value: 5 }
+      ]
+    }
+  ],
+
+  calcularPuntaje: (respuestas: Record<string, any>) => {
+    // Suma total de los 21 ítems. Rango: 0-105. Mayor puntaje = peor calidad de vida.
+    const ids = [
+      'mhf_1','mhf_2','mhf_3','mhf_4','mhf_5','mhf_6','mhf_7',
+      'mhf_8','mhf_9','mhf_10','mhf_11','mhf_12','mhf_13','mhf_14',
+      'mhf_15','mhf_16','mhf_17','mhf_18','mhf_19','mhf_20','mhf_21'
+    ];
+    return ids.reduce((sum, id) => sum + (Number(respuestas[id]) || 0), 0);
+  },
+
+  interpretar: (puntaje: number, respuestas?: Record<string, any>): InterpretacionAvanzada => {
+
+    // Subescalas para análisis dimensional
+    const fisica = ['mhf_1','mhf_2','mhf_3','mhf_4','mhf_5','mhf_6','mhf_12','mhf_13']
+      .reduce((s, id) => s + (Number(respuestas?.[id]) || 0), 0);
+    const emocional = ['mhf_17','mhf_18','mhf_19','mhf_20','mhf_21']
+      .reduce((s, id) => s + (Number(respuestas?.[id]) || 0), 0);
+
+    const dominioAfectado = fisica >= 20 && emocional >= 12
+      ? 'físico y emocional severamente comprometidos'
+      : fisica >= 20
+      ? 'dominio físico predominantemente afectado'
+      : emocional >= 12
+      ? 'dominio emocional predominantemente afectado'
+      : 'sin dominio predominante comprometido';
+
+    if (puntaje < 24) {
+      return {
+        texto: `Buena Calidad de Vida — ${puntaje} pts`,
+        color: 'emerald-600',
+        evidencia: `Puntaje total: ${puntaje}/105 (Físico: ${fisica}/40 | Emocional: ${emocional}/25). Calidad de vida conservada según punto de corte validado (< 24). ${dominioAfectado}. MCID = 5 puntos (Rector et al., 1995).`,
+        recomendaciones: [
+          'Mantener y reforzar adherencia al programa de rehabilitación cardíaca.',
+          'Continuar educación sobre autocuidado: control de peso diario, restricción hídrica y sal.',
+          'Reevaluación con MLHFQ cada 3 meses o ante cambio de clase funcional NYHA.',
+          'Fomentar actividad física supervisada según tolerancia (programa de ejercicio aeróbico progresivo).',
+          'Reforzar adherencia farmacológica y control de factores de riesgo cardiovascular.'
+        ]
+      };
+    }
+
+    if (puntaje <= 45) {
+      return {
+        texto: `Calidad de Vida Moderadamente Afectada — ${puntaje} pts`,
+        color: 'amber-500',
+        evidencia: `Puntaje total: ${puntaje}/105 (Físico: ${fisica}/40 | Emocional: ${emocional}/25). Calidad de vida moderada según punto de corte validado (24-45). Perfil: ${dominioAfectado}. Una reducción ≥ 5 puntos en la próxima evaluación indicaría mejoría clínicamente significativa (MCID).`,
+        recomendaciones: [
+          'Revisar y ajustar programa de rehabilitación cardíaca: intensidad, frecuencia y modalidad del ejercicio.',
+          'Evaluar síntomas de descompensación: disnea de reposo, ortopnea, edema progresivo — considerar ajuste farmacológico.',
+          'Screening de depresión y ansiedad (PHQ-9 / GAD-7): alta correlación entre MLHFQ emocional y depresión (r = 0.748).',
+          'Educación al paciente y familia: reconocimiento de signos de alarma y plan de acción.',
+          'Evaluar adherencia a restricción de sodio (< 2g/día) y control de volumen hídrico.',
+          'Coordinar con equipo multidisciplinario: cardiología, nutrición, psicología si dominio emocional ≥ 12 pts.'
+        ]
+      };
+    }
+
+    // puntaje > 45: mala calidad de vida
+    return {
+      texto: `Mala Calidad de Vida — ${puntaje} pts`,
+      color: 'red-600',
+      evidencia: `Puntaje total: ${puntaje}/105 (Físico: ${fisica}/40 | Emocional: ${emocional}/25). Calidad de vida severamente comprometida (> 45). Perfil: ${dominioAfectado}. Este rango se asocia con mayor riesgo de rehospitalización y mortalidad cardiovascular. Requiere evaluación clínica urgente y revisión del plan terapéutico.`,
+      recomendaciones: [
+        '⚠️ Derivación urgente a cardiología para reevaluación clínica: ajuste de tratamiento farmacológico (IECA/ARA-II, betabloqueantes, diuréticos, ARM).',
+        'Evaluar clase funcional NYHA actual y correlacionar con fracción de eyección — considerar ecocardiograma de control.',
+        'Evaluación psicosocial formal: depresión mayor es altamente prevalente en IC severa. Considerar interconsulta a psiquiatría o psicología clínica.',
+        'Revisión exhaustiva de adherencia: tanto farmacológica como no farmacológica (dieta, actividad, control de peso).',
+        'Considerar programa de rehabilitación cardíaca de fase II/III supervisado si no está inscrito.',
+        'Evaluar necesidad de dispositivos de asistencia (DAI, TRC) según criterios clínicos.',
+        'Involucrar red de apoyo familiar: cuidador principal, manejo del estrés del cuidador.',
+        'Reevaluar con MLHFQ al mes de intervención para medir respuesta al tratamiento.'
+      ]
+    };
+  }
+},
+
   // ==========================================
   // Traumatologia y Ortopedia
   // ==========================================
