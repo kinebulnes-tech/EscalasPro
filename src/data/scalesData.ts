@@ -1429,7 +1429,7 @@ export const scales: Scale[] = [
     
     // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 10471018) ---
     bibliografia: "Bestall JC, et al. Usefulness of the Medical Research Council (MRC) dyspnoea scale as a measure of disability in patients with chronic obstructive pulmonary disease. Thorax. 1999.",
-    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10471018/", // ✅ LINK VERIFICADO
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/10471018/",
     evidenciaClinica: "Un puntaje mMRC ≥ 2 es un punto de corte crítico. En guías GOLD y guías MINSAL de EPOC, define a un paciente como 'altamente sintomático', lo que modifica directamente la terapia farmacológica.",
 
     preguntas: [
@@ -1447,10 +1447,29 @@ export const scales: Scale[] = [
       }
     ],
 
-    calcularPuntaje: (respuestas) => Number(respuestas.grado_disnea) || 0,
+    // ✅ CORREGIDO: Se usa undefined check para evitar interpretación
+    //    falsa cuando el usuario aún no ha seleccionado ninguna opción.
+    //    El Grado 0 es un valor clínicamente válido, por lo que no se
+    //    puede usar || 0 como fallback seguro.
+    calcularPuntaje: (respuestas) =>
+      respuestas.grado_disnea !== undefined
+        ? Number(respuestas.grado_disnea)
+        : null,
 
-    // ✅ Firma corregida para evitar errores en TS
     interpretar: (puntaje, respuestas) => {
+      // ✅ CORREGIDO: Guarda de nulidad. Si el formulario está incompleto,
+      //    no se emite ninguna interpretación clínica.
+      if (puntaje === null) {
+        return {
+          texto: 'SIN DATOS SUFICIENTES',
+          color: 'gray-400',
+          evidencia: 'El paciente aún no ha seleccionado un grado de disnea.',
+          recomendaciones: [
+            'Solicite al paciente que seleccione el grado que mejor describe su limitación.'
+          ]
+        };
+      }
+
       if (puntaje >= 2) {
         return {
           texto: `DISNEA LIMITANTE (Grado ${puntaje})`,
