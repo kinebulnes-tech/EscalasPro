@@ -31,41 +31,32 @@ export default function ScaleResult({
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'slate';
   const evidenciaEspecifica = isAdvanced ? (result as any).evidencia : null;
 
-  // ✅ Helper centralizado: verifica si hay espacio, si no agrega nueva página
-  // y repone el estado de fuente/color para no corromper el texto siguiente
-  const checkPageBreak = (
-    doc: jsPDF,
-    currentY: number,
-    spaceNeeded: number = 15
-  ): number => {
+  const checkPageBreak = (doc: jsPDF, currentY: number, spaceNeeded: number = 15): number => {
     const pageHeight = doc.internal.pageSize.height;
     if (currentY + spaceNeeded > pageHeight - 40) {
       doc.addPage();
-
-      // ✅ Reponer encabezado de continuación en páginas adicionales
       doc.setFillColor(0, 128, 128);
       doc.rect(0, 0, 210, 12, 'F');
       doc.setFont("helvetica", "italic");
       doc.setFontSize(7);
       doc.setTextColor(255, 255, 255);
       doc.text(`${scale.nombre.toUpperCase()} — continuación`, 20, 8);
-
-      // Reset al estado normal de texto
       doc.setTextColor(0, 0, 0);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      return 25; // y inicial en nueva página
+      return 25;
     }
     return currentY;
   };
 
   const generateIndividualPDF = () => {
     const doc = new jsPDF();
+    const pw   = doc.internal.pageSize.width;
     const date = new Date().toLocaleDateString('es-CL');
     const hour = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
     let y = 20;
 
-    // 1. Encabezado Teal Profesional
+    // 1. Encabezado teal
     doc.setFillColor(0, 128, 128); 
     doc.rect(0, 0, 210, 40, 'F');
     doc.setFont("helvetica", "bold");
@@ -76,7 +67,7 @@ export default function ScaleResult({
     doc.setFont("helvetica", "normal");
     doc.text("SOPORTE DE DECISIÓN CLÍNICA — ESCALAPRO", 20, 32);
 
-    // 2. Datos del Paciente
+    // 2. Datos del paciente
     y = 55;
     if (pacienteNombre) {
       doc.setDrawColor(230, 230, 230);
@@ -93,7 +84,7 @@ export default function ScaleResult({
       y += 10;
     }
 
-    // 3. Título de la Escala
+    // 3. Título de la escala
     y = checkPageBreak(doc, y, 20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
@@ -101,31 +92,43 @@ export default function ScaleResult({
     doc.text(scale.nombre.toUpperCase(), 20, y);
     y += 12;
 
-    // 4. Resultado Destacado (caja teal — necesita 35px de espacio)
-    y = checkPageBreak(doc, y, 35);
+    // 4. Caja teal de resultado
+    // ✅ FIX: altura dinámica según largo del texto de interpretación
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    const splitInterp = doc.splitTextToSize(interpretationText.toUpperCase(), 95);
+    const alturaInterp = Math.max(30, (splitInterp.length * 7) + 18);
+
+    y = checkPageBreak(doc, y, alturaInterp + 10);
     doc.setFillColor(240, 253, 250);
     doc.setDrawColor(0, 128, 128);
-    doc.roundedRect(20, y, 170, 30, 3, 3, 'FD');
-    
-    doc.setFontSize(10);
+    doc.roundedRect(20, y, 170, alturaInterp, 3, 3, 'FD');
+
+    doc.setFontSize(9);
     doc.setTextColor(0, 128, 128);
-    doc.text("PUNTAJE OBTENIDO", 25, y + 8);
-    
+    doc.setFont("helvetica", "bold");
+    doc.text("PUNTAJE OBTENIDO", 25, y + 9);
+
     doc.setFontSize(28);
     doc.setFont("helvetica", "bold");
-    doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 22);
-    
-    doc.setFontSize(14);
-    // ✅ FIX: interpretationText truncado si es muy largo para no salir de la caja
-    const textoInterpretacion = interpretationText.length > 35
-      ? interpretationText.substring(0, 32) + '...'
-      : interpretationText;
-    doc.text(textoInterpretacion.toUpperCase(), 90, y + 22);
-    y += 45;
+    doc.setTextColor(15, 23, 42);
+    doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 24);
+
+    // Interpretación completa, con wrap, alineada a la derecha de la caja
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 128, 128);
+    const interpX = 120;
+    const interpY = y + (alturaInterp / 2) + 2;
+    splitInterp.forEach((linea: string, idx: number) => {
+      const lineY = y + 14 + (idx * 7);
+      doc.text(linea, interpX, lineY);
+    });
+
+    y += alturaInterp + 12;
 
     // 5. Evidencia clínica
     if (evidenciaEspecifica) {
-      // ✅ FIX: Calculamos cuánto espacio necesita ANTES de escribir
       doc.setFontSize(10);
       const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
       const espacioEvidencia = (splitEvidencia.length * 5) + 25;
@@ -144,54 +147,86 @@ export default function ScaleResult({
       y += (splitEvidencia.length * 5) + 10;
     }
 
-    // 6. Recomendaciones — ✅ FIX PRINCIPAL: check por cada recomendación individual
+    // 6. Recomendaciones con jerarquía visual
+    // ✅ FIX: Primera recomendación = URGENTE (borde rojo), resto = SEGUIMIENTO (borde teal)
     if (recommendationsList.length > 0) {
       y = checkPageBreak(doc, y, 20);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
       doc.text("SUGERENCIAS DE INTERVENCIÓN:", 20, y);
-      y += 9;
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
+      y += 10;
 
       recommendationsList.forEach((rec, i) => {
-        // ✅ FIX: Calculamos cuánto ocupa esta recomendación ANTES de escribirla
-        const splitRec = doc.splitTextToSize(`${i + 1}. ${rec}`, 165);
-        const altoRec = (splitRec.length * 5) + 4;
+        const splitRec  = doc.splitTextToSize(rec, 152);
+        const altoRec   = (splitRec.length * 5) + 10;
+        y = checkPageBreak(doc, y, altoRec + 4);
 
-        // ✅ FIX: Si no cabe, nueva página ANTES de escribir (no después)
-        y = checkPageBreak(doc, y, altoRec);
+        // Detectar si es recomendación urgente por contenido
+        const esUrgente = rec.startsWith('⚠️') || rec.toLowerCase().includes('inmediato') || rec.toLowerCase().includes('activar') || i === 0 && alertColor?.includes('red');
 
-        // ✅ FIX: Número de ítem en teal para mantener el estilo visual
-        doc.setTextColor(0, 128, 128);
+        // Fondo de la tarjeta
+        if (esUrgente) {
+          doc.setFillColor(255, 245, 245);
+          doc.setDrawColor(200, 50, 50);
+        } else {
+          doc.setFillColor(248, 250, 252);
+          doc.setDrawColor(0, 128, 128);
+        }
+
+        doc.setLineWidth(0.4);
+        doc.roundedRect(20, y, 170, altoRec, 2, 2, 'FD');
+
+        // Borde izquierdo de color (acento visual)
+        if (esUrgente) {
+          doc.setFillColor(200, 50, 50);
+        } else {
+          doc.setFillColor(0, 128, 128);
+        }
+        doc.rect(20, y, 3, altoRec, 'F');
+
+        // Número de ítem
+        if (esUrgente) {
+          doc.setTextColor(200, 50, 50);
+        } else {
+          doc.setTextColor(0, 128, 128);
+        }
         doc.setFont("helvetica", "bold");
-        doc.text(`${i + 1}.`, 25, y);
+        doc.setFontSize(9);
+        doc.text(`${i + 1}.`, 27, y + 6.5);
 
+        // Texto de la recomendación
         doc.setTextColor(50, 50, 50);
-        doc.setFont("helvetica", "normal");
-        // Texto de la recomendación desplazado para no pisar el número
-        const splitRecSinNum = doc.splitTextToSize(rec, 158);
-        doc.text(splitRecSinNum, 32, y);
-        y += altoRec;
+        doc.setFont("helvetica", esUrgente ? "bold" : "normal");
+        doc.setFontSize(9);
+        doc.text(splitRec, 35, y + 6.5);
+
+        // Etiqueta URGENTE si aplica
+        if (esUrgente) {
+          doc.setFillColor(200, 50, 50);
+          doc.roundedRect(pw - 40, y + 2, 26, 6, 1, 1, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(6);
+          doc.setFont("helvetica", "bold");
+          doc.text("URGENTE", pw - 37, y + 6.2);
+        }
+
+        y += altoRec + 4;
       });
       y += 5;
     }
 
-    // 7. Bibliografía (si existe)
+    // 7. Bibliografía
     if (scale.bibliografia) {
       y = checkPageBreak(doc, y, 25);
       doc.setDrawColor(220, 220, 220);
       doc.line(20, y, 190, y);
       y += 8;
-
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
       doc.text("REFERENCIA CIENTÍFICA:", 20, y);
       y += 5;
-
       doc.setFont("helvetica", "italic");
       doc.setFontSize(8);
       doc.setTextColor(130, 130, 130);
@@ -201,25 +236,28 @@ export default function ScaleResult({
       y += (splitBiblio.length * 4) + 8;
     }
 
-    // 8. Pie de Página — ✅ FIX: siempre en la ÚLTIMA página, no en coordenada fija
-    const pageHeight = doc.internal.pageSize.height;
+    // 8. Pie en todas las páginas
+    const totalPaginas = doc.getNumberOfPages();
+    const pageHeight   = doc.internal.pageSize.height;
 
-    // Solo dibujamos el pie si hay espacio suficiente, si no, nueva página
-    if (y > pageHeight - 45) {
-      doc.addPage();
+    for (let p = 1; p <= totalPaginas; p++) {
+      doc.setPage(p);
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.line(20, pageHeight - 35, pw - 20, pageHeight - 35);
+      doc.setDrawColor(150, 150, 150);
+      doc.line(20, pageHeight - 19, 90, pageHeight - 19);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 14);
+      doc.text(`Página ${p} de ${totalPaginas}`, pw - 20, pageHeight - 24, { align: 'right' });
+      doc.text(`Emitido: ${date}`, pw - 20, pageHeight - 19, { align: 'right' });
+      doc.setFontSize(6);
+      doc.setTextColor(180, 180, 180);
+      const disclaimer = "AVISO: Este reporte es un documento de apoyo clínico. Los resultados deben ser validados por el profesional responsable según el contexto clínico del paciente.";
+      doc.text(doc.splitTextToSize(disclaimer, 170), 20, pageHeight - 10);
     }
-
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, pageHeight - 35, 90, pageHeight - 35);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
-    
-    doc.setFontSize(7);
-    doc.setTextColor(160, 160, 160);
-    const disclaimer = "AVISO: Este reporte es un documento de apoyo clínico. Los resultados deben ser validados por el profesional responsable según el contexto clínico del paciente.";
-    doc.text(doc.splitTextToSize(disclaimer, 170), 20, pageHeight - 15);
 
     doc.save(`Resultado_${scale.nombre.replace(/\s+/g, '_')}_${date}.pdf`);
   };
@@ -244,8 +282,8 @@ export default function ScaleResult({
       
       {pacienteNombre ? (
         <div className="mb-8 p-5 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem] animate-in slide-in-from-top-4">
-           <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Paciente: {pacienteNombre}</p>
-           <button
+          <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Paciente: {pacienteNombre}</p>
+          <button
             onClick={() => {
               if (onSave) {
                 onSave({
@@ -297,9 +335,7 @@ export default function ScaleResult({
             <ShieldCheck className={styles.icon + " w-5 h-5"} />
             <h4 className="font-black uppercase text-xs tracking-widest">Evidencia del Resultado</h4>
           </div>
-          <p className="text-sm font-bold leading-relaxed italic">
-            "{evidenciaEspecifica}"
-          </p>
+          <p className="text-sm font-bold leading-relaxed italic">"{evidenciaEspecifica}"</p>
         </div>
       )}
 
@@ -307,12 +343,35 @@ export default function ScaleResult({
         <div className="mb-8">
           <h4 className="text-gray-900 font-black text-xs uppercase tracking-widest mb-4 px-2">Sugerencias de Intervención</h4>
           <div className="space-y-3">
-            {recommendationsList.map((rec, i) => (
-              <div key={i} className="flex gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 transition-all hover:bg-white hover:shadow-md">
-                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center text-[10px] font-black text-teal-600 shrink-0 shadow-sm border border-teal-50">{i+1}</div>
-                <p className="text-sm font-semibold text-gray-700 leading-snug">{rec}</p>
-              </div>
-            ))}
+            {recommendationsList.map((rec, i) => {
+              const esUrgente = rec.startsWith('⚠️') || rec.toLowerCase().includes('inmediato') || rec.toLowerCase().includes('activar');
+              return (
+                <div
+                  key={i}
+                  className={`flex gap-4 p-4 rounded-2xl border transition-all hover:shadow-md ${
+                    esUrgente
+                      ? 'bg-red-50 border-red-200 border-l-4 border-l-red-500'
+                      : 'bg-gray-50 border-gray-100 border-l-4 border-l-teal-500'
+                  }`}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm border ${
+                    esUrgente ? 'bg-red-500 text-white border-red-400' : 'bg-white text-teal-600 border-teal-50'
+                  }`}>
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    {esUrgente && (
+                      <span className="inline-block text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-100 px-2 py-0.5 rounded-md mb-1">
+                        Urgente
+                      </span>
+                    )}
+                    <p className={`text-sm leading-snug ${esUrgente ? 'font-black text-red-900' : 'font-semibold text-gray-700'}`}>
+                      {rec}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -332,9 +391,7 @@ export default function ScaleResult({
             <BookOpen size={14} />
             <span className="text-[10px] font-black uppercase tracking-widest">Referencia Científica</span>
           </div>
-          <p className="text-[10px] text-gray-500 italic leading-relaxed mb-3">
-            {scale.bibliografia}
-          </p>
+          <p className="text-[10px] text-gray-500 italic leading-relaxed mb-3">{scale.bibliografia}</p>
           {scale.referenciaUrl && (
             <a href={scale.referenciaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] font-black text-teal-600 hover:text-teal-800 transition-colors">
               <ExternalLink size={12} /> VER ESTUDIO ORIGINAL (PUBMED)
