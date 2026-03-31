@@ -109,11 +109,17 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // ✅ FIX: Excluye preguntas type='text' (informativas) de toda validación y progreso
+  const preguntasRequeridas = useMemo(() => {
+    return scale.preguntas.filter(q => q.type !== 'text');
+  }, [scale.preguntas]);
+
   const progress = useMemo(() => {
-    const totalPreguntas = scale.preguntas.length;
-    const respondidas = Object.keys(respuestas).length;
+    const totalPreguntas = preguntasRequeridas.length;
+    if (totalPreguntas === 0) return 100;
+    const respondidas = preguntasRequeridas.filter(q => respuestas[q.id] !== undefined && respuestas[q.id] !== null).length;
     return (respondidas / totalPreguntas) * 100;
-  }, [respuestas, scale.preguntas.length]);
+  }, [respuestas, preguntasRequeridas]);
 
   const currentScore = useMemo(() => {
     if (Object.keys(respuestas).length === 0) return 0;
@@ -194,8 +200,10 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
           <form onSubmit={handleSubmit} className="space-y-6">
             {Object.entries(groupedQuestions).map(([sectionName, questions]) => {
               const isOpen = openSections[sectionName] !== false;
-              const respondidas = questions.filter(q => respuestas[q.id] !== undefined && respuestas[q.id] !== null).length;
-              const esCompleta = respondidas === questions.length;
+              // ✅ FIX: Contador de sección excluye preguntas informativas
+              const preguntasSección = questions.filter(q => q.type !== 'text');
+              const respondidas = preguntasSección.filter(q => respuestas[q.id] !== undefined && respuestas[q.id] !== null).length;
+              const esCompleta = preguntasSección.length === 0 || respondidas === preguntasSección.length;
 
               return (
                 <div key={sectionName} className={`border-2 rounded-[2rem] transition-all overflow-hidden ${isOpen ? 'border-slate-100 bg-slate-50/30' : 'border-transparent bg-white shadow-sm'}`}>
@@ -208,9 +216,9 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                         <h4 className="font-black text-slate-800 uppercase text-xs tracking-[0.15em]">{sectionName}</h4>
                         <div className="flex items-center gap-2 mt-1">
                            <div className="w-24 h-1 bg-slate-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-teal-500 transition-all duration-700" style={{ width: `${(respondidas/questions.length)*100}%` }} />
+                              <div className="h-full bg-teal-500 transition-all duration-700" style={{ width: `${preguntasSección.length > 0 ? (respondidas/preguntasSección.length)*100 : 100}%` }} />
                            </div>
-                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{respondidas} / {questions.length}</span>
+                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{respondidas} / {preguntasSección.length}</span>
                         </div>
                       </div>
                     </div>
@@ -224,16 +232,25 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                         const tieneValor = respuestas[pregunta.id] !== undefined && respuestas[pregunta.id] !== null;
 
                         return (
-                          <div key={pregunta.id} className={`p-6 rounded-[1.5rem] border-2 transition-all ${esInvalido ? 'bg-red-50 border-red-200 shadow-inner' : tieneValor ? 'bg-white border-teal-500/10 shadow-sm' : 'bg-white/50 border-slate-50'}`}>
+                          // ✅ FIX: Estilo diferenciado para type='text'
+                          <div key={pregunta.id} className={`p-6 rounded-[1.5rem] border-2 transition-all ${pregunta.type === 'text' ? 'bg-white border-slate-50' : esInvalido ? 'bg-red-50 border-red-200 shadow-inner' : tieneValor ? 'bg-white border-teal-500/10 shadow-sm' : 'bg-white/50 border-slate-50'}`}>
                              <div className="flex justify-between items-start mb-5">
                                 <label className="text-sm font-bold text-slate-700 leading-tight">
-                                  <span className="text-teal-600 mr-2 font-black italic">{idx + 1}.</span> {pregunta.text}
+                                  {/* ✅ FIX: Sin número para preguntas informativas */}
+                                  {pregunta.type !== 'text' && <span className="text-teal-600 mr-2 font-black italic">{idx + 1}.</span>} {pregunta.text}
                                 </label>
-                                {esInvalido && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
+                                {/* ✅ FIX: Sin ícono de error para preguntas informativas */}
+                                {esInvalido && pregunta.type !== 'text' && <AlertCircle size={18} className="text-red-500 animate-pulse" />}
                              </div>
                              
-                             {/* LÓGICA DE RENDERIZADO SEGÚN TIPO */}
-                             {pregunta.type === 'timer' ? (
+                             {/* ✅ FIX: Render correcto para cada tipo */}
+                             {pregunta.type === 'text' ? (
+                               <div className="flex items-start gap-3 p-4 bg-teal-50 rounded-2xl border border-teal-100">
+                                 <div className="text-sm font-semibold text-teal-800 leading-relaxed">
+                                   {pregunta.placeholder || 'Lea las instrucciones antes de continuar.'}
+                                 </div>
+                               </div>
+                             ) : pregunta.type === 'timer' ? (
                                <div className="flex flex-col items-center">
                                   <Stopwatch 
                                     duration={(pregunta as any).duration} 
@@ -304,7 +321,8 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
                 <span>{progress < 100 ? 'Evaluación en curso' : 'Finalizar Evaluación'}</span>
                 {progress < 100 && (
                   <span className="text-[10px] uppercase tracking-[0.2em] opacity-50">
-                    Faltan {scale.preguntas.length - Object.keys(respuestas).length} ítems
+                    {/* ✅ FIX: Contador correcto ignorando preguntas informativas */}
+                    Faltan {preguntasRequeridas.length - preguntasRequeridas.filter(q => respuestas[q.id] !== undefined && respuestas[q.id] !== null).length} ítems
                   </span>
                 )}
               </button>
