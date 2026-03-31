@@ -5359,7 +5359,7 @@ export const scales: Scale[] = [
       recomendaciones: [
         'Uso obligatorio de ayuda técnica (andador/bastón)',
         'Adaptación del entorno (quitar alfombras, mejorar luz)',
-        'Kinesiología intensiva con enfoque en equilibrio'
+        'Kinesiología Motora con enfoque en equilibrio'
       ] 
     };
   }
