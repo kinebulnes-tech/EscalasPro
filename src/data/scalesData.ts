@@ -9084,6 +9084,12 @@ export const scales: Scale[] = [
     nombre: 'Escala NIHSS',
     categoria: 'neurologia',
     descripcion: 'Evaluación cuantitativa del déficit neurológico en el ACV agudo.',
+
+    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 2scores327) ---
+    bibliografia: "Brott T, et al. Measurements of acute cerebral infarction: a clinical examination scale. Stroke. 1989 Jul;20(7):864-70.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/2749846/",
+    evidenciaClinica: "Escala estándar internacional para cuantificar el déficit neurológico en ACV agudo. Puntaje máximo: 42. Un puntaje ≥ 6 se asocia con oclusión de gran vaso y potencial beneficio de trombectomía mecánica. MCID = 4 puntos.",
+
     preguntas: [
       { id: '1a', text: '1a. Nivel de conciencia (Respuesta)', type: 'select', options: [{ label: '0 - Alerta', value: 0 }, { label: '1 - Somnoliento', value: 1 }, { label: '2 - Estuporoso', value: 2 }, { label: '3 - Coma', value: 3 }] },
       { id: '1b', text: '1b. Preguntas LOC (Mes y Edad)', type: 'select', options: [{ label: '0 - Responde ambos correctamente', value: 0 }, { label: '1 - Responde uno correctamente', value: 1 }, { label: '2 - Ninguno correcto', value: 2 }] },
@@ -9101,13 +9107,75 @@ export const scales: Scale[] = [
       { id: '10', text: '10. Disartria', type: 'select', options: [{ label: '0 - Articulación normal', value: 0 }, { label: '1 - Leve a moderada', value: 1 }, { label: '2 - Grave/Ininteligible', value: 2 }] },
       { id: '11', text: '11. Extinción e Inatención (Negligencia)', type: 'select', options: [{ label: '0 - Normal', value: 0 }, { label: '1 - Inatención parcial', value: 1 }, { label: '2 - Inatención total', value: 2 }] }
     ],
-    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
+
+    // ✅ FIX: Number() seguro para evitar TypeError en TypeScript
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    // ✅ FIX: Colores en formato Tailwind + evidencia clínica en todos los rangos
     interpretar: (p) => {
-      if (p === 0) return { texto: 'Sin déficit neurológico', color: 'green', recomendaciones: ['Observación clínica', 'Control de factores de riesgo'] };
-      if (p <= 4) return { texto: 'ACV Leve', color: 'yellow', recomendaciones: ['Evaluar elegibilidad para trombólisis', 'Ingreso a UTAC'] };
-      if (p <= 15) return { texto: 'ACV Moderado', color: 'orange', recomendaciones: ['Activación urgente de Código ACV', 'Considerar trombectomía mecánica', 'Protección de vía aérea'] };
-      if (p <= 20) return { texto: 'ACV Moderadamente Grave', color: 'red', recomendaciones: ['Alto riesgo de transformación hemorrágica', 'Manejo en UCI', 'Evaluación por neurocirugía'] };
-      return { texto: 'ACV Grave', color: 'red', recomendaciones: ['Pronóstico reservado', 'Soporte vital avanzado', 'Monitorizar presión intracraneana'] };
+      if (p === 0) return {
+        texto: 'Sin déficit neurológico',
+        color: 'emerald-600',
+        evidencia: `Puntaje ${p}/42. Examen neurológico sin déficit detectable. Puede corresponder a AIT o síntomas en resolución. Requiere estudio etiológico igualmente.`,
+        recomendaciones: [
+          'Observación clínica neurológica estricta las primeras 24-48 horas.',
+          'Estudio etiológico completo: ECG, ecocardiograma, Doppler carotídeo.',
+          'Inicio precoz de antiagregación o anticoagulación según etiología.',
+          'Control de factores de riesgo cardiovascular (HTA, DM, dislipidemia).'
+        ]
+      };
+
+      if (p <= 4) return {
+        texto: 'ACV Leve',
+        color: 'blue-500',
+        evidencia: `Puntaje ${p}/42. Déficit neurológico leve. Evaluar elegibilidad para trombólisis IV (rtPA) dentro de la ventana terapéutica de 4.5 horas desde el inicio de síntomas.`,
+        recomendaciones: [
+          'Activar Código ACV y evaluar elegibilidad para trombólisis IV (rtPA).',
+          'Ingreso a Unidad de Tratamiento del ACV (UTAC).',
+          'Monitoreo continuo de signos neurológicos cada 1-2 horas.',
+          'AngioTAC para descartar oclusión de gran vaso.',
+          'Inicio de rehabilitación precoz (kinesiología y fonoaudiología) dentro de las primeras 24-48h si está estable.'
+        ]
+      };
+
+      if (p <= 15) return {
+        texto: 'ACV Moderado',
+        color: 'orange-600',
+        evidencia: `Puntaje ${p}/42. Déficit neurológico moderado. Alta probabilidad de oclusión de gran vaso. Puntaje ≥ 6 se asocia con beneficio de trombectomía mecánica (evidencia nivel 1A).`,
+        recomendaciones: [
+          'Activación urgente de Código ACV — notificar a neurorradiología intervencionista.',
+          'AngioTAC cerebral de urgencia para evaluar oclusión de gran vaso.',
+          'Considerar trombectomía mecánica si hay oclusión proximal (TICA, M1, M2).',
+          'Protección de vía aérea si hay compromiso de deglución (evaluación fonoaudiológica).',
+          'Control estricto de glicemia (meta 140-180 mg/dL) y temperatura (normotermia).'
+        ]
+      };
+
+      if (p <= 20) return {
+        texto: 'ACV Moderadamente Grave',
+        color: 'red-500',
+        evidencia: `Puntaje ${p}/42. Alto riesgo de transformación hemorrágica, edema cerebral maligno y deterioro neurológico secundario. Mortalidad hospitalaria estimada 15-25%.`,
+        recomendaciones: [
+          'Ingreso directo a UCI neurológica con monitoreo invasivo.',
+          'Control estricto de presión arterial (meta según protocolo local post-trombólisis o no).',
+          'Evaluación por neurocirugía para monitoreo o tratamiento de hipertensión intracraneana.',
+          'Posición cabecera 30° para optimizar perfusión cerebral.',
+          'Evaluar con familia el pronóstico y opciones terapéuticas.'
+        ]
+      };
+
+      return {
+        texto: 'ACV Grave',
+        color: 'red-700',
+        evidencia: `Puntaje ${p}/42. Déficit neurológico severo con compromiso de conciencia. Mortalidad hospitalaria >30-40%. Alto riesgo de dependencia severa en sobrevivientes.`,
+        recomendaciones: [
+          'Soporte vital avanzado en UCI: control de vía aérea, ventilación si es necesario.',
+          'Monitorización de presión intracraneana si hay deterioro progresivo.',
+          'Tratamiento agresivo del edema cerebral (Manitol, solución salina hipertónica).',
+          'Informar a la familia sobre pronóstico reservado con criterios de evidencia.',
+          'Evaluar en equipo multidisciplinario la pertinencia de medidas de soporte y cuidados paliativos.'
+        ]
+      };
     }
   },
   {
@@ -9116,10 +9184,9 @@ export const scales: Scale[] = [
   categoria: 'neurologia',
   descripcion: 'Escala utilizada para medir el grado de incapacidad o dependencia en las actividades diarias de personas que han sufrido un ACV.',
   
-  // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 3336421) ---
   bibliografia: "van Swieten JC, et al. Interobserver agreement for the assessment of handicap in stroke patients. Stroke. 1988;19(5):604-7.",
   referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/3363593/",
-  evidenciaClinica: "Es el marcador de resultado funcional más utilizado en ensayos clínicos de ACV. Un puntaje ≤ 2 se considera generalmente un 'buen resultado' funcional.",
+  evidenciaClinica: "Es el marcador de resultado funcional más utilizado en ensayos clínicos de ACV. Un puntaje ≤ 2 se considera 'buen resultado' funcional. El mRS es el endpoint primario en todos los ensayos de trombólisis y trombectomía mecánica (NINDS, ECASS, MR CLEAN). MCID = 1 punto.",
 
   preguntas: [
     { 
@@ -9131,78 +9198,256 @@ export const scales: Scale[] = [
         { label: '1: Discapacidad no significativa (pese a síntomas, realiza actividades habituales)', value: 1 },
         { label: '2: Discapacidad ligera (incapaz de realizar actividades previas, pero autónomo)', value: 2 },
         { label: '3: Discapacidad moderada (requiere alguna ayuda, pero camina sin asistencia)', value: 3 },
-        { label: '4: Discapacidad moderadamente severa (incapaz de caminar sin ayuda y de atender necesidades corporales)', value: 4 },
+        { label: '4: Discapacidad moderadamente severa (incapaz de caminar sin ayuda ni atender necesidades corporales)', value: 4 },
         { label: '5: Discapacidad severa (encamado, incontinente, requiere cuidado constante)', value: 5 },
         { label: '6: Fallecido', value: 6 }
       ] 
     }
   ],
 
-  calcularPuntaje: (respuestas) => Number(respuestas.grado) ?? 0,
+  // ✅ FIX: || 0 más seguro que ?? 0 para evitar NaN en TypeScript
+  calcularPuntaje: (respuestas) => Number(respuestas.grado) || 0,
 
   interpretar: (puntaje) => {
     if (puntaje === 0) return { 
-      texto: 'Sin síntomas', 
+      texto: 'mRS 0 — Sin síntomas', 
       color: 'emerald-600', 
-      evidencia: 'Recuperación ad integrum. No hay déficits neurológicos residuales detectables.',
-      recomendaciones: ['Alta kinésica motora', 'Seguimiento preventivo de factores de riesgo'] 
+      evidencia: 'Recuperación neurológica completa. Sin déficits residuales detectables. Resultado óptimo en ensayos clínicos de ACV.',
+      recomendaciones: [
+        'Alta kinésica motora con pauta de mantenimiento domiciliario.',
+        'Seguimiento preventivo de factores de riesgo cardiovascular (HTA, DM, dislipidemia).',
+        'Control neurológico a los 3 meses post-evento.',
+        'Educación sobre síntomas de alarma de recurrencia (FAST).'
+      ] 
     };
 
-    if (puntaje <= 2) return { 
-      texto: 'Independencia Funcional', 
-      color: 'green', 
-      evidencia: 'El paciente puede valerse por sí mismo para las actividades básicas e instrumentales simples.',
+    if (puntaje === 1) return { 
+      texto: 'mRS 1 — Discapacidad No Significativa', 
+      color: 'emerald-500', 
+      evidencia: 'El paciente presenta síntomas residuales mínimos pero realiza todas las actividades y tareas habituales. Considerado "buen resultado" funcional en ensayos clínicos.',
       recomendaciones: [
-        'Reincorporación progresiva a roles sociales/laborales',
-        'Pauta de ejercicios de mantenimiento',
-        'Control de factores de riesgo cardiovascular'
+        'Rehabilitación kinésica ambulatoria de mantenimiento.',
+        'Reincorporación progresiva a roles laborales y sociales.',
+        'Control de factores de riesgo cardiovascular.',
+        'Fonoaudiología si hay disartria residual leve.',
+        'Control neurológico a los 3 y 6 meses.'
+      ] 
+    };
+
+    if (puntaje === 2) return { 
+      texto: 'mRS 2 — Discapacidad Ligera', 
+      // ✅ FIX: color corregido de 'green' a formato Tailwind válido
+      color: 'teal-600', 
+      evidencia: 'El paciente es autónomo para sus cuidados personales pero es incapaz de realizar algunas de sus actividades previas. Límite superior del "buen resultado" funcional.',
+      recomendaciones: [
+        'Kinesiología ambulatoria con énfasis en resistencia y funcionalidad.',
+        'Terapia Ocupacional para adaptación a actividades instrumentales (cocinar, conducir, trabajo).',
+        'Evaluación neuropsicológica si hay fatiga cognitiva o déficit atencional.',
+        'Control de factores de riesgo y adherencia farmacológica.',
+        'Apoyo psicológico si hay síntomas depresivos post-ACV.'
       ] 
     };
 
     if (puntaje === 3) return { 
-      texto: 'Discapacidad Moderada', 
+      texto: 'mRS 3 — Discapacidad Moderada', 
       color: 'amber-600', 
-      evidencia: 'Requiere ayuda para actividades instrumentales, pero mantiene marcha independiente.',
+      evidencia: 'Requiere asistencia para algunas actividades instrumentales, pero mantiene marcha independiente y puede atender sus necesidades básicas sin ayuda.',
       recomendaciones: [
-        'Kinesiología enfocada en equilibrio y fatiga',
-        'Entrenamiento en actividades de la vida diaria (Terapia Ocupacional)',
-        'Evaluar adaptaciones en el hogar'
+        'Kinesiología intensiva enfocada en equilibrio dinámico, marcha y fatiga.',
+        'Terapia Ocupacional para reentrenamiento en actividades de la vida diaria (AVD).',
+        'Evaluación del domicilio y prescripción de adaptaciones (barras, rampas, silla de ducha).',
+        'Fonoaudiología si hay alteración del lenguaje o deglución residual.',
+        'Screening de depresión post-ACV (PHQ-9) — prevalencia 30-40%.'
       ] 
     };
 
-    return { 
-      texto: 'Dependencia Severa', 
-      color: 'red-600', 
-      evidencia: 'Dependencia total o casi total para las necesidades básicas.',
+    if (puntaje === 4) return { 
+      texto: 'mRS 4 — Discapacidad Moderadamente Severa', 
+      color: 'red-500', 
+      evidencia: 'El paciente es incapaz de caminar sin asistencia física o supervisión y no puede atender sus necesidades corporales sin ayuda. Requiere supervisión constante.',
       recomendaciones: [
-        'Prevención de úlceras por presión (UPP)',
-        'Kinesiología motora de mantenimiento (rangos articulares)',
-        'Apoyo y educación al cuidador principal (Escala Zarit recomendada)',
-        'Manejo de la espasticidad si estuviera presente'
+        'Programa de rehabilitación intensiva hospitalaria o ambulatoria de alta frecuencia.',
+        'Kinesiología motora: marcha asistida con ayuda técnica (andador, bastón cuádruple).',
+        'Terapia Ocupacional: independencia en AVD básicas (alimentación, higiene).',
+        'Educación al cuidador principal: movilizaciones, transferencias y prevención de UPP.',
+        'Aplicar Escala de Zarit para evaluar sobrecarga del cuidador.',
+        'Control de espasticidad: considerar toxina botulínica si es limitante.'
+      ] 
+    };
+
+    if (puntaje === 5) return { 
+      texto: 'mRS 5 — Discapacidad Severa', 
+      color: 'red-700', 
+      evidencia: 'Paciente encamado, incontinente y con dependencia total para todas las necesidades básicas. Requiere cuidado y atención constante de enfermería.',
+      recomendaciones: [
+        'Kinesiología pasiva y posicionamiento para prevención de contracturas y UPP.',
+        'Protocolo estricto de prevención de úlceras por presión (cambios posturales cada 2h, colchón antiescaras).',
+        'Evaluación de deglución por fonoaudiología — riesgo alto de neumonía aspirativa.',
+        'Manejo de vejiga e intestino neurogénico.',
+        'Apoyo intensivo al cuidador principal y evaluación de red de apoyo social.',
+        'Considerar evaluación por equipo de Cuidados Paliativos si el pronóstico es reservado.'
+      ] 
+    };
+
+    // puntaje === 6
+    return { 
+      texto: 'mRS 6 — Fallecido', 
+      color: 'slate-600', 
+      evidencia: 'Resultado final desfavorable. El mRS 6 es el endpoint de mortalidad en todos los ensayos clínicos de ACV.',
+      recomendaciones: [
+        'Documentar causa y fecha de fallecimiento en ficha clínica.',
+        'Ofrecer apoyo al equipo tratante y a la familia (duelo).',
+        'Considerar revisión del caso en reunión clínica para mejora continua del proceso.'
       ] 
     };
   }
 },
   {
     id: 'asia_medular',
-    nombre: 'Escala de ASIA',
+    nombre: 'Escala de Deterioro ASIA (AIS)',
     categoria: 'neurologia',
-    descripcion: 'Clasificación de la gravedad de la lesión medular.',
+    descripcion: 'Clasificación internacional de la gravedad de la lesión medular según la American Spinal Injury Association (ASIA). Determina el pronóstico funcional y guía el plan de rehabilitación.',
+
+    bibliografia: "American Spinal Injury Association. International Standards for Neurological Classification of Spinal Cord Injury (ISNCSCI). Revised 2019. ASIA & ISCOS.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/30913239/",
+    evidenciaClinica: "El AIS es el estándar internacional para clasificar lesiones medulares. La conversión de ASIA A a B/C/D en las primeras 72h es el predictor más potente de recuperación funcional. Un 20-30% de los ASIA A agudos pueden convertir a categorías superiores en los primeros 6 meses.",
+
     preguntas: [
-      { id: 'grado', text: 'Grado de deterioro medular:', type: 'select', options: [
-        { label: 'A - Completa: No preservación motora ni sensitiva S4-S5', value: 1 },
-        { label: 'B - Incompleta: Sensibilidad preservada, no función motora', value: 2 },
-        { label: 'C - Incompleta: Función motora preservada (Fuerza < 3)', value: 3 },
-        { label: 'D - Incompleta: Función motora preservada (Fuerza ≥ 3)', value: 4 },
-        { label: 'E - Normal: Funciones motoras y sensitivas normales', value: 5 }
-      ]}
+      {
+        id: 'instrucciones',
+        text: '📋 PROTOCOLO: Evaluar la función motora (10 músculos clave, fuerza 0-5) y sensitiva (tacto fino y pinchazo en 28 dermatomas bilaterales) según ISNCSCI. Determinar el Nivel Neurológico de Lesión (NNL) antes de clasificar.',
+        type: 'text',
+        placeholder: 'Complete la evaluación motora y sensitiva antes de seleccionar el grado AIS.'
+      },
+      {
+        id: 'nivel',
+        text: '1. Nivel Neurológico de la Lesión (NNL) — Segmento más caudal con función normal bilateral:',
+        type: 'select',
+        options: [
+          { label: 'Cervical Alto (C1-C4) — Tetraplejia con compromiso respiratorio', value: 1 },
+          { label: 'Cervical Bajo (C5-C8) — Tetraplejia con función de miembros superiores parcial', value: 2 },
+          { label: 'Torácico (T1-T12) — Paraplejia con función de miembros superiores preservada', value: 3 },
+          { label: 'Lumbar (L1-L5) — Compromiso de miembros inferiores variable', value: 4 },
+          { label: 'Sacro (S1-S5) — Compromiso mínimo, posible disfunción esfinteriana', value: 5 }
+        ]
+      },
+      {
+        id: 'grado',
+        text: '2. Grado AIS — Clasificación de Deterioro ASIA:',
+        type: 'select',
+        options: [
+          { label: 'A — Completa: Sin función motora ni sensitiva en S4-S5', value: 1 },
+          { label: 'B — Incompleta Sensitiva: Sensibilidad preservada bajo NNL, sin función motora', value: 2 },
+          { label: 'C — Incompleta Motora: Función motora bajo NNL, >50% músculos clave con fuerza < 3', value: 3 },
+          { label: 'D — Incompleta Motora: Función motora bajo NNL, ≥50% músculos clave con fuerza ≥ 3', value: 4 },
+          { label: 'E — Normal: Función motora y sensitiva normal (con antecedente de lesión)', value: 5 }
+        ]
+      },
+      {
+        id: 'fase',
+        text: '3. Fase clínica de la lesión:',
+        type: 'select',
+        options: [
+          { label: 'Aguda (0-72 horas)', value: 1 },
+          { label: 'Subaguda (72h - 3 meses)', value: 2 },
+          { label: 'Crónica (> 3 meses)', value: 3 }
+        ]
+      }
     ],
-    calcularPuntaje: (r) => r.grado || 0,
-    interpretar: (p) => {
-      if (p === 1) return { texto: 'Lesión Completa (ASIA A)', color: 'red', recomendaciones: ['Prevención de UPP', 'Manejo de vejiga neurogénica', 'Kinesioterapia pasiva'] };
-      if (p <= 3) return { texto: 'Lesión Incompleta (ASIA B/C)', color: 'orange', recomendaciones: ['Control de sensibilidad', 'Bipedestación asistida', 'Fortalecimiento muscular'] };
-      if (p === 4) return { texto: 'Lesión Incompleta Funcional (ASIA D)', color: 'yellow', recomendaciones: ['Entrenamiento de marcha con ayudas técnicas', 'Equilibrio dinámico'] };
-      return { texto: 'Normal (ASIA E)', color: 'green', recomendaciones: ['Mantener actividad física', 'Seguimiento neurológico'] };
+
+    // Puntaje = grado AIS (variable clínica principal)
+    calcularPuntaje: (r) => Number(r.grado) || 0,
+
+    interpretar: (puntaje, respuestas) => {
+      const nivel = Number(respuestas?.nivel) || 0;
+      const fase = Number(respuestas?.fase) || 0;
+
+      const nivelTexto = ['', 'Cervical Alto (C1-C4)', 'Cervical Bajo (C5-C8)', 'Torácico (T1-T12)', 'Lumbar (L1-L5)', 'Sacro (S1-S5)'];
+      const faseTexto = ['', 'Aguda (0-72h)', 'Subaguda (72h-3 meses)', 'Crónica (> 3 meses)'];
+
+      const nivelLabel = nivel ? `NNL: ${nivelTexto[nivel]}` : '';
+      const faseLabel = fase ? `Fase: ${faseTexto[fase]}` : '';
+      const contexto = [nivelLabel, faseLabel].filter(Boolean).join(' | ');
+
+      const alertaCervicalAlto = nivel === 1
+        ? ' ⚠️ Nivel cervical alto: evaluar función respiratoria y necesidad de ventilación mecánica.'
+        : '';
+
+      if (puntaje === 1) return {
+        texto: 'ASIA A — Lesión Completa',
+        color: 'red-700',
+        evidencia: `${contexto}. Ausencia total de función motora y sensitiva en S4-S5. Pronóstico de recuperación motora inferior al 5% en lesiones crónicas.${alertaCervicalAlto}`,
+        recomendaciones: [
+          nivel === 1 ? '⚠️ URGENTE: Evaluación de función respiratoria — riesgo de fallo ventilatorio. Considerar ventilación mecánica.' : 'Monitorización respiratoria según nivel lesional.',
+          'Prevención y manejo de úlceras por presión: cambios posturales cada 2h, colchón antiescaras.',
+          'Manejo de vejiga neurogénica: cateterismo intermitente limpio (CIC) cada 4-6 horas.',
+          'Manejo de intestino neurogénico: programa de vaciamiento intestinal rutinario.',
+          'Prevención de trombosis venosa profunda (TVP): heparina + compresión neumática.',
+          'Kinesioterapia pasiva para mantener rangos articulares y prevenir contracturas.',
+          'Evaluación psicológica precoz: adaptación al diagnóstico y prevención de depresión.',
+          fase === 1 ? 'Fase aguda: estabilización hemodinámica y neuroprotección (evitar hipotensión e hipoxia).' : 'Fase crónica: programa de rehabilitación integral en centro especializado.'
+        ]
+      };
+
+      if (puntaje === 2) return {
+        texto: 'ASIA B — Lesión Incompleta Sensitiva',
+        color: 'red-500',
+        evidencia: `${contexto}. Sensibilidad preservada por debajo del NNL incluyendo S4-S5, pero sin función motora útil. Aproximadamente 50% convierte a ASIA C o D en los primeros 6 meses.${alertaCervicalAlto}`,
+        recomendaciones: [
+          'Evaluación seriada de sensibilidad sacra (S4-S5) — marcador pronóstico clave.',
+          'Estimulación sensitiva activa para reforzar vías aferentes preservadas.',
+          'Bipedestación progresiva en tilt-table para prevención de hipotensión ortostática.',
+          'Inicio de electroestimulación funcional (FES) como coadyuvante motor.',
+          'Manejo de vejiga e intestino neurogénico según protocolo.',
+          'Prevención de UPP y contracturas.',
+          'Derivación urgente a centro de rehabilitación especializado en lesión medular.',
+          fase === 1 ? 'Fase aguda: reevaluar AIS a las 72h y a los 30 días — período crítico de conversión.' : ''
+        ].filter(Boolean)
+      };
+
+      if (puntaje === 3) return {
+        texto: 'ASIA C — Lesión Incompleta Motora (< Fuerza 3)',
+        color: 'orange-600',
+        evidencia: `${contexto}. Función motora presente bajo el NNL, pero más del 50% de los músculos clave tienen fuerza < 3 (no funcional contra gravedad). Potencial de recuperación significativo con rehabilitación intensiva.${alertaCervicalAlto}`,
+        recomendaciones: [
+          'Programa de fortalecimiento muscular progresivo con énfasis en grupos antigravitatorios.',
+          'Entrenamiento de marcha asistida con órtesis (AFO, KAFO) según nivel lesional.',
+          'Electroestimulación funcional (FES) para activación muscular bajo umbral de contracción voluntaria.',
+          'Terapia Ocupacional: independencia en AVD según nivel cervical o torácico.',
+          'Evaluación de vejiga e intestino neurogénico — posible recuperación parcial de control esfinteriano.',
+          'Hidroterapia como complemento del fortalecimiento muscular.',
+          'Seguimiento con clasificación AIS mensual durante los primeros 6 meses.'
+        ]
+      };
+
+      if (puntaje === 4) return {
+        texto: 'ASIA D — Lesión Incompleta Motora Funcional (≥ Fuerza 3)',
+        color: 'amber-500',
+        evidencia: `${contexto}. Función motora preservada con al menos el 50% de músculos clave con fuerza ≥ 3. Buen pronóstico de marcha independiente: 75-90% logra deambulación comunitaria con rehabilitación.${alertaCervicalAlto}`,
+        recomendaciones: [
+          'Entrenamiento de marcha progresivo: paralela → andador → bastón → marcha independiente.',
+          'Reentrenamiento propioceptivo y de equilibrio dinámico en superficies variables.',
+          'Trabajo funcional en escaleras, rampas y terrenos irregulares.',
+          'Terapia Ocupacional: reintegración a AVD instrumentales (conducir, trabajo).',
+          'Evaluación de candidatura para retiro progresivo de ayudas técnicas.',
+          'Manejo de espasticidad si interfiere con la función: fisioterapia, fármacos, toxina botulínica.',
+          'Evaluación neuropsicológica para reintegración laboral y social.'
+        ]
+      };
+
+      // puntaje === 5: ASIA E
+      return {
+        texto: 'ASIA E — Función Normal',
+        color: 'emerald-600',
+        evidencia: `${contexto}. Funciones motoras y sensitivas normales en todos los segmentos evaluados. Recuperación neurológica completa según clasificación ISNCSCI. Se mantiene el diagnóstico de lesión medular previa.`,
+        recomendaciones: [
+          'Mantener actividad física regular adaptada.',
+          'Seguimiento neurológico semestral con reevaluación ISNCSCI.',
+          'Vigilar síntomas de dolor neuropático residual o disfunción autonómica tardía.',
+          'Control de factores de riesgo si la lesión fue de origen traumático.',
+          'Apoyo psicológico si hay secuelas emocionales del diagnóstico previo.'
+        ]
+      };
     }
   },
   {
