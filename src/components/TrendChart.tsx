@@ -11,7 +11,6 @@ interface TrendChartProps {
 }
 
 export default function TrendChart({ data, titulo, forPDF = false }: TrendChartProps) {
-  // Invertimos y formateamos para que la evolución sea de Izquierda (Pasado) a Derecha (Actual)
   const chartData = [...data]
     .reverse()
     .map(item => ({
@@ -20,6 +19,14 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
     }));
 
   if (chartData.length < 2) return null;
+
+  const puntajes   = chartData.map(d => d.puntaje);
+  const minPuntaje = Math.min(...puntajes);
+  const maxPuntaje = Math.max(...puntajes);
+  const rango      = maxPuntaje - minPuntaje;
+  const padding    = rango === 0 ? Math.max(maxPuntaje * 0.1, 5) : rango * 0.3;
+  const yMin       = Math.max(0, Math.floor(minPuntaje - padding));
+  const yMax       = Math.ceil(maxPuntaje + padding);
 
   const cleanId = titulo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
   const chartId = forPDF ? `pdf-chart-${cleanId}` : `chart-${cleanId}`;
@@ -35,14 +42,11 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
         </div>
       )}
 
-      {/* Contenedor del Gráfico con IDs para el PDF */}
       <div id={chartId} className="w-full bg-white" style={{ height: forPDF ? '180px' : '280px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 25, right: 40, left: 10, bottom: 25 }}>
-            {/* Fondo de red */}
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             
-            {/* Eje X: Fechas */}
             <XAxis 
               dataKey="fecha" 
               axisLine={{ stroke: '#e2e8f0', strokeWidth: 2 }} 
@@ -52,8 +56,8 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
               <Label value="FECHA DE EVALUACIÓN" offset={-15} position="insideBottom" style={{ fill: '#94a3b8', fontSize: '9px', fontWeight: 'bold', letterSpacing: '1px' }} />
             </XAxis>
             
-            {/* Eje Y: Puntajes (Ahora visible) */}
             <YAxis 
+              domain={[yMin, yMax]}
               axisLine={{ stroke: '#e2e8f0', strokeWidth: 2 }} 
               tickLine={false} 
               tick={{ fill: '#64748b', fontSize: 10, fontWeight: '900' }}
@@ -62,7 +66,6 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
               <Label value="PTS" angle={-90} position="insideLeft" style={{ fill: '#94a3b8', fontSize: '9px', fontWeight: 'bold', textAnchor: 'middle' }} />
             </YAxis>
 
-            {/* Línea de Evolución */}
             <Line 
               type="monotone" 
               dataKey="puntaje" 
@@ -72,7 +75,6 @@ export default function TrendChart({ data, titulo, forPDF = false }: TrendChartP
               activeDot={{ r: 8, strokeWidth: 0 }}
               isAnimationActive={false} 
             >
-              {/* Etiquetas de valor exacto sobre cada punto */}
               <LabelList 
                 dataKey="puntaje" 
                 position="top" 
