@@ -31,7 +31,34 @@ export default function ScaleResult({
   const alertColor = isAdvanced ? (result as InterpretacionAvanzada).color : 'slate';
   const evidenciaEspecifica = isAdvanced ? (result as any).evidencia : null;
 
-  // Lógica de PDF Individual Profesional
+  // ✅ Helper centralizado: verifica si hay espacio, si no agrega nueva página
+  // y repone el estado de fuente/color para no corromper el texto siguiente
+  const checkPageBreak = (
+    doc: jsPDF,
+    currentY: number,
+    spaceNeeded: number = 15
+  ): number => {
+    const pageHeight = doc.internal.pageSize.height;
+    if (currentY + spaceNeeded > pageHeight - 40) {
+      doc.addPage();
+
+      // ✅ Reponer encabezado de continuación en páginas adicionales
+      doc.setFillColor(0, 128, 128);
+      doc.rect(0, 0, 210, 12, 'F');
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`${scale.nombre.toUpperCase()} — continuación`, 20, 8);
+
+      // Reset al estado normal de texto
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      return 25; // y inicial en nueva página
+    }
+    return currentY;
+  };
+
   const generateIndividualPDF = () => {
     const doc = new jsPDF();
     const date = new Date().toLocaleDateString('es-CL');
@@ -49,7 +76,7 @@ export default function ScaleResult({
     doc.setFont("helvetica", "normal");
     doc.text("SOPORTE DE DECISIÓN CLÍNICA — ESCALAPRO", 20, 32);
 
-    // 2. Datos del Paciente (Si existen)
+    // 2. Datos del Paciente
     y = 55;
     if (pacienteNombre) {
       doc.setDrawColor(230, 230, 230);
@@ -67,13 +94,15 @@ export default function ScaleResult({
     }
 
     // 3. Título de la Escala
+    y = checkPageBreak(doc, y, 20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(0, 0, 0);
     doc.text(scale.nombre.toUpperCase(), 20, y);
     y += 12;
 
-    // 4. Resultado Destacado
+    // 4. Resultado Destacado (caja teal — necesita 35px de espacio)
+    y = checkPageBreak(doc, y, 35);
     doc.setFillColor(240, 253, 250);
     doc.setDrawColor(0, 128, 128);
     doc.roundedRect(20, y, 170, 30, 3, 3, 'FD');
@@ -83,44 +112,106 @@ export default function ScaleResult({
     doc.text("PUNTAJE OBTENIDO", 25, y + 8);
     
     doc.setFontSize(28);
+    doc.setFont("helvetica", "bold");
     doc.text(`${formatearPuntaje(totalScore)} pts`, 25, y + 22);
     
     doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text(interpretationText.toUpperCase(), 90, y + 22);
-
-    // 5. Evidencia y Recomendaciones
+    // ✅ FIX: interpretationText truncado si es muy largo para no salir de la caja
+    const textoInterpretacion = interpretationText.length > 35
+      ? interpretationText.substring(0, 32) + '...'
+      : interpretationText;
+    doc.text(textoInterpretacion.toUpperCase(), 90, y + 22);
     y += 45;
+
+    // 5. Evidencia clínica
     if (evidenciaEspecifica) {
+      // ✅ FIX: Calculamos cuánto espacio necesita ANTES de escribir
+      doc.setFontSize(10);
+      const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
+      const espacioEvidencia = (splitEvidencia.length * 5) + 25;
+      y = checkPageBreak(doc, y, espacioEvidencia);
+
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
       doc.text("EVIDENCIA DEL RESULTADO:", 20, y);
       y += 7;
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
+      doc.setTextColor(60, 60, 60);
       doc.text(splitEvidencia, 20, y);
       y += (splitEvidencia.length * 5) + 10;
     }
 
+    // 6. Recomendaciones — ✅ FIX PRINCIPAL: check por cada recomendación individual
     if (recommendationsList.length > 0) {
+      y = checkPageBreak(doc, y, 20);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
       doc.text("SUGERENCIAS DE INTERVENCIÓN:", 20, y);
-      y += 7;
+      y += 9;
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
+
       recommendationsList.forEach((rec, i) => {
+        // ✅ FIX: Calculamos cuánto ocupa esta recomendación ANTES de escribirla
         const splitRec = doc.splitTextToSize(`${i + 1}. ${rec}`, 165);
-        doc.text(splitRec, 25, y);
-        y += (splitRec.length * 5) + 2;
+        const altoRec = (splitRec.length * 5) + 4;
+
+        // ✅ FIX: Si no cabe, nueva página ANTES de escribir (no después)
+        y = checkPageBreak(doc, y, altoRec);
+
+        // ✅ FIX: Número de ítem en teal para mantener el estilo visual
+        doc.setTextColor(0, 128, 128);
+        doc.setFont("helvetica", "bold");
+        doc.text(`${i + 1}.`, 25, y);
+
+        doc.setTextColor(50, 50, 50);
+        doc.setFont("helvetica", "normal");
+        // Texto de la recomendación desplazado para no pisar el número
+        const splitRecSinNum = doc.splitTextToSize(rec, 158);
+        doc.text(splitRecSinNum, 32, y);
+        y += altoRec;
       });
+      y += 5;
     }
 
-    // 6. Pie de Página Profesional
+    // 7. Bibliografía (si existe)
+    if (scale.bibliografia) {
+      y = checkPageBreak(doc, y, 25);
+      doc.setDrawColor(220, 220, 220);
+      doc.line(20, y, 190, y);
+      y += 8;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.text("REFERENCIA CIENTÍFICA:", 20, y);
+      y += 5;
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(130, 130, 130);
+      const splitBiblio = doc.splitTextToSize(scale.bibliografia, 170);
+      y = checkPageBreak(doc, y, splitBiblio.length * 4 + 5);
+      doc.text(splitBiblio, 20, y);
+      y += (splitBiblio.length * 4) + 8;
+    }
+
+    // 8. Pie de Página — ✅ FIX: siempre en la ÚLTIMA página, no en coordenada fija
     const pageHeight = doc.internal.pageSize.height;
+
+    // Solo dibujamos el pie si hay espacio suficiente, si no, nueva página
+    if (y > pageHeight - 45) {
+      doc.addPage();
+    }
+
     doc.setDrawColor(200, 200, 200);
     doc.line(20, pageHeight - 35, 90, pageHeight - 35);
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text("FIRMA Y TIMBRE DEL PROFESIONAL", 20, pageHeight - 30);
@@ -230,7 +321,6 @@ export default function ScaleResult({
         <button onClick={onBack} className="flex items-center justify-center gap-2 py-5 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all uppercase text-[10px] tracking-widest active:scale-95">
           <ArrowLeft size={18} /> Nueva Evaluación
         </button>
-        {/* ✅ PASO CLAVE: Cambiamos window.print() por nuestro generador profesional */}
         <button onClick={generateIndividualPDF} className="flex items-center justify-center gap-2 py-5 bg-teal-50 text-teal-700 font-black rounded-2xl border-2 border-teal-100 hover:bg-teal-100 transition-all uppercase text-[10px] tracking-widest active:scale-95">
           <FileText size={18} /> Imprimir PDF
         </button>
