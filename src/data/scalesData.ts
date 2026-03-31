@@ -10971,26 +10971,27 @@ export const scales: Scale[] = [
       };
     }
   },
-  {
+ {
     id: 'pss_10_stress_completa',
     nombre: 'Escala de Estrés Percibido (PSS-10)',
     categoria: 'psicologia',
     descripcion: 'Evaluación del nivel de estrés percibido en el último mes.',
     
-    // --- RIGOR CIENTÍFICO VERIFICADO (PMID: 6668417) ---
     bibliografia: "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385-96.",
     referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/6668417/",
+    evidenciaClinica: "Puntaje 0-40. Puntos de corte validados: 0-13 estrés bajo, 14-26 moderado, 27-40 alto. Los ítems 4, 5, 6, 7 y 9 son ítems positivos que se puntúan de forma invertida.",
 
     preguntas: [
       { id: 'p1', text: '1. ¿Con qué frecuencia se ha sentido afectado por algo que ocurrió inesperadamente?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
       { id: 'p2', text: '2. ¿Con qué frecuencia se ha sentido incapaz de controlar las cosas importantes en su vida?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
       { id: 'p3', text: '3. ¿Con qué frecuencia se ha sentido nervioso o estresado?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
-      { id: 'p4', text: '4. ¿Con qué frecuencia ha manejado con éxito los problemas irritantes de la vida? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
-      { id: 'p5', text: '5. ¿Con qué frecuencia ha sentido que ha lidiado con éxito con los cambios en su vida? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
-      { id: 'p6', text: '6. ¿Con qué frecuencia se ha sentido seguro de su capacidad para manejar sus problemas personales?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
-      { id: 'p7', text: '7. ¿Con qué frecuencia ha sentido que las cosas le van bien? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
-      { id: 'p8', text: '8. ¿Con qué frecuencia ha sentido que no podía afrontar todas las cosas que tenía que hacer? (Invertido):', type: 'select', options: [{ label: 'Nunca (4)', value: 4 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (1)', value: 1 }, { label: 'Muy a menudo (0)', value: 0 }] },
-      { id: 'p9', text: '9. ¿Con qué frecuencia ha podido controlar las irritaciones en su vida?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      // ✅ FIX: Ítems 4, 5, 6, 7, 9 son POSITIVOS — se invierten correctamente
+      { id: 'p4', text: '4. ¿Con qué frecuencia ha manejado con éxito los problemas irritantes de la vida? (Ítem positivo — invertido):', type: 'select', options: [{ label: 'Muy a menudo (0)', value: 0 }, { label: 'A menudo (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'Nunca (4)', value: 4 }] },
+      { id: 'p5', text: '5. ¿Con qué frecuencia ha sentido que ha lidiado con éxito con los cambios en su vida? (Ítem positivo — invertido):', type: 'select', options: [{ label: 'Muy a menudo (0)', value: 0 }, { label: 'A menudo (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'Nunca (4)', value: 4 }] },
+      { id: 'p6', text: '6. ¿Con qué frecuencia se ha sentido seguro de su capacidad para manejar sus problemas personales? (Ítem positivo — invertido):', type: 'select', options: [{ label: 'Muy a menudo (0)', value: 0 }, { label: 'A menudo (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'Nunca (4)', value: 4 }] },
+      { id: 'p7', text: '7. ¿Con qué frecuencia ha sentido que las cosas le van bien? (Ítem positivo — invertido):', type: 'select', options: [{ label: 'Muy a menudo (0)', value: 0 }, { label: 'A menudo (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'Nunca (4)', value: 4 }] },
+      { id: 'p8', text: '8. ¿Con qué frecuencia ha sentido que no podía afrontar todas las cosas que tenía que hacer?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] },
+      { id: 'p9', text: '9. ¿Con qué frecuencia ha podido controlar las irritaciones en su vida? (Ítem positivo — invertido):', type: 'select', options: [{ label: 'Muy a menudo (0)', value: 0 }, { label: 'A menudo (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'Casi nunca (3)', value: 3 }, { label: 'Nunca (4)', value: 4 }] },
       { id: 'p10', text: '10. ¿Con qué frecuencia ha sentido que los problemas se acumulaban tanto que no podía superarlos?', type: 'select', options: [{ label: 'Nunca (0)', value: 0 }, { label: 'Casi nunca (1)', value: 1 }, { label: 'De vez en cuando (2)', value: 2 }, { label: 'A menudo (3)', value: 3 }, { label: 'Muy a menudo (4)', value: 4 }] }
     ],
 
@@ -11000,45 +11001,215 @@ export const scales: Scale[] = [
       if (puntaje >= 27) return { 
         texto: 'ESTRÉS PERCIBIDO ALTO', 
         color: 'red-600', 
-        evidencia: `Puntaje: ${puntaje}/40. Nivel crítico de sobrecarga psicológica.`, 
-        recomendaciones: ['Derivación a Psicología', 'Entrenamiento en técnicas de relajación', 'Evaluar riesgo de agotamiento profesional (Burnout)'] 
+        evidencia: `Puntaje: ${puntaje}/40 (rango alto: 27-40). Nivel crítico de sobrecarga psicológica. Asociado con mayor riesgo de trastornos del sueño, somatización y deterioro inmune (Cohen et al., 1983).`, 
+        recomendaciones: [
+          'Derivación a Psicología para evaluación y plan de intervención.',
+          'Entrenamiento en técnicas de relajación: respiración diafragmática, relajación muscular progresiva.',
+          'Evaluar riesgo de agotamiento profesional (aplicar MBI si es trabajador de salud).',
+          'Revisar cargas laborales, relacionales y funcionales actuales.',
+          'Considerar evaluación de comorbilidad con PHQ-9 y GAD-7.'
+        ] 
       };
       if (puntaje >= 14) return { 
         texto: 'ESTRÉS MODERADO', 
         color: 'orange-500', 
-        evidencia: `Puntaje: ${puntaje}/40. Carga de estrés significativa.`, 
-        recomendaciones: ['Higiene del sueño', 'Actividad física aeróbica regular', 'Identificar estresores principales'] 
+        evidencia: `Puntaje: ${puntaje}/40 (rango moderado: 14-26). Carga de estrés significativa con impacto en la calidad de vida y la adherencia terapéutica.`, 
+        recomendaciones: [
+          'Higiene del sueño: horarios regulares, reducción de pantallas antes de dormir.',
+          'Actividad física aeróbica regular (mínimo 150 min/semana según OMS).',
+          'Identificar y priorizar estresores principales con el paciente.',
+          'Técnicas de mindfulness o meditación guiada.',
+          'Reevaluar con PSS-10 en 4-6 semanas.'
+        ] 
       };
-      return { texto: 'Estrés Bajo', color: 'emerald-600', evidencia: `Puntaje: ${puntaje}/40.`, recomendaciones: ['Continuar con hábitos saludables'] };
+      return { 
+        texto: 'Estrés Bajo', 
+        color: 'emerald-600', 
+        evidencia: `Puntaje: ${puntaje}/40 (rango bajo: 0-13). Nivel de estrés percibido dentro de parámetros saludables.`,
+        recomendaciones: [
+          'Continuar con hábitos saludables actuales.',
+          'Mantener red de apoyo social activa.',
+          'Reevaluar anualmente o ante eventos vitales estresantes.'
+        ]
+      };
+    }
+  }, 
+  
+  {
+    id: 'whoqol_bref_short',
+    nombre: 'WHOQOL-BREF (Calidad de Vida OMS)',
+    categoria: 'psicologia',
+    descripcion: 'Evaluación abreviada de la OMS sobre la calidad de vida en 4 dominios: físico, psicológico, relaciones sociales y entorno.',
+
+    bibliografia: "WHOQOL Group. Development of the World Health Organization WHOQOL-BREF quality of life assessment. Psychol Med. 1998;28(3):551-8.",
+    referenciaUrl: "https://pubmed.ncbi.nlm.nih.gov/9626712/",
+    evidenciaClinica: "El WHOQOL-BREF es el instrumento de calidad de vida más utilizado por la OMS. Validado en más de 40 países. Mayor puntaje = mejor calidad de vida. Puntos de corte: < 13 baja CV, 13-17 moderada, > 17 buena.",
+
+    preguntas: [
+      {
+        id: 'q_global1',
+        text: '1. (Global) ¿Cómo calificaría su calidad de vida?',
+        type: 'select',
+        options: [
+          { label: '1 — Muy mala', value: 1 },
+          { label: '2 — Mala', value: 2 },
+          { label: '3 — Regular', value: 3 },
+          { label: '4 — Buena', value: 4 },
+          { label: '5 — Muy buena', value: 5 }
+        ]
+      },
+      {
+        id: 'q_global2',
+        text: '2. (Global) ¿Cuán satisfecho/a está con su salud?',
+        type: 'select',
+        options: [
+          { label: '1 — Muy insatisfecho/a', value: 1 },
+          { label: '2 — Insatisfecho/a', value: 2 },
+          { label: '3 — Ni satisfecho/a ni insatisfecho/a', value: 3 },
+          { label: '4 — Satisfecho/a', value: 4 },
+          { label: '5 — Muy satisfecho/a', value: 5 }
+        ]
+      },
+      {
+        id: 'q_fisico',
+        text: '3. (Dominio Físico) ¿En qué medida su dolor físico le impide hacer lo que necesita?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada en absoluto', value: 5 },
+          { label: '2 — Un poco', value: 4 },
+          { label: '3 — Moderadamente', value: 3 },
+          { label: '4 — Bastante', value: 2 },
+          { label: '5 — Extremadamente', value: 1 }
+        ]
+      },
+      {
+        id: 'q_energia',
+        text: '4. (Dominio Físico) ¿Cuánta energía tiene para su vida diaria?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada', value: 1 },
+          { label: '2 — Un poco', value: 2 },
+          { label: '3 — Moderada', value: 3 },
+          { label: '4 — Bastante', value: 4 },
+          { label: '5 — Mucha', value: 5 }
+        ]
+      },
+      {
+        id: 'q_psico',
+        text: '5. (Dominio Psicológico) ¿En qué medida disfruta la vida?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada', value: 1 },
+          { label: '2 — Un poco', value: 2 },
+          { label: '3 — Moderadamente', value: 3 },
+          { label: '4 — Bastante', value: 4 },
+          { label: '5 — Mucho', value: 5 }
+        ]
+      },
+      {
+        id: 'q_sentido',
+        text: '6. (Dominio Psicológico) ¿En qué medida siente que su vida tiene sentido?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada', value: 1 },
+          { label: '2 — Un poco', value: 2 },
+          { label: '3 — Moderadamente', value: 3 },
+          { label: '4 — Bastante', value: 4 },
+          { label: '5 — Mucho', value: 5 }
+        ]
+      },
+      {
+        id: 'q_social',
+        text: '7. (Relaciones Sociales) ¿Cuán satisfecho/a está con sus relaciones personales?',
+        type: 'select',
+        options: [
+          { label: '1 — Muy insatisfecho/a', value: 1 },
+          { label: '2 — Insatisfecho/a', value: 2 },
+          { label: '3 — Ni uno ni otro', value: 3 },
+          { label: '4 — Satisfecho/a', value: 4 },
+          { label: '5 — Muy satisfecho/a', value: 5 }
+        ]
+      },
+      {
+        id: 'q_apoyo',
+        text: '8. (Relaciones Sociales) ¿Cuán satisfecho/a está con el apoyo que recibe de sus amigos?',
+        type: 'select',
+        options: [
+          { label: '1 — Muy insatisfecho/a', value: 1 },
+          { label: '2 — Insatisfecho/a', value: 2 },
+          { label: '3 — Ni uno ni otro', value: 3 },
+          { label: '4 — Satisfecho/a', value: 4 },
+          { label: '5 — Muy satisfecho/a', value: 5 }
+        ]
+      },
+      {
+        id: 'q_entorno',
+        text: '9. (Entorno) ¿Cuán seguro/a se siente en su vida diaria?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada', value: 1 },
+          { label: '2 — Un poco', value: 2 },
+          { label: '3 — Moderadamente', value: 3 },
+          { label: '4 — Bastante', value: 4 },
+          { label: '5 — Mucho', value: 5 }
+        ]
+      },
+      {
+        id: 'q_ambiente',
+        text: '10. (Entorno) ¿Cuán saludable es el ambiente físico a su alrededor?',
+        type: 'select',
+        options: [
+          { label: '1 — Nada', value: 1 },
+          { label: '2 — Un poco', value: 2 },
+          { label: '3 — Moderadamente', value: 3 },
+          { label: '4 — Bastante', value: 4 },
+          { label: '5 — Mucho', value: 5 }
+        ]
+      }
+    ],
+
+    // ✅ FIX: calcularPuntaje con Number() seguro
+    calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + (Number(val) || 0), 0),
+
+    interpretar: (puntaje) => {
+      if (puntaje <= 25) return {
+        texto: 'Calidad de Vida Percibida Baja',
+        color: 'red-600',
+        evidencia: `Puntaje: ${puntaje}/50 (rango bajo: 10-25). Compromiso significativo en múltiples dominios de calidad de vida. Asociado con menor adherencia terapéutica y peores resultados en rehabilitación.`,
+        recomendaciones: [
+          'Evaluación integral por equipo multidisciplinario (Psicología, Trabajo Social, Medicina).',
+          'Identificar dominios más afectados: físico, psicológico, social o entorno.',
+          'Intervención en red de apoyo social si el dominio social puntúa bajo.',
+          'Derivación a Psicología si hay compromiso en el dominio psicológico.',
+          'Reevaluar con WHOQOL-BREF a los 3 meses de intervención.'
+        ]
+      };
+
+      if (puntaje <= 37) return {
+        texto: 'Calidad de Vida Moderada',
+        color: 'amber-500',
+        evidencia: `Puntaje: ${puntaje}/50 (rango moderado: 26-37). Calidad de vida con áreas de oportunidad. Revisar dominios con menor puntaje para orientar la intervención.`,
+        recomendaciones: [
+          'Identificar y trabajar los dominios con menor puntuación.',
+          'Fomentar participación social y actividades significativas.',
+          'Evaluar si el dolor o la fatiga están limitando el dominio físico.',
+          'Reevaluar en 3-6 meses o tras cambio clínico relevante.'
+        ]
+      };
+
+      return {
+        texto: 'Buena Calidad de Vida',
+        color: 'emerald-600',
+        evidencia: `Puntaje: ${puntaje}/50 (rango bueno: 38-50). Percepción positiva de calidad de vida en los dominios evaluados.`,
+        recomendaciones: [
+          'Reforzar y mantener los factores protectores identificados.',
+          'Reevaluar anualmente o ante cambios clínicos significativos.',
+          'Utilizar como línea base para monitorear el impacto de intervenciones futuras.'
+        ]
+      };
     }
   },
-  {
-
-id: 'whoqol_bref_short',
-nombre: 'WHOQOL-BREF (Calidad de Vida)',
-categoria: 'psicologia',
-descripcion: 'Evaluación abreviada de la OMS sobre la calidad de vida.',
-preguntas: [
-
-{ id: 'q1', text: '¿Cómo calificaría su calidad de vida?', type: 'select', options: [{ label: 'Muy mala', value: 1 }, { label: 'Mala', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Buena', value: 4 }, { label: 'Muy buena', value: 5 }] },
-
-{ id: 'q2', text: '¿Cuán satisfecho está con su salud?', type: 'select', options: [{ label: 'Muy insatisfecho', value: 1 }, { label: 'Insatisfecho', value: 2 }, { label: 'Lo normal', value: 3 }, { label: 'Satisfecho', value: 4 }, { label: 'Muy satisfecho', value: 5 }] }
-
-],
-
-calcularPuntaje: (r) => Object.values(r).reduce((sum, val) => sum + val, 0),
-
-interpretar: (p) => {
-
-if (p <= 4) return { texto: 'Calidad de vida percibida baja', recomendaciones: ['Evaluar factores determinantes (físicos, sociales)', 'Intervención integral'] };
-
-return { texto: 'Calidad de vida percibida buena', recomendaciones: ['Fomentar factores protectores'] };
-}
-}
-];
-
-
-
+  ];
 
 // Al final de tu archivo scalesData.ts, reemplaza el bloque 'categories' por este:
 
