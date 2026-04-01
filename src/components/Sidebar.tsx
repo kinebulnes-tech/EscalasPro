@@ -1,5 +1,5 @@
 import React from 'react';
-import { categories, scales, categoryIcons } from '../data/scalesData';
+import { categories, categoryIcons } from '../data/scalesData';
 import { LayoutGrid, X, Activity } from 'lucide-react';
 
 interface SidebarProps {
@@ -7,6 +7,7 @@ interface SidebarProps {
   onSelectCategory: (id: string | null) => void;
   isOpen: boolean;
   onClose: () => void;
+  escalas: any[];
 }
 
 /**
@@ -25,9 +26,9 @@ const getIcon = (id: string | null, active: boolean) => {
   return <IconComponent {...props} />;
 };
 
-export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, onClose, escalas }: SidebarProps) {
   const getCount = (id: string | null) => 
-    !id ? scales.length : scales.filter(s => s.categoria === id).length;
+    !id ? escalas.length : escalas.filter(s => s.categoria === id).length;
 
   const handleCategoryClick = (id: string | null) => {
     onSelectCategory(id);
