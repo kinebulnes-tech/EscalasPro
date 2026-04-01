@@ -223,6 +223,7 @@ export default function App() {
           onSelectCategory={(id) => { setSelectedCategory(id); setShowAbout(false); setViewingReport(false); setActiveScale(null); setQuery(''); }}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          escalas={scalasActivas}
         />
 
         <main className="flex-1 overflow-y-auto bg-white/40 backdrop-blur-sm relative custom-scrollbar">
