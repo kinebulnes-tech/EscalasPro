@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { categories, scales } from './data/scalesData';
+import { categories } from './data/scalesData';
+import { loadScalesByCategory, loadAllScales } from './data/scalesLoader';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import ScaleCard from './components/ScaleCard';
@@ -13,13 +14,11 @@ import CategoryPills from './components/CategoryPills';
 import TrendChart from './components/TrendChart';
 import Toast from './components/Toast';
 import { useToast } from './hooks/useToast';
-
 import { getSuggestedScales } from './data/clinicalIntelligence';
 import { calcularEdadExacta } from './utils/biometrics';
 import RecentPatients from './components/RecentPatients';
 import { db } from './utils/db';
 import { Security } from './utils/security';
-
 import { 
   ArrowLeft, Menu, Search, UserPlus, Activity, ShieldCheck, FileText, Star, Lightbulb
 } from 'lucide-react';
@@ -88,8 +87,12 @@ export default function App() {
   const [recientes, setRecientes]                       = useState<any[]>([]);
   const [showConfirmFinalizar, setShowConfirmFinalizar] = useState(false);
 
-  const [pacienteActivo, setPacienteActivo]     = useState<Paciente | null>(cargarSesionActiva);
-  const [listaResultados, setListaResultados]   = useState<ResultadoSesion[]>(cargarResultadosSesion);
+  // ✅ MEJORA 1: Estado dinámico de escalas
+  const [scalasActivas, setScalasActivas]     = useState<any[]>([]);
+  const [cargandoEscalas, setCargandoEscalas] = useState(false);
+
+  const [pacienteActivo, setPacienteActivo]   = useState<Paciente | null>(cargarSesionActiva);
+  const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(cargarResultadosSesion);
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem('escalapro_favs');
@@ -97,6 +100,25 @@ export default function App() {
   });
 
   const { toasts, showToast, removeToast } = useToast();
+
+  // ✅ MEJORA 1: Carga dinámica por categoría
+  useEffect(() => {
+    const cargar = async () => {
+      setCargandoEscalas(true);
+      try {
+        const data = selectedCategory
+          ? await loadScalesByCategory(selectedCategory)
+          : await loadAllScales();
+        setScalasActivas(data);
+      } catch (e) {
+        console.error('Error cargando escalas:', e);
+        setScalasActivas([]);
+      } finally {
+        setCargandoEscalas(false);
+      }
+    };
+    cargar();
+  }, [selectedCategory]);
 
   useEffect(() => {
     const cargarRecientes = async () => {
@@ -140,9 +162,7 @@ export default function App() {
     }
   };
 
-  const finalizaSesionTotal = () => {
-    setShowConfirmFinalizar(true);
-  };
+  const finalizaSesionTotal = () => setShowConfirmFinalizar(true);
 
   const confirmarFinalizar = () => {
     setPacienteActivo(null);
@@ -160,9 +180,10 @@ export default function App() {
     setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
   };
 
+  // ✅ MEJORA 1: useMemo usa scalasActivas
   const { favoriteScales, suggestedScales, otherScales } = useMemo(() => {
     const suggestedIds = query.length > 2 ? getSuggestedScales(query) : [];
-    const filtered = scales.filter(scale => {
+    const filtered = scalasActivas.filter(scale => {
       const matchesCategory = !selectedCategory || scale.categoria === selectedCategory;
       const matchesSearch   = scale.nombre.toLowerCase().includes(query.toLowerCase()) || 
                               scale.descripcion.toLowerCase().includes(query.toLowerCase());
@@ -173,7 +194,7 @@ export default function App() {
       suggestedScales: filtered.filter(s => suggestedIds.includes(s.id) && !favorites.includes(s.id)),
       otherScales:     filtered.filter(s => !favorites.includes(s.id) && !suggestedIds.includes(s.id))
     };
-  }, [selectedCategory, query, favorites]);
+  }, [selectedCategory, query, favorites, scalasActivas]);
 
   const groupedTrends = useMemo(() => {
     if (!listaResultados || listaResultados.length === 0) return [];
@@ -187,7 +208,8 @@ export default function App() {
       .map(([nombre, items]) => ({ nombre, items }));
   }, [listaResultados]);
 
-  const selectedScale   = scales.find(s => s.id === activeScale);
+  // ✅ MEJORA 1: busca en scalasActivas
+  const selectedScale   = scalasActivas.find(s => s.id === activeScale);
   const currentCategory = categories.find(c => c.id === selectedCategory);
 
   return (
@@ -248,7 +270,6 @@ export default function App() {
                     if (pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
                   }} 
                   pacienteNombre={pacienteActivo?.nombre}
-                  
                 />
               </div>
             ) : (
@@ -330,55 +351,69 @@ export default function App() {
 
                 <CategoryPills selectedCategory={selectedCategory} onSelectCategory={(id) => { setSelectedCategory(id); setQuery(''); setActiveScale(null); }} />
 
-                <div className="space-y-12 pb-24">
-                  {favoriteScales.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-6 text-amber-500">
-                        <Star size={20} fill="currentColor" />
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">Mis Escalas Frecuentes</h4>
+                {/* ✅ MEJORA 1: Skeleton mientras carga */}
+                {cargandoEscalas ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="bg-white rounded-[2rem] p-6 border-2 border-gray-50 animate-pulse">
+                        <div className="bg-gray-200 h-12 w-12 rounded-xl mb-4" />
+                        <div className="h-5 bg-gray-200 rounded-full w-3/4 mb-3" />
+                        <div className="h-3 bg-gray-100 rounded-full w-full mb-2" />
+                        <div className="h-3 bg-gray-100 rounded-full w-5/6" />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {favoriteScales.map(s => (
-                          <ScaleCard key={s.id} scale={s} isFavorite={true} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {suggestedScales.length > 0 && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                      <div className="flex items-center gap-2 mb-6 text-teal-600">
-                        <div className="bg-teal-50 p-2 rounded-lg">
-                          <Lightbulb size={18} fill="currentColor" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-12 pb-24">
+                    {favoriteScales.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-6 text-amber-500">
+                          <Star size={20} fill="currentColor" />
+                          <h4 className="font-black uppercase tracking-widest text-[10px]">Mis Escalas Frecuentes</h4>
                         </div>
-                        <h4 className="font-black uppercase tracking-widest text-[10px]">Sugerencias según Diagnóstico</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {favoriteScales.map(s => (
+                            <ScaleCard key={s.id} scale={s} isFavorite={true} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
+                          ))}
+                        </div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {suggestedScales.map(s => (
-                          <ScaleCard key={s.id} scale={s} isFavorite={favorites.includes(s.id)} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    )}
 
-                  {otherScales.length > 0 ? (
-                    <div>
-                      {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
-                        <h4 className="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Todos los resultados</h4>
-                      )}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {otherScales.map(s => (
-                          <ScaleCard key={s.id} scale={s} isFavorite={false} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
-                        ))}
+                    {suggestedScales.length > 0 && (
+                      <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex items-center gap-2 mb-6 text-teal-600">
+                          <div className="bg-teal-50 p-2 rounded-lg">
+                            <Lightbulb size={18} fill="currentColor" />
+                          </div>
+                          <h4 className="font-black uppercase tracking-widest text-[10px]">Sugerencias según Diagnóstico</h4>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {suggestedScales.map(s => (
+                            <ScaleCard key={s.id} scale={s} isFavorite={favorites.includes(s.id)} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : (favoriteScales.length === 0 && suggestedScales.length === 0) && (
-                    <div className="py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
-                      <Search size={48} className="mx-auto text-slate-200 mb-4" />
-                      <p className="text-slate-400 font-black uppercase text-sm">Sin coincidencias clínicas</p>
-                    </div>
-                  )}
-                </div>
+                    )}
+
+                    {otherScales.length > 0 ? (
+                      <div>
+                        {(selectedCategory || query) && (favoriteScales.length > 0 || suggestedScales.length > 0) && (
+                          <h4 className="font-black uppercase tracking-widest text-[10px] text-slate-400 mb-6">Todos los resultados</h4>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {otherScales.map(s => (
+                            <ScaleCard key={s.id} scale={s} isFavorite={false} onToggleFavorite={() => toggleFavorite(s.id)} onClick={() => setActiveScale(s.id)} />
+                          ))}
+                        </div>
+                      </div>
+                    ) : (favoriteScales.length === 0 && suggestedScales.length === 0) && (
+                      <div className="py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+                        <Search size={48} className="mx-auto text-slate-200 mb-4" />
+                        <p className="text-slate-400 font-black uppercase text-sm">Sin coincidencias clínicas</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -392,7 +427,12 @@ export default function App() {
         </main>
       </div>
 
-      <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden fixed bottom-8 right-8 z-[50] bg-slate-900 text-white p-5 rounded-2xl shadow-2xl active:scale-95 transition-all">
+      {/* ✅ MEJORA 4: safe-area-inset-bottom */}
+      <button
+        onClick={() => setIsSidebarOpen(true)}
+        className="lg:hidden fixed right-6 z-[50] bg-slate-900 text-white p-5 rounded-2xl shadow-2xl active:scale-95 transition-all"
+        style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+      >
         <Menu size={24} />
       </button>
 
