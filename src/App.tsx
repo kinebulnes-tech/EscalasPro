@@ -162,12 +162,17 @@ export default function App() {
 
     // ✅ FIX: Restaurar historial previo del paciente desde IndexedDB
     const historial = await db.getHistorial(data.id);
-    const historialNormalizado = historial.map(h => ({
-      ...h,
-      fecha: h.fecha ? new Date(h.fecha).toISOString() : new Date().toISOString()
-    }));
-    setListaResultados(historialNormalizado);
-
+const historialNormalizado = historial.map(h => ({
+  ...h,
+  fecha: h.fecha ? new Date(h.fecha).toISOString() : new Date().toISOString(),
+  color: h.color ?? 'slate',
+  interpretacion: h.interpretacion ?? '',
+  nombreEscala: h.nombreEscala ?? '',
+  idEscala: h.idEscala ?? '',
+  puntaje: h.puntaje ?? 0,
+  recomendaciones: h.recomendaciones ?? [],
+}));
+setListaResultados(historialNormalizado);
     setShowPatientModal(false);
     showToast(`Paciente ${data.nombre} cargado correctamente.`, 'success');
   } catch (e) { 
