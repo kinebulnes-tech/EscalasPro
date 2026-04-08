@@ -11,6 +11,7 @@ import TrendChart from './TrendChart';
 interface ReportSummaryProps {
   paciente: {
     nombre: string; id: string; country: string; edad: string;
+    fechaNacimiento?: string;
     diagnostico: string; peso?: string; talla?: string; imc?: string;
   };
   resultados: any[];
@@ -172,6 +173,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       const fecha = new Date().toLocaleDateString('es-CL');
       const hora  = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 
+      // ── HEADER ─────────────────────────────────────────────
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
       doc.rect(0, 0, pw, 52, 'F');
       doc.setFont("helvetica", "bold");
@@ -186,36 +188,105 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.text(`Generado: ${fecha} a las ${hora}`, pw / 2, 38, { align: 'center' });
       doc.text(`Escalas evaluadas en esta sesión: ${resultados.length}`, pw / 2, 45, { align: 'center' });
 
+      // ── CARD PACIENTE MEJORADA ──────────────────────────────
       let y = 62;
-      const alturaCard = paciente.peso ? 40 : 30;
+      const tieneBiometria = paciente.peso && paciente.talla;
+      const alturaCard = tieneBiometria ? 52 : 40;
+
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
       doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
       doc.setLineWidth(0.6);
       doc.roundedRect(15, y, pw - 30, alturaCard, 3, 3, 'FD');
+
+      // Franja teal izquierda
+      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.rect(15, y, 4, alturaCard, 'F');
+
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.5);
       doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("DATOS DEL PACIENTE", 21, y + 8);
-      doc.setLineWidth(0.3);
-      doc.line(21, y + 10, pw - 21, y + 10);
+      doc.text("DATOS DEL PACIENTE", 23, y + 8);
+      doc.setLineWidth(0.2);
+      doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.line(23, y + 10, pw - 21, y + 10);
+
+      // Nombre
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
+      doc.setFontSize(13);
       doc.setTextColor(DARK[0], DARK[1], DARK[2]);
-      doc.text(paciente.nombre.toUpperCase(), 21, y + 19);
+      doc.text(paciente.nombre.toUpperCase(), 23, y + 19);
+
+      // ID + País
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
-      doc.text(`${docLabel}: ${paciente.id}   |   Edad: ${paciente.edad}`, 21, y + 26);
-      const diagSplit = doc.splitTextToSize(`Diagnóstico: ${paciente.diagnostico}`, pw - 50);
-      doc.text(diagSplit, 21, y + 32);
-      if (paciente.peso && paciente.talla) {
-        doc.setFont("helvetica", "italic");
+      const paisLabel = identityConfigs[paciente.country]?.documentName || 'ID';
+      doc.text(`${paisLabel}: ${paciente.id}`, 23, y + 26);
+
+      // Edad + Fecha nacimiento
+      const edadTexto = paciente.edad ? `Edad: ${paciente.edad}` : '';
+      const fechaNacTexto = paciente.fechaNacimiento 
+        ? `  |  Nacimiento: ${new Date(paciente.fechaNacimiento + 'T12:00:00').toLocaleDateString('es-CL')}` 
+        : '';
+      doc.text(`${edadTexto}${fechaNacTexto}`, 23, y + 32);
+
+      // Diagnóstico
+      doc.setFontSize(8);
+      doc.setTextColor(DARK[0], DARK[1], DARK[2]);
+      const diagSplit = doc.splitTextToSize(`Dx: ${paciente.diagnostico}`, pw - 50);
+      doc.text(diagSplit, 23, y + 38);
+
+      // Biometría
+      if (tieneBiometria) {
+        doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+        doc.roundedRect(23, y + alturaCard - 14, pw - 46, 10, 2, 2, 'F');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
-        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(`Peso: ${paciente.peso} kg   Talla: ${paciente.talla} cm   IMC: ${paciente.imc || 'N/A'}`, 21, y + alturaCard - 4);
+        doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        doc.text(
+          `Peso: ${paciente.peso} kg   |   Talla: ${paciente.talla} cm   |   IMC: ${paciente.imc || 'N/A'}`,
+          pw / 2, y + alturaCard - 7, { align: 'center' }
+        );
       }
 
       y += alturaCard + 12;
+
+      // ── ALERTAS CLÍNICAS DE LA SESIÓN ──────────────────────
+      const resultadosConAlerta = resultados.filter(r => r.alertaClinica && r.alertaClinica.nivel === 'critica');
+      if (resultadosConAlerta.length > 0) {
+        y = checkBreak(doc, y, 20);
+        doc.setFillColor(220, 38, 38);
+        doc.rect(15, y, pw - 30, 8, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        doc.text('ALERTAS CLÍNICAS CRÍTICAS DETECTADAS EN ESTA SESIÓN', pw / 2, y + 5.5, { align: 'center' });
+        y += 8;
+
+        resultadosConAlerta.forEach(r => {
+          y = checkBreak(doc, y, 16);
+          doc.setFillColor(255, 245, 245);
+          doc.setDrawColor(220, 38, 38);
+          doc.setLineWidth(0.3);
+          doc.rect(15, y, pw - 30, 14, 'FD');
+          doc.setFillColor(220, 38, 38);
+          doc.rect(15, y, 3, 14, 'F');
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.setTextColor(220, 38, 38);
+          const tituloLimpio = r.alertaClinica.titulo.replace(/[^\w\s\-\.%\/()áéíóúÁÉÍÓÚñÑ]/g, '');
+          doc.text(tituloLimpio, 22, y + 5.5);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7.5);
+          doc.setTextColor(80, 80, 80);
+          doc.text(`Acción: ${r.alertaClinica.accion}`, 22, y + 10.5);
+          y += 16;
+        });
+        y += 6;
+      }
+
+      // ── RESUMEN SESIÓN ACTUAL ───────────────────────────────
+      y = checkBreak(doc, y, 25);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
@@ -225,6 +296,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.setLineWidth(0.5);
       doc.line(15, y, pw - 15, y);
       y += 8;
+
       resultados.forEach((res, idx) => {
         y = checkBreak(doc, y, 10);
         if (idx % 2 === 0) {
@@ -239,9 +311,24 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
         doc.text(`${res.puntaje} pts`, pw - 55, y + 1, { align: 'right' });
         doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
         doc.text(res.interpretacion, pw - 18, y + 1, { align: 'right' });
-        y += 9;
+
+        // Indicador de alerta en la fila
+        if (res.alertaClinica?.nivel === 'critica') {
+          doc.setTextColor(220, 38, 38);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7);
+          doc.text('● ALERTA', 20, y + 6);
+        } else if (res.alertaClinica?.nivel === 'advertencia') {
+          doc.setTextColor(217, 119, 6);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7);
+          doc.text('● AVISO', 20, y + 6);
+        }
+
+        y += res.alertaClinica ? 11 : 9;
       });
 
+      // ── ANÁLISIS COMPARATIVO ────────────────────────────────
       if (escalasConHistorial.length > 0) {
         y += 8;
         y = checkBreak(doc, y, 25);
