@@ -1,3 +1,4 @@
+// src/components/ScaleResult.tsx
 import { Scale, InterpretacionAvanzada } from '../data/scalesData';
 import { 
   ClipboardCheck, ArrowLeft, Save, ShieldCheck, 
@@ -5,6 +6,8 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { formatearPuntaje } from '../core/scaleEngine';
+import { ClinicalAlert } from '../utils/clinicalAlerts';
+import ClinicalAlertBanner from './ClinicalAlertBanner';
 
 interface ScaleResultProps {
   scale: Scale;
@@ -14,6 +17,7 @@ interface ScaleResultProps {
   onSave?: (resultado: any) => void;
   pacienteNombre?: string;
   onToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
+  alerta?: ClinicalAlert | null;
 }
 
 export default function ScaleResult({ 
@@ -23,7 +27,8 @@ export default function ScaleResult({
   onBack, 
   onSave, 
   pacienteNombre,
-  onToast
+  onToast,
+  alerta,
 }: ScaleResultProps) {
   
   const result = scale.interpretar(totalScore, respuestas); 
@@ -85,6 +90,43 @@ export default function ScaleResult({
         y += 10;
       }
 
+      // Bloque de alerta en el PDF
+      if (alerta) {
+        y = checkPageBreak(doc, y, 35);
+        const alertaColor = alerta.nivel === 'critica' 
+          ? [220, 38, 38]
+          : alerta.nivel === 'advertencia'
+          ? [217, 119, 6]
+          : [37, 99, 235];
+
+        doc.setFillColor(alertaColor[0], alertaColor[1], alertaColor[2]);
+        doc.rect(15, y, 180, 8, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        const labelAlert = alerta.nivel === 'critica' ? 'ALERTA CRITICA' 
+          : alerta.nivel === 'advertencia' ? 'ADVERTENCIA CLINICA' : 'INFORMACION';
+        doc.text(labelAlert, 20, y + 5.5);
+        y += 8;
+
+        doc.setFillColor(255, 245, 245);
+        doc.setDrawColor(alertaColor[0], alertaColor[1], alertaColor[2]);
+        doc.setLineWidth(0.3);
+        doc.rect(15, y, 180, 24, 'FD');
+        doc.setTextColor(50, 50, 50);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        const tituloLimpio = alerta.titulo.replace(/[^\w\s\-\.%\/()áéíóúÁÉÍÓÚñÑ]/g, '');
+        const splitTitulo = doc.splitTextToSize(tituloLimpio, 170);
+        doc.text(splitTitulo, 20, y + 7);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(80, 80, 80);
+        const splitAccion = doc.splitTextToSize(`Accion: ${alerta.accion}`, 170);
+        doc.text(splitAccion, 20, y + 14);
+        y += 32;
+      }
+
       y = checkPageBreak(doc, y, 20);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
@@ -92,8 +134,6 @@ export default function ScaleResult({
       doc.text(scale.nombre.toUpperCase(), 20, y);
       y += 12;
 
-      doc.setFontSize(13);
-      doc.setFont("helvetica", "bold");
       const splitInterp = doc.splitTextToSize(interpretationText.toUpperCase(), 95);
       const alturaInterp = Math.max(30, (splitInterp.length * 7) + 18);
 
@@ -116,14 +156,12 @@ export default function ScaleResult({
       doc.setFont("helvetica", "bold");
       doc.setTextColor(0, 128, 128);
       splitInterp.forEach((linea: string, idx: number) => {
-        const lineY = y + 14 + (idx * 7);
-        doc.text(linea, 120, lineY);
+        doc.text(linea, 120, y + 14 + (idx * 7));
       });
 
       y += alturaInterp + 12;
 
       if (evidenciaEspecifica) {
-        doc.setFontSize(10);
         const splitEvidencia = doc.splitTextToSize(`"${evidenciaEspecifica}"`, 170);
         const espacioEvidencia = (splitEvidencia.length * 5) + 25;
         y = checkPageBreak(doc, y, espacioEvidencia);
@@ -151,16 +189,10 @@ export default function ScaleResult({
           const splitRec = doc.splitTextToSize(rec, 152);
           const altoRec  = (splitRec.length * 5) + 10;
           y = checkPageBreak(doc, y, altoRec + 4);
-
           const esUrgente = rec.startsWith('⚠️') || rec.toLowerCase().includes('inmediato') || rec.toLowerCase().includes('activar') || (i === 0 && alertColor?.includes('red'));
 
-          if (esUrgente) {
-            doc.setFillColor(255, 245, 245);
-            doc.setDrawColor(200, 50, 50);
-          } else {
-            doc.setFillColor(248, 250, 252);
-            doc.setDrawColor(0, 128, 128);
-          }
+          if (esUrgente) { doc.setFillColor(255, 245, 245); doc.setDrawColor(200, 50, 50); }
+          else           { doc.setFillColor(248, 250, 252); doc.setDrawColor(0, 128, 128); }
 
           doc.setLineWidth(0.4);
           doc.roundedRect(20, y, 170, altoRec, 2, 2, 'FD');
@@ -180,24 +212,12 @@ export default function ScaleResult({
           doc.setFontSize(9);
           doc.text(splitRec, 35, y + 6.5);
 
-          if (esUrgente) {
-            doc.setFillColor(200, 50, 50);
-            doc.roundedRect(pw - 40, y + 2, 26, 6, 1, 1, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(6);
-            doc.setFont("helvetica", "bold");
-            doc.text("URGENTE", pw - 37, y + 6.2);
-          }
-
-          y += altoRec + 4;
+          y += altoRec + 6;
         });
-        y += 5;
       }
 
       if (scale.bibliografia) {
-        y = checkPageBreak(doc, y, 25);
-        doc.setDrawColor(220, 220, 220);
-        doc.line(20, y, 190, y);
+        y = checkPageBreak(doc, y, 20);
         y += 8;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(9);
@@ -210,7 +230,6 @@ export default function ScaleResult({
         const splitBiblio = doc.splitTextToSize(scale.bibliografia, 170);
         y = checkPageBreak(doc, y, splitBiblio.length * 4 + 5);
         doc.text(splitBiblio, 20, y);
-        y += (splitBiblio.length * 4) + 8;
       }
 
       const totalPaginas = doc.getNumberOfPages();
@@ -260,6 +279,8 @@ export default function ScaleResult({
   return (
     <div className="bg-white rounded-[2.5rem] shadow-2xl p-6 sm:p-10 max-w-2xl mx-auto border border-gray-100 mb-10 animate-in fade-in zoom-in duration-500">
       
+      {alerta && <ClinicalAlertBanner alerta={alerta} />}
+
       {pacienteNombre ? (
         <div className="mb-8 p-5 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem] animate-in slide-in-from-top-4">
           <p className="text-[10px] font-black text-emerald-600 uppercase mb-3 text-center tracking-widest">Paciente: {pacienteNombre}</p>
@@ -274,7 +295,8 @@ export default function ScaleResult({
                   color: alertColor,
                   recomendaciones: recommendationsList,
                   evidencia: evidenciaEspecifica,
-                  fecha: new Date().toLocaleDateString('es-CL')
+                  fecha: new Date().toLocaleDateString('es-CL'),
+                  alertaClinica: alerta ?? null,
                 });
                 onToast?.("Resultado vinculado al informe.", "success");
               }
