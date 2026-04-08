@@ -156,16 +156,24 @@ export default function App() {
   }, [favorites]);
 
   const handlePacienteIdentificado = async (data: Paciente) => {
-    try {
-      await db.upsertPaciente(data);
-      setPacienteActivo(data);
-      setListaResultados([]);
-      setShowPatientModal(false);
-      showToast(`Paciente ${data.nombre} cargado correctamente.`, 'success');
-    } catch (e) { 
-      showToast("Error al acceder a la base de datos.", "error");
-    }
-  };
+  try {
+    await db.upsertPaciente(data);
+    setPacienteActivo(data);
+
+    // ✅ FIX: Restaurar historial previo del paciente desde IndexedDB
+    const historial = await db.getHistorial(data.id);
+    const historialNormalizado = historial.map(h => ({
+      ...h,
+      fecha: h.fecha ? new Date(h.fecha).toISOString() : new Date().toISOString()
+    }));
+    setListaResultados(historialNormalizado);
+
+    setShowPatientModal(false);
+    showToast(`Paciente ${data.nombre} cargado correctamente.`, 'success');
+  } catch (e) { 
+    showToast("Error al acceder a la base de datos.", "error");
+  }
+};
 
   const finalizaSesionTotal = () => setShowConfirmFinalizar(true);
 
