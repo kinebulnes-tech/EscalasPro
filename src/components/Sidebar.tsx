@@ -1,13 +1,13 @@
 import React from 'react';
 import { categories, categoryIcons } from '../data/scalesData';
-import { LayoutGrid, X, Activity } from 'lucide-react';
-
+import { LayoutGrid, X, Activity, Workflow } from 'lucide-react';
 interface SidebarProps {
   selectedCategory: string | null;
   onSelectCategory: (id: string | null) => void;
   isOpen: boolean;
   onClose: () => void;
   escalas: any[];
+  onOpenFlows: () => void;
 }
 
 /**
@@ -26,7 +26,7 @@ const getIcon = (id: string | null, active: boolean) => {
   return <IconComponent {...props} />;
 };
 
-export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, onClose, escalas }: SidebarProps) {
+export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, onClose, escalas, onOpenFlows }: SidebarProps) {
   const getCount = (id: string | null) => 
     !id ? escalas.length : escalas.filter(s => s.categoria === id).length;
 
@@ -121,6 +121,25 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
             </div>
           </div>
         </nav>
+
+        {/* Protocolos Clínicos */}
+        <div className="px-4 pb-4">
+          <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">
+            Protocolos
+          </label>
+          <button
+            onClick={onOpenFlows}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-teal-50 border-2 border-dashed border-slate-100 hover:border-teal-200 transition-all group"
+          >
+            <div className="p-2 rounded-xl bg-teal-50 group-hover:bg-teal-600 transition-colors">
+              <Workflow size={18} className="text-teal-600 group-hover:text-white transition-colors" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-black text-slate-700 group-hover:text-teal-700">Flujos Clínicos</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Protocolos guiados</p>
+            </div>
+          </button>
+        </div>
 
         {/* Footer */}
         <div className="p-8 border-t border-slate-50 flex-shrink-0 bg-white">
