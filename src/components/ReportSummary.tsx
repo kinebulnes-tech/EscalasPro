@@ -191,7 +191,7 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       // ── CARD PACIENTE MEJORADA ──────────────────────────────
       let y = 62;
       const tieneBiometria = paciente.peso && paciente.talla;
-      const alturaCard = tieneBiometria ? 52 : 40;
+      const alturaCard = tieneBiometria ? 46 : 36;
 
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
       doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
@@ -234,18 +234,18 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       doc.setFontSize(8);
       doc.setTextColor(DARK[0], DARK[1], DARK[2]);
       const diagSplit = doc.splitTextToSize(`Dx: ${paciente.diagnostico}`, pw - 50);
-      doc.text(diagSplit, 23, y + 38);
+      doc.text(diagSplit, 23, y + 34);
 
       // Biometría
       if (tieneBiometria) {
         doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.roundedRect(23, y + alturaCard - 14, pw - 46, 10, 2, 2, 'F');
+        doc.roundedRect(23, y + alturaCard - 12, pw - 46, 10, 2, 2, 'F');
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
         doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
         doc.text(
           `Peso: ${paciente.peso} kg   |   Talla: ${paciente.talla} cm   |   IMC: ${paciente.imc || 'N/A'}`,
-          pw / 2, y + alturaCard - 7, { align: 'center' }
+          pw / 2, y + alturaCard - 5, { align: 'center' }
         );
       }
 
