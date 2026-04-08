@@ -12,6 +12,7 @@ interface ScaleFormProps {
   scale: Scale;
   onBack: () => void;
   onSave?: (resultado: any) => void;
+  onToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
   pacienteNombre?: string;
   pacienteContexto?: any;
 }
@@ -63,11 +64,11 @@ const Stopwatch = ({ duration, onFinish }: { duration?: number, onFinish?: (seco
   );
 };
 
-export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacienteContexto }: ScaleFormProps) {
+export default function ScaleForm({ scale, onBack, onSave, onToast, pacienteNombre, pacienteContexto }: ScaleFormProps) {
   const [respuestas, setRespuestas]     = useState<Record<string, number>>({});
   const [faltantes, setFaltantes]       = useState<string[]>([]);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
-  const [resultado, setResultado]       = useState<{puntaje: number; interpretacion: string;} | null>(null);
+  const [resultado, setResultado] = useState<{puntaje: number; interpretacion: string; alerta: any;} | null>(null);
 
   // ✅ GUARD: estado para el modal de confirmación al volver
   const [showConfirmVolver, setShowConfirmVolver] = useState(false);
@@ -146,21 +147,23 @@ export default function ScaleForm({ scale, onBack, onSave, pacienteNombre, pacie
     };
     feedback.success();
     const result = calcularEscala(scale, respuestasConContexto);
-    if (result.puntaje !== null) {
-      setResultado({ puntaje: result.puntaje, interpretacion: result.interpretacion });
-    }
+if (result.puntaje !== null) {
+  setResultado({ puntaje: result.puntaje, interpretacion: result.interpretacion, alerta: result.alerta });
+}
   };
 
-  if (resultado) return (
-    <ScaleResult
-      scale={scale}
-      totalScore={resultado.puntaje}
-      respuestas={{...respuestas, ...pacienteContexto}}
-      onBack={onBack}
-      onSave={onSave}
-      pacienteNombre={pacienteNombre}
-    />
-  );
+ if (resultado) return (
+  <ScaleResult
+    scale={scale}
+    totalScore={resultado.puntaje}
+    respuestas={{...respuestas, ...pacienteContexto}}
+    onBack={onBack}
+    onSave={onSave}
+    onToast={onToast}
+    pacienteNombre={pacienteNombre}
+    alerta={resultado.alerta}
+  />
+);
 
   return (
     <>
