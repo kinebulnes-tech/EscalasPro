@@ -228,13 +228,13 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
       const fechaNacTexto = paciente.fechaNacimiento 
         ? `  |  Nacimiento: ${new Date(paciente.fechaNacimiento + 'T12:00:00').toLocaleDateString('es-CL')}` 
         : '';
-      doc.text(`${edadTexto}${fechaNacTexto}`, 23, y + 32);
+      doc.text(`${edadTexto}${fechaNacTexto}`, 23, y + 31);
 
       // Diagnóstico
       doc.setFontSize(8);
       doc.setTextColor(DARK[0], DARK[1], DARK[2]);
       const diagSplit = doc.splitTextToSize(`Dx: ${paciente.diagnostico}`, pw - 50);
-      doc.text(diagSplit, 23, y + 34);
+      doc.text(diagSplit, 23, y + 37);
 
       // Biometría
       if (tieneBiometria) {
