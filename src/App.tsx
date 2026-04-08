@@ -16,6 +16,7 @@ import Toast from './components/Toast';
 import { useToast } from './hooks/useToast';
 import { getSuggestedScales } from './data/clinicalIntelligence';
 import { calcularEdadExacta } from './utils/biometrics';
+import { feedback } from './utils/feedback';
 import RecentPatients from './components/RecentPatients';
 import { db } from './utils/db';
 import { Security } from './utils/security';
@@ -258,18 +259,35 @@ export default function App() {
                 </button>
                 <ScaleForm 
                   scale={selectedScale} 
+                  onToast={showToast}
                   onBack={() => setActiveScale(null)}
                   pacienteContexto={pacienteActivo ? {
                     ...pacienteActivo,
                     ...calcularEdadExacta(pacienteActivo.fechaNacimiento)
                   } : null}
                   onSave={async (n) => { 
-                    const res = { ...n, fecha: new Date().toISOString() };
-                    setListaResultados(p => [...p, res]); 
-                    setActiveScale(null);
-                    showToast(`${n.nombreEscala} vinculada al informe.`, 'success');
-                    if (pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
-                  }} 
+  const res = { ...n, fecha: new Date().toISOString() };
+  setListaResultados(p => [...p, res]); 
+  setActiveScale(null);
+
+  if (n.alertaClinica) {
+    if (n.alertaClinica.nivel === 'critica') {
+      showToast(`🚨 ${n.alertaClinica.titulo}`, 'error');
+      feedback.warning();
+    } else if (n.alertaClinica.nivel === 'advertencia') {
+      showToast(`⚠️ ${n.alertaClinica.titulo}`, 'warning');
+      feedback.warning();
+    } else {
+      showToast(`${n.nombreEscala} vinculada al informe.`, 'success');
+      feedback.success();
+    }
+  } else {
+    showToast(`${n.nombreEscala} vinculada al informe.`, 'success');
+    feedback.success();
+  }
+
+  if (pacienteActivo) await db.guardarEvaluacion(pacienteActivo.id, selectedScale.id, res);
+}} 
                   pacienteNombre={pacienteActivo?.nombre}
                 />
               </div>
