@@ -18,6 +18,8 @@ import { getSuggestedScales } from './data/clinicalIntelligence';
 import { calcularEdadExacta } from './utils/biometrics';
 import { feedback } from './utils/feedback';
 import RecentPatients from './components/RecentPatients';
+import ClinicalFlowPanel from './components/ClinicalFlowPanel';
+import { ClinicalFlow } from './data/clinicalFlows';
 import { db } from './utils/db';
 import { Security } from './utils/security';
 import { 
@@ -87,6 +89,8 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen]               = useState(false);
   const [recientes, setRecientes]                       = useState<any[]>([]);
   const [showConfirmFinalizar, setShowConfirmFinalizar] = useState(false);
+  const [showFlows, setShowFlows]       = useState(false);
+  const [activeFlow, setActiveFlow]     = useState<ClinicalFlow | null>(null);
 
   // ✅ MEJORA 1: Estado dinámico de escalas
   const [scalasActivas, setScalasActivas]     = useState<any[]>([]);
@@ -220,25 +224,38 @@ export default function App() {
       
       <div className="flex flex-1 overflow-hidden relative">
         <Sidebar 
-          selectedCategory={selectedCategory}
-          onSelectCategory={(id) => { setSelectedCategory(id); setShowAbout(false); setViewingReport(false); setActiveScale(null); setQuery(''); }}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          escalas={scalasActivas}
-        />
+  selectedCategory={selectedCategory}
+  onSelectCategory={(id) => { setSelectedCategory(id); setShowAbout(false); setViewingReport(false); setActiveScale(null); setQuery(''); setShowFlows(false); }}
+  isOpen={isSidebarOpen}
+  onClose={() => setIsSidebarOpen(false)}
+  escalas={scalasActivas}
+  onOpenFlows={() => { setShowFlows(true); setShowAbout(false); setViewingReport(false); setActiveScale(null); if (window.innerWidth < 1024) setIsSidebarOpen(false); }}
+/>
 
         <main className="flex-1 overflow-y-auto bg-white/40 backdrop-blur-sm relative custom-scrollbar">
           <div className="max-w-7xl mx-auto px-4 lg:px-12 py-4 lg:py-10 min-h-full flex flex-col">
             
-            {showAbout ? (
-              <div className="animate-in fade-in zoom-in-95 duration-500">
-                <button onClick={() => setShowAbout(false)} className="group flex items-center gap-3 text-slate-400 font-bold mb-12 hover:text-teal-600 transition-all">
-                  <div className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></div>
-                  <span>Volver al Inicio</span>
-                </button>
-                <About />
-              </div>
-            ) : 
+            {showFlows ? (
+  <div className="animate-in fade-in duration-500">
+    <ClinicalFlowPanel
+      activeFlow={activeFlow}
+      onSelectFlow={(flow) => setActiveFlow(flow)}
+      onSelectScale={(escalaId) => {
+        setActiveScale(escalaId);
+        setShowFlows(false);
+      }}
+      onClose={() => setShowFlows(false)}
+    />
+  </div>
+) : showAbout ? (
+  <div className="animate-in fade-in zoom-in-95 duration-500">
+    <button onClick={() => setShowAbout(false)} className="group flex items-center gap-3 text-slate-400 font-bold mb-12 hover:text-teal-600 transition-all">
+      <div className="p-2 bg-white rounded-xl shadow-sm"><ArrowLeft size={18} /></div>
+      <span>Volver al Inicio</span>
+    </button>
+    <About />
+  </div>
+) :
 
             viewingReport && pacienteActivo ? (
               <ReportSummary 
