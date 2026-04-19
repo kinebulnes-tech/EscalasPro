@@ -460,27 +460,27 @@ const scales: Scale[] = [
   calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
 
   interpretar: (puntaje) => {
-    if (puntaje >= 2) return { 
-      texto: 'qSOFA POSITIVO (Alto Riesgo)', 
-      color: 'red', 
+    if (puntaje >= 2) return {
+      texto: 'qSOFA POSITIVO (Alto Riesgo)',
+      color: 'red-600',
       evidencia: 'Puntaje ≥ 2 sugiere una alta probabilidad de resultados adversos (muerte o estancia prolongada en UCI).',
       recomendaciones: [
         'Activar protocolo de SEPSIS de inmediato',
         'Monitorización continua de signos vitales',
         'Notificación médica urgente para estudio de disfunción orgánica (lactato, SOFA completo)',
         'Asegurar accesos venosos y oxigenoterapia si aplica'
-      ] 
+      ]
     };
 
-    return { 
-      texto: 'qSOFA NEGATIVO (Bajo Riesgo)', 
-      color: 'green', 
+    return {
+      texto: 'qSOFA NEGATIVO (Bajo Riesgo)',
+      color: 'emerald-600',
       evidencia: 'El riesgo de mortalidad es bajo, pero no excluye sepsis. Mantener vigilancia clínica.',
       recomendaciones: [
         'Continuar observación clínica periódica',
         'Evaluar otros focos infecciosos',
         'Repetir evaluación si el estado clínico se deteriora'
-      ] 
+      ]
     };
   }
 },
@@ -617,9 +617,9 @@ const scales: Scale[] = [
   calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + val, 0),
 
   interpretar: (puntaje) => {
-    if (puntaje >= 1) return { 
-      texto: 'HALLAZGO SUGESTIVO DE ACV (Positivo)', 
-      color: 'red', 
+    if (puntaje >= 1) return {
+      texto: 'HALLAZGO SUGESTIVO DE ACV (Positivo)',
+      color: 'red-600',
       evidencia: 'La presencia de al menos 1 signo clínico positivo indica una alta probabilidad de ACV agudo.',
       recomendaciones: [
         'Activar de inmediato el Código ACV / Clave Azul',
@@ -630,9 +630,9 @@ const scales: Scale[] = [
       ] 
     };
 
-    return { 
-      texto: 'SIN SIGNOS EVIDENTES (Negativo)', 
-      color: 'green', 
+    return {
+      texto: 'SIN SIGNOS EVIDENTES (Negativo)',
+      color: 'emerald-600',
       evidencia: 'No se detectan anomalías en los tres parámetros evaluados. No excluye ACV posterior o AIT.',
       recomendaciones: [
         'Realizar evaluación neurológica más detallada si persisten dudas (ej. NIHSS)',
