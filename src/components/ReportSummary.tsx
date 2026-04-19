@@ -29,7 +29,7 @@ const MUTED = [100, 116, 139] as const;
 const WHITE = [255, 255, 255] as const;
 const GRAY  = [220, 220, 220] as const;
 
-export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize, onToast }: ReportSummaryProps) {
+export default function ReportSummary({ paciente, resultados, onBack, onRemoveScale, onFinalize: _onFinalize, onToast }: ReportSummaryProps) {
   const docLabel = identityConfigs[paciente.country]?.documentName || "Identificación";
 
   const conteo: Record<string, any[]> = {};
