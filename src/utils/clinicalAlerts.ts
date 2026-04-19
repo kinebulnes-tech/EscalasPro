@@ -175,10 +175,11 @@ const ALERTAS_POR_ESCALA: Record<string, AlertRule[]> = {
     }
   ],
 
-  'phq9': [
+  'phq_9': [
     {
       evaluar: (p, r) => {
-        const ideacion = r['q9'] || r['pregunta9'] || r['suicidio'] || 0;
+        // Bug fix: el ítem de ideación suicida en PHQ-9 se llama 'p9'
+        const ideacion = r['p9'] ?? r['q9'] ?? r['pregunta9'] ?? r['suicidio'] ?? 0;
         if (Number(ideacion) >= 1) return {
           nivel: 'critica',
           titulo: '🚨 Ideación Suicida Detectada',
