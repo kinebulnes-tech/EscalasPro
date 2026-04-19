@@ -95,6 +95,7 @@ export default function App() {
   // ✅ MEJORA 1: Estado dinámico de escalas
   const [scalasActivas, setScalasActivas]     = useState<any[]>([]);
   const [cargandoEscalas, setCargandoEscalas] = useState(false);
+  const [errorCargaEscalas, setErrorCargaEscalas] = useState(false);
 
   const [pacienteActivo, setPacienteActivo]   = useState<Paciente | null>(cargarSesionActiva);
   const [listaResultados, setListaResultados] = useState<ResultadoSesion[]>(cargarResultadosSesion);
@@ -111,6 +112,7 @@ export default function App() {
     const cargar = async () => {
       setCargandoEscalas(true);
       try {
+        setErrorCargaEscalas(false);
         const data = selectedCategory
           ? await loadScalesByCategory(selectedCategory)
           : await loadAllScales();
@@ -118,6 +120,7 @@ export default function App() {
       } catch (e) {
         console.error('Error cargando escalas:', e);
         setScalasActivas([]);
+        setErrorCargaEscalas(true);
       } finally {
         setCargandoEscalas(false);
       }
@@ -400,7 +403,6 @@ setListaResultados(historialNormalizado);
 
                 <CategoryPills selectedCategory={selectedCategory} onSelectCategory={(id) => { setSelectedCategory(id); setQuery(''); setActiveScale(null); }} />
 
-                {/* ✅ MEJORA 1: Skeleton mientras carga */}
                 {cargandoEscalas ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                     {[...Array(6)].map((_, i) => (
@@ -411,6 +413,18 @@ setListaResultados(historialNormalizado);
                         <div className="h-3 bg-gray-100 rounded-full w-5/6" />
                       </div>
                     ))}
+                  </div>
+                ) : errorCargaEscalas ? (
+                  <div className="py-24 text-center bg-red-50 rounded-[3rem] border-2 border-dashed border-red-100 mt-6">
+                    <Activity size={48} className="mx-auto text-red-200 mb-4" />
+                    <p className="text-red-400 font-black uppercase text-sm">Error al cargar las escalas</p>
+                    <p className="text-red-300 text-xs font-medium mt-2">Verifica tu conexión e intenta nuevamente</p>
+                    <button
+                      onClick={() => { setSelectedCategory(null); setErrorCargaEscalas(false); }}
+                      className="mt-6 px-6 py-3 bg-red-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all"
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-12 pb-24">
@@ -459,6 +473,9 @@ setListaResultados(historialNormalizado);
                       <div className="py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
                         <Search size={48} className="mx-auto text-slate-200 mb-4" />
                         <p className="text-slate-400 font-black uppercase text-sm">Sin coincidencias clínicas</p>
+                        {query && (
+                          <p className="text-slate-300 text-xs font-medium mt-2">Intenta con otro término o explora por categoría</p>
+                        )}
                       </div>
                     )}
                   </div>
