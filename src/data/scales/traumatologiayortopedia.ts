@@ -645,7 +645,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Number(respuestas.nivel_actividad) || 0,
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       const interpretacion = {
         texto: `Nivel Tegner: ${puntaje}`,
         color: puntaje >= 7 ? 'emerald-600' : puntaje >= 4 ? 'orange-500' : 'red-600',
@@ -990,7 +990,6 @@ const scales: Scale[] = [
   },
 
   interpretar: (total) => {
-    const isRed = total < 50;
     const isAmber = total >= 50 && total < 70;
     const isTeal = total >= 70 && total < 85;
     
