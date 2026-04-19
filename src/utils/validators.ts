@@ -3,7 +3,7 @@ import { identityConfigs, normalizeID } from './patientIdentity';
 import { feedback } from './feedback';
 
 // ✅ NUEVO: Mensajes de error claros por país y tipo de documento
-const getMensajeError = (countryCode: string, validationType: string): string => {
+const getMensajeError = (_countryCode: string, validationType: string): string => {
   switch (validationType) {
     case 'CHILEAN_RUT':
       return 'RUT inválido. Verifica el dígito verificador (ej: 12.345.678-9)';
