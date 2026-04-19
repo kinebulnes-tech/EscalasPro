@@ -85,7 +85,7 @@ const scales: Scale[] = [
   interpretar: (puntaje) => {
     if (puntaje <= 3) return { 
       texto: 'Ingesta No Oral (Grave)', 
-      color: 'red', 
+      color: 'red-600', 
       evidencia: 'Niveles 1-3 corresponden a pacientes que no pueden recibir nutrición por vía oral de forma segura.',
       recomendaciones: [
         'Mantener nutrición enteral (SNG/Gastrostomía)',
@@ -96,7 +96,7 @@ const scales: Scale[] = [
 
     if (puntaje <= 6) return { 
       texto: 'Ingesta Oral Parcial (Moderada)', 
-      color: 'orange', 
+      color: 'orange-600',
       evidencia: 'Niveles 4-6 indican que la vía oral es insuficiente o insegura como fuente única de nutrición.',
       recomendaciones: [
         'Adaptar texturas de alimentos según viscosidad (IDDSI)',
@@ -107,7 +107,7 @@ const scales: Scale[] = [
 
     if (puntaje <= 9) return { 
       texto: 'Ingesta Oral Total (Leve)', 
-      color: 'yellow', 
+      color: 'yellow-600',
       evidencia: 'Niveles 7-9 indican que el paciente se alimenta exclusivamente por vía oral con adaptaciones.',
       recomendaciones: [
         'Progresión gradual hacia texturas más complejas',
@@ -118,7 +118,7 @@ const scales: Scale[] = [
 
     return { 
       texto: 'Ingesta Normal', 
-      color: 'green', 
+      color: 'emerald-600',
       evidencia: 'Nivel 10 indica recuperación total o ausencia de disfagia clínica.',
       recomendaciones: [
         'Alta de seguimiento nutricional específico si el peso está estable',
