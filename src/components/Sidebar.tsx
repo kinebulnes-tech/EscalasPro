@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { categories, categoryIcons } from '../data/scalesData';
 import { LayoutGrid, X, Activity, Workflow } from 'lucide-react';
 interface SidebarProps {
