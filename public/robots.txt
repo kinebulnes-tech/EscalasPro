@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Bloquear rutas de API del backend (no indexar)
+Disallow: /api/
+
+Sitemap: https://escalapro.cl/sitemap.xml
