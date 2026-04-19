@@ -320,7 +320,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje >= 9) return { 
         texto: 'SBO SEVERO', color: 'red-600', evidencia: `Score de Tal: ${puntaje}/12.`,
         recomendaciones: ['Oxigenoterapia inmediata', 'B2 agonistas (Salbutamol) cada 10 min x 5 veces', 'Corticoide sistémico oral/EV', 'Traslado a Hospitalización/UCI']
