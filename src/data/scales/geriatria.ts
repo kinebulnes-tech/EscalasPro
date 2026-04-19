@@ -144,7 +144,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Number(respuestas.nivel_visual) || 1,
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       const colorMap = { 1: 'emerald-700', 2: 'emerald-600', 3: 'green-500', 4: 'yellow-500', 5: 'orange-500', 6: 'orange-600', 7: 'red-500', 8: 'red-700', 9: 'slate-800' };
       
       return { 
@@ -184,7 +184,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje >= 1) return { 
         texto: 'RIESGO DE DEPENDENCIA', color: 'orange-500', evidencia: `${puntaje} respuestas positivas.`,
         recomendaciones: ['Realizar Valoración Geriátrica Integral completa', 'Visita Domiciliaria Integral (VDI)', 'Evaluar redes de apoyo formal']
@@ -218,7 +218,7 @@ const scales: Scale[] = [
       return 0;
     },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje === 1) return { 
         texto: 'CAM POSITIVO (Sugiere Delirium)', color: 'red-600', evidencia: 'Cumple criterios diagnósticos de Inouye.',
         recomendaciones: [
@@ -331,11 +331,8 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => (Number(respuestas.edad) || 0) + (Number(respuestas.comorbilidad_suma) || 0),
 
-    interpretar: (puntaje, respuestas) => {
-      // Cálculo de supervivencia estimada (Fórmula simplificada)
-      const supervivencia = Math.max(0, 100 - (puntaje * 12)); 
-      
-      if (puntaje >= 5) return { 
+    interpretar: (puntaje, _respuestas) => {
+      if (puntaje >= 5) return {
         texto: 'COMORBILIDAD ALTA', color: 'red-700', evidencia: `Puntaje ${puntaje}. Supervivencia estimada a 10 años baja.`,
         recomendaciones: ['Priorizar adecuación del esfuerzo terapéutico', 'Planificación anticipada de decisiones', 'Revisión estricta de polifarmacia']
       };
@@ -368,7 +365,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje >= 1) return { 
         texto: 'SOSPECHA DE MALTRATO / VULNERABILIDAD', color: 'red-600', evidencia: `${puntaje} indicadores positivos.`,
         recomendaciones: [
@@ -404,7 +401,7 @@ const scales: Scale[] = [
       return parseFloat(((fisica + mental) / 2).toFixed(1));
     },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje < 50) return { 
         texto: 'BAJA CALIDAD DE VIDA', color: 'red-500', evidencia: `Score promedio: ${puntaje}/100.`,
         recomendaciones: ['Identificar si el componente deficitario es físico o emocional', 'Intervención integral (Kine + Psicología)', 'Evaluar apoyo social']
@@ -433,7 +430,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje >= 12) return { 
         texto: 'DEPRESIÓN PROBABLE / MAYOR', color: 'red-600', evidencia: `Puntaje ${puntaje}.`,
         recomendaciones: ['Derivación a Psiquiatría o Neurología', 'Evaluar riesgo de autoagresión', 'Revisar farmacoterapia']
@@ -540,7 +537,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Number(respuestas.suma_si) || 0,
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje >= 7) return { 
         texto: 'SOBRECARGA ELEVADA', color: 'red-600', evidencia: `${puntaje} de 13 indicadores positivos.`,
         recomendaciones: ['Intervención psicosocial urgente', 'Activar red de relevo familiar o institucional', 'Evaluar depresión en el cuidador']
