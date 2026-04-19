@@ -1,20 +1,69 @@
 {
+  "name": "EscalaPro — Escalas Clínicas Profesionales",
   "short_name": "EscalaPro",
-  "name": "EscalaPro - Soporte Clínico",
+  "description": "338+ escalas clínicas validadas para profesionales de la salud. Glasgow, Barthel, NIHSS, PHQ-9, Berg y más. Alertas críticas, informes PDF y análisis de evolución. 100% local.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0d9488",
+  "background_color": "#f8fafc",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["medical", "health", "productivity"],
   "icons": [
     {
       "src": "icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#0d9488",
-  "background_color": "#f8fafc"
+  "shortcuts": [
+    {
+      "name": "Nueva Evaluación",
+      "short_name": "Evaluar",
+      "description": "Inicia una nueva evaluación clínica",
+      "url": "/?accion=nueva",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Neurología",
+      "short_name": "Neurología",
+      "description": "Escalas de neurología: GCS, NIHSS, Rankin",
+      "url": "/?categoria=neurologia",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Emergencias",
+      "short_name": "Emergencias",
+      "description": "Escalas de emergencias: SOFA, NEWS2, qSOFA",
+      "url": "/?categoria=emergencias",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Catálogo de escalas clínicas en escritorio"
+    },
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Evaluación clínica en móvil"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
