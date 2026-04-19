@@ -112,7 +112,7 @@ const scales: Scale[] = [
       // puntaje 9–12
       return {
         texto: 'Crisis Grave',
-        color: 'red',
+        color: 'red-600',
         evidencia:
             'Puntaje ≥ 9: obstrucción bronquial grave. Riesgo de insuficiencia respiratoria. Requiere derivación inmediata a urgencias pediátricas o UCIP.',
         recomendaciones: [
@@ -341,8 +341,8 @@ const scales: Scale[] = [
       }
       if (puntaje >= 91) {
         return { 
-          texto: 'Dependencia Leve', 
-          color: 'green', 
+          texto: 'Dependencia Leve',
+          color: 'emerald-600',
           evidencia: 'El paciente realiza la mayoría de las tareas de forma independiente pero requiere mínima ayuda o supervisión en ítems específicos.',
           recomendaciones: [
             'Entrenamiento específico de las tareas con puntaje menor al máximo.',
@@ -366,8 +366,8 @@ const scales: Scale[] = [
       }
       if (puntaje >= 21) {
         return { 
-          texto: 'Dependencia Severa', 
-          color: 'orange', 
+          texto: 'Dependencia Severa',
+          color: 'orange-600',
           evidencia: 'Limitación funcional significativa; el paciente requiere ayuda importante en casi todas las actividades diarias.',
           recomendaciones: [
             'Prevención de complicaciones por inmovilismo (contracturas, rigidez).',
@@ -379,7 +379,7 @@ const scales: Scale[] = [
       }
       return { 
         texto: 'Dependencia Total', 
-        color: 'red', 
+        color: 'red-600', 
         evidencia: 'El paciente depende completamente de terceros para todas las necesidades básicas.',
         recomendaciones: [
           'Manejo preventivo: Protocolo de cambios posturales cada 2 horas para evitar UPP.',
@@ -1422,15 +1422,15 @@ const scales: Scale[] = [
   
     interpretar: (puntaje) => {
       if (puntaje === 0) return { 
-        texto: 'Sin dolor', 
-        color: 'green', 
+        texto: 'Sin dolor',
+        color: 'emerald-600',
         evidencia: 'Estado basal. No se reporta sintomatología dolorosa.',
         recomendaciones: ['Mantener plan de ejercicios habitual', 'Registrar como valor de referencia'] 
       };
       
       if (puntaje <= 3) return { 
-        texto: 'Dolor Leve', 
-        color: 'yellow', 
+        texto: 'Dolor Leve',
+        color: 'yellow-600',
         evidencia: 'Dolor que permite la realización de actividades de la vida diaria (AVD) con mínimas limitaciones.',
         recomendaciones: [
           'Uso de agentes físicos (calor/frío según fase)',
@@ -1440,8 +1440,8 @@ const scales: Scale[] = [
       };
       
       if (puntaje <= 6) return { 
-        texto: 'Dolor Moderado', 
-        color: 'orange', 
+        texto: 'Dolor Moderado',
+        color: 'orange-600',
         evidencia: 'Dolor que interfiere significativamente con las AVD y el sueño.',
         recomendaciones: [
           'Considerar terapia manual analgésica',
@@ -1452,7 +1452,7 @@ const scales: Scale[] = [
   
       return { 
         texto: 'Dolor Severo', 
-        color: 'red', 
+        color: 'red-600', 
         evidencia: 'Dolor incapacitante. Requiere atención inmediata para evitar cronificación o compromiso sistémico.',
         recomendaciones: [
           'Reposo relativo de la zona afectada',
