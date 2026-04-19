@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { UserPlus, X, Activity, Globe, Calendar } from 'lucide-react';
 // ✅ Importamos la nueva lógica internacional
-import { validateIdentification, formatIdentification } from '../utils/validators';
+import { validateIdentificationWithMessage, formatIdentification } from '../utils/validators';
 import { identityConfigs, DEFAULT_COUNTRY } from '../utils/patientIdentity';
 // ✅ Importamos el cálculo cronológico de biometrics
 import { calcularIMC, clasificarIMC, calcularEdadExacta } from '../utils/biometrics.ts';
@@ -33,6 +33,7 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
   });
 
   const [errorID, setErrorID] = useState(false);
+  const [errorIDMensaje, setErrorIDMensaje] = useState('');
 
   // Configuración del país seleccionado
   const config = identityConfigs[country];
@@ -44,9 +45,11 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
     e.preventDefault();
 
     // 1. Validamos ID según el país seleccionado
-    if (!validateIdentification(formData.id, country)) {
+    const validacion = validateIdentificationWithMessage(formData.id, country);
+    if (!validacion.isValid) {
       setErrorID(true);
-      return; 
+      setErrorIDMensaje(validacion.mensaje);
+      return;
     }
 
     // 2. Cálculo de edad legible para el reporte
@@ -127,17 +130,23 @@ export default function PatientModal({ onConfirm, onClose }: PatientModalProps) 
                 <label className={`block text-[9px] font-black uppercase mb-1 ml-1 tracking-widest ${errorID ? 'text-red-500' : 'text-gray-400'}`}>
                   {config.documentName}
                 </label>
-                <input 
+                <input
                   required
-                  type="text" 
+                  aria-required="true"
+                  aria-invalid={errorID}
+                  aria-describedby={errorID ? "error-id-msg" : undefined}
+                  type="text"
                   className={`w-full bg-gray-50 border-2 p-3 rounded-xl outline-none font-bold text-sm transition-all ${errorID ? 'border-red-500 bg-red-50 text-red-900' : 'border-gray-100 focus:border-teal-500'}`}
                   placeholder={config.placeholder}
                   value={formData.id}
                   onChange={(e) => {
                     setFormData({...formData, id: e.target.value});
-                    if(errorID) setErrorID(false);
+                    if(errorID) { setErrorID(false); setErrorIDMensaje(''); }
                   }}
                 />
+                {errorID && errorIDMensaje && (
+                  <p id="error-id-msg" className="mt-1 ml-1 text-[10px] text-red-500 font-bold leading-tight">{errorIDMensaje}</p>
+                )}
               </div>
               <div>
                 {/* ✅ MEJORA: Fecha de Nacimiento sustituye a Edad manual */}
