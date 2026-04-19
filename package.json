@@ -19,7 +19,6 @@
     "deploy": "npm run build && vercel --prod"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "express": "^4.18.2",
