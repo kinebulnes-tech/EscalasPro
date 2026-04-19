@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ShieldAlert, CheckCircle, Scale, ShieldCheck, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { feedback } from '../utils/feedback';
 
