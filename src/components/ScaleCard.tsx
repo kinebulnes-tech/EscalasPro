@@ -15,9 +15,11 @@ export default function ScaleCard({ scale, onClick, isFavorite, onToggleFavorite
       {/* Botón de Favorito: Posición ajustada para móvil */}
       <button
         onClick={(e) => {
-          e.stopPropagation(); 
+          e.stopPropagation();
           onToggleFavorite(e);
         }}
+        aria-label={isFavorite ? `Quitar ${scale.nombre} de favoritos` : `Agregar ${scale.nombre} a favoritos`}
+        aria-pressed={isFavorite}
         className="absolute top-4 right-4 lg:top-6 lg:right-6 z-10 p-2 lg:p-2.5 rounded-xl lg:rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-lg transition-all duration-200 group/fav"
       >
         <Star 
@@ -31,6 +33,7 @@ export default function ScaleCard({ scale, onClick, isFavorite, onToggleFavorite
 
       <button
         onClick={onClick}
+        aria-label={`Evaluar escala ${scale.nombre}`}
         className="group bg-white p-4 pt-8 lg:p-6 lg:pt-10 rounded-[2rem] lg:rounded-[2.5rem] border-2 border-gray-50 hover:border-teal-500 hover:shadow-2xl hover:shadow-teal-100/50 transition-all duration-300 text-left flex flex-col h-full relative overflow-hidden w-full"
       >
         {/* Icono decorativo: Más compacto en móvil */}
