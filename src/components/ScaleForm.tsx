@@ -5,7 +5,7 @@ import { feedback } from '../utils/feedback';
 import ScaleResult from './ScaleResult';
 import { 
   ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, 
-  Layers, CheckCircle2, Play, Square, RotateCcw, Timer as TimerIcon 
+  Layers, CheckCircle2, Play, Square, RotateCcw
 } from 'lucide-react';
 
 interface ScaleFormProps {
@@ -17,7 +17,7 @@ interface ScaleFormProps {
   pacienteContexto?: any;
 }
 
-const Stopwatch = ({ duration, onFinish }: { duration?: number, onFinish?: (seconds: number) => void }) => {
+const Stopwatch = ({ duration }: { duration?: number, onFinish?: (seconds: number) => void }) => {
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
