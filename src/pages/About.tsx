@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { 
   Info, ShieldAlert, Heart, Copyright, 
   Database, UserCheck, Scale, Globe 
