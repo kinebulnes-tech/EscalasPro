@@ -124,7 +124,12 @@ const DisclaimerModal = () => {
 
                 <div>
                   <p className="font-black text-slate-800 uppercase mb-1">7. Limitación de Responsabilidad</p>
-                  <p>EscalaPro es un instrumento de apoyo a la decisión clínica. Los resultados deben ser validados por el profesional responsable. El desarrollador no se hace responsable de decisiones clínicas basadas exclusivamente en los resultados de esta aplicación.</p>
+                  <p>EscalaPro es un instrumento de apoyo a la decisión clínica. Los resultados deben ser interpretados y validados por el profesional de salud habilitado. EscalaPro SpA no garantiza la exactitud de los cálculos en todos los contextos clínicos y no asume responsabilidad por decisiones terapéuticas, diagnósticas o de otra índole basadas exclusivamente en los resultados de esta aplicación. El uso de esta herramienta implica la aceptación expresa de estos términos.</p>
+                </div>
+
+                <div>
+                  <p className="font-black text-slate-800 uppercase mb-1">8. Jurisdicción y Ley Aplicable</p>
+                  <p>Este acuerdo se rige por las leyes de la República de Chile. Cualquier controversia será sometida a los tribunales ordinarios de justicia de la ciudad de Santiago, renunciando el usuario a cualquier otro fuero o jurisdicción que pudiera corresponderle.</p>
                 </div>
 
               </div>
@@ -167,7 +172,7 @@ const DisclaimerModal = () => {
               ACEPTAR Y ENTRAR
             </button>
             <p className="text-[10px] text-slate-400 text-center mt-4 font-medium italic">
-              EscalaPro — Cumplimiento Ley N° 19.628 Chile
+              EscalaPro SpA © 2026 — Ley N° 19.628 Chile — v2.1
             </p>
           </div>
 
