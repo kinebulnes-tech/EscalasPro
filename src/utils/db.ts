@@ -11,7 +11,7 @@ class ClinicalDB {
 
   constructor() {
     this.dbPromise = openDB(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
+      upgrade(db, _oldVersion) {
         if (!db.objectStoreNames.contains('pacientes')) {
           const store = db.createObjectStore('pacientes', { keyPath: 'id' });
           // Creamos un índice por fecha para poder buscar los más recientes rápido
