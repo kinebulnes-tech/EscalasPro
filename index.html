@@ -1,24 +1,107 @@
 <!doctype html>
-<html lang="es"> <head>
+<html lang="es">
+  <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>EscalaPro - Soporte Clínico</title>
 
+    <!-- === SEO PRIMARIO === -->
+    <title>EscalaPro — Escalas Clínicas Profesionales | Soporte Clínico</title>
+    <meta name="description" content="Más de 338 escalas clínicas validadas para profesionales de la salud: Glasgow, Barthel, NIHSS, PHQ-9, Berg, SOFA y más. Cálculo automático, alertas críticas e informes PDF. Gratis, offline y sin registro." />
+    <meta name="keywords" content="escalas clínicas, calculadora médica, escala Glasgow, escala Barthel, NIHSS, PHQ-9, Berg Balance, SOFA, escala dolor, kinesiología, neurología, escalas de evaluación, soporte clínico, herramienta médica, fisioterapia, rehabilitación" />
+    <meta name="author" content="EscalaPro" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="language" content="es" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+    <link rel="canonical" href="https://escalapro.cl/" />
+
+    <!-- === PWA === -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0d9488" /> <link rel="apple-touch-icon" href="/icon-192.png" /> <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#0d9488" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="EscalaPro" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
 
-    <meta property="og:image" content="https://bolt.new/static/og_default.png" />
+    <!-- === OPEN GRAPH (LinkedIn, WhatsApp, Facebook) === -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://escalapro.cl/" />
+    <meta property="og:title" content="EscalaPro — 338+ Escalas Clínicas Profesionales" />
+    <meta property="og:description" content="La herramienta de soporte clínico más completa en español. Glasgow, Barthel, NIHSS, PHQ-9, Berg y más. Alertas críticas, informes PDF y análisis de evolución. 100% local, sin servidores." />
+    <meta property="og:image" content="https://escalapro.cl/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="EscalaPro - Escalas Clínicas Profesionales" />
+    <meta property="og:site_name" content="EscalaPro" />
+    <meta property="og:locale" content="es_CL" />
+
+    <!-- === TWITTER CARD === -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png" />
+    <meta name="twitter:site" content="@escalapro" />
+    <meta name="twitter:creator" content="@escalapro" />
+    <meta name="twitter:title" content="EscalaPro — 338+ Escalas Clínicas en Español" />
+    <meta name="twitter:description" content="Cálculo automático, alertas críticas e informes PDF para más de 338 escalas clínicas validadas. Gratis, offline y sin registro." />
+    <meta name="twitter:image" content="https://escalapro.cl/og-image.png" />
 
+    <!-- === STRUCTURED DATA (Google Rich Results) === -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "EscalaPro",
+      "url": "https://escalapro.cl",
+      "description": "Plataforma profesional con más de 338 escalas clínicas validadas para profesionales de la salud. Incluye cálculo automático, alertas críticas, análisis de evolución e informes PDF.",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CLP",
+        "availability": "https://schema.org/InStock"
+      },
+      "featureList": [
+        "338+ escalas clínicas validadas",
+        "Alertas clínicas críticas automáticas",
+        "Informes PDF profesionales",
+        "Análisis longitudinal de evolución",
+        "Funcionamiento 100% offline",
+        "Datos almacenados localmente con cifrado AES",
+        "Soporte multidispositivo (web, iOS, Android)"
+      ],
+      "inLanguage": "es",
+      "creator": {
+        "@type": "Organization",
+        "name": "EscalaPro",
+        "url": "https://escalapro.cl"
+      },
+      "keywords": "escalas clínicas, Glasgow, Barthel, NIHSS, PHQ-9, Berg, SOFA, kinesiología, neurología, rehabilitación"
+    }
+    </script>
+
+    <!-- === SERVICE WORKER === -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('EscalaPro: Service Worker registrado con éxito'))
-            .catch(err => console.log('EscalaPro: Error al registrar SW', err));
+            .then(reg => {
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      // Nueva versión disponible — la app mostrará notificación de actualización
+                      window.dispatchEvent(new CustomEvent('swUpdateAvailable'));
+                    }
+                  });
+                }
+              });
+            })
+            .catch(err => console.warn('EscalaPro SW:', err));
         });
       }
     </script>
