@@ -38,7 +38,7 @@ const scales: Scale[] = [
         ? Number(respuestas.grado_disnea)
         : null,
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       // ✅ CORREGIDO: Guarda de nulidad. Si el formulario está incompleto,
       //    no se emite ninguna interpretación clínica.
       if (puntaje === null) {
@@ -113,7 +113,7 @@ const scales: Scale[] = [
         ? Number(respuestas.clase_funcional)
         : null,
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       // ✅ CORREGIDO: Guarda de nulidad. Si el formulario está incompleto,
       //    no se emite ninguna interpretación clínica.
       if (puntaje === null) {
@@ -260,7 +260,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje === 25) {
         return {
           texto: 'ASMA TOTALMENTE CONTROLADA',
@@ -357,7 +357,7 @@ const scales: Scale[] = [
       );
     },
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       // ✅ Detecta el centinela -1 en lugar de null.
       //    Compatible 100% con la firma de la interfaz.
       if (puntaje === -1) {
@@ -451,7 +451,7 @@ const scales: Scale[] = [
 
     calcularPuntaje: (respuestas) => Object.values(respuestas).reduce((sum, val) => sum + (Number(val) || 0), 0),
 
-    interpretar: (puntaje, respuestas) => {
+    interpretar: (puntaje, _respuestas) => {
       if (puntaje > 6) {
         return {
           texto: 'PROBABILIDAD ALTA (> 6)',
