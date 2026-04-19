@@ -6,6 +6,7 @@ import {
 import { jsPDF } from 'jspdf';
 import { toPng } from 'html-to-image';
 import { identityConfigs } from '../utils/patientIdentity';
+import { evaluarMCID } from '../utils/mcid';
 import TrendChart from './TrendChart';
 
 interface ReportSummaryProps {
@@ -43,17 +44,36 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     const inicial = items[items.length - 1].puntaje;
     const actual  = items[0].puntaje;
     const nombre  = items[0].nombreEscala.toLowerCase();
-    const esInversa = nombre.includes('tug') || nombre.includes('eva') || nombre.includes('tiempo');
+    // Escalas donde menor puntaje = mejor resultado clínico
+    const ESCALAS_INVERSAS = [
+      'tug', 'eva', 'vas', 'tiempo', 'cronometro',
+      'pain', 'dolor', 'rass', 'sed', 'rula', 'reba',
+      'epworth', 'sofa', 'apache', 'news', 'rts',
+      'braden', 'norton', 'waterlow', // riesgo úlcera: mayor = más riesgo (pero menor es mejor)
+      'downton', 'morse', 'stratify', // riesgo caída: mayor = más riesgo
+      'wells', 'curb', 'psi',
+      'dn4', 'lanss', // escalas de dolor neuropático
+      'nrs', 'numeric rating', // escalas numéricas de dolor
+      'must', 'nrs2002', 'snaq', // cribado nutricional: mayor = más riesgo
+    ];
+    const esInversa = ESCALAS_INVERSAS.some(keyword => nombre.includes(keyword));
     let porcentaje  = ((actual - inicial) / (inicial || 1)) * 100;
     if (esInversa) porcentaje *= -1;
     const abs = Math.abs(porcentaje);
     let impacto = "Estable";
     let color   = "text-slate-400";
-    if (abs > 0  && abs <= 10) { impacto = "Cambio Leve";          color = "text-blue-500";    }
-    if (abs > 10 && abs <= 30) { impacto = "Mejoría Significativa"; color = "text-teal-600";    }
-    if (abs > 30)              { impacto = "Evolución Excepcional"; color = "text-emerald-600"; }
-    if (porcentaje < 0)        { impacto = "Retroceso Clínico";     color = "text-red-600";     }
-    return { valor: parseFloat(porcentaje.toFixed(1)), impacto, color, esMejoria: porcentaje > 0, inicial, actual };
+    if (porcentaje > 0) {
+      if (abs <= 10)       { impacto = "Cambio Leve";          color = "text-blue-500";    }
+      else if (abs <= 30)  { impacto = "Mejoría Significativa"; color = "text-teal-600";    }
+      else                 { impacto = "Evolución Excepcional"; color = "text-emerald-600"; }
+    } else if (porcentaje < -5) {
+      // Solo se marca retroceso si la caída supera el 5% (umbral mínimo clínico)
+      impacto = "Retroceso Clínico";
+      color   = "text-red-600";
+    }
+    const diferenciaPuntos = actual - inicial;
+    const mcid = evaluarMCID(items[0].idEscala ?? '', items[0].nombreEscala, diferenciaPuntos);
+    return { valor: parseFloat(porcentaje.toFixed(1)), impacto, color, esMejoria: porcentaje > 0, inicial, actual, mcid };
   };
 
   const checkBreak = (doc: jsPDF, y: number, espacio = 15): number => {
@@ -163,6 +183,21 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
     doc.text(`${flecha}  Variación total: ${signo}${analisis.valor}%`, 20, y + 6.8);
     doc.text(analisis.impacto.toUpperCase(), pw - 18, y + 6.8, { align: 'right' });
     y += 10;
+
+    if (analisis.mcid) {
+      y = checkBreak(doc, y, 8);
+      const mcidColor = analisis.mcid.esSuficiente ? [5, 150, 105] : [217, 119, 6];
+      doc.setFillColor(mcidColor[0], mcidColor[1], mcidColor[2]);
+      doc.rect(15, y, pw - 30, 7, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      const mcidText = analisis.mcid.esSuficiente
+        ? `✓ Cambio clínicamente significativo (MCID ≥ ${analisis.mcid.mcid} ${analisis.mcid.unidad} — ${analisis.mcid.referencia})`
+        : `⚠ Cambio sub-MCID (requiere ≥ ${analisis.mcid.mcid} ${analisis.mcid.unidad} — ${analisis.mcid.referencia})`;
+      doc.text(mcidText, pw / 2, y + 4.8, { align: 'center', maxWidth: pw - 34 });
+      y += 9;
+    }
     return y + 5;
   };
 
@@ -424,13 +459,26 @@ export default function ReportSummary({ paciente, resultados, onBack, onRemoveSc
                 const data = analizarProgreso(items);
                 return (
                   <div key={idx} className="mb-12 border-b border-slate-50 pb-12 last:border-0">
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-wrap justify-between items-start gap-3 mb-6">
                       <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight italic">{nombre}</h3>
-                      {data && (
-                        <span className={`text-[10px] font-black uppercase px-4 py-2 rounded-full bg-slate-50 ${data.color} border border-current/10`}>
-                          {data.impacto} ({data.valor > 0 ? '+' : ''}{data.valor}%)
-                        </span>
-                      )}
+                      <div className="flex flex-col items-end gap-2">
+                        {data && (
+                          <span className={`text-[10px] font-black uppercase px-4 py-2 rounded-full bg-slate-50 ${data.color} border border-current/10`}>
+                            {data.impacto} ({data.valor > 0 ? '+' : ''}{data.valor}%)
+                          </span>
+                        )}
+                        {data?.mcid && (
+                          <span className={`text-[9px] font-black uppercase px-3 py-1.5 rounded-full border ${
+                            data.mcid.esSuficiente
+                              ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                              : 'bg-amber-50 text-amber-600 border-amber-200'
+                          }`}>
+                            {data.mcid.esSuficiente
+                              ? `✓ MCID alcanzado (≥${data.mcid.mcid} ${data.mcid.unidad})`
+                              : `⚠ MCID no alcanzado (requiere ≥${data.mcid.mcid} ${data.mcid.unidad})`}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {data && (
