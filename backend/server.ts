@@ -3,52 +3,47 @@ import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// ✅ CORRECCIÓN 1: CORS con lista blanca de orígenes permitidos.
-// Antes cualquier sitio web podía hacer peticiones a este servidor.
-// Ahora solo se acepta tráfico desde la propia app EscalaPro.
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',   // Desarrollo local (Vite)
-  'http://localhost:4173',   // Preview local (vite preview)
-  'http://localhost:3000',   // Alternativa desarrollo
-];
-
-// Si tienes un dominio en producción agrégalo aquí, ejemplo:
-// 'https://escalapro.cl'
+// === CORS ===
+// En producción, leer desde variable de entorno ALLOWED_ORIGINS="https://escalapro.cl,https://www.escalapro.cl"
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Permitimos peticiones sin origin (apps móviles, Postman, curl)
     if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error(`Origen no permitido por CORS: ${origin}`));
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    callback(new Error(`Origen bloqueado por CORS: ${origin}`));
   },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
-app.use(express.json({ limit: '1mb' })); // ✅ Límite de tamaño de petición
+app.use(express.json({ limit: '1mb' }));
 
-// ✅ CORRECCIÓN 2: Middleware de seguridad básica.
-// Agrega cabeceras HTTP que protegen contra ataques comunes.
+// === SEGURIDAD ===
 app.use((_req: Request, res: Response, next: NextFunction) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
   next();
 });
 
-// ✅ CORRECCIÓN 3: Rate limiting simple sin dependencias externas.
-// Evita que alguien bombardee el servidor con miles de peticiones.
+// === RATE LIMITING ===
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 100;        // máximo 100 peticiones
-const RATE_WINDOW_MS = 60000;  // por minuto
+const RATE_LIMIT = NODE_ENV === 'production' ? 60 : 200;
+const RATE_WINDOW_MS = 60_000;
 
-const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
-  const ip = req.ip || 'unknown';
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const ip = req.ip || req.socket?.remoteAddress || 'unknown';
   const now = Date.now();
   const record = requestCounts.get(ip);
 
@@ -56,50 +51,56 @@ const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
     requestCounts.set(ip, { count: 1, resetTime: now + RATE_WINDOW_MS });
     return next();
   }
-
   if (record.count >= RATE_LIMIT) {
-    return res.status(429).json({ 
-      error: 'Demasiadas peticiones. Intenta nuevamente en un minuto.' 
-    });
+    res.setHeader('Retry-After', '60');
+    return res.status(429).json({ error: 'Demasiadas peticiones. Intenta en un minuto.' });
   }
-
   record.count++;
   next();
-};
+});
 
-app.use(rateLimiter);
+// === LOGGING ESTRUCTURADO ===
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  if (NODE_ENV === 'production') {
+    console.log(JSON.stringify({
+      ts: new Date().toISOString(),
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+    }));
+  }
+  next();
+});
 
-// --- ENDPOINTS ---
+// === ENDPOINTS ===
 
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({ 
-    status: 'ok', 
-    message: 'Servidor de Escalas Clínicas Pro funcionando',
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.get('/api/scales', (_req: Request, res: Response) => {
   res.json({
-    message: 'API de escalas disponible para futuras extensiones',
-    scales: []
+    status: 'ok',
+    env: NODE_ENV,
+    timestamp: new Date().toISOString(),
+    version: process.env.npm_package_version || '1.0.0',
   });
 });
 
-// ✅ CORRECCIÓN 4: Manejador de rutas no encontradas (404)
+// Endpoint preparado para servir escalas desde DB en futuro
+app.get('/api/scales', (_req: Request, res: Response) => {
+  res.json({ scales: [], message: 'Escalas gestionadas localmente en el cliente.' });
+});
+
+// === 404 y ERRORES ===
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Endpoint no encontrado' });
 });
 
-// ✅ CORRECCIÓN 5: Manejador global de errores
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('[ERROR]', err.message);
-  res.status(500).json({ error: 'Error interno del servidor' });
+  res.status(500).json({ error: NODE_ENV === 'production' ? 'Error interno' : err.message });
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor backend ejecutándose en http://localhost:${PORT}`);
-  console.log(`Orígenes permitidos: ${ALLOWED_ORIGINS.join(', ')}`);
+  console.log(`[EscalaPro] Servidor ${NODE_ENV} → http://localhost:${PORT}`);
+  console.log(`[EscalaPro] CORS permitido: ${ALLOWED_ORIGINS.join(', ')}`);
 });
 
 export default app;
