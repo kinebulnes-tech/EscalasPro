@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserPlus, X, Activity, Globe, Calendar } from 'lucide-react';
+import { UserPlus, X, Activity, Globe } from 'lucide-react';
 // ✅ Importamos la nueva lógica internacional
 import { validateIdentificationWithMessage, formatIdentification } from '../utils/validators';
 import { identityConfigs, DEFAULT_COUNTRY } from '../utils/patientIdentity';
