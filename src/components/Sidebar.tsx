@@ -46,7 +46,9 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
         />
       )}
 
-      <aside className={`
+      <aside
+        aria-label="Navegación de especialidades"
+        className={`
         fixed inset-y-0 left-0 z-[70] w-80 bg-white border-r border-slate-100 flex flex-col transition-all duration-500 ease-out h-full
         ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
         lg:translate-x-0 lg:static
@@ -69,7 +71,7 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
         </div>
 
         {/* Listado de Categorías */}
-        <nav className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
+        <nav role="navigation" aria-label="Categorías clínicas" className="flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
           <div className="space-y-8 pb-32"> 
             
             {/* Botón "Todas las Escalas" */}
@@ -77,6 +79,8 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
               <label className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 block">Explorar</label>
               <button
                 onClick={() => handleCategoryClick(null)}
+                aria-current={selectedCategory === null ? 'page' : undefined}
+                aria-label="Ver todas las escalas"
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all duration-300 group ${
                   selectedCategory === null ? 'bg-slate-50 shadow-inner' : 'hover:bg-slate-50/50'
                 }`}
@@ -101,6 +105,8 @@ export default function Sidebar({ selectedCategory, onSelectCategory, isOpen, on
                     <button
                       key={cat.id}
                       onClick={() => handleCategoryClick(cat.id)}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-label={`Categoría ${cat.nombre}: ${getCount(cat.id)} escalas`}
                       className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-300 group ${
                         isActive ? 'bg-slate-50 shadow-inner' : 'hover:bg-slate-50/50'
                       }`}
